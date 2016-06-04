@@ -1,0 +1,15 @@
+<use name="root"/>
+<use name="roofit" />
+<use name="FWCore/FWLite" />
+<use name="DataFormats/FWLite" />
+<use name="PhysicsTools/FWLite" />
+<use name="ManagerUtils/SysUtils" />
+<use name="TstarAnalysis/CompareDataMC"/>
+<use name="TstarAnalysis/TstarMassReco"/>
+
+<flag CXXFLAGS="-g"/>
+
+<bin name="CompareMethods" file="CompareMethods.cc"/>
+<bin name="DumpGenMap"     file="DumpGenMap.cc"/>
+<bin name="DumpGenJet"     file="DumpGenJet.cc"/>
+<bin name="CheckTruth"     file="CheckTruth.cc"/>

@@ -1,0 +1,19 @@
+<use name="root" />
+<use name="roofit" />
+
+<use name="ManagerUtils/BaseClass"/>
+<use name="ManagerUtils/Maths"/>
+<use name="ManagerUtils/HistMgr"/>
+<use name="ManagerUtils/SampleMgr"/>
+<use name="ManagerUtils/SysUtils"/>
+<use name="ManagerUtils/PlotUtils"/>
+
+<use name="TstarAnalysis/TstarMassReco"/>
+
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+
+<flags CXXFLAGS="-g"/>
+
+<export><lib name="1"/></export>

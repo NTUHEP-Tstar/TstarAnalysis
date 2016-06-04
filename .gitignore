@@ -1,0 +1,32 @@
+# General C++ exclusion
+*.o
+*.so
+
+# General Python exclusion
+*.pyc
+__init__.py
+
+# Swap files
+*.swp
+
+# General data file exclusions
+*.txt
+*.root
+*.log
+log*
+*.gz
+*.zip
+*.tgz
+*.eps
+*.png
+*.dat
+**/LSF*
+**/Log*
+
+# Specific file exclusion
+# [relative/path/to/file]
+.remote-sync.json
+CompareDataMC/results/**
+TstarMassReco/production/inputlist*
+# Specific file inclusion
+# ![relative/path/to/file]

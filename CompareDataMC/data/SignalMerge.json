@@ -1,0 +1,63 @@
+{
+   "___Comment___":"""-----------------------------------------------------------
+   #    Common configuration flags
+   -----------------------------------------------------------------------------""",
+   "Selection Cut Label":"afterBaseLine",
+   "Total Luminosity": 2256,
+
+   "___Comment___":"""-----------------------------------------------------------
+   #    Defining Groups:
+   -----------------------------------------------------------------------------""",
+   "Data" : {
+      "Latex Name": "Data",
+      "Sample List": [ "Run2015D", "Run2015C" ]
+   },
+
+   "SingleTop":{
+      "Latex Name": "Single Top",
+      "Sample List": ["SingleT_S" , "SingleT_T" , "SingleT_TW" , "SingleTbar_TW" ]
+   },
+
+   "TTBoson":{
+      "Latex Name": "Top pair with boson",
+      "Sample List": ["TTW_Quark", "TTW_Lepton", "TTZ_Quark", "TTZ_Lepton"]
+   },
+
+   "SingleBoson":{
+      "Latex Name": "Single Boson",
+      "Sample List":[
+         "WJets_100_200", "WJets_200_400", "WJets_400_600", "WJets_600_800",
+         "WJets_800_1200" , "WJets_1200_2500" , "WJets_2500_Inf",
+         "ZJets_100_200", "ZJets_200_400", "ZJets_400_600" , "ZJets_600_Inf"
+      ]
+   },
+
+   "DiBoson":{
+      "Latex Name": "Di Boson",
+      "Sample List":["WW", "WZ", "ZZ"]
+   },
+
+   "Background" : {
+      "Latex Name": "all background",
+      "Sample List":[
+         "TTJets",
+         "SingleT_S" , "SingleT_T" , "SingleT_TW" , "SingleTbar_TW",
+         "TTW_Quark", "TTW_Lepton", "TTZ_Quark", "TTZ_Lepton",
+         "WJets_100_200", "WJets_200_400", "WJets_400_600", "WJets_600_800",
+         "WJets_800_1200" , "WJets_1200_2500" , "WJets_2500_Inf",
+         "ZJets_100_200", "ZJets_200_400", "ZJets_400_600" , "ZJets_600_Inf",
+         "WW", "WZ", "ZZ"
+      ]
+   },
+
+   "SignalList" : [
+      "tstar_M700",
+      "tstar_M800",
+      "tstar_M900",
+      "tstar_M1000",
+      "tstar_M1100",
+      "tstar_M1200",
+      "tstar_M1400",
+      "tstar_M1500",
+      "tstar_M1600" ]
+}

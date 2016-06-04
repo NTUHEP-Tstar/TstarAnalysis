@@ -1,0 +1,6 @@
+<use name="ROOT"/>
+<use name="FWCore/FWLite" />
+<use name="DataFormats/FWLite" />
+<use name="DataFormats/Luminosity" />
+<use name="PhysicsTools/FWLite" />
+<use name="TstarAnalysis/TstarMassReco"/>

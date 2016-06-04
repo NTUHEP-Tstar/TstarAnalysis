@@ -1,0 +1,9 @@
+<use   name="clhep"/>
+<use   name="ROOT"/>
+<use   name="TopQuarkAnalysis/TopHitFit"/>
+
+<flags CXXFLAGS="-g"/>
+
+<export>
+  <lib   name="1"/>
+</export>
