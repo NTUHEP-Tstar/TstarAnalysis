@@ -8,7 +8,7 @@
 #*******************************************************************************
 
 SOURCE_DIR=/wk_cms/yichen/TstarAnalysis/filtered_MiniAODs/
-OUTPUT_DIR=$PWD/MASSREO
+OUTPUT_DIR=$PWD/MASSRECO
 LOG_DIR=$PWD/LOG
 MAX_INSTANCE=$(cat /proc/cpuinfo | grep processor | wc --lines)
 MAX_INSTANCE=$((MAX_INSTANCE/2))

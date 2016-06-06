@@ -1,0 +1,33 @@
+{
+   "___Comment___":"""-----------------------------------------------------------
+   #    Di-Boson production
+   #    References:
+   #      http://arxiv.org/pdf/1405.2219v2.pdf
+   #      http://arxiv.org/pdf/1105.0020v1.pdf
+   #      http://arxiv.org/pdf/1408.5243v1.pdf
+   -----------------------------------------------------------------------------""",
+   "WW": {
+      "Latex Name" : "$WW$",
+      "Cross Section": [ 118.7, 2.97, 2.61],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "WW_TuneCUETP8M1_13TeV-pythia8.root"
+      ]
+   },
+   "WZ": {
+      "Latex Name" : "$WZ$",
+      "Cross Section": [ 49.75, 38.3, 2.99 ],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "WZ_TuneCUETP8M1_13TeV-pythia8.root"
+      ]
+   },
+   "ZZ": {
+      "Latex Name" : "$ZZ$",
+      "Cross Section": [ 16.91, 0.54, 0.41 ],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "ZZ_TuneCUETP8M1_13TeV-pythia8.root"
+      ]
+   }
+}

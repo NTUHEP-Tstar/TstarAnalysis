@@ -11,6 +11,7 @@
 #include <string>
 
 extern void SetChannelType( const std::string& );
+extern std::string  GetEDMPrefix();
 extern std::string  ResultsDir();
 extern std::string  GetChannel();
 extern std::string  GetChannelPlotLabel();

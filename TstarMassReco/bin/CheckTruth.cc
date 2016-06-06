@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 

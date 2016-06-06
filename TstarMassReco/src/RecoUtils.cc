@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/TstarMassReco/interface/FitParticle.hh"
+#include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
 
 #include "TLorentzVector.h"

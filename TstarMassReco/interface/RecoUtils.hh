@@ -16,7 +16,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-#include "TstarAnalysis/TstarMassReco/interface/FitParticle.hh"
+#include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
 
 //------------------------------------------------------------------------------
 //   Template functions

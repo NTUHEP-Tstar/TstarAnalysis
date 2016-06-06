@@ -1,20 +1,17 @@
 /*******************************************************************************
  *
- *  Filename    : RecoResult.hh
- *  Description : Master class for reconstruction results
+ *  Filename    : RecoResult.hpp
+ *  Description : Class for storing the reconstruction results
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#ifndef __RECORESULTS_H__
-#define __RECORESULTS_H__
+#ifndef TSTARANALYSIS_ROOTFORMAT_RECORESULT_HPP
+#define TSTARANALYSIS_ROOTFORMAT_RECORESULT_HPP
 
 #include "TLorentzVector.h"
-#include "TstarAnalysis/TstarMassReco/interface/FitParticle.hh"
+#include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
 
 #include <vector>
-
-// Forward declaring ChiSquareSolver class
-class ChiSquareSolver;
 
 class RecoResult {
 public:
@@ -32,20 +29,20 @@ public:
    void  AddParticle( const FitParticle& );
    const FitParticle& GetParticle( const Particle_Label& ) const;
 
-   const FitParticle& Lepton()        const;
-   const FitParticle& Neutrino()      const;
-   const TLorentzVector LeptonicW()   const;
-   const FitParticle& LeptonicBJet()  const;
-   const TLorentzVector LeptonicTop() const;
-   const FitParticle& LeptonicGluon() const;
+   const FitParticle&   Lepton()        const;
+   const FitParticle&   Neutrino()      const;
+   const TLorentzVector LeptonicW()     const;
+   const FitParticle&   LeptonicBJet()  const;
+   const TLorentzVector LeptonicTop()   const;
+   const FitParticle&   LeptonicGluon() const;
    const TLorentzVector LeptonicTstar() const;
 
-   const FitParticle& HadronicJet1()  const;
-   const FitParticle& HadronicJet2()  const;
-   const TLorentzVector HadronicW() const ;
-   const FitParticle& HadronicBJet()  const;
-   const TLorentzVector HadronicTop() const;
-   const FitParticle& HadronicGluon() const;
+   const FitParticle&   HadronicJet1()  const;
+   const FitParticle&   HadronicJet2()  const;
+   const TLorentzVector HadronicW()     const ;
+   const FitParticle&   HadronicBJet()  const;
+   const TLorentzVector HadronicTop()   const;
+   const FitParticle&   HadronicGluon() const;
    const TLorentzVector HadronicTstar() const ;
 
 private:

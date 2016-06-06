@@ -1,0 +1,38 @@
+{
+   "___Comment___":"""-----------------------------------------------------------
+   #    Top Pair + Boson
+   #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#TT_X
+   -----------------------------------------------------------------------------""",
+   "TTW_Lepton": {
+      "Latex Name" : "$t\\bar{t}$ + ($W\\rightarrow l\\nu$)",
+      "Cross Section": [ 0.2043,0.0020,0.0020 ],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root"
+      ]
+   },
+   "TTW_Quark": {
+      "Latex Name" : "$t\\bar{t}$ + ($W\\rightarrow qq$)",
+      "Cross Section": [ 0.4062, 0.0021, 0.0021],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root"
+      ]
+   },
+   "TTZ_Lepton": {
+      "Latex Name" : "$t\\bar{t}$ + ($Z\\rightarrow ll$)",
+      "Cross Section": [0.2529,0.0004,0.0004 ],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root"
+      ]
+   },
+   "TTZ_Quark": {
+      "Latex Name" : "$t\\bar{t}$ + ($Z\\rightarrow qq$)",
+      "Cross Section": [ 0.5297, 0.00008, 0.00008 ],
+      "K Factor": [1.0],
+      "EDM Files":[
+         "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root"
+      ]
+   }
+}

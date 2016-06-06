@@ -18,7 +18,7 @@
 #include <vector>
 #include <iostream>
 
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hh"
 
 typedef std::vector<pat::MET> METList;

@@ -32,20 +32,20 @@ CompareHistMgr::CompareHistMgr(
    _process_label(process)
 {
    SetLatexName( latex_name );
-   HistMgr::AddHist( "TstarMass" , "t^{*} Mass"            , "GeV/c^{2}", 120, 0, 3000 );
-   HistMgr::AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 120, 0, 3000 );
-   HistMgr::AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
-   HistMgr::AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
-   HistMgr::AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
-   HistMgr::AddHist( "LepPtDiff"  , "Difference in Lepton p_{T}",         "GeV/c", 80,  -200, 200 );
-   HistMgr::AddHist( "LepBPtDiff" , "Difference in Leptonic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
-   HistMgr::AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
-   HistMgr::AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
-   HistMgr::AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
-   HistMgr::AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
+   AddHist( "TstarMass" , "t^{*} Mass"            , "GeV/c^{2}", 120, 0, 3000 );
+   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 120, 0, 3000 );
+   AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
+   AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
+   AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
+   AddHist( "LepPtDiff"  , "Difference in Lepton p_{T}",         "GeV/c", 80,  -200, 200 );
+   AddHist( "LepBPtDiff" , "Difference in Leptonic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
 
 
-   _match_map = new TH2D( (_name + "JetMatchMap").c_str(), (_name+"JetMatchMap").c_str(),
+   _match_map = new TH2D( (Name()+ "JetMatchMap").c_str(), (Name()+"JetMatchMap").c_str(),
       5 , 0 , 5 , // Xaxis  fitted result
       6 , 0 , 6   // Yaxis  mc truth particle (must include unknown)
    );
@@ -139,7 +139,10 @@ void CompareHistMgr::SaveMatchMap()
    _match_map->GetYaxis()->SetBinLabel(5,"Hadronic gluon");
    _match_map->GetYaxis()->SetBinLabel(6,"unknown");
 
-   c->SaveAs( (_name+"_jetmatchmap.png").c_str() );
+static const string cmssw_base = getenv("CMSSW_BASE") ;
+static const string prefix = cmssw_base + "/src/TstarAnalysis/TstarMassReco/results/" ;
+
+   c->SaveAs( (prefix+Name()+"_jetmatchmap.png").c_str() );
    delete c;
 }
 

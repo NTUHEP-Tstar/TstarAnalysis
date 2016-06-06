@@ -1,4 +1,4 @@
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace TstarAnalysis_TstarMassReco {

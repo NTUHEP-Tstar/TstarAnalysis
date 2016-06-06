@@ -10,7 +10,7 @@
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "ManagerUtils/HistMgr/interface/HistMgr.hpp"
 

@@ -1,0 +1,51 @@
+{
+   "__Comment__":"""-------------------------------------------------------
+      Top quark pair production
+      Reference: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO#Top_quark_pair_cross_sections_at
+   ---------------------------------------------------------------------""",
+   "TTJets": {
+      "Latex Name" : "$t\\bar{t}$ + Jets",
+      "Cross Section":        [ 831.76 , 54.84, 64.24 ],
+      "K Factor":        [1.0],
+      "EDM Files":[
+         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root"
+      ]
+   },
+
+   "___Comment___":"""-----------------------------------------------------------
+   #    Single top production
+   #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Single_top
+   -----------------------------------------------------------------------------""",
+   "SingleT_S": {
+      "Latex Name" : "Single$\\bar{t}$ ($s$ Channel)",
+      "Cross Section":        [ 3.36, 0.13, 0.12 ],
+      "K Factor":        [1.0],
+      "EDM Files":[
+         "ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"
+      ]
+   },
+   "SingleT_T": {
+      "Latex Name" : "Single $t$ ($t$ Channel)",
+      "Cross Section":        [ 70.69, 2.94, 2.51 ],
+      "K Factor":        [1.0],
+      "EDM Files":[
+         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"
+      ]
+   },
+   "SingleT_TW": {
+      "Latex Name" : "Single $t$ ($tW$ Channel)",
+      "Cross Section":        [ 35.85, 2.60, 2.60 ],
+      "K Factor":        [1.0],
+      "EDM Files":[
+         "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.root"
+      ]
+   },
+   "SingleTbar_TW": {
+      "Latex Name" : "Single $t$ ($tW$ Channel)",
+      "Cross Section":        [ 35.85, 2.60, 2.60 ],
+      "K Factor":        [1.0],
+      "EDM Files":[
+         "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.root"
+      ]
+   }
+}

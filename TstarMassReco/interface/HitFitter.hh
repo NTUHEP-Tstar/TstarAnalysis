@@ -21,7 +21,7 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/EtaDepResolution.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Top_Decaykin.h"
 
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "TLorentzVector.h"
 #include <vector>

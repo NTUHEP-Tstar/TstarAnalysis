@@ -19,7 +19,8 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
+
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
 
 #include "TLorentzVector.h"

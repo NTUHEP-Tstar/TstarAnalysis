@@ -10,6 +10,7 @@
 
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/HistMgr/interface/HistMgr.hpp"
+#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include <vector>
 #include <string>
 #include "TH1D.h"
@@ -17,7 +18,7 @@
 class SampleHistMgr : public mgr::SampleGroup, public mgr::HistMgr
 {
 public:
-   SampleHistMgr( const std::string& );
+   SampleHistMgr( const std::string&, const mgr::ConfigReader& );
    ~SampleHistMgr();
 
 private:

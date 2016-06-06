@@ -30,6 +30,17 @@ string GetChannelPlotLabel(){
    }
 }
 
+string GetEDMPrefix()
+{
+   if( channel_name == "MuonSignal" ){
+      return work_dir+"/sample/MuonSignal/";
+   }else if( channel_name == "ElectronSignal") {
+      return work_dir+"sample/ElectronSignal/";
+   } else {
+      return "./";
+   }
+}
+
 string GetJsonFile() { return work_dir + "/data/" + channel_name + ".json"; }
 string ResultsDir() { return work_dir + "/results/" + channel_name + "/" ; }
 string GetTexSummaryFile() { return ResultsDir() + "summary.tex" ; }

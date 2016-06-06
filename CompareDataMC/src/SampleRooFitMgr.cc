@@ -6,7 +6,9 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
+
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 

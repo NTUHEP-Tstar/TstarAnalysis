@@ -4,6 +4,7 @@
 <use name="DataFormats/PatCandidates"/>
 
 <use name="TstarAnalysis/BaseLineSelector"/>
+<use name="TstarAnalysis/RootFormat" />
 <use name="TstarAnalysis/TstarMassReco"/>
 
 <flags EDM_PLUGIN="1"/>

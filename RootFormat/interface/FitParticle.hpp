@@ -1,12 +1,12 @@
 /*******************************************************************************
  *
- *  Filename    : FitParticle.hh
- *  Description : Particle Information After the fitting
+ *  Filename    : FitParticle.hpp
+ *  Description : FitParticle resulted from mass reconstruction
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#ifndef __FIT_PARTICLE_HH__
-#define __FIT_PARTICLE_HH__
+#ifndef TSTARANALYSIS_ROOTFORMAT_FITPARTICLE_HPP
+#define TSTARANALYSIS_ROOTFORMAT_FITPARTICLE_HPP
 
 #include "TLorentzVector.h"
 
@@ -60,7 +60,6 @@ private:
 
    bool _b_tag;
    unsigned _flavour;
-
 };
 
 #endif /* end of include guard: __FIT_PARTICLE_HH__ */

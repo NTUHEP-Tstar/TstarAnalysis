@@ -13,37 +13,40 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include <iostream>
 #include <stdlib.h>
 using namespace std;
 using mgr::SampleMgr;
+using mgr::HistMgr;
+using mgr::ConfigReader;
+
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
-SampleHistMgr::SampleHistMgr( const string& name ):
+SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg ):
    Named( name ),
-   SampleGroup( name  ),
+   SampleGroup( name, cfg  ),
    HistMgr( name )
 {
-   HistMgr::AddHist( "LepPt"     , "Lepton {P_{T}}"            , "GeV/c"   , 48 , 20   , 500. );
-   HistMgr::AddHist( "LepEta"    , "Lepton #eta"               , ""        , 75 , -2.5 , 5.0  );
-   HistMgr::AddHist( "Jet1Pt"    , "First Leading Jet P_{T}"   , "GeV/c"   , 60 , 30   , 1000. );
-   HistMgr::AddHist( "Jet2Pt"    , "Second Leading Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
-   HistMgr::AddHist( "Jet1Eta"   , "First Leading Jet #eta"    , ""        , 75 , -2.5 , 5.0  );
-   HistMgr::AddHist( "Jet2Eta"   , "Second Leading Jet #eta"   , ""        , 75 , -2.5 , 5.0  );
-   HistMgr::AddHist( "JetNum"    , "Number of Jets"            , ""        , 5  , 5    , 12   );
-   HistMgr::AddHist( "MET"       , "Missing E_{T}"             , "GeV"     , 50 , 0    , 500. );
-   HistMgr::AddHist( "METPhi"    , "Missing E_{T} #phi"        , ""        , 96 , -3.2 , 6.4  );
-   HistMgr::AddHist( "Jet3Pt"    , "Third Jet P_{T}"           , "GeV/c"   , 60 , 30   , 700.  );
-   HistMgr::AddHist( "Jet4Pt"    , "Fourth Jet P_{T}"          , "GeV/c"   , 60 , 30   , 600. );
-   HistMgr::AddHist( "Jet5Pt"    , "Fifth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
-   HistMgr::AddHist( "Jet6Pt"    , "Sixth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
-   HistMgr::AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^2" , 50 , 0    , 2000 );
-   HistMgr::AddHist( "ChiSq"     , "#chi^{2}"                  , ""        , 50 , 0    , 10000 );
-   HistMgr::AddHist( "LepGluonPt", "Leptonic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
-   HistMgr::AddHist( "HadGluonPt", "Hadronic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "LepPt"     , "Lepton {P_{T}}"            , "GeV/c"   , 48 , 20   , 500. );
+   AddHist( "LepEta"    , "Lepton #eta"               , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "Jet1Pt"    , "First Leading Jet P_{T}"   , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "Jet2Pt"    , "Second Leading Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "Jet1Eta"   , "First Leading Jet #eta"    , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "Jet2Eta"   , "Second Leading Jet #eta"   , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "JetNum"    , "Number of Jets"            , ""        , 5  , 5    , 12   );
+   AddHist( "MET"       , "Missing E_{T}"             , "GeV"     , 50 , 0    , 500. );
+   AddHist( "METPhi"    , "Missing E_{T} #phi"        , ""        , 96 , -3.2 , 6.4  );
+   AddHist( "Jet3Pt"    , "Third Jet P_{T}"           , "GeV/c"   , 60 , 30   , 700.  );
+   AddHist( "Jet4Pt"    , "Fourth Jet P_{T}"          , "GeV/c"   , 60 , 30   , 600. );
+   AddHist( "Jet5Pt"    , "Fifth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
+   AddHist( "Jet6Pt"    , "Sixth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
+   AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^2" , 50 , 0    , 2000 );
+   AddHist( "ChiSq"     , "#chi^{2}"                  , ""        , 50 , 0    , 10000 );
+   AddHist( "LepGluonPt", "Leptonic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "HadGluonPt", "Hadronic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
 
    for( auto& sample : SampleList() ){
       FillHistograms(*sample);

@@ -25,6 +25,10 @@ Color_t Color_Sequence[5] = {
    kCyan
 };
 
+static const string cmssw_base = getenv("CMSSW_BASE") ;
+static const string prefix = cmssw_base + "/src/TstarAnalysis/TstarMassReco/results/" ;
+
+
 void ComparePlot( const string& comp_name , const vector<CompareHistMgr*> method_list  )
 {
 
@@ -53,7 +57,7 @@ void ComparePlot( const string& comp_name , const vector<CompareHistMgr*> method
       }
       l->Draw();
 
-      c->SaveAs( (comp_name + hist_name + ".png").c_str() );
+      c->SaveAs( ( prefix + comp_name + hist_name + ".png").c_str() );
       delete c;
       delete l;
    }
@@ -104,23 +108,23 @@ void MatchRatePlot( const string& comp_name, const vector<CompareHistMgr*> metho
    }
 
    LepMatchRate->Draw("E1");
-   c->SaveAs( (comp_name+"LepMatchRate.png").c_str() );
+   c->SaveAs( (prefix+comp_name+"LepMatchRate.png").c_str() );
    delete LepMatchRate;
 
    LepBMatchRate->Draw("E1");
-   c->SaveAs( (comp_name+"LepBMatchRate.png").c_str() );
+   c->SaveAs( (prefix+comp_name+"LepBMatchRate.png").c_str() );
    delete LepBMatchRate;
 
    LepGMatchRate->Draw("E1");
-   c->SaveAs( (comp_name+"LepGMatchRate.png").c_str() );
+   c->SaveAs( (prefix+comp_name+"LepGMatchRate.png").c_str() );
    delete LepGMatchRate;
 
    HadBMatchRate->Draw("E1");
-   c->SaveAs( (comp_name+"HadBMatchRate.png").c_str() );
+   c->SaveAs( (prefix+comp_name+"HadBMatchRate.png").c_str() );
    delete HadBMatchRate;
 
    HadGMatchRate->Draw("E1");
-   c->SaveAs( (comp_name+"HadGMatchRate.png").c_str() );
+   c->SaveAs( (prefix+comp_name+"HadGMatchRate.png").c_str() );
    delete HadGMatchRate;
 
    delete c;
