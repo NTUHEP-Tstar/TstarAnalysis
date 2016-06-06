@@ -6,9 +6,14 @@
    "Sample Config Prefix": "/wk_cms/yichen/TstarAnalysis/CMSSW_7_6_4/src/TstarAnalysis/CompareDataMC/data/",
    "Default Json" : "Signal.json",
 
-   "Data" : {
+   "Data_Muon" : {
       "Latex Name": "Data",
-      "File List": [ "Data.json" ]
+      "File List": [ "Data_Muon.json" ]
+   },
+
+   "Data_Electron" : {
+      "Latex Name" : "Data",
+      "File List" : ["Data_Electron.json" ]
    },
 
    "TTJets" : {
@@ -46,7 +51,7 @@
       ]
    },
 
-   "SignalList" : [
+   "Signal List" : [
       "tstar_M700",
       "tstar_M800",
       "tstar_M900",

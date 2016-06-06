@@ -9,7 +9,9 @@
       "Cross Section":[ 1345, 1.2 ,1.2 ],
       "K Factor":     [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root",
+         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ab.root",
+         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ac.root"
       ]
    },
    "WJets_200_400": {
@@ -17,7 +19,8 @@
       "Cross Section": [ 359.7, 0.2, 0.2 ],
       "K Factor":      [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root",
+         "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ab.root"
       ]
    },
    "WJets_400_600": {
@@ -25,7 +28,7 @@
       "Cross Section":        [ 48.91 , 0.072, 0.072 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "WJets_600_800": {
@@ -33,7 +36,8 @@
       "Cross Section":        [ 12.05, 0.0073, 0.0073 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root",
+         "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ab.root"
       ]
    },
    "WJets_800_1200": {
@@ -41,7 +45,7 @@
       "Cross Section":        [ 6.501, 0.0017, 0.0017 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "WJets_1200_2500": {
@@ -49,7 +53,7 @@
       "Cross Section":        [ 1.329, 0.0025, 0.0025 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "WJets_2500_Inf": {
@@ -57,7 +61,7 @@
       "Cross Section":        [ 0.03216, 0.000104, 0.000104 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "ZJets_100_200": {
@@ -65,7 +69,7 @@
       "Cross Section": [ 147.40, 0.09, 0.09],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "ZJets_200_400": {
@@ -73,7 +77,7 @@
       "Cross Section": [40.99, 0.04, 0.04],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "ZJets_400_600": {
@@ -81,7 +85,7 @@
       "Cross Section": [ 5.678, 0.005, 0.005 ],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "ZJets_600_Inf": {
@@ -89,7 +93,7 @@
       "Cross Section": [ 2.189, 0.002, 0.002 ],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    }
 }

@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 using namespace std;
+using namespace mgr;
 //------------------------------------------------------------------------------
 //   Static member function delcarations
 //------------------------------------------------------------------------------
@@ -32,9 +33,9 @@ double SampleRooFitMgr::MaxMass()    { return maxmass; }
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-SampleRooFitMgr::SampleRooFitMgr( const string& name ):
+SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ):
    Named( name ),
-   SampleGroup(name )
+   SampleGroup(name, cfg )
 {
    _dataset = new RooDataSet( Name().c_str(), Name().c_str(), RooArgSet(_x,_w), RooFit::WeightVar(_w) );
    for( auto& sample : SampleList() ){

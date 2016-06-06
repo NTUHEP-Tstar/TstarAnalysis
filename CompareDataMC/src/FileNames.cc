@@ -30,6 +30,18 @@ string GetChannelPlotLabel(){
    }
 }
 
+string GetDataTag()
+{
+   if( channel_name == "MuonSignal" ){
+      return "Data_Muon";
+   }else if( channel_name == "ElectronSignal") {
+      return "Data_Electron";
+   } else {
+      return "";
+   }
+
+}
+
 string GetEDMPrefix()
 {
    if( channel_name == "MuonSignal" ){

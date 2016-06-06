@@ -132,24 +132,22 @@ int main(int argc, char* argv[]) {
 //------------------------------------------------------------------------------
 //   Helper function implementations
 //------------------------------------------------------------------------------
+static mgr::ConfigReader static_cfg( "./data/Static.json" );
+static mgr::ConfigReader group_cfg( "./data/Groups.json" );
 void InitDataAndSignal()
 {
-   data = new SampleRooFitMgr("Data");
+   mgr::SampleMgr::InitStaticFromReader( static_cfg );
+   mgr::SampleMgr::SetFilePrefix( GetEDMPrefix() );
+
+   data = new SampleRooFitMgr( GetDataTag() , group_cfg );
    data->MakeReduceDataSet("FitRange",RooFit::CutRange("FitRange"));
 
-   signal_list.push_back( new SampleRooFitMgr("tstar_M700"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M800"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M900"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M1000"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M1100"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M1200"));
-   // signal_list.push_back( new SampleRooFitMgr("tstar_M1300"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M1400"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M1500"));
-   signal_list.push_back( new SampleRooFitMgr("tstar_M1600"));
+   for( const auto& signal_tag : group_cfg.GetStaticStringList("Signal List") ){
+      signal_list.push_back( new SampleRooFitMgr( signal_tag , group_cfg ) );
+   }
 }
 
 void InitMC()
 {
-   mc = new SampleRooFitMgr("Background");
+   mc = new SampleRooFitMgr("Background", group_cfg );
 }

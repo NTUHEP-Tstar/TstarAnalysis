@@ -84,12 +84,9 @@ int main(int argc, char* argv[]) {
    SetHCMethod( vm["combine_method"].as<string>() );
 
    if( vm.count("runcombine") ){
-      cout << "Rerunning results higgs combine package with method [" << vm["combine_method"].as<string>() << "] !" << endl;
-      if( vm.count("higgs_options") ){
-         RunCombine( vm["higgs_options"].as<string>() );
-      } else {
-         RunCombine();
-      }
+      cout << "Rerunning results higgs combine package with method [" << GetHCMethod() << "] !" << endl;
+      RunCombine();
+      // RunCombine( vm["higgs_options"].as<string>() );
    }
 
    cout << "Making limit plot" << endl;

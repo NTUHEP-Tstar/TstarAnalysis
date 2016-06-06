@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
    mgr::SampleMgr::SetFilePrefix( GetEDMPrefix() );
 
    // Defining data settings
-   SampleHistMgr* data = new SampleHistMgr("Data" , group_cfg );
+   SampleHistMgr* data = new SampleHistMgr( GetDataTag() , group_cfg );
 
    // Defining out channels see data/MuonSignal.json for sample settings
    vector<SampleHistMgr*>  background;

@@ -9,6 +9,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 #include "ManagerUtils/SysUtils/interface/SystemUtils.hh"
+#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include <vector>
 #include <string>
 
@@ -28,8 +29,9 @@ void RunCombine( const string& hc_opt )
    char mv_cmd[1024];
    char cmd[4096];
 
-   vector<string> signal_list = {""};
-   for( const auto& signal : signal_list ){
+   mgr::ConfigReader cfg( "./data/Groups.json" );
+
+   for( const auto& signal : cfg.GetStaticStringList("Signal List") ){
       int masspoint = GetInt(signal);
       sprintf( combine_cmd, "combine -M %s -m %d %s %s",
          GetHCMethod().c_str(),

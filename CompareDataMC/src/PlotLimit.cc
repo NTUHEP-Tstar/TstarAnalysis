@@ -37,8 +37,9 @@ static void FillXSectionMap();
 
 void MakeLimitPlot() {
 
-   mgr::ConfigReader cfg( GetJsonFile() );
-   const vector<string> signal_list = cfg.GetStaticStringList( "SignalList" );
+   mgr::ConfigReader cfg( "./data/Groups.json" );
+   mgr::ConfigReader static_cfg( "./data/Static.json" );
+   const vector<string> signal_list = cfg.GetStaticStringList( "Signal List" );
    const size_t binCount = signal_list.size();
    double y_max = 0;
    double y_min = 10000000.;
@@ -145,7 +146,7 @@ void MakeLimitPlot() {
    theory->SetLineStyle(2);
 
    char data_entry[1024];
-   sprintf( data_entry , "CL_{s} Observed (%.3lf fb^{-1})", cfg.GetStaticDouble( "Luminosity" )/1000. );
+   sprintf( data_entry , "CL_{s} Observed (%.3lf fb^{-1})", static_cfg.GetStaticDouble( "Total Luminosity" )/1000. );
    l->AddEntry( obs     , data_entry , "l" );
    l->AddEntry( exp     , "CL_{s} Expected"                 , "l" );
    l->AddEntry( one_sig , "CL_{s} Expected #pm 1 #sigma"    , "f" );

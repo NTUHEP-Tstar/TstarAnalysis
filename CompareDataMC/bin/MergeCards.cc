@@ -24,9 +24,7 @@ char buffer[65536];
 
 int main(int argc, char* argv[]) {
 
-   SetChannelType("MuonSignal");
-   mgr::ConfigReader cfg( GetJsonFile() );
-
+   mgr::ConfigReader cfg( "./data/Groups.json" );
    vector<string> masspoint_list = cfg.GetStaticStringList("SignalList");
 
    opt::options_description desc("Merge options");

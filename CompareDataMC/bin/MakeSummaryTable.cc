@@ -6,6 +6,7 @@
  *
 *******************************************************************************/
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 #include <string>
@@ -24,66 +25,72 @@ int main(int argc, char* argv[])
    cout << "Making summary table!" << endl;
    SetChannelType( argv[1] );
 
-   mgr::ConfigReader cfg( GetJsonFile() );
+   SampleMgr::InitStaticFromFile( "./data/Static.json" );
+   SampleMgr::SetFilePrefix( GetEDMPrefix() );
 
-   vector<mgr::SampleMgr*>  all_samples;
-   vector<unsigned>    sep_index;
+   vector<SampleMgr*> all_samples;
+   vector<unsigned> sep_index;
+   sep_index.push_back(all_samples.size());
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M700"    , "./data/Signal.json" ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M800"    , "./data/Signal.json" ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M900"    , "./data/Signal.json" ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M1000"   , "./data/Signal.json"  ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M1100"   , "./data/Signal.json"  ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M1200"   , "./data/Signal.json"  ));
+   // all_samples.push_back( new mgr::SampleMgr( "tstar_M1300", "./data/Signal.json" ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M1400"   , "data/Signal.json" ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M1500"   , "data/Signal.json" ));
+   all_samples.push_back( new mgr::SampleMgr( "tstar_M1600"   , "data/Signal.json" ));
+
 
    sep_index.push_back(all_samples.size());
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M700" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M800" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M900" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M1000" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M1100" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M1200" ));
-   // all_samples.push_back( new mgr::SampleMgr( "tstar_M1300" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M1400" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M1500" ));
-   all_samples.push_back( new mgr::SampleMgr( "tstar_M1600" ));
-
-
-   sep_index.push_back(all_samples.size());
-   all_samples.push_back( new mgr::SampleMgr( "TTJets"          ) );
+   all_samples.push_back( new mgr::SampleMgr( "TTJets"  , "./data/TopSamples.json"        ) );
 
    sep_index.push_back( all_samples.size());
-   all_samples.push_back( new mgr::SampleMgr( "SingleT_S"       ) );
-   all_samples.push_back( new mgr::SampleMgr( "SingleT_T"       ) );
-   all_samples.push_back( new mgr::SampleMgr( "SingleT_TW"      ) );
-   all_samples.push_back( new mgr::SampleMgr( "SingleTbar_TW"   ) );
+   all_samples.push_back( new mgr::SampleMgr( "SingleT_S"     , "./data/TopSamples.json"  ) );
+   all_samples.push_back( new mgr::SampleMgr( "SingleT_T"     , "./data/TopSamples.json"  ) );
+   all_samples.push_back( new mgr::SampleMgr( "SingleT_TW"    , "./data/TopSamples.json"  ) );
+   all_samples.push_back( new mgr::SampleMgr( "SingleTbar_TW" , "./data/TopSamples.json"  ) );
 
    sep_index.push_back( all_samples.size() );
-   all_samples.push_back( new mgr::SampleMgr( "TTW_Lepton"     ) );
-   all_samples.push_back( new mgr::SampleMgr( "TTW_Quark"      ) );
-   all_samples.push_back( new mgr::SampleMgr( "TTZ_Lepton"     ) );
-   all_samples.push_back( new mgr::SampleMgr( "TTZ_Quark"      ) );
+   all_samples.push_back( new mgr::SampleMgr( "TTW_Lepton", "./data/TTPlusBoson.json"     ) );
+   all_samples.push_back( new mgr::SampleMgr( "TTW_Quark" , "./data/TTPlusBoson.json"     ) );
+   all_samples.push_back( new mgr::SampleMgr( "TTZ_Lepton", "./data/TTPlusBoson.json"     ) );
+   all_samples.push_back( new mgr::SampleMgr( "TTZ_Quark" , "./data/TTPlusBoson.json"     ) );
 
    sep_index.push_back( all_samples.size() );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_100_200"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_200_400"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_400_600"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_600_800"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_800_1200"  ) );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_1200_2500" ) );
-   all_samples.push_back( new mgr::SampleMgr( "WJets_2500_Inf"  ) );
-   all_samples.push_back( new mgr::SampleMgr( "ZJets_100_200"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "ZJets_200_400"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "ZJets_400_600"   ) );
-   all_samples.push_back( new mgr::SampleMgr( "ZJets_600_Inf"   ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_100_200"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_200_400"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_400_600"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_600_800"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_800_1200"  , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_1200_2500" , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WJets_2500_Inf"  , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "ZJets_100_200"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "ZJets_200_400"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "ZJets_400_600"   , "./data/SingleBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "ZJets_600_Inf"   , "./data/SingleBoson.json" ) );
 
    sep_index.push_back( all_samples.size() );
-   all_samples.push_back( new mgr::SampleMgr( "WW" ) );
-   all_samples.push_back( new mgr::SampleMgr( "WZ" ) );
-   all_samples.push_back( new mgr::SampleMgr( "ZZ" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WW" , "./data/DiBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "WZ" , "./data/DiBoson.json" ) );
+   all_samples.push_back( new mgr::SampleMgr( "ZZ" , "./data/DiBoson.json" ) );
    sep_index.push_back( all_samples.size() );
 
    unsigned obs = 0;
-   obs += mgr::SampleMgr("Run2015D").EventsInFile();
-   obs += mgr::SampleMgr("Run2015C").EventsInFile();
+   if( GetChannel() == "MuonSignal" ){
+      obs += mgr::SampleMgr("Run2015D", "./data/Data_Muon.json" ).EventsInFile();
+      obs += mgr::SampleMgr("Run2015C", "./data/Data_Muon.json" ).EventsInFile();
+   } else {
+      obs += mgr::SampleMgr("Run2015D", "./data/Data_Electron.json").EventsInFile();
+      obs += mgr::SampleMgr("Run2015C", "./data/Data_Electron.json").EventsInFile();
+
+   }
 
    Parameter obs_yield(obs,0,0);
    Parameter exp_yield(0,0,0);
 
-   const char table_line[] = "%-50s & %25s & %35s & %10s & %35s \\\\ \n" ;
+   const char table_line[] = "%-55s & %25s & %35s & %10s & %35s \\\\ \n" ;
    const char hline_line[] = "\\hline\n";
    FILE* tex_file = fopen( GetTexSummaryFile().c_str() , "w" );
    fprintf( tex_file , "\\begin{tabular}{|l|ccc|c|}\n");

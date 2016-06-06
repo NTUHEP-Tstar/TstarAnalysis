@@ -9,6 +9,7 @@
 #define __SAMPLE_ROOFIT_MGR_HH__
 
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
+#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include <string>
 #include <vector>
@@ -19,8 +20,7 @@
 class SampleRooFitMgr : public mgr::SampleGroup
 {
 public:
-   SampleRooFitMgr( const std::string& );
-   SampleRooFitMgr( const std::string&, const std::string& ); // Single Sample ( for signal )
+   SampleRooFitMgr( const std::string&, const mgr::ConfigReader& ); // Single Sample ( for signal )
    ~SampleRooFitMgr();
 
    // Static member functions
