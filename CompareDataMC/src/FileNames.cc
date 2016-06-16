@@ -5,16 +5,26 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
+#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include <string>
 #include <cstdlib>
 
 using namespace std;
 
 //------------------------------------------------------------------------------
-//   Static constants
+//   Extern variable declaration
 //------------------------------------------------------------------------------
 static const string base_dir = getenv( "CMSSW_BASE");
 static const string work_dir = base_dir + "/src/TstarAnalysis/CompareDataMC";
+static const mgr::ConfigReader static_cfg = mgr::ConfigReader( work_dir + "/data/Groups.json" );
+
+const string& BaseDir() { return base_dir; }
+const string& WorkDir() { return work_dir; }
+const mgr::ConfigReader& StaticCfg() { return static_cfg; }
+
+//------------------------------------------------------------------------------
+//   Channel related variables
+//------------------------------------------------------------------------------
 static string channel_name;
 
 void SetChannelType( const string& x ) { channel_name = x; }

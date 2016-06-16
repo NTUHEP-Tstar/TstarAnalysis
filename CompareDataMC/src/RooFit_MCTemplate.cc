@@ -11,6 +11,7 @@
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 #include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
 
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hh"
 
 #include "RooFit.h"
@@ -42,7 +43,7 @@ static const string ws_name = "wspace";
 //------------------------------------------------------------------------------
 namespace tmplt {
    RooFitResult* MakeBGFromMC( SampleRooFitMgr* );
-   void MakeTemplatePlot( SampleRooFitMgr* , SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult* );
+   void MakeTemplatePlot( SampleRooFitMgr* , SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult*, const bool );
    void SaveRooWorkSpace( SampleRooFitMgr*, SampleRooFitMgr*, vector<SampleRooFitMgr*>&, RooFitResult* );
    void MakeCardFile(SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*);
 };
@@ -57,7 +58,8 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
    for( auto& signal : signal_list ){
       MakeKeysPdf( signal , "fit" );
    }
-   MakeTemplatePlot( data, bg, signal_list.front(), err );
+   MakeTemplatePlot( data, bg, signal_list.front(), err , true );
+   MakeTemplatePlot( data, bg, signal_list.front(), err , false );
 
    //------------------------------------------------------------------------------
    //   Saving all relavent obejcts by RooWorkSpace
@@ -189,127 +191,112 @@ void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooF
 //------------------------------------------------------------------------------
 //   Plotting fitting results
 //------------------------------------------------------------------------------
-void tmplt::MakeTemplatePlot( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* signal, RooFitResult* err )
+void tmplt::MakeTemplatePlot(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* mc,
+   SampleRooFitMgr* signal,
+   RooFitResult*    err,
+   const bool       use_data )
 {
    // First plot against MC
-   TCanvas* c1 = new TCanvas("c1","c1",CANVAS_WIDTH,CANVAS_HEIGHT);
-   RooPlot* frame_1 = SampleRooFitMgr::x().frame();
-   mgr::ConfigReader cfg( GetJsonFile() );
-   const double TotalLuminosity = cfg.GetStaticDouble( "Luminocity" );
+   const double TotalLuminosity = StaticCfg().GetStaticDouble( "Total Luminosity" );
+   TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
+   RooPlot* frame = SampleRooFitMgr::x().frame();
+   TGraph* pdf_plot_err;
+   TGraph* pdf_plot;
+   TGraph* sig_plot;
+   TGraph* set_plot;
 
-   TGraph* pdf_plot_err= PlotOn(
-      frame_1 , mc->GetPdfFromAlias("fit"),
-      RooFit::VisualizeError(*err,1),
-      RooFit::Range("FitRange"),
-      RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
-   );
-   TGraph* pdf_plot    = PlotOn(
-      frame_1 , mc->GetPdfFromAlias("fit"),
-      RooFit::Range("FitRange") ,
-      RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
-   );
-   TGraph* sig_plot_1  = PlotOn(
-      frame_1 , signal->GetPdfFromAlias("fit"),
+
+   if( use_data ){
+      set_plot = PlotOn( frame, data->OriginalDataSet() );
+      pdf_plot_err= PlotOn(
+         frame, mc->GetPdfFromAlias("fit"),
+         RooFit::VisualizeError(*err,1),
+         RooFit::Range("FitRange"),
+         RooFit::Normalization( data->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+      );
+      pdf_plot = PlotOn(
+         frame, mc->GetPdfFromAlias("fit"),
+         RooFit::Range("FitRange") ,
+         RooFit::Normalization( data->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+      );
+      set_plot = PlotOn( frame, data->OriginalDataSet() );
+   } else {
+      set_plot = PlotOn( frame, mc->OriginalDataSet() );
+      pdf_plot_err= PlotOn(
+         frame, mc->GetPdfFromAlias("fit"),
+         RooFit::VisualizeError(*err,1),
+         RooFit::Range("FitRange"),
+         RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+      );
+      pdf_plot = PlotOn(
+         frame, mc->GetPdfFromAlias("fit"),
+         RooFit::Range("FitRange") ,
+         RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+      );
+      set_plot = PlotOn( frame, data->OriginalDataSet() );
+   }
+   sig_plot = PlotOn(
+      frame, signal->GetPdfFromAlias("fit"),
       RooFit::DrawOption("LB"),
       RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
    );
-   TGraph* mc_set_plot = PlotOn( frame_1 , mc->OriginalDataSet() );
 
-   frame_1->Draw();
-   frame_1->SetMinimum(0.3);
-   SetFrame(frame_1,FONT_SIZE);
-   frame_1->GetYaxis()->SetTitle( mc_set_plot->GetYaxis()->GetTitle() );
+   frame->Draw();
+   frame->SetMinimum(0.3);
+   SetFrame(frame,FONT_SIZE);
+   frame->GetYaxis()->SetTitle( set_plot->GetYaxis()->GetTitle() );
    pdf_plot_err->SetFillStyle(1);
    pdf_plot_err->SetFillColor(kCyan);
-   sig_plot_1->SetFillStyle(3004);
-   sig_plot_1->SetLineColor(kRed);
-   sig_plot_1->SetFillColor(kRed);
+   sig_plot->SetFillStyle(3004);
+   sig_plot->SetLineColor(kRed);
+   sig_plot->SetFillColor(kRed);
 
-   char data_entry[1024];
+   char norm[1024];
    char sig_entry[1024];
-   sprintf( data_entry, "MC Background (%.3lf fb^{-1})", TotalLuminosity/1000. );
+   if( use_data ){
+      sprintf( norm, "Template fit (from MC)");
+   } else {
+      sprintf( norm, "Template fit (Normalized to Data)");
+   }
+
    sprintf( sig_entry , "Signal (%.2lf pb)" , signal->Sample()->CrossSection().CentralValue() );
 
-   TLegend* l1 = new TLegend(0.55,0.7,0.9,0.9);
-   l1->AddEntry(mc_set_plot, data_entry, "lp");
-   l1->AddEntry(pdf_plot   , "Template fit","l");
-   l1->AddEntry(pdf_plot_err, "Fit Error (1#sigma)" , "fl");
-   l1->AddEntry(sig_plot_1 , sig_entry , "fl");
-   l1->Draw();
-
-   TLatex* tl = new TLatex();
-   tl->SetNDC(kTRUE);
-   tl->SetTextFont(43);
-   tl->SetTextSize( FONT_SIZE + 4 );
-   tl->SetTextAlign(11);
-   tl->DrawLatex( 0.1, 0.93, "CMS at #sqrt{s} = 13TeV");
-   tl->SetTextAlign(31);
-   tl->DrawLatex( 0.9, 0.93 , GetChannelPlotLabel().c_str() );
-   tl->SetTextAlign(33);
-   tl->DrawLatex(0.88,0.65 , GetFitFuncFormula().c_str() );
-
-   c1->SaveAs( GetRooObjPlot( signal->Name() + "_fitmc_vs_mc").c_str() );
-   c1->SetLogy();
-   c1->SaveAs( GetRooObjPlot( signal->Name() + "_fitmc_vs_mc_log").c_str() );
-
-   TCanvas* c2 = new TCanvas("c2","c2",CANVAS_WIDTH,CANVAS_HEIGHT);
-   RooPlot* frame_2 = SampleRooFitMgr::x().frame();
-
-   TGraph* pdf_plot_err_2 = PlotOn(
-      frame_2, mc->GetPdfFromAlias("fit"),
-      RooFit::VisualizeError(*err,1),
-      RooFit::Range("FitRange"),
-      RooFit::Normalization( data->OriginalDataSet()->sumEntries(), RooAbsReal::NumEvent )
-   );
-   TGraph* pdf_plot_2 = PlotOn(
-      frame_2, mc->GetPdfFromAlias("fit"),
-      RooFit::Range("FitRange"),
-      RooFit::Normalization( data->OriginalDataSet()->sumEntries(), RooAbsReal::NumEvent )
-   );
-   TGraph* sig_plot_2 = PlotOn(
-      frame_2 , signal->GetPdfFromAlias("fit"),
-      RooFit::DrawOption("LB"),
-      RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
-   );
-   TGraph* data_set_plot  = PlotOn( frame_2 , data->OriginalDataSet() );
-
-   frame_2->Draw();
-   frame_2->SetMinimum(0.3);
-   SetFrame(frame_2,FONT_SIZE);
-   frame_2->GetYaxis()->SetTitle( data_set_plot->GetYaxis()->GetTitle() );
-
-   pdf_plot_err_2->SetFillStyle(1);
-   pdf_plot_err_2->SetFillColor(kCyan);
-   sig_plot_2->SetFillStyle(3004);
-   sig_plot_2->SetLineColor(kRed);
-   sig_plot_2->SetFillColor(kRed);
-
-   sprintf( data_entry, "Data (%.3lf fb^{-1})", TotalLuminosity/1000. );
-
-   TLegend* l2 = new TLegend(0.55,0.7,0.9,0.9);
-   l2->AddEntry(data_set_plot, data_entry ,"lp");
-   l2->AddEntry(pdf_plot_2 ,"Template fit (Normalized to Data)","l");
-   l2->AddEntry(pdf_plot_err_2, "Fit error (1 #sigma)" , "f");
-   l2->AddEntry(sig_plot_2 , sig_entry , "fl");
-   l2->Draw();
-
-   tl->SetNDC(kTRUE);
-   tl->SetTextFont(43);
-   tl->SetTextSize( FONT_SIZE + 4 );
-   tl->SetTextAlign(11);
-   tl->DrawLatex( 0.1, 0.93, "CMS at #sqrt{s} = 13TeV");
-   tl->SetTextAlign(31);
-   tl->DrawLatex( 0.9, 0.93 , GetChannelPlotLabel().c_str() );
-   tl->SetTextAlign(33);
-   tl->DrawLatex(0.88,0.65, GetFitFuncFormula().c_str() );
-
-   c2->SaveAs( GetRooObjPlot(signal->Name() + "_fitmc_vs_data").c_str() );
-   c2->SetLogy();
-   c2->SaveAs( GetRooObjPlot(signal->Name() + "_fitmc_vs_data_log").c_str() );
-
-   delete c1;
-   delete c2;
-   delete l1;
-   delete l2;
-   delete tl;
+   const double legend_x_min = 0.55;
+   const double legend_y_min = 0.70;
+   TLegend* l = plt::NewLegend(legend_x_min,legend_y_min);
+   if( use_data ){
+      l->AddEntry( set_plot, "Data", "lp");
+      l->AddEntry( pdf_plot, "Template fit (Normalized to Data)",  "l");
+   } else {
+      l->AddEntry( set_plot, "MC Background", "lp");
+      l->AddEntry( pdf_plot, "Template fit (Normalized to Lumi)",  "l");
    }
+   l->AddEntry( pdf_plot_err, "Fit Error (1#sigma)" , "fl");
+   l->AddEntry( sig_plot, sig_entry , "fl");
+   l->Draw();
+
+   plt::DrawCMSLabel();
+   plt::DrawLuminosity( TotalLuminosity );
+   TLatex tl;
+   tl.SetNDC(kTRUE);
+   tl.SetTextFont( FONT_TYPE );
+   tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, GetChannelPlotLabel().c_str() );
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, GetFitFuncFormula().c_str() );
+
+   if( use_data ){
+      c->SaveAs( GetRooObjPlot(signal->Name() + "_fitmc_vs_data").c_str() );
+      c->SetLogy();
+      c->SaveAs( GetRooObjPlot(signal->Name() + "_fitmc_vs_data_log").c_str() );
+   } else {
+      c->SaveAs( GetRooObjPlot( signal->Name() + "_fitmc_vs_mc").c_str() );
+      c->SetLogy();
+      c->SaveAs( GetRooObjPlot( signal->Name() + "_fitmc_vs_mc_log").c_str() );
+   }
+   delete c;
+   delete l;
+}

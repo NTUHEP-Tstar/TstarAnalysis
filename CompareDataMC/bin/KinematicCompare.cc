@@ -42,26 +42,23 @@ int main(int argc, char* argv[])
    }
    SetChannelType( argv[1] );
 
-   mgr::ConfigReader static_cfg( "./data/Static.json" );
-   mgr::ConfigReader group_cfg( "./data/Groups.json" );
-
-   mgr::SampleMgr::InitStaticFromReader( static_cfg );
+   mgr::SampleMgr::InitStaticFromReader( StaticCfg() );
    mgr::SampleMgr::SetFilePrefix( GetEDMPrefix() );
 
    // Defining data settings
-   SampleHistMgr* data = new SampleHistMgr( GetDataTag() , group_cfg );
+   SampleHistMgr* data = new SampleHistMgr( GetDataTag() , StaticCfg() );
 
    // Defining out channels see data/MuonSignal.json for sample settings
    vector<SampleHistMgr*>  background;
-   background.push_back( new SampleHistMgr("TTJets"     , group_cfg ) );
-   background.push_back( new SampleHistMgr("SingleTop"  , group_cfg ) );
-   background.push_back( new SampleHistMgr("TTBoson"    , group_cfg ) );
-   background.push_back( new SampleHistMgr("SingleBoson", group_cfg ) );
-   background.push_back( new SampleHistMgr("DiBoson"    , group_cfg ) );
+   background.push_back( new SampleHistMgr("TTJets"     , StaticCfg() ) );
+   background.push_back( new SampleHistMgr("SingleTop"  , StaticCfg() ) );
+   background.push_back( new SampleHistMgr("TTBoson"    , StaticCfg() ) );
+   background.push_back( new SampleHistMgr("SingleBoson", StaticCfg() ) );
+   background.push_back( new SampleHistMgr("DiBoson"    , StaticCfg() ) );
 
 
    // Declaring sample sample
-   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , group_cfg );
+   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , StaticCfg() );
 
    // Making combined stack plots
    MakeComparePlot( data, background, signal_mgr );

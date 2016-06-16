@@ -33,7 +33,7 @@ CompareHistMgr::CompareHistMgr(
 {
    SetLatexName( latex_name );
    AddHist( "TstarMass" , "t^{*} Mass"            , "GeV/c^{2}", 120, 0, 3000 );
-   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 120, 0, 3000 );
+   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 100, 0, 100  );
    AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
    AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
    AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
@@ -42,6 +42,9 @@ CompareHistMgr::CompareHistMgr(
    AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
    AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
    AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   SetFillStyle(0);
+
+
    AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
 
 

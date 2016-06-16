@@ -10,6 +10,7 @@
 
 #include "ManagerUtils/SysUtils/interface/SystemUtils.hh"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 #include <map>
 #include <vector>
@@ -35,11 +36,9 @@ using namespace std;
 static map<double,double>  pred_cross_section;
 static void FillXSectionMap();
 
-void MakeLimitPlot() {
-
-   mgr::ConfigReader cfg( "./data/Groups.json" );
-   mgr::ConfigReader static_cfg( "./data/Static.json" );
-   const vector<string> signal_list = cfg.GetStaticStringList( "Signal List" );
+void MakeLimitPlot()
+{
+   const vector<string> signal_list = StaticCfg().GetStaticStringList( "Signal List" );
    const size_t binCount = signal_list.size();
    double y_max = 0;
    double y_min = 10000000.;
@@ -114,26 +113,24 @@ void MakeLimitPlot() {
       ++bin;
    }
 
-   TCanvas* c1                = new TCanvas("c1", "c1", CANVAS_WIDTH*1.2, CANVAS_HEIGHT );
-   TMultiGraph* mg            = new TMultiGraph();
+   TCanvas* c1                = new TCanvas("c1", "c1", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
    TGraphAsymmErrors* one_sig = new TGraphAsymmErrors(binCount,mass,exp_lim,masserr,masserr,one_sig_down,one_sig_up);
    TGraphAsymmErrors* two_sig = new TGraphAsymmErrors(binCount,mass,exp_lim,masserr,masserr,two_sig_down,two_sig_up);
    TGraph* exp                = new TGraph(binCount,mass,exp_lim);
    TGraph* obs                = new TGraph(binCount,mass,obs_lim);
    TGraph* theory             = new TGraph(fine_bincount,mass_fine,xsec_fine);
-   TLegend* l                 = new TLegend(0.55,0.65,0.90,0.90);
 
    //----- Setting Styles  --------------------------------------------------------
-   one_sig->SetFillColor( kYellow  );
-   one_sig->SetLineColor( kYellow  );
+   one_sig->SetFillColor( kGreen  );
+   one_sig->SetLineColor( kGreen  );
    one_sig->SetLineWidth(0);
    one_sig->SetFillStyle(1001);
-   two_sig->SetFillColor( kGreen );
-   two_sig->SetLineColor( kGreen );
+   two_sig->SetFillColor( kYellow + 1 );
+   two_sig->SetLineColor( kYellow + 1 );
    two_sig->SetLineWidth(0);
-   two_sig->SetFillStyle(1002);
+   two_sig->SetFillStyle(3001);
 
-   exp->SetLineColor(kRed);
+   exp->SetLineColor(kBlack);
    exp->SetLineWidth(2);
    exp->SetLineStyle(2);
 
@@ -145,49 +142,43 @@ void MakeLimitPlot() {
    theory->SetLineWidth(2);
    theory->SetLineStyle(2);
 
-   char data_entry[1024];
-   sprintf( data_entry , "CL_{s} Observed (%.3lf fb^{-1})", static_cfg.GetStaticDouble( "Total Luminosity" )/1000. );
-   l->AddEntry( obs     , data_entry , "l" );
-   l->AddEntry( exp     , "CL_{s} Expected"                 , "l" );
-   l->AddEntry( one_sig , "CL_{s} Expected #pm 1 #sigma"    , "f" );
-   l->AddEntry( two_sig , "CL_{s} Expected #pm 2 #sigma"    , "f" );
-   l->AddEntry( theory  , "Prediction From Theory"          , "l" );
-
-   //----- Plotting  --------------------------------------------------------------
+   TMultiGraph* mg  = new TMultiGraph();
    mg->Add(two_sig);
    mg->Add(one_sig);
    mg->Add(exp);
    mg->Add(obs);
    mg->Add(theory);
+
+
+   //----- Plotting  --------------------------------------------------------------
    mg->Draw("AL3");
-   l->Draw();
-   mg->GetXaxis()->SetTitle( "t^{*} Mass (GeV/c^{2})" );    // MUST Be after draw!!
-   mg->GetYaxis()->SetTitle( "#sigma(pp#rightarrow t^{*}#bar{t}^{*}) (pb)" ); // https://root.cern.ch/root/roottalk/roottalk09/0078.html
-   mg->GetXaxis()->SetLabelFont(43);
-   mg->GetXaxis()->SetLabelSize(FONT_SIZE);
-   mg->GetXaxis()->SetTitleFont(43);
-   mg->GetXaxis()->SetTitleSize(FONT_SIZE);
-   mg->GetYaxis()->SetLabelFont(43);
-   mg->GetYaxis()->SetLabelSize(FONT_SIZE);
-   mg->GetYaxis()->SetTitleFont(43);
-   mg->GetYaxis()->SetTitleSize(FONT_SIZE);
-   mg->GetYaxis()->SetTitleOffset(1.2);
-   mg->GetXaxis()->SetLimits(650,1650);
-
-   cout << y_min << " " << y_max ;
+   plt::SetAxis( mg );
+   mg->GetXaxis()->SetTitle( "t* Mass (GeV/c^{2})" );    // MUST Be after draw!!
+   mg->GetYaxis()->SetTitle( "#sigma(pp#rightarrow t*#bar{t}*) (pb)" ); // https://root.cern.ch/root/roottalk/roottalk09/0078.html
+   mg->GetXaxis()->SetLimits( mass[0]-50 , mass[binCount-1]+50 );
    mg->SetMaximum(y_max*30.);
-   mg->SetMinimum(y_min*0.1);
+   mg->SetMinimum(y_min*0.3);
 
-   char buffer[1024];
-   sprintf( buffer , "CMS@#sqrt{s}=13TeV (%s with %s)", GetMethodLabel().c_str(), GetFitFuncTag().c_str() );
+
+   const double legend_x_min = 0.55;
+   const double legend_y_min = 0.65;
+   TLegend* l  = plt::NewLegend(legend_x_min,legend_y_min);
+   l->AddEntry( obs     , "95%% CL Limit (Obs.)" , "l" );
+   l->AddEntry( exp     , "Medium expected limit", "l" );
+   l->AddEntry( one_sig , "68%% expected"        , "f" );
+   l->AddEntry( two_sig , "95%% expected"        , "f" );
+   l->AddEntry( theory  , "Theory"               , "l" );
+   l->Draw();
+
    TLatex tl;
    tl.SetNDC(kTRUE);
-   tl.SetTextFont(43);
-   tl.SetTextSize( FONT_SIZE + 4 );
-   tl.SetTextAlign(11);
-   tl.DrawLatex( 0.1, 0.95 , buffer );
-   tl.SetTextAlign(31);
-   tl.DrawLatex( 0.9, 0.95 , GetChannelPlotLabel().c_str() );
+   tl.SetTextFont( FONT_TYPE );
+   tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_LEFT );
+   tl.DrawLatex( PLOT_X_MIN, legend_y_min, GetChannelPlotLabel().c_str() );
+
+   plt::DrawCMSLabel();
+   plt::DrawLuminosity( StaticCfg().GetStaticDouble("Total Luminosity") );
 
    //----- Saving and cleaning up  ------------------------------------------------
    c1->SetLogy(kTRUE);

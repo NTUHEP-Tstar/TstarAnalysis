@@ -7,12 +7,9 @@
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hh"
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "THStack.h"
-#include "TColor.h"
-#include "TLatex.h"
-#include "TLine.h"
+
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
+
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -76,7 +73,7 @@ void MakeComparePlot(
       TH1D*    signal_hist   = signal_mgr->Hist(hist_name);
 
       // Legend settings
-      TLegend* l = new TLegend(0.62,0.3,0.90,0.90);
+      TLegend* l = plt::NewLegend(0.62,0.3);
       char data_entry[128];
       sprintf( data_entry , "Data (%lg fb^{-1})" , total_lumi/1000. );
       l->AddEntry( data_hist , data_entry , "lp" );
@@ -86,8 +83,7 @@ void MakeComparePlot(
       l->AddEntry( background[3]->Hist(hist_name), "Single Boson"     , "f" );
       l->AddEntry( background[4]->Hist(hist_name), "Di-Boson"         , "f" );
       l->AddEntry( error_hist , "Background error" , "fl" );
-      l->AddEntry( signal_hist, "t^{*}#bar{t}^{*} {}_{M_{t^{*}}=700GeV} (10 pb)" , "fl");
-
+      l->AddEntry( signal_hist, "t*#bar{t}* {}_{M_{t*}=700GeV} (10 pb)" , "fl");
 
       // The Plotting commands
       TCanvas* c = new TCanvas("c","c",650,500);
@@ -138,28 +134,16 @@ void MakeComparePlot(
 
       // Font and title settings
       const size_t font_size = 14;
-      stack->GetXaxis()->SetLabelSize(0);
-      stack->GetYaxis()->SetLabelFont(43);
-      stack->GetYaxis()->SetLabelSize( font_size );
-      stack->GetYaxis()->SetTitleFont(43);
-      stack->GetYaxis()->SetTitleSize( font_size );
+      plt::SetAxis( stack );
+      plt::DisableXAxis( stack );
       stack->GetYaxis()->SetTitle( signal_hist->GetYaxis()->GetTitle() );
-      stack->GetYaxis()->SetTitleOffset(1.2);
-      data_rel_hist->GetXaxis()->SetTitle( signal_hist->GetXaxis()->GetTitle() );
-      data_rel_hist->GetXaxis()->SetLabelFont(43);
-      data_rel_hist->GetXaxis()->SetLabelSize( font_size );
-      data_rel_hist->GetYaxis()->SetLabelFont(43);
-      data_rel_hist->GetXaxis()->SetTitleFont(43);
-      data_rel_hist->GetXaxis()->SetTitleSize( font_size );
+
+      plt::SetAxis( data_rel_hist );
       data_rel_hist->GetXaxis()->SetTitleOffset(5.5);
-      data_rel_hist->GetYaxis()->SetLabelSize( font_size );
+      data_rel_hist->GetXaxis()->SetTitle( signal_hist->GetXaxis()->GetTitle() );
       data_rel_hist->GetYaxis()->SetTitle( "#frac{Data}{MC}");
-      data_rel_hist->GetYaxis()->SetTitleFont(43);
-      data_rel_hist->GetYaxis()->SetTitleSize( font_size );
-      data_rel_hist->GetYaxis()->SetTitleOffset(1.2);
       data_rel_hist->SetMaximum(2.0);
       data_rel_hist->SetMinimum(0.0);
-      l->SetTextSizePixels( font_size );
 
       // Additional captions
       TLatex tl;

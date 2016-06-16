@@ -132,22 +132,20 @@ int main(int argc, char* argv[]) {
 //------------------------------------------------------------------------------
 //   Helper function implementations
 //------------------------------------------------------------------------------
-static mgr::ConfigReader static_cfg( "./data/Static.json" );
-static mgr::ConfigReader group_cfg( "./data/Groups.json" );
 void InitDataAndSignal()
 {
-   mgr::SampleMgr::InitStaticFromReader( static_cfg );
+   mgr::SampleMgr::InitStaticFromReader( StaticCfg() );
    mgr::SampleMgr::SetFilePrefix( GetEDMPrefix() );
 
-   data = new SampleRooFitMgr( GetDataTag() , group_cfg );
+   data = new SampleRooFitMgr( GetDataTag() , StaticCfg() );
    data->MakeReduceDataSet("FitRange",RooFit::CutRange("FitRange"));
 
-   for( const auto& signal_tag : group_cfg.GetStaticStringList("Signal List") ){
-      signal_list.push_back( new SampleRooFitMgr( signal_tag , group_cfg ) );
+   for( const auto& signal_tag : StaticCfg().GetStaticStringList("Signal List") ){
+      signal_list.push_back( new SampleRooFitMgr( signal_tag, StaticCfg() ) );
    }
 }
 
 void InitMC()
 {
-   mc = new SampleRooFitMgr("Background", group_cfg );
+   mc = new SampleRooFitMgr( "Background", StaticCfg() );
 }

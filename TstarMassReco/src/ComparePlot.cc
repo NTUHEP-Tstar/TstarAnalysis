@@ -7,6 +7,7 @@
 *******************************************************************************/
 
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hh"
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 #include "TCanvas.h"
 #include "TLegend.h"

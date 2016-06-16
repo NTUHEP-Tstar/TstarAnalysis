@@ -12,6 +12,7 @@
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hh"
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 
 #include <stdio.h>
@@ -196,6 +197,7 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    const double bg_err       = bg_var->getError();
    const double sig_strength = sig->Sample()->ExpectedYield();
 
+   TGraph* data_plot = PlotOn( frame, data->GetDataFromAlias( GetDataSetName() ) );
    TGraph* bg_err_plot = PlotOn( frame, bg_pdf,
       RooFit::VisualizeError(*err, 1 ),
       RooFit::Normalization(bg_strength,RooAbsReal::NumEvent)
@@ -207,43 +209,41 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
       RooFit::Normalization(sig_strength,RooAbsReal::NumEvent),
       RooFit::DrawOption("LB")
    );
-   TGraph* data_plot = PlotOn(frame, data->GetDataFromAlias( GetDataSetName() ) );
+   PlotOn( frame, data->GetDataFromAlias( GetDataSetName() ) );
 
    frame->Draw();
    frame->SetMinimum(0.3);
    SetFrame(frame,FONT_SIZE); // see Utils/src/RooFitUtils.cc
-   frame->GetYaxis()->SetTitle( data_plot->GetYaxis()->GetTitle() );
+   // frame->GetYaxis()->SetTitle( data_plot->GetYaxis()->GetTitle() );
 
    bg_err_plot->SetFillColor(kCyan);
    bg_plot->SetFillColor(kCyan);
-
    sig_plot->SetLineColor(kRed);
    sig_plot->SetFillStyle(3004);
    sig_plot->SetFillColor(kRed);
 
-   TLegend* leg = new TLegend(0.6,0.7,0.9,0.9);
-   char data_entry[1024];
+   const double legend_x_min = 0.6;
+   const double legend_y_min = 0.7;
+
+   TLegend* leg = plt::NewLegend( legend_x_min, legend_y_min );
    char sig_entry[1024];
-   sprintf( data_entry, "Data (%.3lf fb^{-1})", sig->Sample()->TotalLuminosity()/1000. );
-   sprintf( sig_entry,  "t^{*} {}_{M_{t^{*}}=%dGeV} (%.1lf pb)", GetSignalMass(sig->Name()), sig->Sample()->CrossSection().CentralValue() );
-   leg->AddEntry( data_plot, data_entry , "lp" );
+   sprintf( sig_entry,  "t* {}_{M_{t*}=%dGeV} (%.1lf pb)", GetSignalMass(sig->Name()), sig->Sample()->CrossSection().CentralValue() );
+   leg->AddEntry( data_plot, "Data", "lp" );
    leg->AddEntry( bg_plot  , "Fitted Background" , "l" );
    leg->AddEntry( bg_err_plot, "Fit Error(1#sigma)" , "f");
    leg->AddEntry( sig_plot , sig_entry , "lf" );
    leg->Draw();
-   leg->SetTextSizePixels(FONT_SIZE);
 
-   TLatex* tl = new TLatex();
-   tl->SetNDC(kTRUE);
-   tl->SetTextFont(43);
-   tl->SetTextSize( FONT_SIZE + 4 );
-   tl->SetTextAlign(11);
-   tl->DrawLatex( 0.1, 0.93, "CMS at #sqrt{s} = 13TeV");
-   tl->SetTextAlign(31);
-   tl->DrawLatex( 0.9, 0.93 , GetChannelPlotLabel().c_str() );
-   tl->SetTextSize( FONT_SIZE );
-   tl->SetTextAlign(33);
-   tl->DrawLatex(0.60,0.85 , GetFitFuncFormula().c_str() );
+   plt::DrawCMSLabel();
+   plt::DrawLuminosity( sig->Sample()->TotalLuminosity() );
+   TLatex tl;
+   tl.SetNDC(kTRUE);
+   tl.SetTextFont( FONT_TYPE );
+   tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.02, GetChannelPlotLabel().c_str() );
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.08, GetFitFuncFormula().c_str() );
 
    unsigned obs = data->GetDataFromAlias(GetDataSetName())->sumEntries();
    char obs_yield[1024];
@@ -252,9 +252,9 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    sprintf( obs_yield, "Observed Yield: %d", obs );
    sprintf( exp_yield, "Expected Yield: %.2lf #pm %.2lf" , bg_strength, bg_err );
    sprintf( delta    , "#Delta: %.3lf%%", 100.* (bg_strength-obs)/obs );
-   tl->DrawLatex(0.85,0.65 , obs_yield );
-   tl->DrawLatex(0.85,0.60 , exp_yield );
-   tl->DrawLatex(0.85,0.55 , delta );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.02 , obs_yield );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.07, exp_yield );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.12, delta );
 
 
    // Saving and cleaning up
@@ -262,7 +262,6 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    c->SetLogy(kTRUE);
    c->SaveAs( GetRooObjPlot(sig->Name() + "_log").c_str() );
    delete leg;
-   delete tl;
    delete c;
 }
 

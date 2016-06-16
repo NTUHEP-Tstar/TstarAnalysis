@@ -20,6 +20,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
    fwlite::Event event( TFile::Open("./test/signal.root") );
    fwlite::Handle<vector<reco::GenParticle>>  genHandle;
 
@@ -38,10 +39,6 @@ int main(int argc, char* argv[]) {
       for( const auto& gen : gen_list ){
          if( j > 120 ) { break; }
          ++j;
-         if( abs(gen.pdgId()) != 24 &&
-             abs(gen.pdgId()) != 6  &&
-             abs(gen.pdgId()) != 13 &&
-             abs(gen.pdgId()) != 11 ){ continue; }
          int mother_idx = -1;
          int mother_id  = 0;
          int daughter1_idx = -1;

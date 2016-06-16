@@ -9,7 +9,18 @@
 #define __FILENAME_HH__
 
 #include <string>
+#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 
+//------------------------------------------------------------------------------
+//   Extern static variables
+//------------------------------------------------------------------------------
+extern const std::string& BaseDir();
+extern const std::string& WorkDir();
+extern const mgr::ConfigReader& StaticCfg();
+
+//------------------------------------------------------------------------------
+//   Basic settings
+//------------------------------------------------------------------------------
 extern void SetChannelType( const std::string& );
 extern std::string  ResultsDir();
 extern std::string  GetEDMPrefix();

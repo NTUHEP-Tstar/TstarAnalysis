@@ -1,5 +1,21 @@
 {
    "___Comment___":"""-----------------------------------------------------------
+   #    Static Settings
+   -----------------------------------------------------------------------------""",
+
+   "Total Luminosity": 2256,
+
+   "Before Cut Label": "beforeAny",
+   "After Cut Label":"afterBaseLine",
+
+   "File Prefix" : "/Dummy/Path",
+
+   "EDM File Prefix Map" : {
+      "MuonSignal" : "sample/MuonSignal" ,
+      "ElectronSignal" : "sample/ElectronSignal"
+   },
+
+   "___Comment___":"""-----------------------------------------------------------
    #    Defining Groups:
    -----------------------------------------------------------------------------""",
 
