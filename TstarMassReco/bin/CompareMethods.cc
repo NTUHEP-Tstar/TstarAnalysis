@@ -21,6 +21,7 @@ using namespace std;
 
 extern void ComparePlot( const string& plot_name, const vector<CompareHistMgr*> );    // See src/ComparePlot.cc
 extern void MatchRatePlot( const string& plot_name, const vector<CompareHistMgr*> );  // See src/ComparePlot.cc
+extern void MatchPlot( CompareHistMgr* );   // see src/ComparePlot.cc
 
 int main( int argc, char* argv[] ){
 
@@ -47,11 +48,11 @@ int main( int argc, char* argv[] ){
       HitFit6jet1b->AddEvent(event);
 //      HitFit8jet1b->AddEvent(event);
    }
-   ChiSq6jet1b->SaveMatchMap();
-   ChiSq6jet2b->SaveMatchMap();
-   ChiSq8jet1b->SaveMatchMap();
-   ChiSq8jet2b->SaveMatchMap();
-   HitFit6jet1b->SaveMatchMap();
+   MatchPlot( ChiSq6jet1b );
+   MatchPlot( ChiSq6jet2b );
+   MatchPlot( ChiSq8jet1b );
+   MatchPlot( ChiSq8jet2b );
+   MatchPlot( HitFit6jet1b );
 
    cout << endl;
    ComparePlot( "6j-bjets_effect" , {ChiSq6jet1b,ChiSq6jet2b} );

@@ -6,8 +6,7 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hh"
-
-#include "TCanvas.h"
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 #include <iostream>
 
@@ -32,8 +31,8 @@ CompareHistMgr::CompareHistMgr(
    _process_label(process)
 {
    SetLatexName( latex_name );
-   AddHist( "TstarMass" , "t^{*} Mass"            , "GeV/c^{2}", 120, 0, 3000 );
-   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 100, 0, 100  );
+   AddHist( "TstarMass" , "t* Mass"            , "GeV/c^{2}", 60, 0, 3000 );
+   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 60, 0, 100  );
    AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
    AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
    AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
@@ -42,11 +41,8 @@ CompareHistMgr::CompareHistMgr(
    AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
    AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
    AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
-   SetFillStyle(0);
-
-
    AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
-
+   SetFillStyle(0);
 
    _match_map = new TH2D( (Name()+ "JetMatchMap").c_str(), (Name()+"JetMatchMap").c_str(),
       5 , 0 , 5 , // Xaxis  fitted result
@@ -120,34 +116,6 @@ void CompareHistMgr::AddEvent( const fwlite::Event& ev )
    _match_map->Fill( GetBinPosition(hadg_label), GetBinPosition(result.HadronicGluon().TypeFromTruth()) );
 }
 
-void CompareHistMgr::SaveMatchMap()
-{
-   TCanvas* c = new TCanvas("c","c",500,600);
-   _match_map->Scale(1./EventCount());
-   _match_map->Draw("COLZ");
-   //_match_map->SetMaximum(1.);
-   _match_map->SetMinimum(0.);
-   _match_map->SetStats(0);
-   _match_map->GetXaxis()->SetTitle("Type from Fit");
-   _match_map->GetXaxis()->SetBinLabel(1,"Leptonic b-quark");
-   _match_map->GetXaxis()->SetBinLabel(2,"Leptonic gluon");
-   _match_map->GetXaxis()->SetBinLabel(3,"Hadronic W jet");
-   _match_map->GetXaxis()->SetBinLabel(4,"Hadronic b-quark");
-   _match_map->GetXaxis()->SetBinLabel(5,"Hadronic gluon");
-   _match_map->GetYaxis()->SetTitle("Type from MC Truth");
-   _match_map->GetYaxis()->SetBinLabel(1,"Leptonic b-quark");
-   _match_map->GetYaxis()->SetBinLabel(2,"Leptonic gluon");
-   _match_map->GetYaxis()->SetBinLabel(3,"Hadronic W jet");
-   _match_map->GetYaxis()->SetBinLabel(4,"Hadronic b-quark");
-   _match_map->GetYaxis()->SetBinLabel(5,"Hadronic gluon");
-   _match_map->GetYaxis()->SetBinLabel(6,"unknown");
-
-static const string cmssw_base = getenv("CMSSW_BASE") ;
-static const string prefix = cmssw_base + "/src/TstarAnalysis/TstarMassReco/results/" ;
-
-   c->SaveAs( (prefix+Name()+"_jetmatchmap.png").c_str() );
-   delete c;
-}
 
 int GetBinPosition( Particle_Label x )
 {

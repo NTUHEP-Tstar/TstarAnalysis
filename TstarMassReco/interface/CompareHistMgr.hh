@@ -26,7 +26,8 @@ public:
    virtual ~CompareHistMgr();
 
    void AddEvent( const fwlite::Event& );
-   void SaveMatchMap();
+   TH2D* MatchMap() { return _match_map; };
+   const TH2D* MatchMap() const { return _match_map; };
 
    unsigned EventCount() const ;
    double LepMatchRate() const ;

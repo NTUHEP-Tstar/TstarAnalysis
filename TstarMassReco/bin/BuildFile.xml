@@ -3,7 +3,9 @@
 <use name="FWCore/FWLite" />
 <use name="DataFormats/FWLite" />
 <use name="PhysicsTools/FWLite" />
+
 <use name="ManagerUtils/SysUtils" />
+<use name="ManagerUtils/PlotUtils"/>
 <use name="TstarAnalysis/CompareDataMC"/>
 <use name="TstarAnalysis/TstarMassReco"/>
 

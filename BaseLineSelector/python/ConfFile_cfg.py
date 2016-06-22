@@ -124,7 +124,7 @@ process.edmOut = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string( options.output ),
     outputCommands = cms.untracked.vstring(
-        "keep *",
+        "drop *",
         "keep *_externalLHEProducer_*_*",
         "keep *_generator_*_*",
         "keep *_prunedGenParticles_*_*",
