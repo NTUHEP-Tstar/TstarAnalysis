@@ -31,17 +31,6 @@ CompareHistMgr::CompareHistMgr(
    _process_label(process)
 {
    SetLatexName( latex_name );
-   AddHist( "TstarMass" , "t* Mass"            , "GeV/c^{2}", 60, 0, 3000 );
-   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 60, 0, 100  );
-   AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
-   AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
-   AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
-   AddHist( "LepPtDiff"  , "Difference in Lepton p_{T}",         "GeV/c", 80,  -200, 200 );
-   AddHist( "LepBPtDiff" , "Difference in Leptonic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
-   AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
-   AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
-   AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
-   AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
    SetFillStyle(0);
 
    _match_map = new TH2D( (Name()+ "JetMatchMap").c_str(), (Name()+"JetMatchMap").c_str(),
@@ -68,6 +57,21 @@ CompareHistMgr::~CompareHistMgr()
 //   Main control flow
 //------------------------------------------------------------------------------
 int GetBinPosition( Particle_Label );
+
+void CompareHistMgr::define_hist()
+{
+   AddHist( "TstarMass" , "t* Mass"            , "GeV/c^{2}", 60, 0, 3000 );
+   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 60, 0, 100  );
+   AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
+   AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
+   AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
+   AddHist( "LepPtDiff"  , "Difference in Lepton p_{T}",         "GeV/c", 80,  -200, 200 );
+   AddHist( "LepBPtDiff" , "Difference in Leptonic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
+}
 
 void CompareHistMgr::AddEvent( const fwlite::Event& ev )
 {

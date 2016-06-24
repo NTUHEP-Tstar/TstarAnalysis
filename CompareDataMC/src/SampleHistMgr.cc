@@ -25,10 +25,7 @@ using mgr::ConfigReader;
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
-SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg ):
-   Named( name ),
-   SampleGroup( name, cfg  ),
-   HistMgr( name )
+void SampleHistMgr::define_hist()
 {
    AddHist( "LepPt"     , "Lepton p_{T}"              , "GeV/c"   , 48 , 20   , 500.  );
    AddHist( "LepEta"    , "Lepton #eta"               , ""        , 75 , -2.5 , 5.0   );
@@ -47,16 +44,9 @@ SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg ):
    AddHist( "ChiSq"     , "#chi^{2}"                  , ""        , 50 , 0    , 10000 );
    AddHist( "LepGluonPt", "Leptonic Gluon Jet p_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
    AddHist( "HadGluonPt", "Hadronic Gluon Jet p_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
-
-   for( auto& sample : SampleList() ){
-      FillHistograms(*sample);
-   }
 }
 
-SampleHistMgr::~SampleHistMgr() {}
-
-
-void SampleHistMgr::FillHistograms( SampleMgr& sample )
+void SampleHistMgr::fill_histograms( SampleMgr& sample )
 {
    fwlite::Handle<vector<pat::MET>>      metHandle;
    fwlite::Handle<vector<pat::Jet>>      jetHandle;
@@ -124,5 +114,20 @@ void SampleHistMgr::FillHistograms( SampleMgr& sample )
       Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().ObservedP4().Pt() , total_weight  );
    }
    cout << "Done!" << endl;
-
 }
+
+
+//------------------------------------------------------------------------------
+//   Constructor and desctructor
+//------------------------------------------------------------------------------
+SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg ):
+   Named( name ),
+   SampleGroup( name, cfg  ),
+   HistMgr( name )
+{
+   for( auto& sample : SampleList() ){
+      fill_histograms(*sample);
+   }
+}
+
+SampleHistMgr::~SampleHistMgr() {}

@@ -85,15 +85,9 @@ void ChiSqMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    //----- ChiSquare solver -----
    _solver.ClearAll();
    _solver.SetMET( &(metList.front()) );
-   for( const auto& mu : muList ){
-      _solver.SetLepton( &mu );
-   }
-   for( const auto& el : elecList ){
-      _solver.SetLepton( &el );
-   }
-   for( const auto& jet : jetList ){
-      _solver.AddJet( &jet );
-   }
+   for( const auto& mu : muList )  { _solver.SetMuon( &mu ); }
+   for( const auto& el : elecList ){ _solver.SetElectron( &el ); }
+   for( const auto& jet : jetList ){ _solver.AddJet( &jet ); }
    _solver.RunPermutations();
    *chisq = _solver.BestResult();
 

@@ -35,7 +35,8 @@ public:
    virtual ~ChiSquareSolver ();
 
    void SetMET( const pat::MET* );
-   void SetLepton( const reco::RecoCandidate* );
+   void SetMuon( const pat::Muon* );
+   void SetElectron( const pat::Electron* );
    void AddJet   ( const pat::Jet* );
    void RunPermutations();
    void ClearAll();
@@ -47,7 +48,8 @@ public:
 private:
    // Original CMSSSW Objects
    const pat::MET*  _met;
-   const reco::RecoCandidate*    _lepton;
+   const pat::Electron*   _electron;
+   const pat::Muon*       _muon;
    std::vector<const pat::Jet*>  _jetList;
 
    // Extended objects

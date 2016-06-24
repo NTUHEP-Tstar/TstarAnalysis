@@ -22,7 +22,8 @@ public:
    ~SampleHistMgr();
 
 private:
-   virtual void FillHistograms( mgr::SampleMgr& ) ;
+   void fill_histograms( mgr::SampleMgr& ) ;
+   virtual void define_hist(); // From HistMgr
 };
 
 #endif /* end of include guard: __SAMPLEHISTMGR_HH__ */

@@ -65,7 +65,17 @@ string GetEDMPrefix()
 
 string GetJsonFile() { return work_dir + "/data/" + channel_name + ".json"; }
 string ResultsDir() { return work_dir + "/results/" + channel_name + "/" ; }
-string GetTexSummaryFile() { return ResultsDir() + "summary.tex" ; }
+
+string GetTexSummaryFile( const string& label )
+{
+   string ans = ResultsDir() + "summary";
+   if( label != "" ){
+      ans = ans + "_" + label;
+   }
+   ans = ans + ".tex";
+   return ans ;
+}
+
 string GetKinematicPlotFile( const string& plot_name ) { return ResultsDir() + plot_name + ".png"; }
 
 //------------------------------------------------------------------------------

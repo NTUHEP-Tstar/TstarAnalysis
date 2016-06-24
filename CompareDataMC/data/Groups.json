@@ -33,12 +33,14 @@
    },
 
    "TTJets" : {
-      "Single Sample" : "TopSamples.json"
+      "Latex Name": "Top pair",
+      "Subset Json" : "TopSamples.json",
+      "Sample List": ["TTJets"]
    },
 
    "SingleTop":{
       "Latex Name": "Single Top",
-      "Subset Json" : "TopSamples.json",
+      "Subset Json": "TopSamples.json",
       "Sample List": ["SingleT_S" , "SingleT_T" , "SingleT_TW" , "SingleTbar_TW" ]
    },
 
@@ -53,12 +55,12 @@
    },
 
    "DiBoson":{
-      "Latex Name": "Di Boson",
+      "Latex Name": "Di boson",
       "File List":["DiBoson.json"]
    },
 
    "Background" : {
-      "Latex Name": "all background",
+      "Latex Name": "MC bkg.",
       "File List":[
          "TopSamples.json",
          "TTPlusBoson.json",
@@ -66,6 +68,14 @@
          "DiBoson.json"
       ]
    },
+
+   "Background List":[
+      "TTJets",
+      "SingleTop",
+      "TTBoson",
+      "SingleBoson",
+      "DiBoson"
+   ],
 
    "Signal List" : [
       "tstar_M700",

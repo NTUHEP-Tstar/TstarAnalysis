@@ -13,6 +13,7 @@ __init__.py
 *.txt
 *.root
 *.log
+*.tmp
 log*
 *.gz
 *.zip
@@ -20,8 +21,11 @@ log*
 *.eps
 *.png
 *.dat
+
+
 **/LSF*
 **/Log*
+**/SH*
 
 # Specific file exclusion
 # [relative/path/to/file]

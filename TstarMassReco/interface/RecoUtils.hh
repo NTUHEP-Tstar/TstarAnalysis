@@ -29,6 +29,8 @@ extern TLorentzVector ConvertToRoot( const CLHEP::HepLorentzVector& x );
 //------------------------------------------------------------------------------
 extern FitParticle MakeResultJet( const pat::Jet*, int );
 extern FitParticle MakeResultMET( const pat::MET* );
+extern FitParticle MakeResultMuon( const pat::Muon* );
+extern FitParticle MakeResultElectron( const pat::Electron* );
 extern FitParticle MakeResultLepton( const reco::RecoCandidate*  );
 
 //------------------------------------------------------------------------------

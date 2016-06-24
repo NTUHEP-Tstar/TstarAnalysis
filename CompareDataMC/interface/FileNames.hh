@@ -28,7 +28,7 @@ extern std::string  GetDataTag();
 extern std::string  GetChannel();
 extern std::string  GetChannelPlotLabel();
 extern std::string  GetJsonFile();
-extern std::string  GetTexSummaryFile();
+extern std::string  GetTexSummaryFile( const std::string& = "");
 extern std::string  GetKinematicPlotFile( const std::string& );
 
 // RooFit Method Related

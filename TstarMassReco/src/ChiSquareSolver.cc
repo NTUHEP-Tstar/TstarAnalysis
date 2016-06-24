@@ -48,41 +48,34 @@ void ChiSquareSolver::RunPermutations()
    TLorentzVector had_w;
    TLorentzVector had_t;
    TLorentzVector had_tstar;
-   if( _debug ) { cout << "Running all chi square permutations" << endl; }
+   TLorentzVector lepton;
+
+   if(_muon){ lepton = ConvertToRoot(*_muon);}
+   if(_electron){ lepton = ConvertToRoot(*_electron);}
 
    unsigned config = 0;
-   do{
-      cout << "\r[ChiSq] Running config " << config << flush;
-      if( _debug > 2 ) {
-         cout << "\t[ChiSq Jet Pt] " << flush;
-         for( const auto& vec: _jetList ){
-            cout << vec->pt() << " " << flush;
-         }
-         cout << endl;
-      }
+   do{ // Running jet permutations
       if( !CheckPermutation() ){ continue; }
       had_w     = had_q1() + had_q2();
       had_t     = had_w    + had_b();
       had_tstar = had_t    + had_g();
 
       for( unsigned i = 0 ; i < 2 ; ++i ){
-         lep_w     = ConvertToRoot(*_lepton) + _neutrino[i] ;
-         lep_t     = lep_w   + lep_b();
-         lep_tstar = lep_t   + lep_g();
+         lep_w     = lepton + _neutrino[i] ;
+         lep_t     = lep_w  + lep_b();
+         lep_tstar = lep_t  + lep_g();
 
          chiSquare =
-            (( had_w.M()     - W_MASS        ) * ( had_w.M()     - W_MASS        )) / ( W_WIDTH     * W_WIDTH     )
-            + (( had_t.M()     - TOP_MASS      ) * ( had_t.M()     - TOP_MASS      )) / ( TOP_WIDTH   * TOP_WIDTH   )
-            + (( lep_t.M()     - TOP_MASS      ) * ( lep_t.M()     - TOP_MASS      )) / ( TOP_WIDTH   * TOP_WIDTH   )
+              (( had_w.M() - W_MASS   ) * ( had_w.M() - W_MASS   )) / ( W_WIDTH   * W_WIDTH   )
+            + (( had_t.M() - TOP_MASS ) * ( had_t.M() - TOP_MASS )) / ( TOP_WIDTH * TOP_WIDTH )
+            + (( lep_t.M() - TOP_MASS ) * ( lep_t.M() - TOP_MASS )) / ( TOP_WIDTH * TOP_WIDTH )
             + (( lep_tstar.M() - had_tstar.M() ) * ( lep_tstar.M() - had_tstar.M() )) / ( TSTAR_WIDTH * TSTAR_WIDTH ) ;
 
          tstarMass = (lep_tstar.M() + had_tstar.M()) / 2.;
          AddResult( tstarMass , chiSquare , i );
-         if( _debug > 2 ) { cout << "\t " << tstarMass << " "<< chiSquare << endl; }
       }
       ++config;
    } while( next_permutation( _jetList.begin() , _jetList.end(), SortJet ) );
-   cout << "Finished!" << endl;
 }
 
 void ChiSquareSolver::AddResult(const double tstar_mass,const double chi_square, const unsigned neu_index )
@@ -92,7 +85,10 @@ void ChiSquareSolver::AddResult(const double tstar_mass,const double chi_square,
    new_result._chiSquare = chi_square ;
 
    // Lepton
-   new_result.AddParticle( MakeResultLepton( _lepton ) );
+   FitParticle new_lep;
+   if( _muon )     { new_lep = MakeResultMuon(_muon) ; }
+   if( _electron ) { new_lep = MakeResultElectron(_electron); }
+   new_result.AddParticle(new_lep);
 
    // Neutrino
    FitParticle new_met = MakeResultMET( _met );
@@ -124,7 +120,6 @@ void ChiSquareSolver::AddResult(const double tstar_mass,const double chi_square,
 
 const RecoResult& ChiSquareSolver::BestResult() const
 {
-   if( _debug ) { cout << "Getting Best Results..." << endl; }
    static RecoResult __null_result__;
    __null_result__._chiSquare = -1000;
    int index = -1;
@@ -136,10 +131,6 @@ const RecoResult& ChiSquareSolver::BestResult() const
       }
    }
 
-   if( _debug ){
-      cout << "Found best results at " << index
-      << " with chi^2 value: " << min_chiSq << endl;
-   }
    if( index != -1 ){
       return _resultsList[index];
    }
@@ -156,10 +147,19 @@ void ChiSquareSolver::SetMET( const pat::MET* x )
    _met = x;
 }
 
-void ChiSquareSolver::SetLepton( const reco::RecoCandidate* x )
+void ChiSquareSolver::SetMuon( const pat::Muon* x )
 {
-   _lepton = x;
+   _muon = x ;
+   _electron = NULL;
    solveNeutrino();
+}
+
+void ChiSquareSolver::SetElectron( const pat::Electron* x )
+{
+   _muon = NULL ;
+   _electron = x ;
+   solveNeutrino();
+
 }
 
 void ChiSquareSolver::AddJet( const pat::Jet* jet )
@@ -174,6 +174,9 @@ void ChiSquareSolver::AddJet( const pat::Jet* jet )
 
 void ChiSquareSolver::ClearAll()
 {
+   _met = NULL;
+   _muon = NULL;
+   _electron = NULL;
    _jetList.clear();
    _resultsList.clear();
 }
@@ -194,10 +197,17 @@ void ChiSquareSolver::solveNeutrino()
    _npx_  = _met->px();
    _npy_  = _met->py();
 
-   _lx_   = _lepton->px()     ;
-   _ly_   = _lepton->py()     ;
-   _lz_   = _lepton->pz()     ;
-   _lE_   = _lepton->energy() ;
+   if( _muon ){
+      _lx_   = _muon->px()     ;
+      _ly_   = _muon->py()     ;
+      _lz_   = _muon->pz()     ;
+      _lE_   = _muon->energy() ;
+   } else {
+      _lx_   = _electron->px()     ;
+      _ly_   = _electron->py()     ;
+      _lz_   = _electron->pz()     ;
+      _lE_   = _electron->energy() ;
+   }
 
    _alpha_ = _npx_ + _lx_ ;
    _beta_  = _npy_ + _ly_ ;
@@ -221,10 +231,6 @@ void ChiSquareSolver::solveNeutrino()
       _npz_ = ( -1. * _b_ - sqrt( _d_ ) )/ ( 2.*_a_ ) ;
       _nE_  = sqrt( _npx_ * _npx_  + _npy_ * _npy_ + _npz_ * _npz_) ;
       _neutrino[1] = TLorentzVector( _npx_ , _npy_ , _npz_ , _nE_ ) ;
-   }
-   if( _debug > 1 ){
-      cout << "Lepton: " << _lepton->pt() << endl;
-      cout << "Neutrino:" << _neutrino[0].Pt() << endl;
    }
 }
 

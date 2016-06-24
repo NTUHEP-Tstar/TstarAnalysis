@@ -10,10 +10,11 @@
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
-
 #include <boost/range/adaptor/reversed.hpp>
 
 using namespace std;
+
+extern int GetInt( const string& );
 
 void MakeComparePlot(
    SampleHistMgr* all_data,
@@ -33,6 +34,7 @@ void MakeComparePlot(
       const unsigned bins = background.front()->Hist(hist_name)->GetXaxis()->GetNbins();
       const double   xmin = background.front()->Hist(hist_name)->GetXaxis()->GetXmin();
       const double   xmax = background.front()->Hist(hist_name)->GetXaxis()->GetXmax();
+      double         ymax = 0;
       THStack* stack      = new THStack("stack","");
       TH1D*    error_hist = new TH1D("error","",bins,xmin,xmax);
       TH1D*    data_hist  = new TH1D("data" ,"",bins,xmin,xmax);
@@ -59,6 +61,9 @@ void MakeComparePlot(
          double dataBinError = data_hist->GetBinError(i);
          binError += binContent*avgError;
          error_hist->SetBinError(i,binError);
+         if( binError + binContent > ymax ){
+            ymax = binError + binContent;
+         }
 
          rel_error->SetBinContent(i,1.0);
          if( binContent != 0 ){
@@ -70,23 +75,25 @@ void MakeComparePlot(
          }
       }
       // Making Signal plots
-      TH1D*    signal_hist   = signal_mgr->Hist(hist_name);
+      TH1D*  signal_hist   = signal_mgr->Hist(hist_name);
+      const  double sig_scale = 500./signal_hist->Integral() ; // Force 500 events in display
+      signal_hist->Scale( sig_scale );
 
       // Legend settings
       TLegend* l = plt::NewLegend(0.62,0.3);
       char data_entry[128];
-      sprintf( data_entry , "Data (%lg fb^{-1})" , total_lumi/1000. );
+      char sig_entry[128];
+      sprintf( data_entry , "Data (%.3lf fb^{-1})" , total_lumi/1000. );
+      sprintf( sig_entry  , "Signal_{M=%d} (#times %.0lf)", GetInt(signal_mgr->Name()) , sig_scale );
       l->AddEntry( data_hist , data_entry , "lp" );
-      l->AddEntry( background[0]->Hist(hist_name), "t#bar{t} + Jets"  , "f" );
-      l->AddEntry( background[1]->Hist(hist_name), "Single top"       , "f" );
-      l->AddEntry( background[2]->Hist(hist_name), "t#bar{t} + Boson" , "f");
-      l->AddEntry( background[3]->Hist(hist_name), "Single Boson"     , "f" );
-      l->AddEntry( background[4]->Hist(hist_name), "Di-Boson"         , "f" );
-      l->AddEntry( error_hist , "Background error" , "fl" );
-      l->AddEntry( signal_hist, "t*#bar{t}* {}_{M_{t*}=700GeV} (10 pb)" , "fl");
+      for( const auto& entry : background ){
+         l->AddEntry( entry->Hist(hist_name), entry->LatexName().c_str()  , "f" );
+      }
+      l->AddEntry( error_hist , "Bkg. error" , "fl" );
+      l->AddEntry( signal_hist, sig_entry , "fl");
 
       // The Plotting commands
-      TCanvas* c = new TCanvas("c","c",650,500);
+      TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
 
       // Drawing the top canvas
       TPad* pad1 = new TPad( "pad1" , "pad1" , 0 , 0.30 , 1., 1.0 );
@@ -102,7 +109,10 @@ void MakeComparePlot(
 
       // Drawing bottom canvas
       TPad*   pad2 = new TPad( "pad2" , "pad2" , 0 , 0.10, 1, 0.30 );
-      TLine*  line = new TLine( error_hist->GetXaxis()->GetXmin() , 1 , error_hist->GetXaxis()->GetXmax() , 1 );
+      TLine*  line = new TLine( xmin, 1, xmax, 1 );
+      TLine*  line_top = new TLine( xmin, 0, xmax, 0 );
+      TLine*  line_bot = new TLine( xmin, 0, xmax, 0 );
+
       pad2->SetTopMargin(0.025);
       pad2->SetBottomMargin(0.010);
       pad2->Draw();
@@ -111,6 +121,8 @@ void MakeComparePlot(
       data_rel_hist->Draw("same LPE1");
       rel_error->Draw("same E2");
       line->Draw("same");
+      line_top->Draw("same");
+      line_bot->Draw("same");
       c->cd();
 
 
@@ -123,9 +135,11 @@ void MakeComparePlot(
       rel_error->SetFillStyle(3004);
       rel_error->SetStats(0);
       data_hist->SetMarkerStyle(21);
+      data_hist->SetMarkerSize(0.4);
       data_hist->SetLineColor(kBlack);
       data_hist->SetStats(0);
       data_rel_hist->SetMarkerStyle(21);
+      data_hist->SetMarkerSize(0.4);
       data_rel_hist->SetLineColor(kBlack);
       data_rel_hist->SetStats(0);
       signal_hist->SetLineColor(kRed);
@@ -133,29 +147,30 @@ void MakeComparePlot(
       signal_hist->SetFillStyle(3005);
 
       // Font and title settings
-      const size_t font_size = 14;
       plt::SetAxis( stack );
       plt::DisableXAxis( stack );
       stack->GetYaxis()->SetTitle( signal_hist->GetYaxis()->GetTitle() );
+      stack->SetMaximum( ymax * 1.2 );
 
       plt::SetAxis( data_rel_hist );
       data_rel_hist->GetXaxis()->SetTitleOffset(5.5);
       data_rel_hist->GetXaxis()->SetTitle( signal_hist->GetXaxis()->GetTitle() );
       data_rel_hist->GetYaxis()->SetTitle( "#frac{Data}{MC}");
-      data_rel_hist->SetMaximum(2.0);
-      data_rel_hist->SetMinimum(0.0);
+      data_rel_hist->SetMaximum(2.2);
+      data_rel_hist->SetMinimum(-0.2);
+      line->SetLineColor(kRed);
+      line->SetLineStyle(1);
+      line_top->SetLineColor(kBlack);
+      line_bot->SetLineColor(kBlack);
+      line_top->SetLineStyle(3);
+      line_bot->SetLineStyle(3);
 
       // Additional captions
-      TLatex tl;
-      tl.SetTextFont(43);
-      tl.SetTextSize( font_size + 4 );
+      plt::DrawCMSLabel();
+      plt::DrawLuminosity( total_lumi );
 
-      tl.SetTextAlign(11);
-      tl.DrawLatex( 0.1, 0.95 , "CMS at #sqrt{s} = 13TeV");
-
-      tl.SetTextAlign(31);
-      string channel_msg = "("+GetChannelPlotLabel() + " " + label+")";
-      tl.DrawLatex( 0.9, 0.95 , channel_msg.c_str() );
+      TPaveText* tb = plt::NewTextBox( 0.15,0.75, 0.45,0.85 );
+      tb->AddText( GetChannelPlotLabel().c_str() );
 
       c->SaveAs( GetKinematicPlotFile(hist_name+"_"+label).c_str() );
 
@@ -167,6 +182,7 @@ void MakeComparePlot(
       delete error_hist;
       delete stack;
       delete line;
+      delete tb;
    }
 
 }

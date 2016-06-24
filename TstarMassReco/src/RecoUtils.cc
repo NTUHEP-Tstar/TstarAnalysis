@@ -68,6 +68,50 @@ FitParticle MakeResultMET( const pat::MET* met )
    return ans;
 }
 
+FitParticle MakeResultMuon( const pat::Muon* lepton )
+{
+   FitParticle ans;
+
+   ans.ObservedP4() = ConvertToRoot( *lepton );
+   ans.FittedP4()   = ConvertToRoot( *lepton );
+   ans.TypeFromFit()= lepton_label;
+
+   if( lepton->genLepton() ){
+      const reco::GenParticle* gen =  lepton->genLepton();
+      ans.GenP4() = ConvertToRoot( *gen );
+      ans.TypeFromTruth() = GetLeptonType( gen ) ;
+   } else {
+      ans.GenP4().SetPtEtaPhiE(0,0,0,0);
+      ans.TypeFromTruth() = unknown_label;
+   }
+   ans.IsBTagged()    = false;
+   ans.TruthFlavour() = 0 ;
+
+   return ans;
+}
+
+FitParticle MakeResultElectron( const pat::Electron* lepton )
+{
+   FitParticle ans;
+
+   ans.ObservedP4() = ConvertToRoot( *lepton );
+   ans.FittedP4()   = ConvertToRoot( *lepton );
+   ans.TypeFromFit()= lepton_label;
+
+   if( lepton->genLepton() ){
+      const reco::GenParticle* gen =  lepton->genLepton();
+      ans.GenP4() = ConvertToRoot( *gen );
+      ans.TypeFromTruth() = GetLeptonType( gen ) ;
+   } else {
+      ans.GenP4().SetPtEtaPhiE(0,0,0,0);
+      ans.TypeFromTruth() = unknown_label;
+   }
+   ans.IsBTagged()    = false;
+   ans.TruthFlavour() = 0 ;
+
+   return ans;
+}
+
 FitParticle MakeResultLepton( const reco::RecoCandidate* lepton )
 {
    FitParticle ans;

@@ -109,7 +109,7 @@ function make_file_list()
 {
    sample=$1
    das_client --limit=100000000 --query="file dataset=$sample" | grep "store" > .temp.txt
-   split -l 8 .temp.txt $SPLIT_PREFIX
+   split -l 64 .temp.txt $SPLIT_PREFIX
    rm .temp.txt
    ls "$SPLIT_PREFIX"*
 }

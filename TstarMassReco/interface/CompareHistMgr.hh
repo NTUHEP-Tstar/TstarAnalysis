@@ -57,6 +57,8 @@ private:
    std::vector<TH1D*>  _hist_list;
    TH2D*  _match_map;
 
+   virtual void define_hist(); // From HistMgr
+
 };
 
 #endif /* end of include guard: __COMPAREHISTMGR_HH__ */

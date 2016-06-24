@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( GetDataTag() , StaticCfg() );
 
-   // Defining out channels see data/MuonSignal.json for sample settings
+   // Defining out channels see data/Groups.json for sample settings
    vector<SampleHistMgr*>  background;
    background.push_back( new SampleHistMgr("TTJets"     , StaticCfg() ) );
    background.push_back( new SampleHistMgr("SingleTop"  , StaticCfg() ) );
