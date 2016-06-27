@@ -57,7 +57,7 @@ string GetEDMPrefix()
    if( channel_name == "MuonSignal" ){
       return work_dir+"/sample/MuonSignal/";
    }else if( channel_name == "ElectronSignal") {
-      return work_dir+"sample/ElectronSignal/";
+      return work_dir+"/sample/ElectronSignal/";
    } else {
       return "./";
    }

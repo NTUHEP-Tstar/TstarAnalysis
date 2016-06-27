@@ -91,11 +91,10 @@ extern void SummaryMCLumi( const GroupList& sig_list, const GroupList& bkg_list 
 {
    FILE* file = OpenLumiFile("lumi");
    for( const auto& sig : sig_list ){ PrintLumiLine(file,sig->Sample()); }
-   PrintHline(file);
 
    for( const auto& grp : bkg_list ){
-      for( const auto& smp : grp->SampleList() ){ PrintLumiLine(file,smp); }
       PrintHline(file);
+      for( const auto& smp : grp->SampleList() ){ PrintLumiLine(file,smp); }
    }
 
    CloseTableFile(file);
@@ -158,15 +157,16 @@ void PrintCount( FILE* file , const string& tag, const Parameter& x )
    );
 }
 
-static const char simple_line[] = "%-55s %35s\\\\ \n";
+static const char simple_line[] = "%-30s & %35s &%35s\\\\ \n";
 
 FILE* OpenSimpleFile( const string& tag )
 {
    FILE* file = fopen( GetTexSummaryFile(tag).c_str() , "w" );
-   fprintf( file, "\\begin{tabular}{|l|c|}\n");
+   fprintf( file, "\\begin{tabular}{|l|cc|}\n");
    fprintf( file, hline_line );
    fprintf( file , simple_line ,
       "Sample" ,
+      "Cross section ($pb$)",
       "Expected Yield"
    );
    fprintf( file , hline_line );
@@ -177,7 +177,8 @@ void PrintSimpleLine( FILE* file, const SampleGroup* x )
 {
    fprintf( file , simple_line ,
       x->LatexName().c_str(),
-      x->ExpectedYield().LatexFormat().c_str()
+      x->TotalCrossSection().LatexFormat(1).c_str(),
+      x->ExpectedYield().LatexFormat(1).c_str()
    );
 }
 
@@ -185,7 +186,8 @@ void PrintSimpleCount( FILE* file, const string& tag, const Parameter& x )
 {
    fprintf( file , simple_line ,
       tag.c_str(),
-      x.LatexFormat().c_str()
+      "",
+      x.LatexFormat(1).c_str()
    );
 }
 
@@ -198,9 +200,9 @@ FILE* OpenLumiFile( const string& tag )
    fprintf( file, hline_line );
    fprintf( file , lumi_line ,
       "Sample" ,
-      "Cross section",
+      "Cross section($pb$)",
       "K Factor",
-      "Equiv. Luminosity (pb)"
+      "Equiv. Luminosity ($pb^{-1}$)"
    );
    fprintf( file , hline_line );
    return file;
@@ -208,7 +210,9 @@ FILE* OpenLumiFile( const string& tag )
 
 void PrintLumiLine( FILE* file , const SampleMgr* x )
 {
-   double equiv = 1./ x->CrossSection().CentralValue() / x->KFactor().CentralValue();
+   double equiv = x->OriginalEventCount();
+   equiv /= x->CrossSection().CentralValue();
+   equiv /= x->KFactor().CentralValue();
    fprintf( file , lumi_line ,
       x->LatexName().c_str(),
       x->CrossSection().LatexFormat().c_str(),

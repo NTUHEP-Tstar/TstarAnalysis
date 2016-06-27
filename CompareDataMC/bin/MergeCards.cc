@@ -25,7 +25,7 @@ char buffer[65536];
 int main(int argc, char* argv[]) {
 
    mgr::ConfigReader cfg( "./data/Groups.json" );
-   vector<string> masspoint_list = cfg.GetStaticStringList("SignalList");
+   vector<string> masspoint_list = cfg.GetStaticStringList("Signal List");
 
    opt::options_description desc("Merge options");
    opt::variables_map       vm;

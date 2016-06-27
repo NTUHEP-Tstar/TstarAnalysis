@@ -4,7 +4,7 @@
    #    Reference:
    -----------------------------------------------------------------------------""",
    "tstar_M700": {
-      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 700GeV/c$^{2}$ )",
+      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 700 GeV/c$^{2}$ )",
       "Cross Section": [ 4.9228, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
@@ -12,7 +12,7 @@
       ]
    },
    "tstar_M800": {
-      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 800GeV/c$^{2}$ )",
+      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 800 GeV/c$^{2}$ )",
       "Cross Section": [ 1.6752, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
@@ -20,7 +20,7 @@
       ]
    },
    "tstar_M900": {
-      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 900GeV/c$^{2}$ )",
+      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 900 GeV/c$^{2}$ )",
       "Cross Section": [ 0.63571, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
@@ -60,7 +60,7 @@
       ]
    },
    "tstar_M1400": {
-      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1300GeV/c$^{2}$ )",
+      "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1400 GeV/c$^{2}$ )",
       "Cross Section": [  0.0103092, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[

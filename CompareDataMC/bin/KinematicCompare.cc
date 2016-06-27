@@ -64,20 +64,15 @@ int main(int argc, char* argv[])
    MakeComparePlot( data, background, signal_mgr );
 
 
-   // Making normalized plots
+   // Normalizing MC to data
    Parameter bg_original_yield(0,0,0);
    for( const auto sample : background ){
       bg_original_yield += sample->ExpectedYield();
    }
-   const double bg_scale = 1./bg_original_yield.CentralValue();
+   const double bg_scale = data->EventsInFile()/bg_original_yield.CentralValue();
    for( auto sample: background){
       sample->Scale(bg_scale);
    }
-   signal_mgr->Scale(bg_scale);
-
-   const double data_yield = data->EventsInFile();
-   const double data_scale = 1./data_yield;
-   data->Scale(data_scale);
 
    MakeComparePlot( data, background, signal_mgr , "normalized");
 

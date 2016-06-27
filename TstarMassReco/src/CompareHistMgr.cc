@@ -32,6 +32,7 @@ CompareHistMgr::CompareHistMgr(
 {
    SetLatexName( latex_name );
    SetFillStyle(0);
+   define_hist();
 
    _match_map = new TH2D( (Name()+ "JetMatchMap").c_str(), (Name()+"JetMatchMap").c_str(),
       5 , 0 , 5 , // Xaxis  fitted result

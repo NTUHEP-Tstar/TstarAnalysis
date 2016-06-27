@@ -3,7 +3,6 @@
    #    Data sector
    -----------------------------------------------------------------------------""",
 
-
    "Run2015D":{
       "Latex Name": "Run 2015 D",
       "Cross Section": [0,0,0],
@@ -14,25 +13,7 @@
          "SingleMuon_Run2015D-16Dec2015-v1_ac.root",
          "SingleMuon_Run2015D-16Dec2015-v1_ad.root",
          "SingleMuon_Run2015D-16Dec2015-v1_ae.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_af.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ag.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ah.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ai.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_aj.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ak.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_al.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_am.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_an.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ao.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ap.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_aq.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ar.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_as.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_at.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_au.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_av.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_aw.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ax.root"
+         "SingleMuon_Run2015D-16Dec2015-v1_af.root"
       ]
    },
 

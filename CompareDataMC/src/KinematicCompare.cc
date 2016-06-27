@@ -75,16 +75,19 @@ void MakeComparePlot(
          }
       }
       // Making Signal plots
-      TH1D*  signal_hist   = signal_mgr->Hist(hist_name);
-      const  double sig_scale = 500./signal_hist->Integral() ; // Force 500 events in display
-      signal_hist->Scale( sig_scale );
+      TH1D*  signal_hist     = signal_mgr->Hist(hist_name);
+      const double sig_scale = all_data->EventsInFile()/signal_mgr->ExpectedYield()/2. ;
+      if( signal_hist->Integral() < all_data->EventsInFile()/4.0 ){
+         signal_hist->Scale( sig_scale );
+      }
+
 
       // Legend settings
       TLegend* l = plt::NewLegend(0.62,0.3);
       char data_entry[128];
       char sig_entry[128];
       sprintf( data_entry , "Data (%.3lf fb^{-1})" , total_lumi/1000. );
-      sprintf( sig_entry  , "Signal_{M=%d} (#times %.0lf)", GetInt(signal_mgr->Name()) , sig_scale );
+      sprintf( sig_entry  , "Signal_{M=%d} (#times %.1lf)", GetInt(signal_mgr->Name()) , sig_scale );
       l->AddEntry( data_hist , data_entry , "lp" );
       for( const auto& entry : background ){
          l->AddEntry( entry->Hist(hist_name), entry->LatexName().c_str()  , "f" );
@@ -110,7 +113,7 @@ void MakeComparePlot(
       // Drawing bottom canvas
       TPad*   pad2 = new TPad( "pad2" , "pad2" , 0 , 0.10, 1, 0.30 );
       TLine*  line = new TLine( xmin, 1, xmax, 1 );
-      TLine*  line_top = new TLine( xmin, 0, xmax, 0 );
+      TLine*  line_top = new TLine( xmin, 2, xmax, 2 );
       TLine*  line_bot = new TLine( xmin, 0, xmax, 0 );
 
       pad2->SetTopMargin(0.025);
@@ -135,11 +138,9 @@ void MakeComparePlot(
       rel_error->SetFillStyle(3004);
       rel_error->SetStats(0);
       data_hist->SetMarkerStyle(21);
-      data_hist->SetMarkerSize(0.4);
       data_hist->SetLineColor(kBlack);
       data_hist->SetStats(0);
       data_rel_hist->SetMarkerStyle(21);
-      data_hist->SetMarkerSize(0.4);
       data_rel_hist->SetLineColor(kBlack);
       data_rel_hist->SetStats(0);
       signal_hist->SetLineColor(kRed);
@@ -169,8 +170,9 @@ void MakeComparePlot(
       plt::DrawCMSLabel();
       plt::DrawLuminosity( total_lumi );
 
-      TPaveText* tb = plt::NewTextBox( 0.15,0.75, 0.45,0.85 );
+      TPaveText* tb = plt::NewTextBox( 0.12, 0.82, 0.30,0.88 );
       tb->AddText( GetChannelPlotLabel().c_str() );
+      tb->Draw();
 
       c->SaveAs( GetKinematicPlotFile(hist_name+"_"+label).c_str() );
 

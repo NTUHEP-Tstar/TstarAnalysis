@@ -156,7 +156,7 @@ void MakeLimitPlot()
    mg->GetXaxis()->SetTitle( "t* Mass (GeV/c^{2})" );    // MUST Be after draw!!
    mg->GetYaxis()->SetTitle( "#sigma(pp#rightarrow t*#bar{t}*) (pb)" ); // https://root.cern.ch/root/roottalk/roottalk09/0078.html
    mg->GetXaxis()->SetLimits( mass[0]-50 , mass[binCount-1]+50 );
-   mg->SetMaximum(y_max*30.);
+   mg->SetMaximum(y_max*100.);
    mg->SetMinimum(y_min*0.3);
 
 
@@ -170,15 +170,17 @@ void MakeLimitPlot()
    l->AddEntry( theory  , "Theory"               , "l" );
    l->Draw();
 
+
+   plt::DrawCMSLabel();
+   plt::DrawLuminosity( StaticCfg().GetStaticDouble("Total Luminosity") );
+
    TLatex tl;
    tl.SetNDC(kTRUE);
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_LEFT );
-   tl.DrawLatex( PLOT_X_MIN, legend_y_min, GetChannelPlotLabel().c_str() );
-
-   plt::DrawCMSLabel();
-   plt::DrawLuminosity( StaticCfg().GetStaticDouble("Total Luminosity") );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, GetChannelPlotLabel().c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, (GetMethodLabel()+", "+GetFitFuncTag()).c_str() );
 
    //----- Saving and cleaning up  ------------------------------------------------
    c1->SetLogy(kTRUE);

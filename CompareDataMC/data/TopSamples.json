@@ -10,16 +10,7 @@
       "EDM Files":[
          "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_aa.root",
          "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ab.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ac.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ad.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ae.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_af.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ag.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ah.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ai.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_aj.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ak.root",
-         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_al.root"
+         "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_ac.root"
       ]
    },
 
@@ -41,11 +32,7 @@
       "K Factor":        [1.0],
       "EDM Files":[
          "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_aa.root",
-         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_ab.root",
-         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_ac.root",
-         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_ad.root",
-         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_ae.root",
-         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_af.root"
+         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_ab.root"
       ]
    },
    "SingleT_TW": {

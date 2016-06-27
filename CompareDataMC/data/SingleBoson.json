@@ -9,9 +9,7 @@
       "Cross Section":[ 1345, 1.2 ,1.2 ],
       "K Factor":     [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root",
-         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ab.root",
-         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ac.root"
+         "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "WJets_200_400": {
@@ -19,8 +17,7 @@
       "Cross Section": [ 359.7, 0.2, 0.2 ],
       "K Factor":      [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root",
-         "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ab.root"
+         "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "WJets_400_600": {
@@ -32,16 +29,15 @@
       ]
    },
    "WJets_600_800": {
-      "Latex Name" : "$W$ + Jets ($H_{T} \\in [600,800)$) ",
+      "Latex Name" : "$W$ + Jets ($H_{T} \\in [600,800)$ ) ",
       "Cross Section":        [ 12.05, 0.0073, 0.0073 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root",
-         "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ab.root"
+         "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_aa.root"
       ]
    },
    "WJets_800_1200": {
-      "Latex Name" : "$W$ + Jets ($H_{T} \\in [800,1200)$) ",
+      "Latex Name" : "$W$ + Jets ( $H_{T} \\in [800,1200)$ ) ",
       "Cross Section":        [ 6.501, 0.0017, 0.0017 ],
       "K Factor":        [1.21],
       "EDM Files":[
@@ -49,7 +45,7 @@
       ]
    },
    "WJets_1200_2500": {
-      "Latex Name" : "$W$ + Jets ($H_{T} \\in [1200,2500)$) ",
+      "Latex Name" : "$W$ + Jets ($H_{T} \\in [1200,2500)$ ) ",
       "Cross Section":        [ 1.329, 0.0025, 0.0025 ],
       "K Factor":        [1.21],
       "EDM Files":[
@@ -57,7 +53,7 @@
       ]
    },
    "WJets_2500_Inf": {
-      "Latex Name" : "$W$ + Jets ( $H_{T} \\in [2500,\\infty)$) ",
+      "Latex Name" : "$W$ + Jets ( $H_{T} \\in [2500,\\infty)$ ) ",
       "Cross Section":        [ 0.03216, 0.000104, 0.000104 ],
       "K Factor":        [1.21],
       "EDM Files":[
@@ -65,7 +61,7 @@
       ]
    },
    "ZJets_100_200": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [100,200)$)",
+      "Latex Name" : "$Z$ + Jets ( $H_{T} \\in [100,200)$ )",
       "Cross Section": [ 147.40, 0.09, 0.09],
       "K Factor": [1.23],
       "EDM Files":[
@@ -73,7 +69,7 @@
       ]
    },
    "ZJets_200_400": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [200,400)$)",
+      "Latex Name" : "$Z$ + Jets ( $H_{T} \\in [200,400)$ )",
       "Cross Section": [40.99, 0.04, 0.04],
       "K Factor": [1.23],
       "EDM Files":[
@@ -81,7 +77,7 @@
       ]
    },
    "ZJets_400_600": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [400,600)$)",
+      "Latex Name" : "$Z$ + Jets ( $H_{T} \\in [400,600)$ )",
       "Cross Section": [ 5.678, 0.005, 0.005 ],
       "K Factor": [1.23],
       "EDM Files":[
@@ -89,7 +85,7 @@
       ]
    },
    "ZJets_600_Inf": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [600,\\infty)$)",
+      "Latex Name" : "$Z$ + Jets ( $H_{T} \\in [600,\\infty)$ )",
       "Cross Section": [ 2.189, 0.002, 0.002 ],
       "K Factor": [1.23],
       "EDM Files":[
