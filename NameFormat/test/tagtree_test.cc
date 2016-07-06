@@ -56,7 +56,7 @@ int main(int argc, char const *argv[])
                   tag->EDMFilePath();
 
                   cout << tag->GetChannel() << endl;
-                  cout << tag->GetChannelJsonTag()   << endl;
+                  cout << tag->GetChannelDataTag()   << endl;
                   cout << tag->GetChannelLatex()     << endl;
                   cout << tag->GetChannelRoot()      << endl;
 
