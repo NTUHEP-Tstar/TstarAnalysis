@@ -85,12 +85,9 @@ void HitFitMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    //----- HitFitter -----
    _hitfitter.ClearAll();
    _hitfitter.SetMET( &metList.front() );
-   for( const auto& mu : muList ){
-      _hitfitter.SetMuon( &mu );
-   }
-   for( const auto& el : elecList ){
-      _hitfitter.SetElectron( &el );
-   }
+   for( const auto& mu : muList )  { _hitfitter.SetMuon( &mu ); }
+   for( const auto& el : elecList ){ _hitfitter.SetElectron( &el ); }
+   
    for( const auto& jet : jetList ) {
       if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
         _hitfitter.AddBTagJet( &jet );

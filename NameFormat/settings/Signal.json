@@ -8,7 +8,7 @@
       "Cross Section": [ 4.9228, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M800": {
@@ -16,7 +16,7 @@
       "Cross Section": [ 1.6752, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M900": {
@@ -24,7 +24,7 @@
       "Cross Section": [ 0.63571, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1000": {
@@ -32,7 +32,7 @@
       "Cross Section": [ 0.26231, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1100": {
@@ -40,7 +40,7 @@
       "Cross Section": [ 0.11561, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1200": {
@@ -48,7 +48,7 @@
       "Cross Section": [ 0.053722, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1300": {
@@ -56,7 +56,7 @@
       "Cross Section": [ 0.026058, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1400": {
@@ -64,7 +64,7 @@
       "Cross Section": [  0.0103092, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1500": {
@@ -72,7 +72,7 @@
       "Cross Section": [ 0.0067720, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
    "tstar_M1600": {
@@ -80,7 +80,7 @@
       "Cross Section": [ 0.0035883, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "TstarTstarToTgluonTgluon_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8_aa.root"
+         "TstarTstarToTgluonTgluon_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    }
 }

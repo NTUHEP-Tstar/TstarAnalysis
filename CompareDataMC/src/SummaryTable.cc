@@ -6,10 +6,9 @@
  *
 *******************************************************************************/
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
-#include <stdio.h>
-#include <stdlib.h>
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
+#include <cstdio>
+#include <cstdlib>
 #include <vector>
 
 using namespace std;
@@ -120,7 +119,7 @@ void CloseTableFile( FILE* file )
 
 FILE* OpenSelecFile( const string& tag )
 {
-   FILE* file = fopen( GetTexSummaryFile(tag).c_str() , "w" );
+   FILE* file = fopen( compare_namer.TexFileName("summary",tag).c_str() , "w" );
    fprintf( file, "\\begin{tabular}{|l|ccc|c|}\n");
    fprintf( file, hline_line );
    fprintf( file , selec_line ,
@@ -161,7 +160,7 @@ static const char simple_line[] = "%-30s & %35s &%35s\\\\ \n";
 
 FILE* OpenSimpleFile( const string& tag )
 {
-   FILE* file = fopen( GetTexSummaryFile(tag).c_str() , "w" );
+   FILE* file = fopen( compare_namer.TexFileName("summary",tag).c_str() , "w" );
    fprintf( file, "\\begin{tabular}{|l|cc|}\n");
    fprintf( file, hline_line );
    fprintf( file , simple_line ,
@@ -195,7 +194,7 @@ static const char lumi_line[] = "%-55s %25s %10s %35s\\\\ \n";
 
 FILE* OpenLumiFile( const string& tag )
 {
-   FILE* file = fopen( GetTexSummaryFile(tag).c_str() , "w" );
+   FILE* file = fopen( compare_namer.TexFileName("summary",tag).c_str() , "w" );
    fprintf( file, "\\begin{tabular}{|l|ccc|}\n");
    fprintf( file, hline_line );
    fprintf( file , lumi_line ,

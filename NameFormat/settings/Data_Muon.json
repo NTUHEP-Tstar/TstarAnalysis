@@ -8,12 +8,7 @@
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
-         "SingleMuon_Run2015D-16Dec2015-v1_aa.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ab.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ac.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ad.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_ae.root",
-         "SingleMuon_Run2015D-16Dec2015-v1_af.root"
+         "SingleMuon_Run2015D-16Dec2015-v1_*.root"
       ]
    },
 
@@ -22,7 +17,7 @@
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
-         "SingleMuon_Run2015C_25ns-16Dec2015-v1_aa.root"
+         "SingleMuon_Run2015C_25ns-16Dec2015-v1_*.root"
       ]
    }
 }

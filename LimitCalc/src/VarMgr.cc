@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/VarMgr.hh"
+#include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
 
 using namespace std;
 

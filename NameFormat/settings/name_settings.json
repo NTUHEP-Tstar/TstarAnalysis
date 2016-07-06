@@ -1,0 +1,51 @@
+{
+   "Channel": {
+      "MuonSignal" : {
+         "Latex Name" : "$\\mu$ signal channel",
+         "Root Name": "#mu channel",
+         "Data Tag": "Data_Muon"
+      },
+      "ElectronSignal" : {
+         "Latex Name" : "$e$ signal channel",
+         "Root Name": "e channel",
+         "Data Tag": "Data_Electron"
+      }
+   },
+
+   "Fit Method": {
+      "SimFit": {
+         "Latex Name" : "Simultaneous Fit"
+      },
+      "Template": {
+         "Latex Name" : "Template Fit"
+      },
+      "SideBand" : {
+         "Latex Name" : "Side Band"
+      },
+      "SimFit_Bias" : {
+         "Latex Name": "Simultaneous Fit (Bias Check)"
+      }
+   },
+
+   "FitFunc":{
+      "Fermi": {
+         "Full Name" : "Fermi function",
+         "Latex Name": "N\\left(  1+\\exp\\left( \\frac{m-a}{b}\\\right) \\right)",
+         "Root Name" : "N #left(  1+ #exp#left( #frac{m-a}{b} #right) #right)"
+      },
+      "Exo" : {
+         "Full Name": "EXO Group function",
+         "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
+         "Root Name": "N #left( #frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 #ln{x} } } #right)"
+      }
+   },
+
+   "Combine" : {
+      "Asymptotic": {
+         "Full Name": "Asymptotic"
+      }
+   },
+
+   "Image format" : "png"
+
+}

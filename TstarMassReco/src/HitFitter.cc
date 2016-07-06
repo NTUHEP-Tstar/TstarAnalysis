@@ -109,16 +109,7 @@ void HitFitter::RunPermutations()
 
 
    //----- Permute jet labels  ---------------------------------------------------
-   int config = 0;
    do {
-      cout << "\rRunning config " << config << flush;
-      if( _debug > 2) {
-         cout << "\t Jet Type:" << flush;
-         for( unsigned i = 0 ; i < jet_type_list.size() ; ++i ){
-            cout << ", " << jet_type_list[i] << flush;
-         }
-         cout << endl;
-      }
       if( !CheckBTagOrder( jet_type_list ) ) { continue; }
 
       hitfit::Lepjets_Event hitFitEvent = hitFitEventTemplate;
@@ -152,7 +143,6 @@ void HitFitter::RunPermutations()
             );
          }
       }
-      ++config;
    } while ( next_permutation( jet_type_list.begin() , jet_type_list.end() ) );
 }
 

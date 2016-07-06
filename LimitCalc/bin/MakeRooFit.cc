@@ -5,13 +5,11 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
+#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <boost/exception/diagnostic_information.hpp>
-#include <boost/program_options.hpp>
 
 using namespace std;
 namespace opt = boost::program_options;
@@ -35,10 +33,6 @@ extern void MakeSimFit(SampleRooFitMgr*, vector<SampleRooFitMgr*>&);
 // in src/RooFit_SimFitMC.cc
 extern void MakeSimFitMC(SampleRooFitMgr*, SampleRooFitMgr*, vector<SampleRooFitMgr*>& );
 
-// in src/RooFit_SideBand.cc
-extern void MakeCheckPlot(SampleRooFitMgr*);
-extern void MakeSideBand(SampleRooFitMgr*,SampleRooFitMgr*);
-
 // in src/RooFit_MCTemplate.cc
 extern void MakeTemplate(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*>& );
 
@@ -49,81 +43,33 @@ extern void MakeBias(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*>&
 //   Main control flow
 //------------------------------------------------------------------------------
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
+   const vector<string> manditory = {"channel","fitmethod","fitfunc"};
+   const int run = InitOptions( argc, argv );
+   if( run == PARSE_HELP  ){ ShowManditory( manditory ); return 0; }
+   if( run == PARSE_ERROR ){ return 1; }
+   if( CheckManditory( manditory ) != PARSE_SUCESS) { return 1; }
 
-   opt::options_description desc("MakeRooFit options");
-   opt::variables_map       vm;
-
-   desc.add_options()
-      ("help","produce help message and exit")
-      ("channel", opt::value<string>(), "Channel to run" )
-      ("method" , opt::value<string>(), "Which fitting method to run" )
-      ("fitfunc", opt::value<string>(), "Which fitting function to use")
-   ;
-
-   try{
-      opt::store(opt::parse_command_line(argc, argv, desc), vm);
-      opt::notify(vm);
-   } catch( boost::exception& e ){
-      cerr << "Error parsing command!" << endl;
-      cerr << boost::diagnostic_information(e) << endl;
-      cerr << desc << endl;
-      return 1;
-   }
-
-   if(vm.count("help")) {
-      cerr << desc << endl;
-      return 0;
-   }
-
-   if( vm.count("channel") ){
-      SetChannelType( vm["channel"].as<string>() );
-   } else {
-      cerr << "Settings for option [channel] not found!" << endl;
-      cerr << desc << endl;
-      return 1;
-   }
+   InitSampleSettings( limit_namer );
 
    SampleRooFitMgr::x().setRange("FitRange",SampleRooFitMgr::MinFitMass(),SampleRooFitMgr::MaxMass());
 
-   if( !vm.count("method") ){
-      cerr << "options [method] not found!" << endl;
-      cerr << desc << endl;
-      return 1;
-   } else {
-      SetMethod( vm["method"].as<string>() );
-   }
-
-   if( !vm.count("fitfunc") ) {
-      cerr << "option [fitfunc] not found!" << endl;
-      cerr << desc << endl;
-      return 1;
-   } else {
-      SetFitFunc( vm["fitfunc"].as<string>() );
-   }
-
-   if( GetMethod() == "SimFit"  ){
+   if( limit_namer.GetFitMethod() == "SimFit"  ){
       cout  << "Running SimFit Method!" << endl;
       InitDataAndSignal();
       MakeSimFit(data,signal_list);
-   } else if( GetMethod() == "Template" ){
+   } else if( limit_namer.GetFitMethod() == "Template" ){
       cout << "Running MC template method!" << endl;
       InitDataAndSignal();
       InitMC();
       MakeTemplate(data,mc,signal_list);
-   } else if( GetMethod().find("Bias") != string::npos ){
+   } else if( limit_namer.GetFitMethod().find("Bias") != string::npos ){
       cout << "Running Bias check!" << endl;
       InitDataAndSignal();
       InitMC();
       MakeBias(data,mc,signal_list);
-   } else if( GetMethod() == "SideBand"  ){
-      cout << "Running side band method!" << endl;
-      InitDataAndSignal();
-      MakeCheckPlot(data);
-      for( auto& sample : signal_list ){
-         MakeSideBand(data,sample);
-      }
-   } else if( GetMethod() == "SimFitMC"){
+   } else if( limit_namer.GetFitMethod() == "SimFitMC"){
       cout << "Running SimFit with MC shape fixing!" << endl;
       // InitDataAndSignal();
       // InitMC();
@@ -142,18 +88,18 @@ int main(int argc, char* argv[]) {
 //------------------------------------------------------------------------------
 void InitDataAndSignal()
 {
-   mgr::SampleMgr::InitStaticFromReader( StaticCfg() );
-   mgr::SampleMgr::SetFilePrefix( GetEDMPrefix() );
+   const mgr::ConfigReader& cfg = limit_namer.MasterConfig();
 
-   data = new SampleRooFitMgr( GetDataTag() , StaticCfg() );
+   data = new SampleRooFitMgr( limit_namer.GetChannelDataTag() , cfg );
    data->MakeReduceDataSet("FitRange",RooFit::CutRange("FitRange"));
 
-   for( const auto& signal_tag : StaticCfg().GetStaticStringList("Signal List") ){
-      signal_list.push_back( new SampleRooFitMgr( signal_tag, StaticCfg() ) );
+   for( const auto& signal_tag : cfg.GetStaticStringList("Signal List") ){
+      signal_list.push_back( new SampleRooFitMgr( signal_tag, cfg ) );
    }
 }
 
 void InitMC()
 {
-   mc = new SampleRooFitMgr( "Background", StaticCfg() );
+   const mgr::ConfigReader& cfg = limit_namer.MasterConfig();
+   mc = new SampleRooFitMgr( "Background", cfg );
 }

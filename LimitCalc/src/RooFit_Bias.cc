@@ -5,16 +5,10 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/VarMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/MakePDF.hh"
-#include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
-#include "ManagerUtils/PlotUtils/interface/RooFitUtils.hh"
-
-#include "RooGenericPdf.h"
-#include "RooFitResult.h"
-
+#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
+#include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 
 using namespace std;
 
@@ -31,14 +25,14 @@ extern void MakeSimFit(SampleRooFitMgr*,std::vector<SampleRooFitMgr*>&);
 void MakeBias(SampleRooFitMgr* data, SampleRooFitMgr* mc, vector<SampleRooFitMgr*>& signal_list )
 {
    MakePsuedoData(mc,data->OriginalDataSet()->sumEntries());
-   if( GetMethod() == "BiasTemplate" ){
+   if( limit_namer.GetFitMethod() == "BiasTemplate" ){
       MakeTemplate(mc,mc,signal_list);
-   } else if( GetMethod() == "BiasSimFit" ){
+   } else if( limit_namer.GetFitMethod() == "BiasSimFit" ){
       MakeSimFit(mc,signal_list);
    } else {
-      fprintf( stderr, "Warning! Not enough information in method [%s], using Template by default..." , GetMethod().c_str() );
+      fprintf( stderr, "Warning! Not enough information in method [%s], using Template by default..." , limit_namer.GetFitMethod().c_str() );
       fflush( stderr );
-      SetMethod("BiasTemplate");
+      limit_namer.SetFitMethod("BiasTemplate");
       MakeTemplate(mc,mc,signal_list);
    }
 }
@@ -50,9 +44,9 @@ void MakePsuedoData(SampleRooFitMgr* mc, const unsigned n_events )
 {
    RooGenericPdf* bg_pdf;
 
-   if( GetFitFunc() == "Exo" ){
+   if( limit_namer.GetFitFunc() == "Exo" ){
       bg_pdf = MakeExo( mc, "bias" );
-   } else if( GetFitFunc() == "Fermi" ){
+   } else if( limit_namer.GetFitFunc() == "Fermi" ){
       bg_pdf = MakeFermi( mc, "bias" );
    } else {
       bg_pdf = MakeFermi( mc, "bias" );
@@ -75,5 +69,5 @@ void MakePsuedoData(SampleRooFitMgr* mc, const unsigned n_events )
       RooFit::Name( dat_name.c_str() )
    );
    mc->AddDataSet( my_data );
-   SetDataSetName("bias");
+   limit_namer.SetTag("fitset","bias");
 }

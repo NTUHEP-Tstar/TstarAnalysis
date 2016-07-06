@@ -5,25 +5,17 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
-#include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
-
-#include "ManagerUtils/SysUtils/interface/SystemUtils.hh"
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 #include <map>
 #include <vector>
 #include <string>
-#include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "TFile.h"
 #include "TTree.h"
-#include "TCanvas.h"
-#include "TAxis.h"
-#include "TLegend.h"
-#include "TLatex.h"
 #include "TGraph.h"
 #include "TMultiGraph.h"
 #include "TGraphAsymmErrors.h"
@@ -38,7 +30,7 @@ static void FillXSectionMap();
 
 void MakeLimitPlot()
 {
-   const vector<string> signal_list = StaticCfg().GetStaticStringList( "Signal List" );
+   const vector<string> signal_list = limit_namer.MasterConfig().GetStaticStringList( "Signal List" );
    const size_t binCount = signal_list.size();
    double y_max = 0;
    double y_min = 10000000.;
@@ -65,10 +57,9 @@ void MakeLimitPlot()
 
    bin=0;
    for( const auto& signal : signal_list ){
-      double mass_d = GetSignalMass(signal);
+      double mass_d = TagTree::GetInt(signal);
       double exp_xsec = pred_cross_section[mass_d];
-      double mass_t = GetSignalMass(signal);
-      const string file_name = HCStoreFile(mass_t);
+      const string file_name = limit_namer.RootFileName("combine",signal);
       TFile* file = TFile::Open(file_name.c_str());
       if( !file ){
          fprintf(stderr,"Cannot open file (%s), skipping sample for %s\n" ,
@@ -88,7 +79,7 @@ void MakeLimitPlot()
 
       tree->GetEntry(5); obs_lim[bin] = temp1 * exp_xsec;  // obs_err[bin] = temp2;
 
-      mass[bin]    = mass_d; //see src/FileNames.cc
+      mass[bin]    = mass_d;
       masserr[bin] = 50.;
 
       cout << mass[bin] << " " << exp_xsec << " " << exp_lim[bin] << " "
@@ -172,19 +163,19 @@ void MakeLimitPlot()
 
 
    plt::DrawCMSLabel();
-   plt::DrawLuminosity( StaticCfg().GetStaticDouble("Total Luminosity") );
+   plt::DrawLuminosity( limit_namer.MasterConfig().GetStaticDouble("Total Luminosity") );
 
    TLatex tl;
    tl.SetNDC(kTRUE);
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_LEFT );
-   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, GetChannelPlotLabel().c_str() );
-   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, (GetMethodLabel()+", "+GetFitFuncTag()).c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelRoot().c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, (limit_namer.GetFitMethodFull()+", "+limit_namer.GetFitFuncFull()).c_str() );
 
    //----- Saving and cleaning up  ------------------------------------------------
    c1->SetLogy(kTRUE);
-   c1->SaveAs( LimitPlotFile().c_str() );
+   c1->SaveAs( limit_namer.PlotFileName("limit").c_str() );
    delete one_sig;
    delete two_sig;
    delete obs;

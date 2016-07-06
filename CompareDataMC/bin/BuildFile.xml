@@ -1,21 +1,10 @@
 <use name="root" />
 <use name="roofit" />
 <use name="boost_program_options"/>
-<use name="FWCore/FWLite" />
-<use name="DataFormats/FWLite" />
-<use name="DataFormats/Luminosity" />
-<use name="PhysicsTools/FWLite" />
-
-<use name="ManagerUtils/SysUtils"/>
-<use name="ManagerUtils/PlotUtils"/>
-
 <use name="TstarAnalysis/CompareDataMC"/>
+<use name="TstarAnalysis/NameFormat"/>
 
 <flags CXXFLAGS="-g"/>
 
 <bin name="MakeSummaryTable" file="MakeSummaryTable.cc"/>
 <bin name="KinematicCompare" file="KinematicCompare.cc"/>
-<bin name="MakeRooFit"       file="MakeRooFit.cc"/>
-<bin name="CompareFitPar"    file="CompareFitPar.cc"/>
-<bin name="MergeCards"       file="MergeCards.cc"/>
-<bin name="PlotLimit"        file="PlotLimit.cc"/>

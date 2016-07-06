@@ -8,7 +8,7 @@
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 #include <string>
 #include <iostream>
 #include <stdio.h>
@@ -48,31 +48,37 @@ extern void SummaryMCLumi(
 
 int main(int argc, char* argv[])
 {
-   if( argc != 2 ){
-      cerr << "Error! Expected exactly one arguement!" << endl;
+   cout << "Making summary table!" << endl;
+   const int run = InitOptions(argc,argv);
+   if( run == PARSE_HELP ){
+      cout << "Options [channel] is mandetory!" << endl;
+      return 0;
+   } else if( run == PARSE_ERROR ){
       return 1;
    }
-   cout << "Making summary table!" << endl;
-   SetChannelType( argv[1] );
+   InitSampleSettings( compare_namer );
 
-   SampleMgr::InitStaticFromReader( StaticCfg() );
-   SampleMgr::SetFilePrefix( GetEDMPrefix() );
+   const ConfigReader& master = compare_namer.MasterConfig();
 
    vector<SampleGroup*> signal_mc_list;
-   for( const auto& sig_tag : StaticCfg().GetStaticStringList("Signal List") ){
-      signal_mc_list.push_back( new mgr::SampleGroup(sig_tag , StaticCfg()) );
+   for( const auto& sig_tag : master.GetStaticStringList("Signal List") ){
+      signal_mc_list.push_back( new mgr::SampleGroup(sig_tag , master) );
    }
 
    vector<SampleGroup*> bkg_mc_list;
-   for( const auto& bkg_tag : StaticCfg().GetStaticStringList("Background List") ){
-      bkg_mc_list.push_back( new mgr::SampleGroup(bkg_tag,StaticCfg() ) );
+   for( const auto& bkg_tag : master.GetStaticStringList("Background List") ){
+      bkg_mc_list.push_back( new mgr::SampleGroup(bkg_tag,master ) );
    }
 
-   SampleGroup* data = new mgr::SampleGroup( GetDataTag(), StaticCfg() );
+   SampleGroup* data = new mgr::SampleGroup( compare_namer.GetChannelDataTag(),master );
 
+   cout << "Making complete summary table...." << endl;
    SummaryComplete(signal_mc_list,bkg_mc_list,data);
+   cout << "Making signal summary table...." << endl;
    SummarySignal(signal_mc_list);
+   cout << "Making simple summary table...." << endl;
    SummaryBKGBrief(bkg_mc_list,data);
+   cout << "Making lumi summary table...." << endl;
    SummaryMCLumi(signal_mc_list,bkg_mc_list);
 
    return 0;

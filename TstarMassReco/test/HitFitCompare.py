@@ -127,13 +127,14 @@ process.ChiSq8jet2b = cms.EDProducer(
 #     ReqBJet     = cms.untracked.int32(0),
 # )
 
-process.NoTopConstrain6j1b = cms.EDProducer(
+process.NoTopConstrain6j2b = cms.EDProducer(
     "HitFitMassReco",
     metsrc      = cms.InputTag( "slimmedMETs" ),
     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-    ReqBJet     = cms.untracked.int32(1),
+    MaxJet      = cms.untracked.int32(6),
+    ReqBJet     = cms.untracked.int32(2),
 )
 
 # process.NoTopConstrain6j2b = cms.EDProducer(

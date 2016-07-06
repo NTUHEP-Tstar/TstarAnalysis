@@ -5,15 +5,15 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/VarMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/MakePDF.hh"
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
-#include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
+#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
+#include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
+#include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
-#include "ManagerUtils/PlotUtils/interface/RooFitUtils.hh"
+#include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
 
+#include "TFile.h"
 #include "RooFit.h"
 #include "RooRealVar.h"
 #include "RooDataSet.h"
@@ -23,28 +23,17 @@
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
 
-#include "TFile.h"
-#include "TAxis.h"
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "TLatex.h"
 #include <string>
 #include <fstream>
 
 using namespace std;
 
 //------------------------------------------------------------------------------
-//   Static variables
-//------------------------------------------------------------------------------
-static const string ws_name = "wspace";
-
-//------------------------------------------------------------------------------
 //   Helper variables
 //------------------------------------------------------------------------------
 namespace tmplt {
    RooFitResult* MakeBGFromMC( SampleRooFitMgr* );
-   void MakeTemplatePlot( SampleRooFitMgr* , SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult*, const bool );
-   void SaveRooWorkSpace( SampleRooFitMgr*, SampleRooFitMgr*, vector<SampleRooFitMgr*>&, RooFitResult* );
+   void MakeTemplatePlot( SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult*, const bool );
    void MakeCardFile(SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*);
 };
 
@@ -54,25 +43,22 @@ namespace tmplt {
 void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*>& signal_list )
 {
    using namespace tmplt;
+   vector<RooAbsPdf*> sig_pdf_list;
+
+   for( auto& sig : signal_list ){ sig_pdf_list.push_back( MakeKeysPdf(sig) ); }
    RooFitResult* err = MakeBGFromMC(bg);
-   for( auto& signal : signal_list ){
-      MakeKeysPdf( signal , "fit" );
-   }
    MakeTemplatePlot( data, bg, signal_list.front(), err , true );
    MakeTemplatePlot( data, bg, signal_list.front(), err , false );
 
-   //------------------------------------------------------------------------------
-   //   Saving all relavent obejcts by RooWorkSpace
-   //------------------------------------------------------------------------------
-   SaveRooWorkSpace( data, bg, signal_list, err  );
 
-   //------------------------------------------------------------------------------
-   //   Making Higgs Combine Data Cards
-   //------------------------------------------------------------------------------
-   for( auto& signal : signal_list ){
-      MakeCardFile(data,bg,signal);
-   }
+   SaveRooWorkSpace(
+      data->GetDataFromAlias( limit_namer.GetTag("fitset") ),
+      {bg->GetPdfFromAlias("fit")},
+      sig_pdf_list,
+      {err}
+   ); // See src/RooFit_Common.cc
 
+   for( auto& signal : signal_list ){ MakeCardFile(data,bg,signal); }
 }
 
 
@@ -84,9 +70,9 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 {
    RooGenericPdf* bg_pdf;
 
-   if( GetFitFunc() == "Exo" ){
+   if( limit_namer.GetFitFunc() == "Exo" ){
       bg_pdf = MakeExo( bg, "fit" );
-   } else if( GetFitFunc() == "Fermi" ){
+   } else if( limit_namer.GetFitFunc() == "Fermi" ){
       bg_pdf = MakeFermi( bg, "fit" );
    } else {
       bg_pdf = MakeFermi( bg, "fit" );
@@ -104,87 +90,32 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
    return results;
 }
 
-void tmplt::SaveRooWorkSpace( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*>& sig_list, RooFitResult* err )
+void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
 {
-   const string roofit_file = GetRooObjFile();
-   cout << "Saving RooFit objects to " << roofit_file << endl;
-   RooWorkspace ws( ws_name.c_str() , ws_name.c_str() );
-   ws.import( *(data->GetReduceDataSet(GetDataSetName())) );
-   ws.import( *(bg->GetPdfFromAlias("fit")) );
-   for( auto& signal : sig_list ){
-      ws.import( *(signal->GetPdfFromAlias("fit")) );
-   }
-   ws.writeToFile( roofit_file.c_str() );
+   RooDataSet* data_obs = data->GetReduceDataSet(limit_namer.GetTag("fitset"));
+   RooAbsPdf*  bg_pdf   = bg->GetPdfFromAlias("fit");
+   RooDataSet* sig_set  = sig->OriginalDataSet();
+   RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("fit");
 
-   TFile* fit_file = TFile::Open( GetFitResults().c_str() , "RECREATE" );
-   err->Write("results");
-   fit_file->Close();
-   delete fit_file;
-}
+   FILE* card_file = MakeCardCommon( data_obs, bg_pdf, sig_pdf, sig->Name() );
 
-
-void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* signal )
-{
-   const string cardfile_name = GetCardFile( signal->Name() );
-   RooDataSet* data_obs       = data->GetReduceDataSet(GetDataSetName());
-   RooAbsPdf*  bg_pdf         = bg->GetPdfFromAlias("fit");
-   RooDataSet* signal_dataset = signal->OriginalDataSet();
-   RooAbsPdf*  signal_pdf     = signal->GetPdfFromAlias("fit");
-
-   FILE* cardfile = fopen( cardfile_name.c_str() , "w" );
-
-   // Priting header
-   fprintf( cardfile , "imax 1\n" );
-   fprintf( cardfile , "jmax *\n" );
-   fprintf( cardfile , "kmax *\n" );
-   fprintf( cardfile , "----------------------------------------\n" );
-
-   // Printing objects
-   fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
-      "bg",
-      GetChannel().c_str() ,
-      GetRooObjFile().c_str() ,
-      ws_name.c_str(),
-      bg_pdf->GetName()
+   fprintf(
+      card_file , "%12s %15lf %15lf\n",
+      "rate",
+      sig_set->sumEntries(),
+      data_obs->sumEntries()
    );
-   fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
-      "sig",
-      GetChannel().c_str() ,
-      GetRooObjFile().c_str() ,
-      ws_name.c_str(),
-      signal_pdf->GetName()
-   );
-   fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
-      "data_obs",
-      GetChannel().c_str() ,
-      GetRooObjFile().c_str() ,
-      ws_name.c_str(),
-      data_obs->GetName()
-   );
-   fprintf( cardfile , "----------------------------------------\n" );
 
-   // Printing data correspondence
-   fprintf( cardfile , "%12s %s\n" , "bin" , GetChannel().c_str() );
-   fprintf( cardfile , "%12s %lg\n" , "observation" , data_obs->sumEntries() );
-   fprintf( cardfile , "----------------------------------------\n" );
+   fprintf( card_file , "----------------------------------------\n" );
+   const Parameter lumi(1,0.05,0.05);
+   const Parameter null(0,0,0);
+   const Parameter sig_unc = sig->Sample()->SelectionEfficiency();
+   const Parameter bkg_unc = lumi;
+   PrintNuisanceFloats( card_file, "Lumi",    "lnN", lumi   , lumi    );
+   PrintNuisanceFloats( card_file, "sig_unc", "lnN", sig_unc, null    );
+   PrintNuisanceFloats( card_file, "bg_unc" , "lnN", null   , bkg_unc );
 
-   // Printing expected
-   fprintf( cardfile , "%12s %15s %15s\n" , "bin"     , GetChannel().c_str(), GetChannel().c_str() );
-   fprintf( cardfile , "%12s %15s %15s\n" , "process" , "sig", "bg" );
-   fprintf( cardfile , "%12s %15s %15s\n" , "process" , "-1" , "1" );
-   fprintf( cardfile , "%12s %15lf %15lf\n" , "rate",
-   signal_dataset->sumEntries(),
-   data_obs->sumEntries() );
-
-   // Listing Nuisance parameters
-   fprintf( cardfile , "----------------------------------------\n" );
-   const string sig_unc = "1.05";
-   fprintf( cardfile, "%8s lnN %15s %15s\n" , "Lumi"   , "1.05"          , "1.05" );
-   fprintf( cardfile, "%8s lnN %15s %15s\n" , "sig_unc", sig_unc.c_str() , "--"   );
-   fprintf( cardfile, "%8s lnN %15s %15s\n" , "bg_unc" , "--"            , "1.05" );
-
-   cout << "Writing to " << cardfile_name << "..." << endl;
-   fclose( cardfile );
+   fclose( card_file );
 }
 
 
@@ -199,7 +130,7 @@ void tmplt::MakeTemplatePlot(
    const bool       use_data )
 {
    // First plot against MC
-   const double TotalLuminosity = StaticCfg().GetStaticDouble( "Total Luminosity" );
+   const double TotalLuminosity = limit_namer.MasterConfig().GetStaticDouble( "Total Luminosity" );
    TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
    RooPlot* frame = SampleRooFitMgr::x().frame();
    TGraph* pdf_plot_err;
@@ -245,7 +176,7 @@ void tmplt::MakeTemplatePlot(
 
    frame->Draw();
    frame->SetMinimum(0.3);
-   SetFrame(frame,FONT_SIZE);
+   SetFrame(frame,AXIS_TITLE_FONT_SIZE);
    frame->GetYaxis()->SetTitle( set_plot->GetYaxis()->GetTitle() );
    pdf_plot_err->SetFillStyle(1);
    pdf_plot_err->SetFillColor(kCyan);
@@ -284,18 +215,18 @@ void tmplt::MakeTemplatePlot(
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, GetChannelPlotLabel().c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, limit_namer.GetChannelRoot().c_str() );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, GetFitFuncFormula().c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limit_namer.GetFitFuncRoot().c_str() );
 
    if( use_data ){
-      c->SaveAs( GetRooObjPlot(signal->Name() + "_fitmc_vs_data").c_str() );
+      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-data").c_str() );
       c->SetLogy();
-      c->SaveAs( GetRooObjPlot(signal->Name() + "_fitmc_vs_data_log").c_str() );
+      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-data_log").c_str() );
    } else {
-      c->SaveAs( GetRooObjPlot( signal->Name() + "_fitmc_vs_mc").c_str() );
+      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-mc").c_str() );
       c->SetLogy();
-      c->SaveAs( GetRooObjPlot( signal->Name() + "_fitmc_vs_mc_log").c_str() );
+      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-mc_log").c_str() );
    }
    delete c;
    delete l;

@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hh"
+#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -27,6 +27,7 @@ using mgr::ConfigReader;
 //------------------------------------------------------------------------------
 void SampleHistMgr::define_hist()
 {
+   //       Short tag   , X axis name                 , X axis unit , bin, min  , max
    AddHist( "LepPt"     , "Lepton p_{T}"              , "GeV/c"     , 48 , 20   , 500.  );
    AddHist( "LepEta"    , "Lepton #eta"               , ""          , 75 , -2.5 , 5.0   );
    AddHist( "Jet1Pt"    , "First Leading Jet p_{T}"   , "GeV/c"     , 60 , 30   , 1000. );
@@ -53,7 +54,7 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
    fwlite::Handle<vector<pat::Muon>>     muonHandle;
    fwlite::Handle<vector<pat::Electron>> electronHandle;
    fwlite::Handle<LHEEventProduct>       lheHandle;
-   fwlite::Handle<RecoResult>       chisqHandle;
+   fwlite::Handle<RecoResult>            chisqHandle;
 
    double sample_weight = 1.;
    if( !sample.IsRealData() ) {
@@ -108,8 +109,8 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
       Hist("MET")->Fill( metHandle->front().pt()     , total_weight );
       Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
 
-      Hist("TstarMass")->Fill( chisqHandle->TstarMass() , total_weight );
-      Hist("ChiSq")->Fill( chisqHandle->ChiSquare()     , total_weight );
+      Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
+      Hist("ChiSq"     )->Fill( chisqHandle->ChiSquare()     , total_weight );
       Hist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().ObservedP4().Pt() , total_weight  );
       Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().ObservedP4().Pt() , total_weight  );
    }

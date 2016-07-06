@@ -1,0 +1,15 @@
+{
+   "___Comment___":"""-----------------------------------------------------------
+   #    Data sector
+   -----------------------------------------------------------------------------""",
+
+   "Run2016B_PromptReco2":{
+      "Latex Name": "Run 2016 B Prompt Reco v2",
+      "Cross Section": [0,0,0],
+      "K Factor":[1.0],
+      "EDM Files":[
+         "SingleElectron_Run2016B-PromptReco-v2_*.root",
+      ]
+   }
+
+}

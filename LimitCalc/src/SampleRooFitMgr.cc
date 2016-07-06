@@ -5,14 +5,13 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
-
+#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace std;
 using namespace mgr;

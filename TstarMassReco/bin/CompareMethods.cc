@@ -32,7 +32,7 @@ int main( int argc, char* argv[] ){
 //   CompareHistMgr* ChiSq8jet0b  = new CompareHistMgr( "ChiSq8jet0b", "#chi^{2} (8 jet + 0 b-jets)", "ChiSq8jet0b", "ChiSquareResult", "HitFitCompare")  ;
    CompareHistMgr* ChiSq8jet1b  = new CompareHistMgr( "ChiSq8jet1b", "#chi^{2} (8 jet + 1 b-jets)", "ChiSq8jet1b", "ChiSquareResult", "HitFitCompare")  ;
    CompareHistMgr* ChiSq8jet2b  = new CompareHistMgr( "ChiSq8jet2b", "#chi^{2} (8 jet + 2 b-jets)", "ChiSq8jet2b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* HitFit6jet1b  = new CompareHistMgr( "HitFit6jet1b", "HitFit(6 jet + 1 b-jets, Not Top constrain)", "NoTopConstrain6j1b", "HitFitResult", "HitFitCompare")  ;
+   CompareHistMgr* HitFit6jet2b  = new CompareHistMgr( "HitFit6jet2b", "HitFit(6 jet + 2 b-jets, No Top constrain)", "NoTopConstrain6j2b", "HitFitResult", "HitFitCompare")  ;
 //   CompareHistMgr* HitFit8jet1b  = new CompareHistMgr( "HitFit8jet1b", "HitFit(8 jet + 1 b-jets, Not Top constrain)", "NoTopConstrain8j1b", "HitFitResult", "HitFitCompare")  ;
 
 
@@ -45,25 +45,26 @@ int main( int argc, char* argv[] ){
 //      ChiSq8jet0b->AddEvent(event);
       ChiSq8jet1b->AddEvent(event);
       ChiSq8jet2b->AddEvent(event);
-      HitFit6jet1b->AddEvent(event);
+      HitFit6jet2b->AddEvent(event);
 //      HitFit8jet1b->AddEvent(event);
    }
    MatchPlot( ChiSq6jet1b );
    MatchPlot( ChiSq6jet2b );
    MatchPlot( ChiSq8jet1b );
    MatchPlot( ChiSq8jet2b );
-   MatchPlot( HitFit6jet1b );
+   MatchPlot( HitFit6jet2b );
 
    cout << endl;
+   ComparePlot( "6jets-2b-jets", {ChiSq6jet2b} );
    ComparePlot( "6j-bjets_effect" , {ChiSq6jet1b,ChiSq6jet2b} );
    ComparePlot( "6j-v-8j_2bjet",  {ChiSq6jet2b,ChiSq8jet2b} );
-   ComparePlot( "chisq-v-hitfit" , {ChiSq6jet1b,HitFit6jet1b} );
+   ComparePlot( "chisq-v-hitfit" , {ChiSq6jet2b,HitFit6jet2b} );
    MatchRatePlot( "chisq-hitfit-match", {
       ChiSq6jet1b,
       ChiSq6jet2b,
       ChiSq8jet1b,
       ChiSq6jet2b,
-      HitFit6jet1b
+      HitFit6jet2b
    }
    );
 

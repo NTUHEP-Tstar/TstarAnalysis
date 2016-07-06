@@ -11,7 +11,7 @@
       "Cross Section": [ 118.7, 2.97, 2.61],
       "K Factor": [1.0],
       "EDM Files":[
-         "WW_TuneCUETP8M1_13TeV-pythia8_aa.root"
+         "WW_TuneCUETP8M1_13TeV-pythia8_*.root"
       ]
    },
    "WZ": {
@@ -19,7 +19,7 @@
       "Cross Section": [ 49.75, 38.3, 2.99 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "WZ_TuneCUETP8M1_13TeV-pythia8_aa.root"
+         "WZ_TuneCUETP8M1_13TeV-pythia8_*.root"
       ]
    },
    "ZZ": {
@@ -27,7 +27,7 @@
       "Cross Section": [ 16.91, 0.54, 0.41 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "ZZ_TuneCUETP8M1_13TeV-pythia8_aa.root"
+         "ZZ_TuneCUETP8M1_13TeV-pythia8_*.root"
       ]
    }
 }

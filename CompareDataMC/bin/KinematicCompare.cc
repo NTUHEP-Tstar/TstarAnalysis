@@ -5,17 +5,9 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
-
+#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
+#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
-
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "THStack.h"
-#include "TColor.h"
-#include "TLatex.h"
-#include "TLine.h"
 
 #include <iostream>
 using namespace std;
@@ -30,39 +22,36 @@ extern void MakeComparePlot(
    const string label = ""
 );
 
-
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-   if( argc != 2 ){
-      cerr << "Error! Expected exactly one arguement!" << endl;
-      return 1;
+   const int run = InitOptions( argc, argv );
+   if( run == PARSE_ERROR ){ return 1; }
+   if( run == PARSE_HELP  ){
+      cout << "Option [channel] is manditory!" << endl;
+      return 0;
    }
-   SetChannelType( argv[1] );
-
-   mgr::SampleMgr::InitStaticFromReader( StaticCfg() );
-   mgr::SampleMgr::SetFilePrefix( GetEDMPrefix() );
-
+   InitSampleSettings( compare_namer );
+   // Custom settings
+   const mgr::ConfigReader& master = compare_namer.MasterConfig();
+   const string           data_tag = compare_namer.GetChannelDataTag();
    // Defining data settings
-   SampleHistMgr* data = new SampleHistMgr( GetDataTag() , StaticCfg() );
-
+   SampleHistMgr* data = new SampleHistMgr( data_tag , master );
    // Defining out channels see data/Groups.json for sample settings
    vector<SampleHistMgr*>  background;
-   background.push_back( new SampleHistMgr("TTJets"     , StaticCfg() ) );
-   background.push_back( new SampleHistMgr("SingleTop"  , StaticCfg() ) );
-   background.push_back( new SampleHistMgr("TTBoson"    , StaticCfg() ) );
-   background.push_back( new SampleHistMgr("SingleBoson", StaticCfg() ) );
-   background.push_back( new SampleHistMgr("DiBoson"    , StaticCfg() ) );
-
+   background.push_back( new SampleHistMgr("TTJets"     , master ) );
+   background.push_back( new SampleHistMgr("SingleTop"  , master ) );
+   background.push_back( new SampleHistMgr("TTBoson"    , master ) );
+   background.push_back( new SampleHistMgr("SingleBoson", master ) );
+   background.push_back( new SampleHistMgr("DiBoson"    , master ) );
 
    // Declaring sample sample
-   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , StaticCfg() );
+   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , master );
 
    // Making combined stack plots
    MakeComparePlot( data, background, signal_mgr );
-
 
    // Normalizing MC to data
    Parameter bg_original_yield(0,0,0);

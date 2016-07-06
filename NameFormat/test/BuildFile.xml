@@ -1,0 +1,2 @@
+<use name="TstarAnalysis/NameFormat" />
+<bin name="tagtree_test" file="tagtree_test.cc" />
