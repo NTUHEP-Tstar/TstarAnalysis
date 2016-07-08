@@ -22,15 +22,13 @@ extern void MakeLimitPlot(); // src/PlotLimit.cc
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
-int main(int argc, char* argv[]) {
-
-   const int run = InitOptions(argc,argv);
-   if( run == PARSE_HELP ){
-      cout << "Options [channel], [method], [fitfunc], [combine_method] are manditory!" << endl;
-      return 0;
-   } else if( run == PARSE_ERROR ){
-      return 1;
-   }
+int main(int argc, char* argv[])
+{
+   const vector<string> manditory = {"channel","fitmethod","fitfunc","combine_method"};
+   const int run = InitOptions( argc, argv );
+   if( run == PARSE_HELP  ){ ShowManditory( manditory ); return 0; }
+   if( run == PARSE_ERROR ){ return 1; }
+   if( CheckManditory( manditory ) != PARSE_SUCESS) { return 1; }
 
    if( option_input.count("runcombine") ){
       cout << "Rerunning results higgs combine package with method ["

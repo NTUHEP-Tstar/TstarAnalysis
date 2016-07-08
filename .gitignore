@@ -23,6 +23,7 @@ log*
 *.dat
 **/LSF*
 **/Log*
+**/.**
 
 # Specific file exclusion
 # [relative/path/to/file]

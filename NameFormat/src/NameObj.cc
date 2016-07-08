@@ -59,10 +59,6 @@ int InitOptions( int argc , char* const argv[] )
       compare_namer .SetChannel( option_input["channel"].as<string>() );
       massreco_namer.SetChannel( option_input["channel"].as<string>() );
       limit_namer   .SetChannel( option_input["channel"].as<string>() );
-   } else {
-      cerr << "Option [channel] is mandetory!" << endl;
-      cerr << option_setting << endl;
-      return PARSE_ERROR;
    }
 
    if( option_input.count("fitmethod") ){

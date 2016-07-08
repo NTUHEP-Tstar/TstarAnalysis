@@ -27,12 +27,12 @@ extern void MakeComparePlot(
 //------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+   const vector<string> manditory = {"channel"};
    const int run = InitOptions( argc, argv );
+   if( run == PARSE_HELP  ){ ShowManditory( manditory ); return 0; }
    if( run == PARSE_ERROR ){ return 1; }
-   if( run == PARSE_HELP  ){
-      cout << "Option [channel] is manditory!" << endl;
-      return 0;
-   }
+   if( CheckManditory( manditory ) != PARSE_SUCESS) { return 1; }
+
    InitSampleSettings( compare_namer );
    // Custom settings
    const mgr::ConfigReader& master = compare_namer.MasterConfig();

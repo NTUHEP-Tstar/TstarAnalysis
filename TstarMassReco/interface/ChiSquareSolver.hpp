@@ -20,8 +20,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
-
-#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
+#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
 #include "TLorentzVector.h"
 #include <vector>

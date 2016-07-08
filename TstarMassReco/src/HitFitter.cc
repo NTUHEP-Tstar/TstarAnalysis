@@ -5,8 +5,8 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/TstarMassReco/interface/HitFitter.hh"
-#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
+#include "TstarAnalysis/TstarMassReco/interface/HitFitter.hpp"
+#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
 #include "TopQuarkAnalysis/TopHitFit/interface/fourvec.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Defaults_Text.h"

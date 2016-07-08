@@ -5,8 +5,8 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hh"
-#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
+#include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hpp"
+#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
 #include <algorithm>
 #include <iostream>

@@ -6,7 +6,7 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
-#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
+#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
 #include "TLorentzVector.h"
 #include "CLHEP/Vector/LorentzVector.h"

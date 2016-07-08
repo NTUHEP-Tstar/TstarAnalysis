@@ -19,15 +19,13 @@ namespace opt = boost::program_options;
 
 char buffer[65536];
 
-int main(int argc, char* argv[]) {
-
+int main(int argc, char* argv[])
+{
+   const vector<string> manditory = {"fitmethod","fitfunc"};
    const int run = InitOptions( argc, argv );
-   if( run == PARSE_HELP ){
-      cout << "Options [method], [fitfunc] are manditory!" << endl;
-      return 0;
-   } else if( run == PARSE_ERROR ){
-      return 1;
-   }
+   if( run == PARSE_HELP ){ ShowManditory( manditory ); return 0; }
+   if( run == PARSE_ERROR ){ return 1; }
+   if( CheckManditory(manditory)!=PARSE_SUCESS ){ return 1 ; }
 
    const mgr::ConfigReader& cfg = limit_namer.MasterConfig();
    const vector<string> masspoint_list = cfg.GetStaticStringList("Signal List");

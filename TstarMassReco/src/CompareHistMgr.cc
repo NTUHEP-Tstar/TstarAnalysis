@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hh"
+#include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 #include <iostream>

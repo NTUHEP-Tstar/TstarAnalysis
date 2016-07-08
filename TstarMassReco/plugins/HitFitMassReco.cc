@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
-#include "TstarAnalysis/TstarMassReco/interface/HitFitter.hh"
+#include "TstarAnalysis/TstarMassReco/interface/HitFitter.hpp"
 
 typedef std::vector<pat::MET>      METList;
 typedef std::vector<pat::Muon>     MuonList;
@@ -87,7 +87,7 @@ void HitFitMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    _hitfitter.SetMET( &metList.front() );
    for( const auto& mu : muList )  { _hitfitter.SetMuon( &mu ); }
    for( const auto& el : elecList ){ _hitfitter.SetElectron( &el ); }
-   
+
    for( const auto& jet : jetList ) {
       if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
         _hitfitter.AddBTagJet( &jet );

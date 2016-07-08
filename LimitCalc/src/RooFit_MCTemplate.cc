@@ -95,7 +95,7 @@ void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooF
    RooDataSet* data_obs = data->GetReduceDataSet(limit_namer.GetTag("fitset"));
    RooAbsPdf*  bg_pdf   = bg->GetPdfFromAlias("fit");
    RooDataSet* sig_set  = sig->OriginalDataSet();
-   RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("fit");
+   RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("key");
 
    FILE* card_file = MakeCardCommon( data_obs, bg_pdf, sig_pdf, sig->Name() );
 
@@ -169,7 +169,7 @@ void tmplt::MakeTemplatePlot(
       set_plot = PlotOn( frame, data->OriginalDataSet() );
    }
    sig_plot = PlotOn(
-      frame, signal->GetPdfFromAlias("fit"),
+      frame, signal->GetPdfFromAlias("key"),
       RooFit::DrawOption("LB"),
       RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
    );

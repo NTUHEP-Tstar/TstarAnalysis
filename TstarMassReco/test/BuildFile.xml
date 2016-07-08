@@ -5,4 +5,7 @@
 <use name="PhysicsTools/FWLite" />
 <use name="TstarAnalysis/TstarMassReco"/>
 
+<bin name="CheckTruth" file="CheckTruth.cc"/>
+<bin name="DumpGenJet" file="DumpGenJet.cc"/>
+<bin name="DumpGenMap" file="DumpGenMap.cc"/>
 <bin name="DumpLepton" file="DumpLepton.cc"/>

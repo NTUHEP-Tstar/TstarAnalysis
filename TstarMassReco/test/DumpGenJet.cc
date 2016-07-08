@@ -11,7 +11,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hh"
+#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
 #include "TFile.h"
 

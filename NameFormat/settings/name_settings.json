@@ -9,6 +9,10 @@
          "Latex Name" : "$e$ signal channel",
          "Root Name": "e channel",
          "Data Tag": "Data_Electron"
+      },
+      "SignalMerge" : {
+         "Latex Name" : "$\\mu + e $ channel",
+         "Root Name": "#mu + e channel"
       }
    },
 
@@ -19,11 +23,11 @@
       "Template": {
          "Latex Name" : "Template Fit"
       },
-      "SideBand" : {
-         "Latex Name" : "Side Band"
-      },
-      "SimFit_Bias" : {
+      "BiasSimFit" : {
          "Latex Name": "Simultaneous Fit (Bias Check)"
+      },
+      "BiasTemplate" : {
+         "Latex Name": "Template Fit (Bias Check)"
       }
    },
 
@@ -31,12 +35,12 @@
       "Fermi": {
          "Full Name" : "Fermi function",
          "Latex Name": "N\\left(  1+\\exp\\left( \\frac{m-a}{b}\\\right) \\right)",
-         "Root Name" : "N #left(  1+ #exp#left( #frac{m-a}{b} #right) #right)"
+         "Root Name" : "N #left(  1+ exp#left( #frac{m-a}{b} #right) #right)"
       },
       "Exo" : {
          "Full Name": "EXO Group function",
          "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
-         "Root Name": "N #left( #frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 #ln{x} } } #right)"
+         "Root Name": "N #left( (1-x)^{p_{1}} x^{-p_{2} - p_3 ln(x)} #right)"
       }
    },
 

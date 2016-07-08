@@ -9,7 +9,7 @@
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
-         "SingleElectron_Run2015D-16Dec2015-v1_*.root",
+         "SingleElectron_Run2015D-16Dec2015-v1_*.root"
       ]
    },
 

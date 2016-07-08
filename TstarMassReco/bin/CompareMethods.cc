@@ -7,7 +7,7 @@
 *******************************************************************************/
 #include "DataFormats/FWLite/interface/Event.h"
 
-#include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hh"
+#include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
 
 #include "TFile.h"
 #include "TH1F.h"

@@ -192,7 +192,8 @@ void MakeLimitPlot()
 //------------------------------------------------------------------------------
 void FillXSectionMap()
 {
-   FILE* xsec_file  = fopen("data/excitedtoppair13TeV.dat","r");
+   FILE* xsec_file  = fopen(
+      (limit_namer.SubPackageDir()+"data/excitedtoppair13TeV.dat").c_str(),"r");
    char*  line_buf = NULL ;
    size_t line_len = 0 ;
    double energy, mass, xsec_value ;

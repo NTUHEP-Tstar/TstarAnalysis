@@ -161,11 +161,11 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    const double bg_err       = bg_var->getError();
    const double sig_strength = sig->Sample()->ExpectedYield();
 
-   TGraph* data_plot     = PlotOn( frame, data_set );
-   TGraph* bg_err_plot   = PlotOn( frame, data->GetPdfFromAlias( sig->Name() )    );
-   TGraph* sig_fit_plot  = PlotOn( frame, sig_pdf,
+   TGraph* data_plot    = PlotOn( frame, data_set );
+   TGraph* model_plot   = PlotOn( frame, model    );
+   TGraph* sig_fit_plot = PlotOn( frame, sig_pdf,
       RooFit::Normalization(sig_fit_stgth,RooAbsReal::NumEvent),
-      RooFit::DrawOption("LB")
+      RooFit::DrawOption("L")
    );
    TGraph* bg_plot = PlotOn( frame, bg_pdf,
       RooFit::Normalization(bg_strength,RooAbsReal::NumEvent)
@@ -181,7 +181,7 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    SetFrame(frame,AXIS_TITLE_FONT_SIZE); // see Utils/src/RooFitUtils.cc
    // frame->GetYaxis()->SetTitle( data_plot->GetYaxis()->GetTitle() );
 
-   bg_err_plot->SetLineColor(kGreen);
+   model_plot->SetLineColor(kGreen);
    sig_fit_plot->SetLineColor(kGreen);
    bg_plot->SetFillColor(kCyan);
    sig_plot->SetLineColor(kRed);
@@ -198,9 +198,9 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
       TagTree::GetInt(sig->Name()),
       sig->Sample()->CrossSection().CentralValue()
    );
-   leg->AddEntry( data_plot, "Data", "lp" );
-   leg->AddEntry( bg_plot  , "Fitted Background" , "l" );
-   leg->AddEntry( bg_err_plot, "Fit Error(1#sigma)" , "f");
+   leg->AddEntry( data_plot,  "Data", "lp" );
+   leg->AddEntry( bg_plot  ,  "Fitted Background",      "l" );
+   leg->AddEntry( model_plot, "Fitted Signal/Combine" , "l" );
    leg->AddEntry( sig_plot , sig_entry , "lf" );
    leg->Draw();
 
@@ -222,15 +222,24 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    sprintf( obs_yield, "Observed Yield: %d", obs );
    sprintf( exp_yield, "Expected Yield: %.2lf #pm %.2lf" , bg_strength, bg_err );
    sprintf( delta    , "#Delta: %.3lf%%", 100.* (bg_strength-obs)/obs );
-   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.02 , obs_yield );
-   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.07, exp_yield );
-   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.12, delta );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.02, limit_namer.GetFitMethodFull().c_str() );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.07, obs_yield );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.12, exp_yield );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.17, delta );
 
 
    // Saving and cleaning up
    c->SaveAs( limit_namer.PlotFileName( "fitplot", sig->Name() ).c_str() );
    c->SetLogy(kTRUE);
    c->SaveAs( limit_namer.PlotFileName( "fitplot",sig->Name()+"_log").c_str() );
+
+   c->SetLogy(kFALSE);
+   frame->SetMinimum(10);
+   frame->SetMaximum(200.);
+   c->SaveAs( limit_namer.PlotFileName( "fitplot", sig->Name()+"_zoom" ).c_str() );
+   c->SetLogy(kTRUE);
+   c->SaveAs( limit_namer.PlotFileName( "fitplot",sig->Name()+"_zoom_log").c_str() );
+
    delete leg;
    delete c;
 }

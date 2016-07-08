@@ -49,13 +49,12 @@ extern void SummaryMCLumi(
 int main(int argc, char* argv[])
 {
    cout << "Making summary table!" << endl;
-   const int run = InitOptions(argc,argv);
-   if( run == PARSE_HELP ){
-      cout << "Options [channel] is mandetory!" << endl;
-      return 0;
-   } else if( run == PARSE_ERROR ){
-      return 1;
-   }
+   const vector<string> manditory = {"channel"};
+   const int run = InitOptions( argc, argv );
+   if( run == PARSE_HELP  ){ ShowManditory( manditory ); return 0; }
+   if( run == PARSE_ERROR ){ return 1; }
+   if( CheckManditory( manditory ) != PARSE_SUCESS) { return 1; }
+
    InitSampleSettings( compare_namer );
 
    const ConfigReader& master = compare_namer.MasterConfig();

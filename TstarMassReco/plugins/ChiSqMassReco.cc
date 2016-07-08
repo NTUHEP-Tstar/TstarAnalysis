@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
-#include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hh"
+#include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hpp"
 
 typedef std::vector<pat::MET> METList;
 typedef std::vector<pat::Muon>  MuonList;

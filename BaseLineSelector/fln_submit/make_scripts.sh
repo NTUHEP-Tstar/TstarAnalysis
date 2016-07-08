@@ -100,9 +100,9 @@ function make_directories()
    channel=$1
    name=$2
 
-   mkdir -p  ${SH_DIR}/${channel}/${name}
-   mkdir -p  ${EDM_DIR}/${channel}/${name}
-   mkdir -p  ${LOG_DIR}/${channel}/${name}
+   mkdir -p  ${SH_DIR}/${channel}
+   mkdir -p  ${EDM_DIR}/${channel}
+   mkdir -p  ${LOG_DIR}/${channel}
 }
 
 function make_file_list()

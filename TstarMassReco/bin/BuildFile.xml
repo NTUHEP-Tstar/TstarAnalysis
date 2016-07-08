@@ -12,6 +12,3 @@
 <flag CXXFLAGS="-g"/>
 
 <bin name="CompareMethods" file="CompareMethods.cc"/>
-<bin name="DumpGenMap"     file="DumpGenMap.cc"/>
-<bin name="DumpGenJet"     file="DumpGenJet.cc"/>
-<bin name="CheckTruth"     file="CheckTruth.cc"/>

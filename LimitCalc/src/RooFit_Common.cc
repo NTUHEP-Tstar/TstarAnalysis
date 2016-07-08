@@ -65,9 +65,9 @@ RooGenericPdf* MakeExo( SampleRooFitMgr* sample, const string& name="exo" )
 {
    char formula[1024];
    const string pdf_name = sample->MakePdfAlias( name );
-   RooRealVar* a  = var_mgr.NewVar( "a" + pdf_name , 1, -1000, +1000);
-   RooRealVar* b  = var_mgr.NewVar( "b" + pdf_name , 1, -1000, +1000);
-   RooRealVar* c  = var_mgr.NewVar( "c" + pdf_name , 1, -1000, +1000);
+   RooRealVar* a  = var_mgr.NewVar( "a" + pdf_name , 1, 0, +1000);
+   RooRealVar* b  = var_mgr.NewVar( "b" + pdf_name , 1, 0, +1000);
+   RooRealVar* c  = var_mgr.NewVar( "c" + pdf_name , 1, 0, +1000);
    sprintf( formula, "(TMath::Power((1-(x/13000.)),(%s)))/(TMath::Power((x/13000.),(%s+%s*TMath::Log(x/13000.))))",
       a->GetName(),
       b->GetName(),
