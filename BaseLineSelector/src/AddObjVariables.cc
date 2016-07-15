@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hh"
+#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
 
 //------------------------------------------------------------------------------
 //   Muon Variables

@@ -9,7 +9,7 @@
 <use name="ManagerUtils/PlotUtils"/>
 
 <use name="TstarAnalysis/RootFormat"/>
-<use name="TstarAnalysis/NameFormat"/>
+<use name="TstarAnalysis/Common"/>
 
 
 <flags CXXFLAGS="-g"/>

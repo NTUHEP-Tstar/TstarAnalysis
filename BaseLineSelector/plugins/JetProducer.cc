@@ -9,7 +9,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include <vector>
 
-#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hh"
+#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
 
 typedef std::vector<pat::Jet> JetList;
 typedef std::vector<pat::Muon> MuonList;
@@ -115,7 +115,7 @@ bool JetProducer::IsSelectedJet( const pat::Jet& jet ) const
       if( reco::deltaR(el,jet) < 0.4 ) {
          return false; }
    }
-   
+
    return true;
 }
 

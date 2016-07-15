@@ -8,38 +8,15 @@
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
-
-#include "TFile.h"
-#include "RooFit.h"
-#include "RooRealVar.h"
-#include "RooDataSet.h"
-#include "RooGenericPdf.h"
-#include "RooKeysPdf.h"
-#include "RooPlot.h"
-#include "RooWorkspace.h"
-#include "RooFitResult.h"
 
 #include <string>
 #include <fstream>
 
 using namespace std;
 
-//------------------------------------------------------------------------------
-//   Helper variables
-//------------------------------------------------------------------------------
-namespace tmplt {
-   RooFitResult* MakeBGFromMC( SampleRooFitMgr* );
-   void MakeTemplatePlot( SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult*, const bool );
-   void MakeCardFile(SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*);
-};
-
-//------------------------------------------------------------------------------
-//   Function implemetations
-//------------------------------------------------------------------------------
 void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*>& signal_list )
 {
    using namespace tmplt;
@@ -52,7 +29,7 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 
 
    SaveRooWorkSpace(
-      data->GetDataFromAlias( limit_namer.GetTag("fitset") ),
+      data->GetDataFromAlias( dataset_alias ),
       {bg->GetPdfFromAlias("fit")},
       sig_pdf_list,
       {err}
@@ -62,18 +39,23 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 }
 
 
-
 //------------------------------------------------------------------------------
 //  Helper function implementations
 //------------------------------------------------------------------------------
 RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 {
-   RooGenericPdf* bg_pdf;
-
-   if( limit_namer.GetFitFunc() == "Exo" ){
+   RooAbsPdf* bg_pdf;
+   const string fitfunc = limit_namer.GetInput("fitfunc");
+   if( fitfunc == "Exo" ){
       bg_pdf = MakeExo( bg, "fit" );
-   } else if( limit_namer.GetFitFunc() == "Fermi" ){
+   } else if( fitfunc == "Fermi" ){
       bg_pdf = MakeFermi( bg, "fit" );
+   } else if( fitfunc == "Lognorm" ){
+      bg_pdf = MakeLognorm( bg, "fit" );
+   } else if( fitfunc == "Landau" ){
+      bg_pdf = MakeLandau( bg, "fit" );
+   } else if( fitfunc == "Trial" ){
+      bg_pdf = MakeTrial( bg, "fit" );
    } else {
       bg_pdf = MakeFermi( bg, "fit" );
    }
@@ -92,7 +74,7 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 
 void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
 {
-   RooDataSet* data_obs = data->GetReduceDataSet(limit_namer.GetTag("fitset"));
+   RooDataSet* data_obs = data->GetReduceDataSet(dataset_alias);
    RooAbsPdf*  bg_pdf   = bg->GetPdfFromAlias("fit");
    RooDataSet* sig_set  = sig->OriginalDataSet();
    RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("key");
@@ -130,7 +112,7 @@ void tmplt::MakeTemplatePlot(
    const bool       use_data )
 {
    // First plot against MC
-   const double TotalLuminosity = limit_namer.MasterConfig().GetStaticDouble( "Total Luminosity" );
+   const double TotalLuminosity = mgr::SampleMgr::TotalLuminosity();
    TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
    RooPlot* frame = SampleRooFitMgr::x().frame();
    TGraph* pdf_plot_err;
@@ -215,9 +197,9 @@ void tmplt::MakeTemplatePlot(
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, limit_namer.GetChannelRoot().c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, limit_namer.GetChannelEXT("Root Name").c_str() );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limit_namer.GetFitFuncRoot().c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limit_namer.GetExtName("fitfunc","Full Name").c_str() );
 
    if( use_data ){
       c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-data").c_str() );

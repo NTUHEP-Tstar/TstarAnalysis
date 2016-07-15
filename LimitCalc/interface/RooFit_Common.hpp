@@ -7,23 +7,132 @@
 *******************************************************************************/
 
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
+#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "TstarAnalysis/Common/interface/InitSampleStatic.hpp"
+#include "TstarAnalysis/Common/interface/NameParse.hpp"
 #include "RooKeysPdf.h"
 #include "RooGenericPdf.h"
+#include "RooLognormal.h"
+#include "RooLandau.h"
+#include "RooAddPdf.h"
 #include "RooFitResult.h"
 
 #include <string>
+#include <vector>
 #include <cstdlib>
 
 //------------------------------------------------------------------------------
-//   Static variables
+//   Static variables  see src/Common_Init.cc
 //------------------------------------------------------------------------------
-extern const std::string ws_name;
+extern std::string       dataset_alias;
+extern TstarNamer        limit_namer;
 
-// see src/RooFit_Common.cc for implementations
-extern RooKeysPdf* MakeKeysPdf(SampleRooFitMgr*);
 
+//------------------------------------------------------------------------------
+//   Limit calculation main control flow and helper functions
+//------------------------------------------------------------------------------
+
+// in src/RooFit_SimFit.cc
+extern void MakeSimFit(
+   SampleRooFitMgr* data,
+   std::vector<SampleRooFitMgr*>& sig_list
+);
+namespace smft
+{
+RooFitResult* FitPDFs (
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* sig,
+   const std::string& extratag = ""
+);
+
+void MakeValidationPlot(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* sig,
+   RooFitResult*    fiterr,
+   const std::string& extratag=""
+);
+void MakeCardFile(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* sig
+);
+};
+
+// in src/RooFit_MCTemplate.cc
+extern void MakeTemplate(
+   SampleRooFitMgr*,
+   SampleRooFitMgr*,
+   std::vector<SampleRooFitMgr*>&
+);
+namespace tmplt
+{
+RooFitResult* MakeBGFromMC( SampleRooFitMgr* );
+void  MakeTemplatePlot(
+   SampleRooFitMgr*,
+   SampleRooFitMgr*,
+   SampleRooFitMgr*,
+   RooFitResult*,
+   const bool
+);
+void  MakeCardFile(
+   SampleRooFitMgr*,
+   SampleRooFitMgr*,
+   SampleRooFitMgr*
+);
+};
+
+// in src/RooFit_Bias.cc
+extern void MakeBias(
+   SampleRooFitMgr*,
+   SampleRooFitMgr*,
+   std::vector<SampleRooFitMgr*>&
+);
+namespace bias
+{
+void MakePsuedoData(SampleRooFitMgr*,const unsigned);
+}
+
+// in src/RooFit_SimFit_Val.cc
+extern void Validate( SampleRooFitMgr*, SampleRooFitMgr* );
+namespace val
+{
+std::vector<double>   MakeSigStrengthList( SampleRooFitMgr*, const double );
+
+std::vector<std::string> GenInjected(
+   SampleRooFitMgr*,
+   SampleRooFitMgr*,
+   const std::vector<double>&
+);
+
+void MakePlot(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* sig,
+   const std::vector<double>&      sig_strength_list,
+   const std::vector<std::string>& psuedo_data_alias_list
+);
+}
+
+//------------------------------------------------------------------------------
+//   PDF Definitions, see Common_PDF.cc
+//------------------------------------------------------------------------------
+extern RooKeysPdf*    MakeKeysPdf(SampleRooFitMgr*);
 extern RooGenericPdf* MakeFermi(SampleRooFitMgr*,const std::string& = "fermi");
 extern RooGenericPdf* MakeExo(SampleRooFitMgr*,const std::string& = "exo" );
+extern RooLognormal*  MakeLognorm( SampleRooFitMgr*, const std::string& = "longnorm");
+extern RooLandau*     MakeLandau( SampleRooFitMgr*, const std::string& ="landau");
+extern RooGenericPdf* MakeTrial( SampleRooFitMgr*, const std::string& = "trial" );
+
+//------------------------------------------------------------------------------
+//   Initalizing functions, see Common_Init.cc
+//------------------------------------------------------------------------------
+extern void InitRooFitSettings( const TstarNamer& );
+extern void InitSingle( SampleRooFitMgr*&, const std::string& );
+extern void InitDataAndSignal( SampleRooFitMgr*&, std::vector<SampleRooFitMgr*>& );
+extern void InitMC( SampleRooFitMgr*& );
+
+//------------------------------------------------------------------------------
+//   Saving Functions, see Common_Save.cc
+//------------------------------------------------------------------------------
+extern void SetDataAlias( const std::string& );
 
 extern void SaveRooWorkSpace(
    RooDataSet*                        data,

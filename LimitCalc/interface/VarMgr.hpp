@@ -19,7 +19,9 @@ public:
    virtual ~VarMgr ();
 
    RooRealVar* NewVar(const std::string&, double,double,double);
-   void SetConstant();
+   void SetConstant(const bool=kTRUE);
+
+   RooRealVar* FindByName( const std::string& );
 
 private:
    std::vector<RooRealVar*> _var_list;

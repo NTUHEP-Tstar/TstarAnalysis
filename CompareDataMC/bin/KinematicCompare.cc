@@ -6,12 +6,12 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
-#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 
+#include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
-
+namespace opt = boost::program_options;
 //------------------------------------------------------------------------------
 //   Helper extern functions, see src/KinematicCompare.cc
 //------------------------------------------------------------------------------
@@ -27,16 +27,20 @@ extern void MakeComparePlot(
 //------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-   const vector<string> manditory = {"channel"};
-   const int run = InitOptions( argc, argv );
-   if( run == PARSE_HELP  ){ ShowManditory( manditory ); return 0; }
-   if( run == PARSE_ERROR ){ return 1; }
-   if( CheckManditory( manditory ) != PARSE_SUCESS) { return 1; }
+   opt::options_description  desc("Options for KinematicCompare");
+   desc.add_options()
+      ("channel,c", opt::value<string>(), "What channel to run")
+   ;
 
-   InitSampleSettings( compare_namer );
-   // Custom settings
-   const mgr::ConfigReader& master = compare_namer.MasterConfig();
-   const string           data_tag = compare_namer.GetChannelDataTag();
+   const int parse =  compare_namer.LoadOptions( desc, argc, argv ); // defined in Compare_Common.hpp
+   if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
+   if( parse == mgr::OptsNamer::PARSE_HELP ) { return 0; }
+
+   InitSampleStatic( compare_namer );
+
+
+   const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
+   const string           data_tag = compare_namer.GetChannelEXT("Data Tag");
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( data_tag , master );
    // Defining out channels see data/Groups.json for sample settings

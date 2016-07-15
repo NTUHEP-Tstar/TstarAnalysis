@@ -1,1 +1,1 @@
-../python/ConfFile_cfg.py
+../../RunSequence/cmsrun/run_baseline_selection.py

@@ -18,16 +18,26 @@ using namespace mgr;
 //------------------------------------------------------------------------------
 //   Static member function delcarations
 //------------------------------------------------------------------------------
-static const double minmass    = 350.;
-static const double minfitmass = 350.;
-static const double maxmass    = 3000.;
-static const double minweight  = -10000.;
-static const double maxweight  =  10000.;
-RooRealVar SampleRooFitMgr::_x( "x" , "M_{t+g}"      , minmass   , maxmass , "GeV/c^{2}" );
-RooRealVar SampleRooFitMgr::_w( "w" , "event_weight" , minweight , maxweight , "");
-double SampleRooFitMgr::MinMass()    { return minmass; }
-double SampleRooFitMgr::MinFitMass() { return minfitmass; }
-double SampleRooFitMgr::MaxMass()    { return maxmass; }
+double SampleRooFitMgr::_min_mass = 0 ;
+double SampleRooFitMgr::_max_mass = 0 ;
+RooRealVar* SampleRooFitMgr::_x    = NULL;
+RooRealVar* SampleRooFitMgr::_w    = NULL;
+
+void SampleRooFitMgr::InitRooVars( const double min, const double max )
+{
+   ClearRooVars();
+   _x = new RooRealVar( "x" , "M_{t+g}"      , min   , max , "GeV/c^{2}" );
+   _w = new RooRealVar( "w" , "event_weight" , -1000., 1000, "");
+   _min_mass = min;
+   _max_mass = max;
+}
+
+void SampleRooFitMgr::ClearRooVars()
+{
+   if( _x != NULL) { delete _x; }
+   if( _w != NULL) { delete _w; }
+}
+
 
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
@@ -36,7 +46,12 @@ SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ):
    Named( name ),
    SampleGroup(name, cfg )
 {
-   _dataset = new RooDataSet( Name().c_str(), Name().c_str(), RooArgSet(_x,_w), RooFit::WeightVar(_w) );
+   SampleRooFitMgr::x().setBins(40); // 40 bins for plotting
+   _dataset = new RooDataSet(
+      Name().c_str(), Name().c_str(),
+      RooArgSet(x(),w()),
+      RooFit::WeightVar(w())
+   );
    for( auto& sample : SampleList() ){
       FillDataSet( *sample );
    }
@@ -48,9 +63,14 @@ SampleRooFitMgr::~SampleRooFitMgr()
    for( auto& dataset : _ext_dataset ){
       delete dataset;
    }
+   for( auto& datahist: _binned_dataset ){
+      delete datahist;
+   }
    for( auto& pdf : _pdf_list){
       delete pdf;
    }
+   delete _x;
+   delete _w;
 }
 
 //------------------------------------------------------------------------------
@@ -84,10 +104,10 @@ void SampleRooFitMgr::FillDataSet( mgr::SampleMgr& sample )
       double event_weight = 1.0 ;
       if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ) { event_weight = -1.; }
       double weight = event_weight * sample_weight ;
-      if( minmass <=tstarMass && tstarMass <= maxmass  &&
-          minweight <= weight && weight <= maxweight ){
-         _x = tstarMass;
-         _dataset->add( RooArgSet(_x) , weight );
+      if( MinMass() <=tstarMass && tstarMass <= MaxMass()  &&
+          -1000.    <= weight   && weight    <= 1000. ){
+         x() = tstarMass;
+         _dataset->add( RooArgSet(x()) , weight );
       }
    }
    cout << "Done!" << endl;
@@ -117,12 +137,17 @@ RooDataSet* SampleRooFitMgr::GetReduceDataSet( const string& name )
          return dataset;
       }
    }
-   return _dataset;
+   return (RooDataSet*)(_dataset);
 }
 
 void SampleRooFitMgr::AddDataSet( RooDataSet* x )
 {
    _ext_dataset.push_back( x );
+}
+
+void SampleRooFitMgr::AddDataHist( RooDataHist* x )
+{
+   _binned_dataset.push_back( x );
 }
 
 RooDataSet* SampleRooFitMgr::GetDataFromAlias( const string& name )

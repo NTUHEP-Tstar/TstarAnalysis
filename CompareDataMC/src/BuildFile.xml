@@ -6,14 +6,13 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 
 <use name="ManagerUtils/BaseClass"/>
-<use name="ManagerUtils/Maths"/>
 <use name="ManagerUtils/HistMgr"/>
 <use name="ManagerUtils/SampleMgr"/>
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PlotUtils"/>
 
 <use name="TstarAnalysis/RootFormat"/>
-<use name="TstarAnalysis/NameFormat"/>
+<use name="TstarAnalysis/Common"/>
 
 
 <flags CXXFLAGS="-g"/>

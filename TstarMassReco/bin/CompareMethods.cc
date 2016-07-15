@@ -5,9 +5,8 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "DataFormats/FWLite/interface/Event.h"
-
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
+#include "DataFormats/FWLite/interface/Event.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -23,9 +22,10 @@ extern void ComparePlot( const string& plot_name, const vector<CompareHistMgr*> 
 extern void MatchRatePlot( const string& plot_name, const vector<CompareHistMgr*> );  // See src/ComparePlot.cc
 extern void MatchPlot( CompareHistMgr* );   // see src/ComparePlot.cc
 
-int main( int argc, char* argv[] ){
+int main( int argc, char* argv[] )
+{
 
-   fwlite::Event event( TFile::Open("test/edm_MassReco.root") );
+   fwlite::Event event( TFile::Open("results/MassRecoCompare.root") );
 //   CompareHistMgr* ChiSq6jet0b  = new CompareHistMgr( "ChiSq6jet0b", "#chi^{2} (6 jet + 0 b-jets)", "ChiSq6jet0b", "ChiSquareResult", "HitFitCompare")  ;
    CompareHistMgr* ChiSq6jet1b  = new CompareHistMgr( "ChiSq6jet1b", "#chi^{2} (6 jet + 1 b-jets)", "ChiSq6jet1b", "ChiSquareResult", "HitFitCompare")  ;
    CompareHistMgr* ChiSq6jet2b  = new CompareHistMgr( "ChiSq6jet2b", "#chi^{2} (6 jet + 2 b-jets)", "ChiSq6jet2b", "ChiSquareResult", "HitFitCompare")  ;
@@ -55,10 +55,11 @@ int main( int argc, char* argv[] ){
    MatchPlot( HitFit6jet2b );
 
    cout << endl;
-   ComparePlot( "6jets-2b-jets", {ChiSq6jet2b} );
-   ComparePlot( "6j-bjets_effect" , {ChiSq6jet1b,ChiSq6jet2b} );
-   ComparePlot( "6j-v-8j_2bjet",  {ChiSq6jet2b,ChiSq8jet2b} );
+   ComparePlot( "6jets-2b-jets"  , {ChiSq6jet2b} );
+   ComparePlot( "6j-bjets_effect", {ChiSq6jet1b,ChiSq6jet2b}  );
+   ComparePlot( "6j-v-8j_2bjet"  , {ChiSq6jet2b,ChiSq8jet2b}  );
    ComparePlot( "chisq-v-hitfit" , {ChiSq6jet2b,HitFit6jet2b} );
+
    MatchRatePlot( "chisq-hitfit-match", {
       ChiSq6jet1b,
       ChiSq6jet2b,

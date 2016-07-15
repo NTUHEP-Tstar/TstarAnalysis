@@ -8,86 +8,57 @@
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
 #include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
 
+#include "RooHistPdf.h"
 #include "TRandom3.h"
 
 using namespace std;
-
-//------------------------------------------------------------------------------
-//   Calling function in other files
-//------------------------------------------------------------------------------
-static void MakePsuedoData(SampleRooFitMgr*,const unsigned);
-extern void MakeTemplate(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*>&);
-extern void MakeSimFit(SampleRooFitMgr*,std::vector<SampleRooFitMgr*>&);
 
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
 void MakeBias(SampleRooFitMgr* data, SampleRooFitMgr* mc, vector<SampleRooFitMgr*>& signal_list )
 {
-   MakePsuedoData(mc,data->OriginalDataSet()->sumEntries());
-   if( limit_namer.GetFitMethod() == "BiasTemplate" ){
+   using namespace bias;
+   int events_to_gen = data->OriginalDataSet()->sumEntries() ;
+   MakePsuedoData(mc,events_to_gen);
+
+
+   if( limit_namer.GetInput("fitmethod") == "BiasTemplate" ){
       MakeTemplate(mc,mc,signal_list);
-   } else if( limit_namer.GetFitMethod() == "BiasSimFit" ){
+   } else if( limit_namer.GetInput("fitmethod") == "BiasSimFit" ){
       MakeSimFit(mc,signal_list);
-   } else {
-      fprintf( stderr, "Warning! Not enough information in method [%s], using Template by default..." , limit_namer.GetFitMethod().c_str() );
-      fflush( stderr );
-      limit_namer.SetFitMethod("BiasTemplate");
-      MakeTemplate(mc,mc,signal_list);
    }
 }
 
 //------------------------------------------------------------------------------
 //   Helper function implementations
 //------------------------------------------------------------------------------
-void MakePsuedoData(SampleRooFitMgr* mc, const unsigned n_events )
+void bias::MakePsuedoData(SampleRooFitMgr* mc, const unsigned n_events )
 {
-   vector<bool> has_selected;
-   double       max_weight = 0;
-   const string dat_name   = mc->MakeDataAlias("bias");
-   RooDataSet*  mc_set     = mc->OriginalDataSet();
-   RooDataSet*  my_data    = new RooDataSet(
-      dat_name.c_str(), dat_name.c_str(),
-      RooArgSet(SampleRooFitMgr::x(), SampleRooFitMgr::w()),
-      RooFit::WeightVar( SampleRooFitMgr::w())
+   SampleRooFitMgr::x().setBins(200);
+   const string bin_name  = mc->MakeDataAlias("binned");
+   const string pdf_name  = mc->MakePdfAlias("binned");
+   const string dat_name  = mc->MakeDataAlias("bias");
+   RooDataHist* bin_data  = mc->OriginalDataSet()->binnedClone(
+         bin_name.c_str(),
+         bin_name.c_str()
    );
-   TRandom3    my_gen;
-
+   RooHistPdf*  my_pdf = new RooHistPdf(
+      pdf_name.c_str(), pdf_name.c_str(),
+      SampleRooFitMgr::x(),
+      *bin_data
+   );
+   RooDataSet* my_data = my_pdf->generate(
+      SampleRooFitMgr::x(),
+      n_events,
+      RooFit::Name(dat_name.c_str())
+   );
    mc->AddDataSet( my_data );
-   limit_namer.SetTag("fitset","bias");
+   mc->AddDataHist( bin_data );
+   mc->AddPdf( my_pdf );
+   dataset_alias = "bias";
 
-   // Determining maximum weight
-   cout << "Determining maximum weight..." << endl;
-   for( int i = 0 ; i < mc_set->numEntries(); ++i ){
-      has_selected.push_back(false);
-      mc_set->get(i);
-      const double entry_weight = mc_set->weight();
-      if( fabs(entry_weight) > max_weight ){
-         max_weight = fabs(entry_weight);
-      }
-   }
-   max_weight *= 1.1; // To avoid null selection at edges
-   cout << "Maximum weight: " << max_weight;
-
-   // Generating pseudo data from sampling mc
-   while( my_data->sumEntries() < n_events ){
-      cout << "\rGenerating pseudo data..."
-           << my_data->sumEntries() << "/"
-           << my_data->numEntries() << flush;
-
-      int     my_index     = my_gen.Integer( mc_set->numEntries() );
-      double  my_weight    = my_gen.Uniform( max_weight );
-      const RooArgSet* entry = mc_set->get(my_index);
-      double  entry_mass   = entry->getRealValue("x");
-      double  entry_weight = mc_set->weight();
-      double  input_weight = entry_weight > 0 ? 1 : -1;
-      if( entry_weight > 0 && entry_weight <= my_weight && !has_selected[my_index] ){
-         SampleRooFitMgr::x() = entry_mass;
-         my_data->add( RooArgSet(SampleRooFitMgr::x()), input_weight );
-         has_selected[my_index] == true;
-      }
-   }
    cout << "Done! " << my_data->sumEntries() << " effective entries!" << endl;
+   SampleRooFitMgr::x().setBins(40);
 }

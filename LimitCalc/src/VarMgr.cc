@@ -7,6 +7,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
 
+#include <iostream>
 using namespace std;
 
 //------------------------------------------------------------------------------
@@ -19,12 +20,12 @@ VarMgr var_mgr;
 //------------------------------------------------------------------------------
 VarMgr::VarMgr()
 {
-
 }
 
 VarMgr::~VarMgr()
 {
    for( auto* ptr : _var_list ){
+      cout << ptr->GetName() << " " << ptr->getVal() << endl;
       delete ptr;
    }
 }
@@ -38,9 +39,19 @@ RooRealVar* VarMgr::NewVar(const string& name, double val, double min, double ma
    return _var_list.back();
 }
 
-void VarMgr::SetConstant()
+void VarMgr::SetConstant(const bool x)
 {
    for( auto& var : _var_list ){
-      var->setConstant(kTRUE);
+      var->setConstant(x);
    }
+}
+
+RooRealVar* VarMgr::FindByName(const string& name)
+{
+   for( auto& var : _var_list ){
+      if( var->GetName() == name ){
+         return var;
+      }
+   }
+   return NULL;
 }

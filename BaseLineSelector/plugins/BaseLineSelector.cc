@@ -42,7 +42,7 @@ private:
    edm::Handle<JetList>      _jetHandle ;
 
    // Operation Flags
-   const int _runMode;
+   const std::string _runMode;
 };
 
 
@@ -53,7 +53,7 @@ BaseLineSelector::BaseLineSelector(const edm::ParameterSet& iConfig):
    _muonsrc(consumes<MuonList>(iConfig.getParameter<edm::InputTag>("muonsrc"))),
    _electronsrc( consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc"))),
    _jetsrc( consumes<JetList>(iConfig.getParameter<edm::InputTag>("jetsrc"))),
-   _runMode( iConfig.getParameter<int>("runMode") )
+   _runMode( iConfig.getParameter<std::string>("runMode") )
 {
 }
 
@@ -72,12 +72,12 @@ bool BaseLineSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByToken( _jetsrc      , _jetHandle      );
 
    // Selection for different channels
-   if( _runMode == GG_MUON_SIGNAL ){
+   if( _runMode == "MuonSignal" ){
       if( _muonHandle->size() != 1 ) {
          return false; }
       if( _electronHandle->size() > 0 ) {
          return false; }
-   } else if( _runMode == GG_ELECTRON_SIGNAL ){
+   } else if( _runMode == "ElectronSignal" ){
       if( _electronHandle->size() != 1 ){
          return false; }
       if( _muonHandle->size() > 0 ) {

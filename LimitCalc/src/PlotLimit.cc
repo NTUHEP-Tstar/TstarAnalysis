@@ -5,7 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
+#include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
@@ -30,7 +30,8 @@ static void FillXSectionMap();
 
 void MakeLimitPlot()
 {
-   const vector<string> signal_list = limit_namer.MasterConfig().GetStaticStringList( "Signal List" );
+   const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
+   const vector<string> signal_list = cfg.GetStaticStringList( "Signal List" );
    const size_t binCount = signal_list.size();
    double y_max = 0;
    double y_min = 10000000.;
@@ -57,7 +58,7 @@ void MakeLimitPlot()
 
    bin=0;
    for( const auto& signal : signal_list ){
-      double mass_d = TagTree::GetInt(signal);
+      double mass_d = GetInt(signal);
       double exp_xsec = pred_cross_section[mass_d];
       const string file_name = limit_namer.RootFileName("combine",signal);
       TFile* file = TFile::Open(file_name.c_str());
@@ -112,12 +113,12 @@ void MakeLimitPlot()
    TGraph* theory             = new TGraph(fine_bincount,mass_fine,xsec_fine);
 
    //----- Setting Styles  --------------------------------------------------------
-   one_sig->SetFillColor( kGreen  );
-   one_sig->SetLineColor( kGreen  );
+   one_sig->SetFillColor( kGreen +1 );
+   one_sig->SetLineColor( kGreen +1 );
    one_sig->SetLineWidth(0);
    one_sig->SetFillStyle(1001);
-   two_sig->SetFillColor( kYellow + 1 );
-   two_sig->SetLineColor( kYellow + 1 );
+   two_sig->SetFillColor( kOrange );
+   two_sig->SetLineColor( kOrange );
    two_sig->SetLineWidth(0);
    two_sig->SetFillStyle(3001);
 
@@ -163,15 +164,15 @@ void MakeLimitPlot()
 
 
    plt::DrawCMSLabel();
-   plt::DrawLuminosity( limit_namer.MasterConfig().GetStaticDouble("Total Luminosity") );
+   plt::DrawLuminosity( cfg.GetStaticDouble("Total Luminosity") );
 
    TLatex tl;
    tl.SetNDC(kTRUE);
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_LEFT );
-   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelRoot().c_str() );
-   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, (limit_namer.GetFitMethodFull()+", "+limit_namer.GetFitFuncFull()).c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT("Root Name").c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, (limit_namer.GetExtName("fitmethod","Full Name")+", "+limit_namer.GetExtName("fitfunc","Full Name")).c_str() );
 
    //----- Saving and cleaning up  ------------------------------------------------
    c1->SetLogy(kTRUE);

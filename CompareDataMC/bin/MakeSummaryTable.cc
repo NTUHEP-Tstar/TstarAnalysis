@@ -8,7 +8,9 @@
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+
+#include <boost/program_options.hpp>
 #include <string>
 #include <iostream>
 #include <stdio.h>
@@ -17,6 +19,7 @@ using namespace std;
 using mgr::SampleMgr;
 using mgr::SampleGroup;
 using mgr::ConfigReader;
+namespace opt= boost::program_options;
 
 typedef vector<SampleGroup*> GroupList;
 //------------------------------------------------------------------------------
@@ -48,16 +51,20 @@ extern void SummaryMCLumi(
 
 int main(int argc, char* argv[])
 {
-   cout << "Making summary table!" << endl;
-   const vector<string> manditory = {"channel"};
-   const int run = InitOptions( argc, argv );
-   if( run == PARSE_HELP  ){ ShowManditory( manditory ); return 0; }
-   if( run == PARSE_ERROR ){ return 1; }
-   if( CheckManditory( manditory ) != PARSE_SUCESS) { return 1; }
+   opt::options_description  desc("Options for KinematicCompare");
+   desc.add_options()
+      ("channel,c", opt::value<string>(), "What channel to run")
+   ;
 
-   InitSampleSettings( compare_namer );
+   const int parse =  compare_namer.LoadOptions( desc, argc, argv );
+   if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
+   if( parse == mgr::OptsNamer::PARSE_HELP ) { return 0; }
 
-   const ConfigReader& master = compare_namer.MasterConfig();
+   InitSampleStatic( compare_namer );
+
+   const ConfigReader master( compare_namer.MasterConfigFile() );
+
+   SampleGroup* data = new mgr::SampleGroup( compare_namer.GetChannelEXT("Data Tag"),master );
 
    vector<SampleGroup*> signal_mc_list;
    for( const auto& sig_tag : master.GetStaticStringList("Signal List") ){
@@ -69,7 +76,6 @@ int main(int argc, char* argv[])
       bkg_mc_list.push_back( new mgr::SampleGroup(bkg_tag,master ) );
    }
 
-   SampleGroup* data = new mgr::SampleGroup( compare_namer.GetChannelDataTag(),master );
 
    cout << "Making complete summary table...." << endl;
    SummaryComplete(signal_mc_list,bkg_mc_list,data);

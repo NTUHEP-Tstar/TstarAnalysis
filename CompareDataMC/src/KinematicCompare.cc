@@ -6,7 +6,7 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
@@ -86,7 +86,7 @@ void MakeComparePlot(
       char data_entry[128];
       char sig_entry[128];
       sprintf( data_entry , "Data (%.3lf fb^{-1})" , total_lumi/1000. );
-      sprintf( sig_entry  , "Signal_{M=%d} (#times %.1lf)", TagTree::GetInt(signal_mgr->Name()) , sig_scale );
+      sprintf( sig_entry  , "Signal_{M=%d} (#times %.1lf)", GetInt(signal_mgr->Name()) , sig_scale );
       l->AddEntry( data_hist , data_entry , "lp" );
       for( const auto& entry : background ){
          l->AddEntry( entry->Hist(hist_name), entry->LatexName().c_str()  , "f" );
@@ -170,7 +170,7 @@ void MakeComparePlot(
       plt::DrawLuminosity( total_lumi );
 
       TPaveText* tb = plt::NewTextBox( 0.12, 0.88, 0.30,0.94 );
-      tb->AddText( compare_namer.GetChannelRoot().c_str() );
+      tb->AddText( compare_namer.GetChannelEXT("Root Name").c_str() );
       tb->Draw();
 
       c->SaveAs( compare_namer.PlotFileName(hist_name,label).c_str() );

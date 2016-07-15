@@ -6,7 +6,7 @@
  *
 *******************************************************************************/
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include "TstarAnalysis/NameFormat/interface/NameObj.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -18,7 +18,6 @@ typedef vector<SampleGroup*> GroupList;
 //------------------------------------------------------------------------------
 //   Static variables and Stuff
 //------------------------------------------------------------------------------
-
 
 // For complete summary
 static FILE* OpenSelecFile( const string& );

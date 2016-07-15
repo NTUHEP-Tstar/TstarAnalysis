@@ -21,14 +21,10 @@ log*
 *.eps
 *.png
 *.dat
-**/LSF*
-**/Log*
-**/.**
 
 # Specific file exclusion
 # [relative/path/to/file]
 .remote-sync.json
-TstarMassReco/production/inputlist*
 
 
 # Specific file inclusion

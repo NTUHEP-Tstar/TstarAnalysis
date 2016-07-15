@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include "RooRealVar.h"
+#include "RooDataHist.h"
 #include "RooDataSet.h"
 #include "RooAbsPdf.h"
 
@@ -24,11 +25,12 @@ public:
    ~SampleRooFitMgr();
 
    // Static member functions
-   static double MinMass();
-   static double MinFitMass();
-   static double MaxMass();
-   static RooRealVar& x() { return _x; }
-   static RooRealVar& w() { return _w; }
+   static double MinMass() { return _min_mass; }
+   static double MaxMass() { return _max_mass; }
+   static RooRealVar& x()  { return *_x; }
+   static RooRealVar& w()  { return *_w; }
+   static void  InitRooVars(const double, const double) ;
+   static void  ClearRooVars();
 
    // Additional access functions
    RooDataSet* OriginalDataSet() { return _dataset; }
@@ -44,6 +46,7 @@ public:
    std::string MakeDataAlias( const std::string& x ) const ;
    RooDataSet* GetDataFromAlias( const std::string& x ) ;
    void AddDataSet( RooDataSet* );
+   void AddDataHist( RooDataHist* );
 
    // Adding/Accessing pdfs
    std::string MakePdfAlias( const std::string& x ) const;
@@ -52,10 +55,13 @@ public:
    RooAbsPdf* GetPdfFromName( const std::string& x );
 
 private:
-   static RooRealVar _x;
-   static RooRealVar _w;
+   static double _min_mass;
+   static double _max_mass;
+   static RooRealVar* _x;
+   static RooRealVar* _w;
    RooDataSet* _dataset;
    std::vector<RooDataSet*> _ext_dataset;
+   std::vector<RooDataHist*> _binned_dataset;
    std::vector<RooAbsPdf*>  _pdf_list;
 
    void FillDataSet( mgr::SampleMgr& );

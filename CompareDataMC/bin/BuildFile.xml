@@ -2,7 +2,7 @@
 <use name="roofit" />
 <use name="boost_program_options"/>
 <use name="TstarAnalysis/CompareDataMC"/>
-<use name="TstarAnalysis/NameFormat"/>
+<use name="TstarAnalysis/Common"/>
 
 <flags CXXFLAGS="-g"/>
 

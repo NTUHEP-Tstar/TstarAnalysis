@@ -1,7 +1,7 @@
 <use name="TstarAnalysis/LimitCalc"/>
-<use name="TstarAnalysis/NameFormat"/>
+<use name="TstarAnalysis/Common"/>
 
-<bin name="CompareFitPar" file="CompareFitPar.cc" />
-<bin name="MakeRooFit"    file="MakeRooFit.cc" />
-<bin name="MergeCards"    file="MergeCards.cc" />
-<bin name="PlotLimit"     file="PlotLimit.cc" />
+<bin name="MakeRooFit"      file="MakeRooFit.cc" />
+<bin name="MergeCards"      file="MergeCards.cc" />
+<bin name="PlotLimit"       file="PlotLimit.cc" />
+<bin name="CheckSimFitStab" file="CheckSimFitStab.cc"/>

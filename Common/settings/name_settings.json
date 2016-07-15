@@ -1,0 +1,70 @@
+{
+   "channel": {
+      "MuonSignal" : {
+         "Latex Name" : "$\\mu$ signal channel",
+         "Root Name": "#mu channel",
+         "Data Tag": "Data_Muon"
+      },
+      "ElectronSignal" : {
+         "Latex Name" : "$e$ signal channel",
+         "Root Name": "e channel",
+         "Data Tag": "Data_Electron"
+      },
+      "SignalMerge" : {
+         "Latex Name" : "$\\mu + e $ channel",
+         "Root Name": "#mu + e channel"
+      }
+   },
+
+   "fitmethod": {
+      "SimFit": {
+         "Full Name" : "Simultaneous Fit"
+      },
+      "Template": {
+         "Full Name" : "Template Fit"
+      },
+      "BiasSimFit" : {
+         "Full Name": "Simultaneous Fit (Bias Check)"
+      },
+      "BiasTemplate" : {
+         "Full Name": "Template Fit (Bias Check)"
+      }
+   },
+
+   "fitfunc":{
+      "Fermi": {
+         "Full Name" : "Fermi function",
+         "Latex Name": "N\\left(  1+\\exp\\left( \\frac{m-a}{b}\\\right) \\right)",
+         "Root Name" : "N #left(  1+ exp#left( #frac{m-a}{b} #right) #right)"
+      },
+      "Exo" : {
+         "Full Name": "EXO Group function",
+         "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
+         "Root Name": "N #left( (1-x)^{p_{1}} / x^{p_{2}} #right)"
+      },
+      "Lognorm" : {
+         "Full Name": "Log normal",
+         "Latex Name": "\\frac{N}{\\sigma\\sqrt{2\\pi}} \\exp{-\\frac{(\\ln{x}-m_0)^{2}}{2\\sigma^{2}}}",
+         "Root Name": "#frac{N}{m #sigma#sqrt{2#pi}} exp#left(-#frac{ln^{2}(m/m_{0})}{2#sigma^{2}}#right)"
+      },
+      "Landau" : {
+         "Full Name": "Landau",
+         "Latex Name": "",
+         "Root Name": "Landau function"
+      },
+      "Trial" : {
+         "Full Name" : "Trial",
+         "Latex Name": "",
+         "Root Name": "Trial"
+      }
+   },
+
+   "combine" : {
+      "Asymptotic": {
+         "Full Name": "Asymptotic"
+      }
+   },
+
+   "Image format" : "png"
+
+}

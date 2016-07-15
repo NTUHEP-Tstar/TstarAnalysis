@@ -6,7 +6,7 @@
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hh"
+#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
 
 #include <vector>
 #include <iostream>
