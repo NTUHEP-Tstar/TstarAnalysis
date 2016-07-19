@@ -7,8 +7,8 @@ Main code for excited top quark analysis.
 cmsrel CMSSW_7_6_4
 cd CMSSW_7_6_4/src
 
-git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git
-git clone https://github.com/NTUHEP-Tstar/ManagerUtils.git
+git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git -b dev_sam
+git clone https://github.com/NTUHEP-Tstar/ManagerUtils.git  -b dev_sam
 
 scram b
 ```
