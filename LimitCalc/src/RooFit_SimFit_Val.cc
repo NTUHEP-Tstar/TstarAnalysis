@@ -29,8 +29,7 @@ void Validate( SampleRooFitMgr* data, SampleRooFitMgr* sig )
    const vector<string> new_set_list = val::GenInjected(data,sig,inject_list);
    for( const auto& new_set : new_set_list ){
       dataset_alias = new_set;
-      RooFitResult* err = smft::FitPDFs(data,sig,new_set);
-      smft::MakeValidationPlot(data,sig,err,new_set);
+      
    }
    val::MakePlot( data, sig, inject_list, new_set_list );
 }
@@ -42,13 +41,15 @@ void Validate( SampleRooFitMgr* data, SampleRooFitMgr* sig )
 vector<double> val::MakeSigStrengthList( SampleRooFitMgr* sig, const double fit_yield )
 {
    vector<double> ans;
-   ans.push_back( 3.);
+   const double exp_yield=sig->ExpectedYield().CentralValue();
+   ans.push_back( 1. )
+   ans.push_back( 3.  );
    ans.push_back( 10. );
-   ans.push_back( 30. );
-   ans.push_back( 100. );
-   ans.push_back( 300. );
-   ans.push_back( 1000. );
-   ans.push_back( 3000. );
+   ans.push_back( exp_yield/10. );
+   ans.push_back( exp_yield/3.  );
+   ans.push_back( exp_yield     );
+   ans.push_back( exp_yield*3.  );
+   ans.push_back( exp_yield*10. );
    return ans;
 }
 
