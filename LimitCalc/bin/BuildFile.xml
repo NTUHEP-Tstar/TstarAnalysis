@@ -1,6 +1,8 @@
 <use name="TstarAnalysis/LimitCalc"/>
 <use name="TstarAnalysis/Common"/>
 
+<flags CXXFLAGS="-g"/>
+
 <bin name="MakeRooFit"      file="MakeRooFit.cc" />
 <bin name="MergeCards"      file="MergeCards.cc" />
 <bin name="PlotLimit"       file="PlotLimit.cc" />

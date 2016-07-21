@@ -1,4 +1,6 @@
 <use name="DataFormats/PatCandidates"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
 <export>
   <lib   name="1"/>
 </export>

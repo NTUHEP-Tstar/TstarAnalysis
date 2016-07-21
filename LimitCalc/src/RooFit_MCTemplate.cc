@@ -66,7 +66,9 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
       RooFit::Range("FitRange"),  // Fitting range
       RooFit::Minos(kTRUE),
       RooFit::Verbose(kFALSE),
-      RooFit::PrintLevel(-1)
+      RooFit::PrintLevel(-1),
+      RooFit::PrintEvalErrors(-1),
+      RooFit::Warnings(kFALSE)
    );
    var_mgr.SetConstant();
    return results;

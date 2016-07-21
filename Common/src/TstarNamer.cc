@@ -88,7 +88,7 @@ string TstarNamer::TextFileName( const string& main_tag, const string& sub_tag )
 { return MakeFileName("txt",main_tag,sub_tag); }
 
 string TstarNamer::PlotFileName( const string& main_tag, const string& sub_tag ) const
-{ return MakeFileName( "pdf", main_tag, sub_tag ); }
+{ return MakeFileName( "png", main_tag, sub_tag ); }
 
 string TstarNamer::TexFileName( const string& main_tag, const string& sub_tag ) const
 { return MakeFileName("tex",main_tag,sub_tag); }

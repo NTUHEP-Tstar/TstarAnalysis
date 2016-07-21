@@ -10,196 +10,171 @@
 #include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
-
+#include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
+#include <boost/format.hpp>
 
-#include "TGraphAsymmErrors.h"
+#include "TStyle.h"
+#include "TFitResult.h"
+#include "TGraphErrors.h"
 
 using namespace std;
 
-
-void Validate( SampleRooFitMgr* data, SampleRooFitMgr* sig )
-{
-   smft::FitPDFs( data, sig );
-   const RooAddPdf* originalfit      = (RooAddPdf*)data->GetPdfFromAlias( sig->Name() );
-   const double     fit_yield        = ((RooRealVar*)(originalfit->coefList().at(1)))->getVal();
-   const vector<double> inject_list  = val::MakeSigStrengthList( sig, fit_yield );
-   const vector<string> new_set_list = val::GenInjected(data,sig,inject_list);
-   for( const auto& new_set : new_set_list ){
-      dataset_alias = new_set;
-      
-   }
-   val::MakePlot( data, sig, inject_list, new_set_list );
-}
-
+//------------------------------------------------------------------------------
+//   Helper structures and functions
+//------------------------------------------------------------------------------
+struct val::PullResult{
+   Parameter bkgpull;
+   Parameter sigpull;
+   Parameter p1pull;
+   Parameter p2pull;
+};
 
 //------------------------------------------------------------------------------
-//   Helper functions
+//   Main control flow
 //------------------------------------------------------------------------------
-vector<double> val::MakeSigStrengthList( SampleRooFitMgr* sig, const double fit_yield )
+void RunValidate( SampleRooFitMgr* data, vector<SampleRooFitMgr*>& siglist )
 {
-   vector<double> ans;
-   const double exp_yield=sig->ExpectedYield().CentralValue();
-   ans.push_back( 1. )
-   ans.push_back( 3.  );
-   ans.push_back( 10. );
-   ans.push_back( exp_yield/10. );
-   ans.push_back( exp_yield/3.  );
-   ans.push_back( exp_yield     );
-   ans.push_back( exp_yield*3.  );
-   ans.push_back( exp_yield*10. );
-   return ans;
-}
+   TGraphErrors* bkgplot = new TGraphErrors( siglist.size() );
+   TGraphErrors* sigplot = new TGraphErrors( siglist.size() );
+   TGraphErrors* p1plot  = new TGraphErrors( siglist.size() );
+   TGraphErrors* p2plot  = new TGraphErrors( siglist.size() );
 
-vector<string> val::GenInjected(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   const vector<double>& gen_strength_list
-)
-{
-   RooAddPdf*  originalfit = (RooAddPdf*)data->GetPdfFromAlias( sig->Name() );
-   RooRealVar* bkg_var     = (RooRealVar*)(originalfit->coefList().at(0));
-   RooRealVar* sig_var     = (RooRealVar*)(originalfit->coefList().at(1));
-   vector<string> ans ;
-   unsigned i = 0;
-
-   sig_var->setConstant(kFALSE);
-
-   for( const auto& gen_strength : gen_strength_list ){
-      const string new_alias = "gen" + to_string(i);
-      const string new_name  = data->MakeDataAlias( new_alias );
-      *sig_var = gen_strength ;// reassigning new signal strength
-
-      cout << "Generating new dataset for " << sig->Name()  << " with " << gen_strength << "Signal events" << endl;
-      RooDataSet*  new_set = originalfit->generate(
-         SampleRooFitMgr::x(),
-         bkg_var->getVal() + sig_var->getVal(),
-         RooFit::Name( new_name.c_str() )
-      );
-      data->AddDataSet( new_set );
-      ans.push_back( new_alias );
+   unsigned i = 0 ;
+   for( auto sig : siglist ){
+      auto result = val::RunSingle( data, sig );
+      bkgplot->SetPoint( i , GetInt(sig->Name()) , result.bkgpull.CentralValue() );
+      bkgplot->SetPointError( i , 0.                  , result.bkgpull.AbsAvgError()  );
+      sigplot->SetPoint( i , GetInt(sig->Name()) , result.sigpull.CentralValue() );
+      sigplot->SetPointError( i , 0.                  , result.sigpull.AbsAvgError()  );
+      p1plot->SetPoint(  i , GetInt(sig->Name()) , result.p1pull.CentralValue()  );
+      p1plot->SetPointError(  i , 0.                  , result.p1pull.AbsAvgError()   );
+      p2plot->SetPoint(  i , GetInt(sig->Name()) , result.p2pull.CentralValue()  );
+      p2plot->SetPointError(  i , 0.                  , result.p2pull.AbsAvgError()   );
       ++i;
    }
+
+   val::PlotMassCompare( bkgplot , "bkg" );
+   val::PlotMassCompare( sigplot , "sig" );
+   val::PlotMassCompare( p1plot , "param1" );
+   val::PlotMassCompare( p2plot , "param2" );
+}
+
+val::PullResult val::RunSingle( SampleRooFitMgr* data, SampleRooFitMgr* sigmgr )
+{
+   smft::FitPDFs( data, sigmgr ); // First fit to original dataset
+   var_mgr.SetConstant(kFALSE);
+   const string pdf_alias_full = data->MakePdfAlias( "bg" + sigmgr->Name() );
+   RooAbsPdf*  model  = data->GetPdfFromAlias( sigmgr->Name() );
+   RooRealVar* bkg    = var_mgr.FindByName( "nb" + sigmgr->Name() );
+   RooRealVar* sig    = var_mgr.FindByName( "ns" + sigmgr->Name() );
+   RooRealVar* p1     = var_mgr.FindByName( "a" + pdf_alias_full );
+   RooRealVar* p2     = var_mgr.FindByName( "b" + pdf_alias_full );
+
+   RooMCStudy* mcstudy = new RooMCStudy(
+      *model,
+      SampleRooFitMgr::x(),
+      RooFit::Binned(kFALSE),
+      RooFit::Silence(),
+      RooFit::Extended(),
+		RooFit::FitOptions( // Suppressing as much output as possible
+         RooFit::Warnings(kFALSE),
+         RooFit::Verbose(kFALSE),
+         RooFit::PrintLevel(-1),
+         RooFit::PrintEvalErrors(-1)
+      )
+   );
+   const int run = limit_namer.GetMap()["run"].as<int>();
+   mcstudy->generateAndFit(run);
+
+   val::PullResult ans;
+   ans.bkgpull= val::DrawPull( mcstudy, bkg, GetInt(sigmgr->Name()), "bkg"    );
+   ans.sigpull= val::DrawPull( mcstudy, sig, GetInt(sigmgr->Name()), "sig"    );
+   ans.p1pull = val::DrawPull( mcstudy, p1 , GetInt(sigmgr->Name()), "param1" );
+   ans.p2pull = val::DrawPull( mcstudy, p2 , GetInt(sigmgr->Name()), "param2" );
    return ans;
 }
 
 //------------------------------------------------------------------------------
-//   Plotting functions
+//   Helper functions for Plotting
 //------------------------------------------------------------------------------
-
-void FillGraph( TGraphAsymmErrors*, const int, const double x,  const RooRealVar* );
-TCanvas* DrawGraph( TGraphAsymmErrors* ,
-   const string& title,
-   const string& yaxis );
-void DrawBox( const RooRealVar*, const double xmin, const double xmax );
-void DrawLine( const double, const double);
-
-void val::MakePlot(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   const std::vector<double>&      sig_strength_list,
-   const std::vector<std::string>& psuedo_data_alias_list
-){
-   const unsigned bincount = sig_strength_list.size();
-   TGraphAsymmErrors*  bkg_strength_plot = new TGraphAsymmErrors(bincount);
-   TGraphAsymmErrors*  sig_strength_plot = new TGraphAsymmErrors(bincount);
-   TGraphAsymmErrors*  param_a_plot      = new TGraphAsymmErrors(bincount);
-   TGraphAsymmErrors*  param_b_plot      = new TGraphAsymmErrors(bincount);
-
-   for( unsigned i = 0 ; i < sig_strength_list.size(); ++i ){
-      const double setsigstrength = sig_strength_list[i];
-      const string fit_alias      = sig->Name() + "gen" + to_string(i);
-      const string bkgfullname    = data->MakePdfAlias("bg"+fit_alias);
-      const RooAddPdf*  model     = (RooAddPdf*)(data->GetPdfFromAlias( fit_alias ));
-      const RooRealVar* bkgvar    = (RooRealVar*)(model->coefList().at(0));
-      const RooRealVar* sigvar    = (RooRealVar*)(model->coefList().at(1));
-      const RooRealVar* param_a   = var_mgr.FindByName("a"+bkgfullname);
-      const RooRealVar* param_b   = var_mgr.FindByName("b"+bkgfullname);
-
-      FillGraph(bkg_strength_plot,i,setsigstrength,bkgvar);
-      FillGraph(sig_strength_plot,i,setsigstrength,sigvar);
-      FillGraph(param_a_plot     ,i,setsigstrength,param_a);
-      FillGraph(param_b_plot     ,i,setsigstrength,param_b);
-   }
-   const string bkgfullname  = data->MakePdfAlias("bg"+sig->Name());
-   const RooRealVar*  bkgvar = var_mgr.FindByName("nb"+sig->Name());
-   const RooRealVar*  param_a= var_mgr.FindByName("a"+bkgfullname);
-   const RooRealVar*  param_b= var_mgr.FindByName("b"+bkgfullname);
-
-   char title[1024];
-   sprintf( title, "Comparison plot for mass point %d GeV", GetInt(sig->Name()));
-
-   TCanvas* c_bkg = DrawGraph( bkg_strength_plot, title, "fitted bkg. strength" );
-   DrawBox( bkgvar , sig_strength_list.front(), sig_strength_list.back() );
-   c_bkg->SaveAs( limit_namer.PlotFileName("valplot",sig->Name()+"_bkg").c_str() );
-
-   TCanvas* c_sig = DrawGraph( sig_strength_plot, title, "fitted signal strength");
-   DrawLine( sig_strength_list.front(), sig_strength_list.back() );
-   c_sig->SetLogy();
-   c_sig->SaveAs( limit_namer.PlotFileName("valplot",sig->Name()+"_sig").c_str() );
-
-   TCanvas* c_a = DrawGraph( param_a_plot, title, "fitted parameter [1]" );
-   DrawBox( param_a , sig_strength_list.front() , sig_strength_list.back() );
-   c_a->SaveAs( limit_namer.PlotFileName("valplot",sig->Name()+"_param_a").c_str() );
-
-   TCanvas* c_b = DrawGraph( param_b_plot, title, "fitted parameter [2]" );
-   DrawBox( param_b , sig_strength_list.front() , sig_strength_list.back() );
-   c_b->SaveAs( limit_namer.PlotFileName("valplot",sig->Name()+"_param_b").c_str() );
-
-   delete bkg_strength_plot;
-   delete sig_strength_plot;
-   delete param_a_plot;
-   delete param_b_plot;
-   delete c_bkg;
-   delete c_sig;
-}
-
-
-// Helper plotting functions
-void FillGraph( TGraphAsymmErrors* graph , const int bin, const double x , const RooRealVar* var )
+Parameter val::DrawPull( RooMCStudy* study , RooRealVar* var, const int mass, const string& name )
 {
-   graph->SetPoint(bin,x,var->getVal() );
-   graph->SetPointError(bin,0,0,-var->getErrorLo(),var->getErrorHi() );
-}
-
-TCanvas* DrawGraph( TGraphAsymmErrors* graph, const string& title , const string& y_title )
-{
-   TCanvas* c = new TCanvas(
-      y_title.c_str(),y_title.c_str(),
-      DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT
+   TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
+   RooPlot* pullplot = study->plotPull(
+      *var,
+      RooFit::FrameRange(-5,5)
    );
 
-   graph->Draw("ALP");
-   graph->SetTitle(title.c_str());
-   graph->GetXaxis()->SetTitle("injected signal strength");
-   graph->GetYaxis()->SetTitle(y_title.c_str() );
-   graph->SetMarkerStyle( 21);
-   c->SetLogx();
-   return c;
+   SetFrame( pullplot , AXIS_TITLE_FONT_SIZE);
+
+   TGraph* gaussplot = (TGraph*)pullplot->getObject( pullplot->numItems() - 1  );
+   auto fitr  = gaussplot->Fit("gaus","QSEM");
+   pullplot->Draw();
+   gStyle->SetOptStat(0) ;
+
+   boost::format xform("pull_{%1%}");
+   string x_title = str(xform % name );
+   pullplot->SetTitle( "" );
+   pullplot->GetXaxis()->SetTitle( x_title.c_str() );
+   plt::DrawCMSLabel(SIMULATION);
+   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+
+   boost::format sigtype("signal mass = %1% GeV");
+   boost::format meanfmt("mean   = %.5f #pm %.5f");
+   boost::format sigmafmt("#sigma = %.5f #pm %.5f");
+   TLatex tl;
+   tl.SetNDC(kTRUE);
+   tl.SetTextFont( FONT_TYPE );
+   tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT("Root Name").c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName("fitfunc","Root Name").c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.16, str(sigtype % mass ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.22, str(meanfmt % fitr->Value(1) % fitr->Value(1) ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.28, str(meanfmt % fitr->Value(2) % fitr->Value(2) ).c_str() );
+
+   boost::format sectag("%1%_tstarM%2%");
+   const string sec = str( sectag % name % mass );
+   c->SaveAs(limit_namer.PlotFileName("pull",sec).c_str());
+   delete c;
+
+   return Parameter( fitr->Value(1), fitr->Value(2) , fitr->Value(2) );
 }
 
-void DrawBox( const RooRealVar* var, const double xmin, const double xmax )
-{
-   double val = var->getVal();
-   double low = var->getVal() + var->getErrorLo();
-   double high= var->getVal() + var->getErrorHi();
-   TLine* center = new TLine( xmin, val, xmax, val) ;
-   TLine* lower  = new TLine( xmin, low, xmax, low );
-   TLine* upper  = new TLine( xmin, high,xmax, high);
 
-   center->SetLineColor(kBlue);
-   lower->SetLineColor(kCyan);
-   upper->SetLineColor(kCyan);
-   center->Draw();
-   lower->Draw();
-   upper->Draw();
-}
-
-void DrawLine( const double xmin, const double xmax )
+void val::PlotMassCompare( TGraph* graph, const string& name )
 {
-   TLine* diag = new TLine( xmin, xmin, xmax, xmax );
-   diag->SetLineColor(kRed);
-   diag->Draw();
+   TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
+   graph->Draw("AP");
+   graph->SetTitle("");
+   graph->GetXaxis()->SetTitle("signal mass (GeV)");
+   graph->GetYaxis()->SetTitle( ("pull_{"+name+"}").c_str() );
+   plt::DrawCMSLabel(SIMULATION);
+   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+
+   const double xmin = graph->GetXaxis()->GetXmin();
+   const double xmax = graph->GetXaxis()->GetXmax();
+   TLine* z  = new TLine( xmin , 0 , xmax, 0 );
+   TLine* hi = new TLine( xmin , 1 , xmax, 1 );
+   TLine* lo = new TLine( xmin ,-1 , xmax,-1 );
+   z ->SetLineColor( kRed); z ->SetLineWidth(3); z ->Draw();
+   hi->SetLineColor(kBlue); hi->SetLineWidth(2); hi->Draw();
+   lo->SetLineColor(kBlue); lo->SetLineWidth(2); lo->Draw();
+
+   TLatex tl;
+   tl.SetNDC(kTRUE);
+   tl.SetTextFont( FONT_TYPE );
+   tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT("Root Name").c_str() );
+
+   c->SaveAs(limit_namer.PlotFileName("plotmass",name).c_str() );
+
+   delete c;
+   delete z;
+   delete hi;
+   delete lo;
 }

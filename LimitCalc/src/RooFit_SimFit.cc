@@ -97,7 +97,9 @@ RooFitResult* smft::FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig, const
       RooFit::Minos(kTRUE),
       RooFit::Save(),
       RooFit::Verbose(kFALSE),
-      RooFit::PrintLevel(-1)
+      RooFit::PrintLevel(-1),
+      RooFit::PrintEvalErrors(-1),
+      RooFit::Warnings(kFALSE)
    );
 
    err->SetName( ("results_"+sig->Name()).c_str() );

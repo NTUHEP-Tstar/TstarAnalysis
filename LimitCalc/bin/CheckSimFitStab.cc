@@ -19,14 +19,15 @@ namespace opt = boost::program_options;
 int main(int argc, char* argv[]) {
 
    SampleRooFitMgr*   data = NULL ;
-   SampleRooFitMgr*   sig  = NULL;
+   SampleRooFitMgr*   mc   = NULL ;
+   vector<SampleRooFitMgr*>   siglist;
 
    opt::options_description  desc("Options for SimFitCheck");
 
    desc.add_options()
       ("channel,c" , opt::value<string>(), "which channel to run" )
       ("fitfunc,f" , opt::value<string>(), "which fit function to use")
-      ("sigmass,m" , opt::value<string>(), "which signal mass to run check")
+      ("run,r"     , opt::value<int>()   , "How many times ro generate datasets" )
    ;
 
    limit_namer.SetNamingOptions({"fitfunc"});
@@ -36,10 +37,12 @@ int main(int argc, char* argv[]) {
 
    InitSampleStatic( limit_namer );
    InitRooFitSettings( limit_namer );
-   InitSingle( data, limit_namer.GetChannelEXT("Data Tag") );
-   InitSingle( sig , limit_namer.GetInput("sigmass") );
-   Validate( data, sig );       // see src/RooFit_SimFit_Val.cc
+   InitDataAndSignal( data, siglist );
+   InitMC( mc );
 
+   bias::MakePsuedoData( mc , data->OriginalDataSet()->sumEntries() );
+
+   RunValidate( mc, siglist );
 
    SampleRooFitMgr::ClearRooVars();
    return 0;

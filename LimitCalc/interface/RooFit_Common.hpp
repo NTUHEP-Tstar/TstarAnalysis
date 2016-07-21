@@ -16,6 +16,7 @@
 #include "RooLandau.h"
 #include "RooAddPdf.h"
 #include "RooFitResult.h"
+#include "RooMCStudy.h"
 
 #include <string>
 #include <vector>
@@ -92,23 +93,13 @@ void MakePsuedoData(SampleRooFitMgr*,const unsigned);
 }
 
 // in src/RooFit_SimFit_Val.cc
-extern void Validate( SampleRooFitMgr*, SampleRooFitMgr* );
+extern void RunValidate( SampleRooFitMgr*, std::vector<SampleRooFitMgr*>& );
 namespace val
 {
-std::vector<double>   MakeSigStrengthList( SampleRooFitMgr*, const double );
-
-std::vector<std::string> GenInjected(
-   SampleRooFitMgr*,
-   SampleRooFitMgr*,
-   const std::vector<double>&
-);
-
-void MakePlot(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   const std::vector<double>&      sig_strength_list,
-   const std::vector<std::string>& psuedo_data_alias_list
-);
+struct PullResult; // Forward declaring only
+PullResult RunSingle( SampleRooFitMgr*, SampleRooFitMgr* );
+Parameter  DrawPull( RooMCStudy*, RooRealVar*, const int, const std::string& );
+void       PlotMassCompare( TGraph*, const std::string& );
 }
 
 //------------------------------------------------------------------------------
