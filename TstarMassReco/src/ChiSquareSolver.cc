@@ -7,6 +7,8 @@
 *******************************************************************************/
 #include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
+#include "TstarAnalysis/BaseLineSelector/interface/BTagChecker.hpp"
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -234,9 +236,10 @@ void ChiSquareSolver::solveNeutrino()
    }
 }
 
-bool IsBtagged( const pat::Jet* x )
+bool ChiSquareSolver::IsBtagged( const pat::Jet* x ) const
 {
-   return ( x->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 );
+   static BTagChecker check("check",CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" );
+   return check.PassMedium( *x , _is_data );
 }
 
 bool ChiSquareSolver::CheckPermutation() const

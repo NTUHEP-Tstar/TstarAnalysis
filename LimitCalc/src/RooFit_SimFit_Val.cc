@@ -73,6 +73,13 @@ val::PullResult val::RunSingle( SampleRooFitMgr* data, SampleRooFitMgr* sigmgr )
    RooRealVar* p1     = var_mgr.FindByName( "a" + pdf_alias_full );
    RooRealVar* p2     = var_mgr.FindByName( "b" + pdf_alias_full );
 
+   if( limit_namer.GetMap().count("relmag") ){
+      *sig = sigmgr->ExpectedYield().CentralValue() * limit_namer.GetMap()["relmag"].as<double>();
+   } else if (limit_namer.GetMap().count("absmag")){
+      *sig = limit_namer.GetMap()["absmag"].as<double>() ;
+   }
+
+
    RooMCStudy* mcstudy = new RooMCStudy(
       *model,
       SampleRooFitMgr::x(),
@@ -90,17 +97,22 @@ val::PullResult val::RunSingle( SampleRooFitMgr* data, SampleRooFitMgr* sigmgr )
    mcstudy->generateAndFit(run);
 
    val::PullResult ans;
-   ans.bkgpull= val::DrawPull( mcstudy, bkg, GetInt(sigmgr->Name()), "bkg"    );
-   ans.sigpull= val::DrawPull( mcstudy, sig, GetInt(sigmgr->Name()), "sig"    );
-   ans.p1pull = val::DrawPull( mcstudy, p1 , GetInt(sigmgr->Name()), "param1" );
-   ans.p2pull = val::DrawPull( mcstudy, p2 , GetInt(sigmgr->Name()), "param2" );
+   ans.bkgpull= val::DrawPull( mcstudy, bkg, sigmgr, "bkg"    );
+   ans.sigpull= val::DrawPull( mcstudy, sig, sigmgr, "sig"    );
+   ans.p1pull = val::DrawPull( mcstudy, p1 , sigmgr, "param1" );
+   ans.p2pull = val::DrawPull( mcstudy, p2 , sigmgr, "param2" );
    return ans;
 }
 
 //------------------------------------------------------------------------------
 //   Helper functions for Plotting
 //------------------------------------------------------------------------------
-Parameter val::DrawPull( RooMCStudy* study , RooRealVar* var, const int mass, const string& name )
+Parameter val::DrawPull(
+   RooMCStudy* study ,
+   RooRealVar* var,
+   SampleRooFitMgr* sigmgr,
+   const string& name
+)
 {
    TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
    RooPlot* pullplot = study->plotPull(
@@ -125,6 +137,14 @@ Parameter val::DrawPull( RooMCStudy* study , RooRealVar* var, const int mass, co
    boost::format sigtype("signal mass = %1% GeV");
    boost::format meanfmt("mean   = %.5f #pm %.5f");
    boost::format sigmafmt("#sigma = %.5f #pm %.5f");
+   boost::format injfmt("inject signal events = %.2f");
+   double injstrgh = 0;
+   if( limit_namer.GetMap().count("absmag") ){
+      injstrgh = limit_namer.GetMap()["absmag"].as<double>();
+   } else if( limit_namer.GetMap().count("relmag") ){
+      injstrgh = sigmgr->ExpectedYield().CentralValue() * limit_namer.GetMap()["relmag"].as<double>();
+   }
+   const int mass = GetInt( sigmgr->Name() );
    TLatex tl;
    tl.SetNDC(kTRUE);
    tl.SetTextFont( FONT_TYPE );
@@ -132,12 +152,18 @@ Parameter val::DrawPull( RooMCStudy* study , RooRealVar* var, const int mass, co
    tl.SetTextAlign( TOP_RIGHT );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT("Root Name").c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName("fitfunc","Root Name").c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.16, str(sigtype % mass ).c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.22, str(meanfmt % fitr->Value(1) % fitr->Value(1) ).c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.28, str(meanfmt % fitr->Value(2) % fitr->Value(2) ).c_str() );
+   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.16, str( injfmt % injstrgh ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.22, str(sigtype % mass ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.28, str(meanfmt % fitr->Value(1) % fitr->Value(1) ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.34, str(sigmafmt% fitr->Value(2) % fitr->Value(2) ).c_str() );
 
-   boost::format sectag("%1%_tstarM%2%");
-   const string sec = str( sectag % name % mass );
+   boost::format sectag("%1%_tstarM%2%_%3%%4%");
+   string sec;
+   if( limit_namer.GetMap().count("absmag") ){
+      sec = str( sectag % name % mass % "abs" % limit_namer.GetMap()["absmag"].as<double>() );
+   } else if( limit_namer.GetMap().count("relmag") ){
+      sec = str( sectag % name % mass % "rel" % limit_namer.GetMap()["relmag"].as<double>() );
+   }
    c->SaveAs(limit_namer.PlotFileName("pull",sec).c_str());
    delete c;
 
@@ -152,6 +178,9 @@ void val::PlotMassCompare( TGraph* graph, const string& name )
    graph->SetTitle("");
    graph->GetXaxis()->SetTitle("signal mass (GeV)");
    graph->GetYaxis()->SetTitle( ("pull_{"+name+"}").c_str() );
+   graph->SetMarkerStyle(21);
+   graph->SetMaximum(2.5);
+   graph->SetMinimum(-2.5);
    plt::DrawCMSLabel(SIMULATION);
    plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
@@ -165,13 +194,31 @@ void val::PlotMassCompare( TGraph* graph, const string& name )
    lo->SetLineColor(kBlue); lo->SetLineWidth(2); lo->Draw();
 
    TLatex tl;
+   boost::format injfmt("inject signal strength %s %.2f");
+   boost::format sectag("%1%_%2%%3%");
+
+   double injstrgh;
+   string tlstr;
+   string sec;
+   if( limit_namer.GetMap().count("absmag") ){
+      injstrgh = limit_namer.GetMap()["absmag"].as<double>();
+      tlstr    = str( injfmt % "=" % injstrgh );
+      sec      = str( sectag % name % "abs" % injstrgh );
+   } else if( limit_namer.GetMap().count("relmag") ){
+      injstrgh = limit_namer.GetMap()["relmag"].as<double>();
+      tlstr    = str( injfmt % "#times" % injstrgh );
+      sec = str( sectag % name % "rel" % injstrgh );
+   }
+
    tl.SetNDC(kTRUE);
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT("Root Name").c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName("fitfunc","Root Name").c_str() );
+   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.16, tlstr.c_str() );
 
-   c->SaveAs(limit_namer.PlotFileName("plotmass",name).c_str() );
+   c->SaveAs(limit_namer.PlotFileName("pullvmass",sec).c_str() );
 
    delete c;
    delete z;

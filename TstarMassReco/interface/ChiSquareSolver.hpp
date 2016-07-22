@@ -33,6 +33,7 @@ public:
    ChiSquareSolver(const edm::ParameterSet&);
    virtual ~ChiSquareSolver ();
 
+   void SetIsData( const bool x ) { _is_data = x; }
    void SetMET( const pat::MET* );
    void SetMuon( const pat::Muon* );
    void SetElectron( const pat::Electron* );
@@ -59,9 +60,11 @@ private:
    const unsigned  _debug;
    const unsigned  _max_jets;
    const unsigned  _req_b_jets;
+   bool  _is_data;
 
    // Helper functions
    void solveNeutrino();
+   bool IsBtagged( const pat::Jet* ) const;
    bool CheckPermutation() const ;
    TLorentzVector had_b()  const { return ConvertToRoot( *_jetList[0]); }
    TLorentzVector lep_b()  const { return ConvertToRoot( *_jetList[1]); }

@@ -83,6 +83,7 @@ void ChiSqMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    const JetList&  jetList   = *(_jetHandle);
 
    //----- ChiSquare solver -----
+   _solver.SetIsData( iEvent.isRealData() );
    _solver.ClearAll();
    _solver.SetMET( &(metList.front()) );
    for( const auto& mu : muList )  { _solver.SetMuon( &mu ); }

@@ -4,4 +4,5 @@
 <use name="DataFormats/PatCandidates"/>
 
 <use name="TstarAnalysis/BaseLineSelector"/>
+<use name="ManagerUtils/SysUtils"/>
 <flags EDM_PLUGIN="1"/>

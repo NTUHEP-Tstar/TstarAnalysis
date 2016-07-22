@@ -10,6 +10,8 @@
 #include <vector>
 
 #include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
+#include "TstarAnalysis/BaseLineSelector/interface/BTagChecker.hpp"
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 typedef std::vector<pat::Jet> JetList;
 typedef std::vector<pat::Muon> MuonList;
@@ -35,6 +37,8 @@ private:
    edm::Handle<JetList>      _jetHandle;
    edm::Handle<MuonList>     _muonHandle;
    edm::Handle<ElectronList> _electronHandle;
+
+   BTagChecker _check;
 };
 
 //------------------------------------------------------------------------------
@@ -44,7 +48,8 @@ private:
 JetProducer::JetProducer(const edm::ParameterSet& iConfig):
    _jetsrc( consumes<JetList>(iConfig.getParameter<edm::InputTag>("jetsrc"))),
    _muonsrc( consumes<MuonList>(iConfig.getParameter<edm::InputTag>("muonsrc"))),
-   _electronsrc(consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc")))
+   _electronsrc(consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc"))),
+   _check("check" , CMSSWSrc()+"/TstarAnalysis/Common/settings/btagsf.csv" )
 {
    produces<JetList> ();
 }
@@ -68,7 +73,7 @@ bool JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
    for( const auto& jet : *(_jetHandle.product())){
       if( IsSelectedJet(jet)  ){
          selectedJets->push_back(jet);
-         if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
+         if( _check.PassMedium(jet,iEvent.isRealData()) ){
             ++num_bjets;
          }
       }
@@ -78,11 +83,6 @@ bool JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( selectedJets->size() < 6 ){ return false; }
    if( num_bjets < 1 ){ return false; }
 
-   for( unsigned i = 0 ; i < selectedJets->size() ; ++i ){
-      if( selectedJets->at(i).eta() > 2.4 ){
-         std::cout << "Weird Jet Found!" << std::endl;}
-      AddJetVariables( selectedJets->at(i) );
-   }
    iEvent.put( selectedJets );
 
    return true;

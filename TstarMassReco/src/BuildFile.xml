@@ -5,10 +5,12 @@
 
 <use name="ManagerUtils/BaseClass"/>
 <use name="ManagerUtils/HistMgr"/>
+<use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PlotUtils"/>
 
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/ModifiedHitFit"/>
+<use name="TstarAnalysis/BaseLineSelector"/>
 
 
 <flags CXXFLAGS="-g"/>

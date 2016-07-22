@@ -97,9 +97,21 @@ extern void RunValidate( SampleRooFitMgr*, std::vector<SampleRooFitMgr*>& );
 namespace val
 {
 struct PullResult; // Forward declaring only
-PullResult RunSingle( SampleRooFitMgr*, SampleRooFitMgr* );
-Parameter  DrawPull( RooMCStudy*, RooRealVar*, const int, const std::string& );
-void       PlotMassCompare( TGraph*, const std::string& );
+PullResult RunSingle(
+   SampleRooFitMgr*,
+   SampleRooFitMgr*
+);
+
+Parameter  DrawPull(
+   RooMCStudy*,
+   RooRealVar*,
+   SampleRooFitMgr*,
+   const std::string&
+);
+void       PlotMassCompare(
+   TGraph*,
+   const std::string&
+);
 }
 
 //------------------------------------------------------------------------------

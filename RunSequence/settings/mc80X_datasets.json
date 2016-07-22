@@ -1,0 +1,20 @@
+{
+   "Process Tags": [
+      "*RunIISpring16MiniAODv2*withHLT*"
+   ],
+   "Primary Tags" : [
+      "TstarTstarToTgluonTgluon*",
+      "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8*",
+      "ST_*-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1",
+      "ST_tW_*_5f_inclusiveDecays*",
+      "WJetsToLNu_HT-*To*",
+      "DYJetsToLL_M-50_HT-*to*",
+      "TTWJetsToLNu*amcatnlo*",
+      "TTWJetsToQQ*amcatnlo*",
+      "TTZToLLNuNu*amcatnlo*",
+      "TTZToQQ*amcatnlo*",
+      "WW_TuneCUETP8M1_13TeV-pythia8",
+      "WZ_TuneCUETP8M1_13TeV-pythia8",
+      "ZZ_TuneCUETP8M1_13TeV-pythia8"
+   ]
+}

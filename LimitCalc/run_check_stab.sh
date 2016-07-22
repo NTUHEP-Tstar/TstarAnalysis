@@ -6,7 +6,7 @@
  #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  #
 #*******************************************************************************
-cd /afs/cern.ch/work/y/yichen/TstarAnalysis/CMSSW_7_6_4/src/TstarAnalysis/LimitCalc
+cd /afs/cern.ch/work/y/yichen/TstarAnalysis/CMSSW_8_0_12/src/TstarAnalysis/LimitCalc
 eval `scramv1 runtime -sh`
 ./CheckSimFitStab -c MuonSignal     -f Fermi -r 3000
 ./CheckSimFitStab -c ElectronSignal -f Fermi -r 3000

@@ -19,16 +19,17 @@
 class BTagChecker
 {
 public:
-   static const double LOOSEWP_VAL   = 0.460;
-   static const double MEDIUMWP_VAL  = 0.800;
-   static const double TIGHTWP_VAL   = 0.935;
+   static constexpr const double LOOSEWP_VAL   = 0.460;
+   static constexpr const double MEDIUMWP_VAL  = 0.800;
+   static constexpr const double TIGHTWP_VAL   = 0.935;
+   static constexpr const char*  DISCRIMTAG    = "pfCombinedInclusiveSecondaryVertexV2BJetTags";
 
    BTagChecker( const std::string& tagger, const std::string& filename );
    virtual ~BTagChecker ();
 
    bool PassLoose ( const pat::Jet& , bool IsData ) const ;
    bool PassMedium( const pat::Jet& , bool IsData ) const ;
-   bool PassMedium( const pat::Jet& , bool IsData ) const ;
+   bool PassTight ( const pat::Jet& , bool IsData ) const ;
 
    double GetLooseScaleFactor    ( const pat::Jet& ) const ;
    double GetLooseScaleFactorUp  ( const pat::Jet& ) const ;
@@ -42,11 +43,12 @@ public:
    double GetTightScaleFactorUp  ( const pat::Jet& ) const ;
    double GetTightScaleFactorDown( const pat::Jet& ) const ;
 
+   double scalefactor( const pat::Jet&, BTagEntry::OperatingPoint, const std::string& sys ) const;
+
 private:
    BTagCalibration _calib;
-   std::map< BTagEntry::OperatingPoint , std::map::< const std::string , BTagCalibration > > _reader_map;
+   std::map< BTagEntry::OperatingPoint , std::map< const std::string , BTagCalibrationReader > > _reader_map;
 
-   double scalefactor( const pat::Jet&, BTagEntry::OperatingPoint, const std::string& sys );
 };
 
 #endif /* end of include guard: TSTARANALYSIS_BASELINESELECTOR */

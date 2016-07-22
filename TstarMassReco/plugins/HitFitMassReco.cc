@@ -20,6 +20,8 @@
 
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/HitFitter.hpp"
+#include "TstarAnalysis/BaseLineSelector/interface/BTagChecker.hpp"
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 typedef std::vector<pat::MET>      METList;
 typedef std::vector<pat::Muon>     MuonList;
@@ -47,6 +49,7 @@ private:
    edm::Handle<JetList>      _jetHandle;
 
    HitFitter       _hitfitter;
+   BTagChecker     _check;
 };
 
 //------------------------------------------------------------------------------
@@ -57,7 +60,8 @@ HitFitMassReco::HitFitMassReco( const edm::ParameterSet& iConfig ):
    _muonsrc( consumes<MuonList>    (iConfig.getParameter<edm::InputTag>("muonsrc"))     ),
    _elecsrc( consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc")) ),
    _jetsrc(  consumes<JetList>     (iConfig.getParameter<edm::InputTag>("jetsrc"))      ),
-   _hitfitter(iConfig)
+   _hitfitter(iConfig),
+   _check( "check" , CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" )
 {
    produces<RecoResult>("HitFitResult").setBranchAlias("HitFitResult");
 }
@@ -89,7 +93,7 @@ void HitFitMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    for( const auto& el : elecList ){ _hitfitter.SetElectron( &el ); }
 
    for( const auto& jet : jetList ) {
-      if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
+      if( _check.PassMedium(jet,iEvent.isRealData()) ){
         _hitfitter.AddBTagJet( &jet );
       } else {
        _hitfitter.AddLightJet( &jet );

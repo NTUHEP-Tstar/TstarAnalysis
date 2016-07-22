@@ -6,6 +6,7 @@
  #
 #*******************************************************************************
 import FWCore.ParameterSet.Config as cms
+import sys
 
 #-------------------------------------------------------------------------------
 #   Setting up options parser
@@ -14,7 +15,7 @@ import FWCore.ParameterSet.VarParsing as opts
 options = opts.VarParsing('analysis')
 
 options.register( 'sample',
-    'file:////afs/cern.ch/work/y/yichen/MiniAOD/MC_76X/Tstar_M1000.root',
+    'file:////afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TTJets.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -80,11 +81,14 @@ else:
     print "Mode not recognized!"
     sys.exit(1)
 
+
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 process.hltfilter = hltHighLevel.clone(
     TriggerResultsTag = "TriggerResults::HLT",
     HLTPaths = requiredHLTs
 )
+if '80X_mcRun2_asymptotic_2016_miniAODv2_v1' == options.GlobalTag:
+    process.hltfilter.TriggerResultsTag = "TriggerResults::HLT2"
 
 #-------------------------------------------------------------------------------
 #   Electron ID Processes
@@ -101,23 +105,29 @@ for mod in elecIDModules:
    setupAllVIDIdsInModule( process, mod, setupVIDElectronSelection )
 
 #-------------------------------------------------------------------------------
+#   Load Self Written Filters
+#-------------------------------------------------------------------------------
+print "Loading main filter\n\n"
+import TstarAnalysis.BaseLineSelector.Filter_cfi as myfilters
+
+process.tstarFilter = myfilters.tstarFilter
+process.tstarFilter.runMode = cms.string( options.Mode )
+
+#-------------------------------------------------------------------------------
 #   Load Self written producers
 #-------------------------------------------------------------------------------
+print "Loading producers\n\n"
 process.load("TstarAnalysis.BaseLineSelector.Producer_cfi")
 process.selectedElectrons.vetoMap   = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"  );
 process.selectedElectrons.looseMap  = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose" );
 process.selectedElectrons.mediumMap = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium");
 process.selectedElectrons.tightMap  = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight" );
 
-#-------------------------------------------------------------------------------
-#   Load Self Written Filters
-#-------------------------------------------------------------------------------
-process.load("TstarAnalysis.BaseLineSelector.Filter_cfi")
-process.tstarFilter.runMode = cms.string( options.Mode )
 
 #-------------------------------------------------------------------------------
 #   Load counters
 #-------------------------------------------------------------------------------
+print "Loading counters\n\n"
 process.load("TstarAnalysis.BaseLineSelector.Counter_cfi")
 
 #-------------------------------------------------------------------------------
