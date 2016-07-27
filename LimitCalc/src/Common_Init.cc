@@ -24,7 +24,6 @@ void InitSingle( SampleRooFitMgr*& mgr, const string& tag )
 {
    const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
    mgr = new SampleRooFitMgr( tag , cfg );
-
 }
 
 

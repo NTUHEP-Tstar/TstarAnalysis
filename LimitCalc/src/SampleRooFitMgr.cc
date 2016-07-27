@@ -160,7 +160,15 @@ std::string SampleRooFitMgr::MakeDataAlias( const string& name ) const
    return Name() + name;
 }
 
-
+void SampleRooFitMgr::RemoveDataSet( RooDataSet* target )
+{
+   for( auto x = _ext_dataset.begin() ; x != _ext_dataset.end() ; ++ x  ){
+      if( (*x) == target ){
+         _ext_dataset.erase(x);
+         return;
+      }
+   }
+}
 
 //------------------------------------------------------------------------------
 //   PDF Related functions

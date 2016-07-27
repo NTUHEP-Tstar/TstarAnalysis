@@ -57,7 +57,7 @@ FILE* MakeCardCommon(
    const std::string& tag
 )
 {
-   FILE* card_file = fopen( limit_namer.TextFileName( "card" , tag ).c_str()  , "w" );
+   FILE* card_file = fopen( limit_namer.TextFileName( "card", {tag} ).c_str()  , "w" );
 
    fprintf( card_file , "imax 1\n" );
    fprintf( card_file , "jmax *\n" );

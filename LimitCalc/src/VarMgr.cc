@@ -35,6 +35,15 @@ VarMgr::~VarMgr()
 //------------------------------------------------------------------------------
 RooRealVar* VarMgr::NewVar(const string& name, double val, double min, double max )
 {
+   for( auto ptr: _var_list ){
+      if( ptr->GetName() == name ){
+         ptr->setConstant(kFALSE);
+         ptr->setMax(max);
+         ptr->setMin(min);
+         *ptr = val;
+         return ptr;
+      }
+   }
    _var_list.push_back( new RooRealVar(name.c_str(), name.c_str(), val,min,max) );
    return _var_list.back();
 }

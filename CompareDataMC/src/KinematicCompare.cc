@@ -173,11 +173,11 @@ void MakeComparePlot(
       tb->AddText( compare_namer.GetChannelEXT("Root Name").c_str() );
       tb->Draw();
 
-      c->SaveAs( compare_namer.PlotFileName(hist_name,label).c_str() );
+      c->SaveAs( compare_namer.PlotFileName(hist_name,{label}).c_str() );
       pad1->SetLogy();
       stack->SetMaximum( ymax * 30 );
       stack->SetMinimum( 0.3 );
-      c->SaveAs( compare_namer.PlotFileName(hist_name,label+"_log").c_str() );
+      c->SaveAs( compare_namer.PlotFileName(hist_name,{label,"log"}).c_str() );
 
 
       delete pad1;

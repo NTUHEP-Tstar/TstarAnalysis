@@ -17,12 +17,18 @@
 
 using namespace std;
 
+//------------------------------------------------------------------------------
+//   variables to avoid double making of pdfs
+//------------------------------------------------------------------------------
+static const string tag = "template";
+
+
 void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*>& signal_list )
 {
    using namespace tmplt;
    vector<RooAbsPdf*> sig_pdf_list;
 
-   for( auto& sig : signal_list ){ sig_pdf_list.push_back( MakeKeysPdf(sig) ); }
+   for( auto& sig : signal_list ){ sig_pdf_list.push_back( MakeKeysPdf(sig,tag) ); }
    RooFitResult* err = MakeBGFromMC(bg);
    MakeTemplatePlot( data, bg, signal_list.front(), err , true );
    MakeTemplatePlot( data, bg, signal_list.front(), err , false );
@@ -30,7 +36,7 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 
    SaveRooWorkSpace(
       data->GetDataFromAlias( dataset_alias ),
-      {bg->GetPdfFromAlias("fit")},
+      {bg->GetPdfFromAlias(tag)},
       sig_pdf_list,
       {err}
    ); // See src/RooFit_Common.cc
@@ -44,23 +50,9 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 //------------------------------------------------------------------------------
 RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 {
-   RooAbsPdf* bg_pdf;
-   const string fitfunc = limit_namer.GetInput("fitfunc");
-   if( fitfunc == "Exo" ){
-      bg_pdf = MakeExo( bg, "fit" );
-   } else if( fitfunc == "Fermi" ){
-      bg_pdf = MakeFermi( bg, "fit" );
-   } else if( fitfunc == "Lognorm" ){
-      bg_pdf = MakeLognorm( bg, "fit" );
-   } else if( fitfunc == "Landau" ){
-      bg_pdf = MakeLandau( bg, "fit" );
-   } else if( fitfunc == "Trial" ){
-      bg_pdf = MakeTrial( bg, "fit" );
-   } else {
-      bg_pdf = MakeFermi( bg, "fit" );
-   }
-
-   RooFitResult* results =  bg_pdf->fitTo( *(bg->OriginalDataSet()) ,
+   RooAbsPdf* bg_pdf = MakePDF( bg, limit_namer.GetInput("fitfunc"), tag );
+   RooFitResult* results =  bg_pdf->fitTo(
+      *(bg->OriginalDataSet()) ,
       RooFit::Save() ,            // Suppressing output
       RooFit::SumW2Error(kTRUE),  // For Weighted dataset
       RooFit::Range("FitRange"),  // Fitting range
@@ -77,9 +69,9 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
 {
    RooDataSet* data_obs = data->GetReduceDataSet(dataset_alias);
-   RooAbsPdf*  bg_pdf   = bg->GetPdfFromAlias("fit");
+   RooAbsPdf*  bg_pdf   = bg->GetPdfFromAlias(tag);
    RooDataSet* sig_set  = sig->OriginalDataSet();
-   RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("key");
+   RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias(tag);
 
    FILE* card_file = MakeCardCommon( data_obs, bg_pdf, sig_pdf, sig->Name() );
 
@@ -126,13 +118,13 @@ void tmplt::MakeTemplatePlot(
    if( use_data ){
       set_plot = PlotOn( frame, data->OriginalDataSet() );
       pdf_plot_err= PlotOn(
-         frame, mc->GetPdfFromAlias("fit"),
+         frame, mc->GetPdfFromAlias(tag),
          RooFit::VisualizeError(*err,1),
          RooFit::Range("FitRange"),
          RooFit::Normalization( data->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       pdf_plot = PlotOn(
-         frame, mc->GetPdfFromAlias("fit"),
+         frame, mc->GetPdfFromAlias(tag),
          RooFit::Range("FitRange") ,
          RooFit::Normalization( data->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
@@ -140,20 +132,20 @@ void tmplt::MakeTemplatePlot(
    } else {
       set_plot = PlotOn( frame, mc->OriginalDataSet() );
       pdf_plot_err= PlotOn(
-         frame, mc->GetPdfFromAlias("fit"),
+         frame, mc->GetPdfFromAlias(tag),
          RooFit::VisualizeError(*err,1),
          RooFit::Range("FitRange"),
          RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       pdf_plot = PlotOn(
-         frame, mc->GetPdfFromAlias("fit"),
+         frame, mc->GetPdfFromAlias(tag),
          RooFit::Range("FitRange") ,
          RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       set_plot = PlotOn( frame, data->OriginalDataSet() );
    }
    sig_plot = PlotOn(
-      frame, signal->GetPdfFromAlias("key"),
+      frame, signal->GetPdfFromAlias(tag),
       RooFit::DrawOption("LB"),
       RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
    );
@@ -204,13 +196,13 @@ void tmplt::MakeTemplatePlot(
    tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limit_namer.GetExtName("fitfunc","Full Name").c_str() );
 
    if( use_data ){
-      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-data").c_str() );
+      c->SaveAs( limit_namer.PlotFileName("fitplot",{signal->Name(),"fitmc-vs-data"}).c_str() );
       c->SetLogy();
-      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-data_log").c_str() );
+      c->SaveAs(limit_namer.PlotFileName("fitplot",{signal->Name(),"fitmc-vs-data_log"} ).c_str() );
    } else {
-      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-mc").c_str() );
+      c->SaveAs( limit_namer.PlotFileName("fitplot",{signal->Name(),"fitmc-vs-mc"}).c_str() );
       c->SetLogy();
-      c->SaveAs( limit_namer.PlotFileName( "fitplot", signal->Name()+"_fitmc-vs-mc_log").c_str() );
+      c->SaveAs( limit_namer.PlotFileName("fitplot",{signal->Name(),",fitmc-vs-mc_log"}).c_str() );
    }
    delete c;
    delete l;

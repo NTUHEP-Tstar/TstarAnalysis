@@ -16,15 +16,15 @@ namespace opt = boost::program_options;
 
 int main(int argc, char* argv[])
 {
-   opt::options_description  settings( "testing");
+   opt::options_description  settings( "testing" );
    settings.add_options()
       ("channel,c"  , opt::value<string>() , "which channel to run" )
-      ("fitmethod,m",    opt::value<string>() , "option a")
-      ("fitfunc,f"  ,    opt::value<string>() , "option b")
-      ("combine,p",    opt::value<string>() , "option to skip")
+      ("fitmethod,m", opt::value<string>() , "option a")
+      ("fitfunc,f"  , opt::value<string>() , "option b")
+      ("combine,p",   opt::value<string>() , "option to skip")
    ;
 
-   TstarNamer my_name("my_subpkg");
+   TstarNamer my_name("Common");
    my_name.SetNamingOptions( {"fitmethod","fitfunc"});
    my_name.LoadJsonFile( "./name_settings.json" );
    if( my_name.LoadOptions( settings, argc, argv ) ) { return 1; }
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
    cout << my_name.GetInput("fitmethod") << endl;
    cout << my_name.GetExtName("fitfunc","Full Name") << endl;
    cout << my_name.GetInput("combine") << endl;
-   cout << my_name.TextFileName("test","subtest") << endl;
+   cout << my_name.TextFileName("test",{"subtest"}) << endl;
 
 
    return 0;

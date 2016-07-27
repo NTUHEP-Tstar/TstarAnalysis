@@ -60,7 +60,7 @@ void MakeLimitPlot()
    for( const auto& signal : signal_list ){
       double mass_d = GetInt(signal);
       double exp_xsec = pred_cross_section[mass_d];
-      const string file_name = limit_namer.RootFileName("combine",signal);
+      const string file_name = limit_namer.RootFileName("combine",{signal});
       TFile* file = TFile::Open(file_name.c_str());
       if( !file ){
          fprintf(stderr,"Cannot open file (%s), skipping sample for %s\n" ,

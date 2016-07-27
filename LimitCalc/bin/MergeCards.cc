@@ -38,11 +38,11 @@ int main(int argc, char* argv[])
 
    for( auto& masspoint : masspoint_list ){
       limit_namer.SetChannel("MuonSignal");
-      const string muonfile = limit_namer.TextFileName( "card", masspoint );
+      const string muonfile = limit_namer.TextFileName( "card", {masspoint} );
       limit_namer.SetChannel("ElectronSignal");
-      const string elecfile = limit_namer.TextFileName( "card", masspoint );
+      const string elecfile = limit_namer.TextFileName( "card", {masspoint} );
       limit_namer.SetChannel("SignalMerge");
-      const string combfile = limit_namer.TextFileName( "card", masspoint );
+      const string combfile = limit_namer.TextFileName( "card", {masspoint} );
 
       sprintf(
          buffer, "cp %s temp1.txt && cp %s temp2.txt" ,

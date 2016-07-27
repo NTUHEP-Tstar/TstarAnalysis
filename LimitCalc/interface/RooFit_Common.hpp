@@ -32,7 +32,6 @@ extern TstarNamer        limit_namer;
 //------------------------------------------------------------------------------
 //   Limit calculation main control flow and helper functions
 //------------------------------------------------------------------------------
-
 // in src/RooFit_SimFit.cc
 extern void MakeSimFit(
    SampleRooFitMgr* data,
@@ -93,36 +92,33 @@ void MakePsuedoData(SampleRooFitMgr*,const unsigned);
 }
 
 // in src/RooFit_SimFit_Val.cc
-extern void RunValidate( SampleRooFitMgr*, std::vector<SampleRooFitMgr*>& );
+extern void RunValGenFit( SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr* );
+extern void PlotGenFit( const std::vector<std::string>& );
 namespace val
 {
-struct PullResult; // Forward declaring only
-PullResult RunSingle(
-   SampleRooFitMgr*,
-   SampleRooFitMgr*
-);
+std::string SigStrengthTag();
 
-Parameter  DrawPull(
-   RooMCStudy*,
-   RooRealVar*,
-   SampleRooFitMgr*,
-   const std::string&
-);
-void       PlotMassCompare(
-   TGraph*,
-   const std::string&
-);
+struct PullResult; // List of all the parameters relavent
+PullResult PlotSingleGenFit( const std::string& masstag );
+Parameter  MakePullPlot( RooDataSet&, const std::string& masstag, const std::string& tag );
+Parameter  MakeNormPlot( RooDataSet&, const std::string& masstag, const std::string& tag );
+void       MakePullComparePlot( TGraph*, const std::string& tag );
 }
 
 //------------------------------------------------------------------------------
 //   PDF Definitions, see Common_PDF.cc
 //------------------------------------------------------------------------------
-extern RooKeysPdf*    MakeKeysPdf(SampleRooFitMgr*);
-extern RooGenericPdf* MakeFermi(SampleRooFitMgr*,const std::string& = "fermi");
-extern RooGenericPdf* MakeExo(SampleRooFitMgr*,const std::string& = "exo" );
-extern RooLognormal*  MakeLognorm( SampleRooFitMgr*, const std::string& = "longnorm");
-extern RooLandau*     MakeLandau( SampleRooFitMgr*, const std::string& ="landau");
-extern RooGenericPdf* MakeTrial( SampleRooFitMgr*, const std::string& = "trial" );
+extern RooAbsPdf*     MakePDF(
+   SampleRooFitMgr*    smplmgr,
+   const std::string&  fitfunc,
+   const std::string&  tag
+);
+extern RooKeysPdf*    MakeKeysPdf(SampleRooFitMgr*, const std::string& tag);
+extern RooGenericPdf* MakeFermi  (SampleRooFitMgr*, const std::string& tag);
+extern RooGenericPdf* MakeExo    (SampleRooFitMgr*, const std::string& tag);
+extern RooLognormal*  MakeLognorm(SampleRooFitMgr*, const std::string& tag);
+extern RooLandau*     MakeLandau (SampleRooFitMgr*, const std::string& tag);
+extern RooGenericPdf* MakeTrial  (SampleRooFitMgr*, const std::string& tag);
 
 //------------------------------------------------------------------------------
 //   Initalizing functions, see Common_Init.cc

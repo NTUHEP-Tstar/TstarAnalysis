@@ -6,4 +6,5 @@
 <bin name="MakeRooFit"      file="MakeRooFit.cc" />
 <bin name="MergeCards"      file="MergeCards.cc" />
 <bin name="PlotLimit"       file="PlotLimit.cc" />
-<bin name="CheckSimFitStab" file="CheckSimFitStab.cc"/>
+<bin name="RunValGenFit"    file="RunValGenFit.cc"/>
+<bin name="PlotValGenFit"   file="PlotValGenFit.cc"/>

@@ -43,10 +43,11 @@ public:
    RooDataSet* GetReduceDataSet( const std::string& );
 
    // Generic Data Adding ( for generated datasets )
-   std::string MakeDataAlias( const std::string& x ) const ;
+   std::string MakeDataAlias( const std::string& x ) const;
    RooDataSet* GetDataFromAlias( const std::string& x ) ;
-   void AddDataSet( RooDataSet* );
-   void AddDataHist( RooDataHist* );
+   void AddDataSet    ( RooDataSet*  ); // Note: this will automatically rename the object
+   void AddDataHist   ( RooDataHist* );
+   void RemoveDataSet ( RooDataSet*   );
 
    // Adding/Accessing pdfs
    std::string MakePdfAlias( const std::string& x ) const;
@@ -60,9 +61,9 @@ private:
    static RooRealVar* _x;
    static RooRealVar* _w;
    RooDataSet* _dataset;
-   std::vector<RooDataSet*> _ext_dataset;
+   std::vector<RooDataSet*>  _ext_dataset;
    std::vector<RooDataHist*> _binned_dataset;
-   std::vector<RooAbsPdf*>  _pdf_list;
+   std::vector<RooAbsPdf*>   _pdf_list;
 
    void FillDataSet( mgr::SampleMgr& );
 };

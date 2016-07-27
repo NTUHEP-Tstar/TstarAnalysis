@@ -25,8 +25,8 @@ void RunCombine( const string& hc_opt )
    vector<CombineRequest> submit_list;
    for( const auto& sig : cfg.GetStaticStringList("Signal List") ){
       submit_list.push_back( CombineRequest(
-         limit_namer.TextFileName( "card", sig ),     //card file
-         limit_namer.RootFileName( "combine", sig ), //store store
+         limit_namer.TextFileName( "card", {sig} ),     //card file
+         limit_namer.RootFileName( "combine", {sig} ), //store store
          GetInt( sig ),              //mass point
          limit_namer.GetInput("combine")
       ));

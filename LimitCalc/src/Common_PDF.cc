@@ -16,17 +16,20 @@
 #include <string>
 
 using namespace std;
+RooKeysPdf*    MakeKeysPdf(SampleRooFitMgr*, const std::string& tag);
+RooGenericPdf* MakeFermi  (SampleRooFitMgr*, const std::string& tag);
+RooGenericPdf* MakeExo    (SampleRooFitMgr*, const std::string& tag);
+RooLognormal*  MakeLognorm(SampleRooFitMgr*, const std::string& tag);
+RooLandau*     MakeLandau (SampleRooFitMgr*, const std::string& tag);
+RooGenericPdf* MakeTrial  (SampleRooFitMgr*, const std::string& tag);
 
 //------------------------------------------------------------------------------
 //   Keys PDF
 //------------------------------------------------------------------------------
-RooKeysPdf* MakeKeysPdf(SampleRooFitMgr* sample)
+RooKeysPdf* MakeKeysPdf(SampleRooFitMgr* sample, const string& tag )
 {
-   if( sample->GetPdfFromAlias("key") ){ // Do not reproduce if already has it
-      return (RooKeysPdf*)sample->GetPdfFromAlias("key");
-   }
 
-   const string pdf_name = sample->MakePdfAlias( "key" );
+   const string pdf_name = sample->MakePdfAlias( tag );
    RooKeysPdf*  pdf      = new RooKeysPdf(
       pdf_name.c_str(), pdf_name.c_str(),
       SampleRooFitMgr::x(),
@@ -36,6 +39,37 @@ RooKeysPdf* MakeKeysPdf(SampleRooFitMgr* sample)
    );
    sample->AddPdf( pdf );
    return pdf;
+}
+
+//------------------------------------------------------------------------------
+//   SampleRooFitMgr Generic MakePDF function for
+//------------------------------------------------------------------------------
+RooAbsPdf* MakePDF( SampleRooFitMgr* mgr, const string& fitfunc, const string& tag )
+{
+   static const string def = "Exo";
+
+   if( mgr->GetPdfFromAlias(tag) ){ // Do not reproduce if already exists
+      fprintf(
+         stderr,
+         "Warning! Duplicate name detected, not regenerating!\n"
+      );
+      return mgr->GetPdfFromAlias(tag);
+   }
+
+   if      ( fitfunc == "Exo"     ) { return MakeExo    ( mgr, tag ); }
+   else if ( fitfunc == "Fermi"   ) { return MakeFermi  ( mgr, tag ); }
+   else if ( fitfunc == "Lognorm" ) { return MakeLognorm( mgr, tag ); }
+   else if ( fitfunc == "Landau"  ) { return MakeLandau ( mgr, tag ); }
+   else if ( fitfunc == "Trial"   ) { return MakeTrial  ( mgr, tag ); }
+   else if ( fitfunc == "Key"     ) { return MakeKeysPdf( mgr, tag ); }
+   else {
+      fprintf(
+         stderr, "Warning! %s function not found, using %s\n",
+         fitfunc.c_str(),
+         def.c_str()
+      );
+      return MakePDF( mgr, def, tag );
+   }
 }
 
 //------------------------------------------------------------------------------

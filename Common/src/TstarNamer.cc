@@ -6,6 +6,9 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <algorithm>
 #include <iostream>
 using namespace std;
 using namespace mgr;
@@ -69,29 +72,44 @@ string TstarNamer::GetChannelEXT( const string& x ) const
 //------------------------------------------------------------------------------
 //   File name functions
 //------------------------------------------------------------------------------
-string TstarNamer::MakeFileName(
+string TstarNamer::CustomFileName(
    const string& extension,
-   const string& main_tag,
-   const string& sub_tag
+   const vector<string>& taglist
 ) const
 {
-   string ans = ResultsDir() + GetChannel() + "/" + main_tag ;
-   for( const auto& option : _naming_option_list ){
-      if( GetInput(option) != "" ){ ans += "_"+GetInput(option); }
-   }
-   if( sub_tag != "" )            { ans += "_" + sub_tag ; }
+   vector<string> mytaglist = taglist; //removing empty tags
+   static string empty = "";
+   mytaglist.erase( remove(mytaglist.begin(), mytaglist.end(), empty ), mytaglist.end());
+   string ans = ResultsDir() + GetChannel() + '/';
+   ans += boost::join( mytaglist , "_" ) ;
    ans += "." + extension;
    return ans;
 }
 
-string TstarNamer::TextFileName( const string& main_tag, const string& sub_tag ) const
-{ return MakeFileName("txt",main_tag,sub_tag); }
 
-string TstarNamer::PlotFileName( const string& main_tag, const string& sub_tag ) const
-{ return MakeFileName( "png", main_tag, sub_tag ); }
+string TstarNamer::MakeFileName(
+   const string& extension,
+   const string& main_tag,
+   const vector<string>& subtaglist
+) const
+{
+   vector<string> taglist;
+   taglist.push_back(main_tag);
+   for( const auto opt : _naming_option_list ){
+      taglist.push_back( InputStr(opt) );
+   }
+   taglist.insert( taglist.end(), subtaglist.begin(), subtaglist.end() );
+   return CustomFileName( extension, taglist );
+}
 
-string TstarNamer::TexFileName( const string& main_tag, const string& sub_tag ) const
-{ return MakeFileName("tex",main_tag,sub_tag); }
+string TstarNamer::TextFileName( const string& maintag, const vector<string>& subtaglist ) const
+{ return MakeFileName("txt",maintag,subtaglist); }
 
-string TstarNamer::RootFileName( const string& main_tag, const string& sub_tag ) const
-{ return MakeFileName("root",main_tag,sub_tag); }
+string TstarNamer::PlotFileName( const string& maintag, const vector<string>& subtaglist ) const
+{ return MakeFileName("png",maintag,subtaglist); }
+
+string TstarNamer::TexFileName( const string& maintag, const vector<string>& subtaglist ) const
+{ return MakeFileName("tex",maintag,subtaglist); }
+
+string TstarNamer::RootFileName( const string& maintag, const vector<string>& subtaglist ) const
+{ return MakeFileName("root",maintag,subtaglist); }

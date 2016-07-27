@@ -35,6 +35,7 @@ void MakeSimFit( SampleRooFitMgr* data, vector<SampleRooFitMgr*>& signal_list )
    vector<RooFitResult*> results_list;
    for( auto& sig : signal_list ){
       RooFitResult* err = FitPDFs( data, sig );
+      var_mgr.SetConstant();
       MakeValidationPlot( data, sig, err );
       MakeCardFile( data,sig );
 
@@ -58,38 +59,21 @@ RooFitResult* smft::FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig, const
 {
    const string full_tag   = sig->Name() + tag;
    const string model_name = data->MakePdfAlias( full_tag );
+   const string fitfunc    = limit_namer.GetInput("fitfunc");
+
    RooDataSet* data_to_fit = data->GetDataFromAlias( dataset_alias ) ;
    const double num_data   = data_to_fit->sumEntries();
-   RooAbsPdf*   bg_pdf     = NULL;
-   RooKeysPdf*  sig_pdf    = MakeKeysPdf( sig );
+   RooAbsPdf*   bg_pdf     = MakePDF    ( data, fitfunc , "bg"+full_tag );
+   RooKeysPdf*  sig_pdf    = MakeKeysPdf( sig,"key");
    RooRealVar*  nb         = var_mgr.NewVar("nb"+full_tag, num_data, -100000, 100000);
    RooRealVar*  ns         = var_mgr.NewVar("ns"+full_tag, 0       , -100000, 100000);
 
-   const string fitfunc = limit_namer.GetInput("fitfunc");
-   if( fitfunc == "Exo" ){
-      bg_pdf = MakeExo( data, "bg"+full_tag );
-   } else if( fitfunc == "Fermi" ){
-      bg_pdf = MakeFermi( data, "bg"+full_tag );
-   } else if( fitfunc == "Lognorm") {
-      bg_pdf = MakeLognorm( data, "bg"+full_tag );
-   } else if( fitfunc == "Landau" ){
-      bg_pdf = MakeLandau( data, "bg"+full_tag );
-   } else if( fitfunc == "Trial" ){
-      bg_pdf = MakeTrial( data, "bg"+full_tag );
-   } else {
-      bg_pdf = MakeFermi( data, "bg" + full_tag );
-      fprintf(
-         stderr, "Warning! Unrecognized Fitting function [%s], using fermi...\n",
-         fitfunc.c_str() );
-      fflush( stderr );
-   }
 
    RooAddPdf* model = new RooAddPdf(
       model_name.c_str(), model_name.c_str(),
       RooArgList(*bg_pdf,*sig_pdf),
       RooArgList(*nb,*ns)
    );
-
 
    RooFitResult* err = model->fitTo(
       *(data_to_fit),
@@ -104,7 +88,6 @@ RooFitResult* smft::FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig, const
 
    err->SetName( ("results_"+sig->Name()).c_str() );
    data->AddPdf( model );
-   var_mgr.SetConstant();
    return err;
 }
 
@@ -235,18 +218,18 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    // Saving and cleaning up
    string prefix = "fitplot";
    if( tag != "" ){ prefix="valplot"+tag; }
-   c->SaveAs( limit_namer.PlotFileName( prefix, sig->Name() ).c_str() );
+   c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name()} ).c_str() );
    c->SetLogy(kTRUE);
-   c->SaveAs( limit_namer.PlotFileName( prefix,sig->Name()+"_log").c_str() );
+   c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name(),"log"}).c_str() );
 
    c->SetLogy(kFALSE);
    const double peak_value = model_plot->Eval( GetInt(sig->Name()) );
    frame->SetMaximum(peak_value*1.5);
-   c->SaveAs( limit_namer.PlotFileName( prefix, sig->Name()+"_zoom" ).c_str() );
+   c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name(),"zoom"} ).c_str() );
    c->SetLogy(kTRUE);
    frame->SetMaximum(peak_value*10.);
    frame->SetMinimum(peak_value*0.1);
-   c->SaveAs( limit_namer.PlotFileName( prefix,sig->Name()+"_zoom_log").c_str() );
+   c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name(),"zoom", "log"}).c_str() );
 
    delete leg;
    delete c;

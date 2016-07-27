@@ -16,8 +16,8 @@ BTagChecker::BTagChecker( const string& tagger, const string& filename ):
 {
    for( int i = BTagEntry::OP_LOOSE ; i != BTagEntry::OP_RESHAPING ; ++i ){
       for( const auto& sys : {"central","up","down"} ){
-         _reader_map[BTagEntry::OperatingPoint(i)][sys] = BTagCalibrationReader( BTagEntry::OperatingPoint(i) , sys );
-         _reader_map[BTagEntry::OperatingPoint(i)][sys].load(_calib, BTagEntry::FLAV_B, "comb");
+         _reader_map[BTagEntry::OperatingPoint(i)][sys]
+            = BTagCalibrationReader( &_calib, BTagEntry::OperatingPoint(i) , "comb", sys );
       }
    }
 }
@@ -85,10 +85,9 @@ double BTagChecker::scalefactor(
    const std::string& sys
 ) const
 {
-   return _reader_map.at(op).at(sys).eval_auto_bounds(
-          sys,
-          BTagEntry::FLAV_B,
-          jet.eta(),
-          jet.pt()
+   return _reader_map.at(op).at(sys).eval(
+         BTagEntry::FLAV_B,
+         jet.eta(),
+         jet.pt()
    );
 }

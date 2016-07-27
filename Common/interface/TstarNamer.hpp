@@ -28,17 +28,32 @@ public:
    std::string GetChannelEDMPath()const ;
    std::string GetChannelEXT( const std::string& ) const ;
 
-   // File making functions
+   // Options parsing and access
+   int  LoadOptions(
+      const boost::program_options::options_description& desc,
+      int argc, char* argv[] );
    void SetNamingOptions( const std::vector<std::string>& x) { _naming_option_list =x ; }
-   int  LoadOptions( const boost::program_options::options_description& desc, int argc, char* argv[] );
+
+   // turns input ( ext, {tag1,tag2,tag3...} ) into filename: tag1_tag2_tag3_..._tagn.ext
+   std::string CustomFileName(
+      const std::string&                extension,
+      const std::vector<std::string>&   taglist
+   ) const ;
+
+   // For set Naming options (optinput1,optinput2) , we turn the input
+   // (ext, maintag, {subtag1,subtag2} ) in to filename:
+   // maintag_optinput1_optinput2_...optinputn_subtag1_subtag2....ext
    std::string MakeFileName(
       const std::string& extension,
       const std::string& main_tag,
-      const std::string& sub_tag = "" ) const ;
-   std::string TextFileName( const std::string& main_tag, const std::string& sub_tag = "" ) const ;
-   std::string PlotFileName( const std::string& main_tag, const std::string& sub_tag = "" ) const ;
-   std::string TexFileName ( const std::string& main_tag, const std::string& sub_tag = "" ) const ;
-   std::string RootFileName( const std::string& main_tag, const std::string& sub_tag = "" ) const ;
+      const std::vector<std::string>& subtaglist
+   ) const ;
+
+   // Specicalization for common prefix files
+   std::string TextFileName(const std::string& maintag, const std::vector<std::string>& subtaglist={}) const ;
+   std::string PlotFileName(const std::string& maintag, const std::vector<std::string>& subtaglist={}) const ;
+   std::string TexFileName (const std::string& maintag, const std::vector<std::string>& subtaglist={}) const ;
+   std::string RootFileName(const std::string& maintag, const std::vector<std::string>& subtaglist={}) const ;
 
 
 private:
