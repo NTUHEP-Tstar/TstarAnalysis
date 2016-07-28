@@ -6,16 +6,18 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
+#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
-
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "TAxis.h"
 
 #include <string>
 #include <vector>
 
 using namespace std;
+
+//------------------------------------------------------------------------------
+//   Declaring global objects
+//------------------------------------------------------------------------------
+TstarNamer reconamer("TstarMassReco");
 
 Color_t Color_Sequence[5] = {
    kBlue,
@@ -24,10 +26,6 @@ Color_t Color_Sequence[5] = {
    kBlack,
    kCyan
 };
-
-static const string cmssw_base = getenv("CMSSW_BASE") ;
-static const string prefix = cmssw_base + "/src/TstarAnalysis/TstarMassReco/results/" ;
-
 
 void ComparePlot( const string& comp_name , const vector<CompareHistMgr*> method_list  )
 {
@@ -59,77 +57,10 @@ void ComparePlot( const string& comp_name , const vector<CompareHistMgr*> method
       l->Draw();
       plt::DrawCMSLabel( SIMULATION );
 
-      c->SaveAs( ( prefix + comp_name + hist_name + ".png").c_str() );
+      c->SaveAs( reconamer.PlotFileName(comp_name,{hist_name}).c_str() );
       delete c;
       delete l;
    }
-}
-
-void MatchRatePlot( const string& comp_name, const vector<CompareHistMgr*> method_list)
-{
-   TCanvas* c = new TCanvas("c","c", 650,500);
-   TH1F* LepMatchRate  = new TH1F( "LepMatch"  , "Lepton Fit-Truth Match Rate;;Match rate" , method_list.size() , 0 , method_list.size() );
-   TH1F* LepBMatchRate = new TH1F( "LepBMatch" , "Leptonic b-quark Fit-Truth Match Rate;;Match rate" , method_list.size() , 0 , method_list.size() );
-   TH1F* LepGMatchRate = new TH1F( "LepGMatch" , "Leptonic gluon Fit-Truth Match Rate;;Match rate" , method_list.size() , 0 , method_list.size() );
-   TH1F* HadBMatchRate = new TH1F( "HadBMatch" , "Hadronic b-quark Fit-Truth Match Rate;;Match rate" , method_list.size() , 0 , method_list.size() );
-   TH1F* HadGMatchRate = new TH1F( "HadGMatch" , "Hadronic gluon Fit-Truth Match Rate;;Match rate" , method_list.size() , 0 , method_list.size() );
-   LepMatchRate ->SetStats(0);
-   LepBMatchRate->SetStats(0);
-   LepGMatchRate->SetStats(0);
-   HadBMatchRate->SetStats(0);
-   HadGMatchRate->SetStats(0);
-   LepMatchRate ->SetMinimum(0.);
-   LepBMatchRate->SetMinimum(0.);
-   LepGMatchRate->SetMinimum(0.);
-   HadBMatchRate->SetMinimum(0.);
-   HadGMatchRate->SetMinimum(0.);
-   LepMatchRate ->SetMaximum(1.);
-   LepBMatchRate->SetMaximum(1.);
-   LepGMatchRate->SetMaximum(1.);
-   HadBMatchRate->SetMaximum(1.);
-   HadGMatchRate->SetMaximum(1.);
-
-   int i = 0;
-   for( const auto& method : method_list ){
-      LepMatchRate ->SetBinContent( i+1 , method->LepMatchRate()  );
-      LepBMatchRate->SetBinContent( i+1 , method->LepBMatchRate() );
-      LepGMatchRate->SetBinContent( i+1 , method->LepGMatchRate() );
-      HadBMatchRate->SetBinContent( i+1 , method->HadBMatchRate() );
-      HadGMatchRate->SetBinContent( i+1 , method->HadGMatchRate() );
-      LepMatchRate ->SetBinError( i+1 , sqrt(method->LepMatchRate() *(1-method->LepMatchRate() ) / method->EventCount() ) );
-      LepBMatchRate->SetBinError( i+1 , sqrt(method->LepBMatchRate()*(1-method->LepBMatchRate() )/ method->EventCount() ) );
-      LepGMatchRate->SetBinError( i+1 , sqrt(method->LepGMatchRate()*(1-method->LepGMatchRate() )/ method->EventCount() ) );
-      HadBMatchRate->SetBinError( i+1 , sqrt(method->HadBMatchRate()*(1-method->HadBMatchRate() )/ method->EventCount() ) );
-      HadGMatchRate->SetBinError( i+1 , sqrt(method->HadGMatchRate()*(1-method->HadGMatchRate() )/ method->EventCount() ) );
-      LepMatchRate ->GetXaxis()->SetBinLabel(i+1,method->LatexName().c_str() );
-      LepBMatchRate->GetXaxis()->SetBinLabel(i+1,method->LatexName().c_str() );
-      LepGMatchRate->GetXaxis()->SetBinLabel(i+1,method->LatexName().c_str() );
-      HadBMatchRate->GetXaxis()->SetBinLabel(i+1,method->LatexName().c_str() );
-      HadGMatchRate->GetXaxis()->SetBinLabel(i+1,method->LatexName().c_str() );
-      ++i;
-   }
-
-   LepMatchRate->Draw("E1");
-   c->SaveAs( (prefix+comp_name+"LepMatchRate.png").c_str() );
-   delete LepMatchRate;
-
-   LepBMatchRate->Draw("E1");
-   c->SaveAs( (prefix+comp_name+"LepBMatchRate.png").c_str() );
-   delete LepBMatchRate;
-
-   LepGMatchRate->Draw("E1");
-   c->SaveAs( (prefix+comp_name+"LepGMatchRate.png").c_str() );
-   delete LepGMatchRate;
-
-   HadBMatchRate->Draw("E1");
-   c->SaveAs( (prefix+comp_name+"HadBMatchRate.png").c_str() );
-   delete HadBMatchRate;
-
-   HadGMatchRate->Draw("E1");
-   c->SaveAs( (prefix+comp_name+"HadGMatchRate.png").c_str() );
-   delete HadGMatchRate;
-
-   delete c;
 }
 
 //------------------------------------------------------------------------------
@@ -173,11 +104,8 @@ void MatchPlot( CompareHistMgr* mgr )
    plot->GetYaxis()->SetBinLabel(5,"Had g");
    plot->GetYaxis()->SetBinLabel(6,"unknown");
 
-   static const string cmssw_base = getenv("CMSSW_BASE") ;
-   static const string prefix = cmssw_base + "/src/TstarAnalysis/TstarMassReco/results/" ;
-
    pad->SetLogz(1);
-   c->SaveAs( (prefix+ mgr->Name() +"_jetmatchmap.png").c_str() );
+   c->SaveAs( reconamer.PlotFileName( "jetmatchmap", {mgr->Name()} ).c_str() );
 
    delete pad;
    delete c;

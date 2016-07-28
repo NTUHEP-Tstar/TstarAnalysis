@@ -40,8 +40,9 @@ int main(int argc, char* argv[]) {
    }
 
    InitSampleStatic( limit_namer );
-   // mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
-   PlotGenFit( {"tstar_M1000", "tstar_M700"} ) ;
+
+   mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
+   PlotGenFit( cfg.GetStaticStringList("Signal List") ) ;
 
    return 0;
 }

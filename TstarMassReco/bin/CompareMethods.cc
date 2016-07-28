@@ -6,69 +6,66 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
+#include "TstarAnalysis/TstarMassReco/interface/Bin_Common.hpp"
 #include "DataFormats/FWLite/interface/Event.h"
 
-#include "TFile.h"
-#include "TH1F.h"
-#include "TLegend.h"
-#include "TCanvas.h"
-
+#include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <vector>
+#include <string>
+
+#include "TFile.h"
 
 using namespace std;
+namespace opt = boost::program_options;
 
-extern void ComparePlot( const string& plot_name, const vector<CompareHistMgr*> );    // See src/ComparePlot.cc
-extern void MatchRatePlot( const string& plot_name, const vector<CompareHistMgr*> );  // See src/ComparePlot.cc
-extern void MatchPlot( CompareHistMgr* );   // see src/ComparePlot.cc
 
 int main( int argc, char* argv[] )
 {
+   opt::options_description desc("Options for Method comparison") ;
 
-   fwlite::Event event( TFile::Open("results/MassRecoCompare.root") );
-//   CompareHistMgr* ChiSq6jet0b  = new CompareHistMgr( "ChiSq6jet0b", "#chi^{2} (6 jet + 0 b-jets)", "ChiSq6jet0b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* ChiSq6jet1b  = new CompareHistMgr( "ChiSq6jet1b", "#chi^{2} (6 jet + 1 b-jets)", "ChiSq6jet1b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* ChiSq6jet2b  = new CompareHistMgr( "ChiSq6jet2b", "#chi^{2} (6 jet + 2 b-jets)", "ChiSq6jet2b", "ChiSquareResult", "HitFitCompare")  ;
-//   CompareHistMgr* ChiSq8jet0b  = new CompareHistMgr( "ChiSq8jet0b", "#chi^{2} (8 jet + 0 b-jets)", "ChiSq8jet0b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* ChiSq8jet1b  = new CompareHistMgr( "ChiSq8jet1b", "#chi^{2} (8 jet + 1 b-jets)", "ChiSq8jet1b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* ChiSq8jet2b  = new CompareHistMgr( "ChiSq8jet2b", "#chi^{2} (8 jet + 2 b-jets)", "ChiSq8jet2b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* HitFit6jet2b  = new CompareHistMgr( "HitFit6jet2b", "HitFit(6 jet + 2 b-jets, No Top constrain)", "NoTopConstrain6j2b", "HitFitResult", "HitFitCompare")  ;
-//   CompareHistMgr* HitFit8jet1b  = new CompareHistMgr( "HitFit8jet1b", "HitFit(8 jet + 1 b-jets, Not Top constrain)", "NoTopConstrain8j1b", "HitFitResult", "HitFitCompare")  ;
+   desc.add_options()
+      ("channel,c"  , opt::value<string>(), "Channel to run" )
+      ("mass,m"     , opt::value<string>(), "Masspoint to run" )
+      ("outputtag,o", opt::value<string>(), "What output string to add" )
+      ("compare,x"  , opt::value<vector<string>>()->multitoken(), "Which reconstruction methods to compare" )
+   ;
 
+   reconamer.SetNamingOptions({"mass"});
+   const int run = reconamer.LoadOptions( desc, argc, argv );
+   if( run == mgr::OptsNamer::PARSE_ERROR ) { return 1; }
+   if( run == mgr::OptsNamer::PARSE_HELP  ) { return 0 ;}
 
+   if( !reconamer.HasOption("compare") ){
+      cerr << "Error! No comparison tokens specified!" << endl;
+      return 1;
+   }
+
+   // Making run objects
+   vector<CompareHistMgr*> complist;
+   for( const auto& tag : reconamer.GetMap()["compare"].as<vector<string>>() ){
+      const string taglatex = reconamer.query_tree("reco",tag,"Root Name");
+      complist.push_back( new CompareHistMgr(tag,taglatex) );
+   }
+
+   // Filling histograms
+   const string filename = reconamer.CustomFileName( "root", {reconamer.InputStr("mass")} );
+   fwlite::Event event( TFile::Open( filename.c_str() ) );
    unsigned i = 0 ;
    for( event.toBegin() ; !event.atEnd() ; ++event ){
       cout << "\rAt Event [" << ++i << "]" << flush;
-//      ChiSq6jet0b->AddEvent(event);
-      ChiSq6jet1b->AddEvent(event);
-      ChiSq6jet2b->AddEvent(event);
-//      ChiSq8jet0b->AddEvent(event);
-      ChiSq8jet1b->AddEvent(event);
-      ChiSq8jet2b->AddEvent(event);
-      HitFit6jet2b->AddEvent(event);
-//      HitFit8jet1b->AddEvent(event);
+      for( const auto& mgr : complist ){
+         mgr->AddEvent( event );
+      }
    }
-   MatchPlot( ChiSq6jet1b );
-   MatchPlot( ChiSq6jet2b );
-   MatchPlot( ChiSq8jet1b );
-   MatchPlot( ChiSq8jet2b );
-   MatchPlot( HitFit6jet2b );
 
-   cout << endl;
-   ComparePlot( "6jets-2b-jets"  , {ChiSq6jet2b} );
-   ComparePlot( "6j-bjets_effect", {ChiSq6jet1b,ChiSq6jet2b}  );
-   ComparePlot( "6j-v-8j_2bjet"  , {ChiSq6jet2b,ChiSq8jet2b}  );
-   ComparePlot( "chisq-v-hitfit" , {ChiSq6jet2b,HitFit6jet2b} );
-
-   MatchRatePlot( "chisq-hitfit-match", {
-      ChiSq6jet1b,
-      ChiSq6jet2b,
-      ChiSq8jet1b,
-      ChiSq6jet2b,
-      HitFit6jet2b
+   // Making plots
+   for( const auto& mgr : complist ){
+      MatchPlot( mgr );
    }
-   );
 
+   ComparePlot( reconamer.InputStr("outputtag")  , complist );
 
    return 0;
 }

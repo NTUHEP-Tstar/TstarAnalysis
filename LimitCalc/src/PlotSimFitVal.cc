@@ -49,14 +49,17 @@ void PlotGenFit( const vector<string>& masslist )
    unsigned i = 0 ;
    for( const auto& masspoint : masslist ){
       val::PullResult ans = val::PlotSingleGenFit( masspoint );
-      bkgplot->SetPoint     ( i , GetInt(masspoint), ans.bkgpull.CentralValue() );
-      bkgplot->SetPointError( i ,                 0, ans.bkgpull.AbsAvgError()  );
-      sigplot->SetPoint     ( i , GetInt(masspoint), ans.sigpull.CentralValue() );
-      sigplot->SetPointError( i ,                 0, ans.sigpull.AbsAvgError()  );
-      p1plot->SetPoint      ( i , GetInt(masspoint), ans.p1pull.CentralValue()  );
-      p1plot->SetPointError ( i ,                 0, ans.p1pull.AbsAvgError()   );
-      p2plot->SetPoint      ( i , GetInt(masspoint), ans.p2pull.CentralValue()  );
-      p2plot->SetPointError ( i ,                 0, ans.p2pull.AbsAvgError()   );
+      const int     mass  = GetInt(masspoint);
+      cout << mass << endl;
+      bkgplot->SetPoint     ( i , mass, ans.bkgpull.CentralValue() );
+      bkgplot->SetPointError( i ,    0, ans.bkgpull.AbsAvgError()  );
+      sigplot->SetPoint     ( i , mass, ans.sigpull.CentralValue() );
+      sigplot->SetPointError( i ,    0, ans.sigpull.AbsAvgError()  );
+      p1plot->SetPoint      ( i , mass, ans.p1pull.CentralValue()  );
+      p1plot->SetPointError ( i ,    0, ans.p1pull.AbsAvgError()   );
+      p2plot->SetPoint      ( i , mass, ans.p2pull.CentralValue()  );
+      p2plot->SetPointError ( i ,    0, ans.p2pull.AbsAvgError()   );
+      ++i;
    }
    val::MakePullComparePlot( bkgplot , "bkg"    );
    val::MakePullComparePlot( sigplot , "sig"    );
@@ -77,8 +80,8 @@ val::PullResult val::PlotSingleGenFit( const std::string& masstag )
 
    RooDataSet bkgset("bkg","bkg",RooArgSet(p));
    RooDataSet sigset("sig","sig",RooArgSet(p));
-   RooDataSet p1set ("p1","p1",RooArgSet(p));
-   RooDataSet p2set ("p2","p2",RooArgSet(p));
+   RooDataSet p1set ("p1","p1",RooArgSet(p)  );
+   RooDataSet p2set ("p2","p2",RooArgSet(p)  );
    RooDataSet signormset("signorm","signorm",RooArgSet(p));
    double bkg_real, sig_real, p1_real, p2_real;
    double bkg_fit, bkg_fiterr;
@@ -104,9 +107,10 @@ val::PullResult val::PlotSingleGenFit( const std::string& masstag )
 
       double bkgpull = (bkg_fit - bkg_real)/bkg_fiterr;
       double sigpull = (sig_fit - sig_real)/sig_fiterr;
-      double p1pull = (p1_fit - p1_real)/p1_fiterr;
-      double p2pull = (p2_fit - p1_real)/p2_fiterr;
+      double p1pull  = (p1_fit - p1_real)/p1_fiterr;
+      double p2pull  = (p2_fit - p2_real)/p2_fiterr;
       double signorm = (sig_fit - sig_real) / sig_real;
+
       if(
          bkgpull < -7 || bkgpull > +7 ||
          sigpull < -7 || sigpull > +7 ||
@@ -163,8 +167,8 @@ Parameter val::MakePullPlot( RooDataSet& set, const string& masstag, const strin
    // Title Formats
    boost::format xtitlefmt("pull_{%1%}");
    boost::format signalfmt("Sig. mass = %1% GeV");
-   boost::format meanfmt  ("Mean_{pull} = %.4f #pm %.4f ");
-   boost::format sigmafmt ("#sigma_{pull} = %.4f #p, %.4f");
+   boost::format meanfmt  ("#mu_{pull} = %.4f #pm %.4f ");
+   boost::format sigmafmt ("#sigma_{pull} = %.4f #pm %.4f");
    boost::format injectfmt("signal events %1% %2%");
 
    const string xtitle_s = str( xtitlefmt % tag );
@@ -192,7 +196,7 @@ Parameter val::MakePullPlot( RooDataSet& set, const string& masstag, const strin
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.28, mean_s.c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.34, sigma_s.c_str() );
 
-   c.SaveAs(limit_namer.PlotFileName("valpulldist",{masstag,tag}).c_str() );
+   c.SaveAs(limit_namer.PlotFileName("valpulldist",{masstag,tag,SigStrengthTag()}).c_str() );
 
 
    return Parameter( mean.getVal(), sigma.getVal(), sigma.getVal() );
@@ -230,7 +234,7 @@ Parameter val::MakeNormPlot( RooDataSet& set , const string& masstag, const stri
    tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.16, signal_s.c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.22, inject_s.c_str() );
 
-   c.SaveAs(limit_namer.PlotFileName("valdiff",{masstag,tag}).c_str() );
+   c.SaveAs(limit_namer.PlotFileName("valdiff",{masstag,tag,SigStrengthTag()}).c_str() );
 
    return Parameter(0,0,0);
 }
@@ -246,16 +250,15 @@ void val::MakePullComparePlot( TGraph* graph , const string& tag )
    graph->SetMaximum(2.5);
    graph->SetMinimum(-2.5);
    plt::DrawCMSLabel(SIMULATION);
-   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
    const double xmin = graph->GetXaxis()->GetXmin();
    const double xmax = graph->GetXaxis()->GetXmax();
    TLine z ( xmin , 0 , xmax, 0 );
    TLine hi( xmin , 1 , xmax, 1 );
    TLine lo( xmin ,-1 , xmax,-1 );
-   z .SetLineColor( kRed); z .SetLineWidth(3); z .Draw();
-   hi.SetLineColor(kBlue); hi.SetLineWidth(2); hi.Draw();
-   lo.SetLineColor(kBlue); lo.SetLineWidth(2); lo.Draw();
+   z .SetLineColor( kRed); z .SetLineWidth(3); z .SetLineStyle(2); z .Draw();
+   hi.SetLineColor(kBlue); hi.SetLineWidth(2); hi.SetLineStyle(3); hi.Draw();
+   lo.SetLineColor(kBlue); lo.SetLineWidth(2); lo.SetLineStyle(3); lo.Draw();
 
    boost::format injectfmt("signal events %1% %2%");
    const string inject_s = limit_namer.GetMap().count("relmag") ?
@@ -271,5 +274,5 @@ void val::MakePullComparePlot( TGraph* graph , const string& tag )
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName("fitfunc","Root Name").c_str() );
    tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.16, inject_s.c_str() );
 
-   c.SaveAs(limit_namer.PlotFileName("pullvmass",{tag}).c_str() );
+   c.SaveAs(limit_namer.PlotFileName("pullvmass",{tag,SigStrengthTag()}).c_str() );
 }

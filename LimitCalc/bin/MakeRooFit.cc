@@ -28,11 +28,11 @@ int main(int argc, char* argv[])
       ("fitmethod,m", opt::value<string>() , "Which fitting method to use" )
       ("fitfunc,f"  , opt::value<string>() , "Which fitting function to use" )
    ;
-
+   
+   limit_namer.SetNamingOptions( {"fitmethod","fitfunc"} );
    const int run = limit_namer.LoadOptions(desc,argc,argv);
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-   limit_namer.SetNamingOptions( {"fitmethod","fitfunc"} );
 
    InitSampleStatic( limit_namer );
    InitRooFitSettings( limit_namer );

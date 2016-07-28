@@ -30,7 +30,7 @@ options.register( 'sampledir',
     'Directory(s) to edm files'
 )
 
-options.setDefault('maxEvents',1000)
+options.setDefault('maxEvents',100)
 
 options.parseArguments()
 

@@ -65,6 +65,12 @@
       }
    },
 
+   "reco":{
+      "ChiSq6jet2b":{
+         "Root Name": "#chi^{2} sorting, 6 jets (2 bjets)"
+      }
+   },
+
    "Image format" : "png"
 
 }

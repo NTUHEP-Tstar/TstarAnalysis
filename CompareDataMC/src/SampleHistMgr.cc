@@ -34,7 +34,7 @@ void SampleHistMgr::define_hist()
    AddHist( "Jet2Pt"    , "Second Leading Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
    AddHist( "Jet1Eta"   , "First Leading Jet #eta"    , ""          , 75 , -2.5 , 5.0   );
    AddHist( "Jet2Eta"   , "Second Leading Jet #eta"   , ""          , 75 , -2.5 , 5.0   );
-   AddHist( "JetNum"    , "Number of Jets"            , ""          , 5  , 5    , 12    );
+   AddHist( "JetNum"    , "Number of Jets"            , ""          , 7  , 5    , 12    );
    AddHist( "MET"       , "Missing p_{T}"             , "GeV"       , 50 , 0    , 500.  );
    AddHist( "METPhi"    , "Missing p_{T} #phi"        , ""          , 96 , -3.2 , 6.4   );
    AddHist( "Jet3Pt"    , "Third Jet p_{T}"           , "GeV/c"     , 60 , 30   , 700.  );

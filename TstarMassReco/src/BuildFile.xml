@@ -8,6 +8,7 @@
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PlotUtils"/>
 
+<use name="TstarAnalysis/Common"/>
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/ModifiedHitFit"/>
 <use name="TstarAnalysis/BaseLineSelector"/>
