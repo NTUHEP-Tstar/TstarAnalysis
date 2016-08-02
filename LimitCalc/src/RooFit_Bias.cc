@@ -23,11 +23,10 @@ void MakeBias(SampleRooFitMgr* data, SampleRooFitMgr* mc, vector<SampleRooFitMgr
    int events_to_gen = data->OriginalDataSet()->sumEntries() ;
    MakePsuedoData(mc,events_to_gen);
 
-
    if( limit_namer.GetInput("fitmethod") == "BiasTemplate" ){
       MakeTemplate(mc,mc,signal_list);
    } else if( limit_namer.GetInput("fitmethod") == "BiasSimFit" ){
-      MakeSimFit(mc,signal_list);
+      MakeSimFit(mc,mc,signal_list);
    }
 }
 

@@ -19,25 +19,32 @@
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 #include "RooAddPdf.h"
-#include "RooKeysPdf.h"
-#include "RooGenericPdf.h"
+#include "RooGaussian.h"
+#include "RooConstVar.h"
 #include "RooFitResult.h"
 
 #include "TFile.h"
 
 using namespace std;
 
-void MakeSimFit( SampleRooFitMgr* data, vector<SampleRooFitMgr*>& signal_list )
+void MakeSimFit(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* mc,
+   vector<SampleRooFitMgr*>& signal_list
+)
 {
    using namespace smft;
    vector<RooAbsPdf*>    bg_pdf_list;
    vector<RooAbsPdf*>    sig_pdf_list;
    vector<RooFitResult*> results_list;
+
+   // Getting fit result from MC template;
+   RooFitResult*         bgconstrain = tmplt::MakeBGFromMC(mc);
    for( auto& sig : signal_list ){
-      RooFitResult* err = FitPDFs( data, sig );
+      RooFitResult* err = FitPDFs( data, sig , bgconstrain);
       var_mgr.SetConstant();
-      MakeValidationPlot( data, sig, err );
       MakeCardFile( data,sig );
+      MakeValidationPlot( data, sig, err );
 
       bg_pdf_list .push_back( data->GetPdfFromAlias("bg"+sig->Name()) );
       sig_pdf_list.push_back( sig ->GetPdfFromAlias("key") );
@@ -55,18 +62,42 @@ void MakeSimFit( SampleRooFitMgr* data, vector<SampleRooFitMgr*>& signal_list )
 //------------------------------------------------------------------------------
 //   RooFit control flow
 //------------------------------------------------------------------------------
-RooFitResult* smft::FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig, const string& tag )
-{
-   const string full_tag   = sig->Name() + tag;
-   const string model_name = data->MakePdfAlias( full_tag );
+RooFitResult* smft::FitPDFs(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* sig,
+   RooFitResult*    bgconstrain
+){
+   const string model_name = data->MakePdfAlias( sig->Name() );
+   const string bgfun_name = "bg"+sig->Name();
    const string fitfunc    = limit_namer.GetInput("fitfunc");
 
+   vector<RooRealVar*> bgfitvarlist = data->MakePDF( fitfunc, bgfun_name );
+   sig ->MakePDF( "Key", "key" );
+
+   RooAbsPdf*  bg_pdf      = data->GetPdfFromAlias( bgfun_name );
+   RooAbsPdf*  sig_pdf     = sig ->GetPdfFromAlias( "key"      );
    RooDataSet* data_to_fit = data->GetDataFromAlias( dataset_alias ) ;
+
    const double num_data   = data_to_fit->sumEntries();
-   RooAbsPdf*   bg_pdf     = MakePDF    ( data, fitfunc , "bg"+full_tag );
-   RooKeysPdf*  sig_pdf    = MakeKeysPdf( sig,"key");
-   RooRealVar*  nb         = var_mgr.NewVar("nb"+full_tag, num_data, -100000, 100000);
-   RooRealVar*  ns         = var_mgr.NewVar("ns"+full_tag, 0       , -100000, 100000);
+   RooRealVar*  nb         = var_mgr.NewVar("nb"+sig->Name(), num_data, -100000, 100000);
+   RooRealVar*  ns         = var_mgr.NewVar("ns"+sig->Name(), 0       , -100000, 100000);
+
+   // Adding constrain
+   RooArgSet  fitconstraints ;
+   for( unsigned i = 0 ; i < bgfitvarlist.size(); ++i ){
+      RooRealVar* bgvar    = bgfitvarlist[i];
+      RooRealVar* bgconvar = (RooRealVar*)(bgconstrain->floatParsFinal().at(i) );
+
+      string pdfname(bgvar->GetName()); pdfname += "constrain";
+
+      RooGaussian bgvar_conpdf(
+         pdfname.c_str(), pdfname.c_str(),
+         *bgvar,
+         RooFit::RooConst( bgconvar->getVal() ),
+         RooFit::RooConst( 5*bgconvar->getError() )
+      );
+      fitconstraints.addClone( bgvar_conpdf );
+   }
 
 
    RooAddPdf* model = new RooAddPdf(
@@ -79,6 +110,7 @@ RooFitResult* smft::FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig, const
       *(data_to_fit),
       RooFit::Range("FitRange"),
       RooFit::Minos(kTRUE),
+      RooFit::ExternalConstraints( fitconstraints ),
       RooFit::Save(),
       RooFit::Verbose(kFALSE),
       RooFit::PrintLevel(-1),
@@ -98,8 +130,8 @@ void smft::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
 {
    RooAddPdf* model     = (RooAddPdf*)(data->GetPdfFromAlias( sig->Name() )) ;
    RooDataSet* data_set = data->GetReduceDataSet( dataset_alias );
-   RooAbsPdf*  bg_pdf   = data->GetPdfFromAlias("bg"+sig->Name());
    RooDataSet* sig_set  = sig->OriginalDataSet();
+   RooAbsPdf*  bg_pdf   = data->GetPdfFromAlias("bg"+sig->Name() );
    RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("key");
    const Parameter bg_unc = Parameter(
       ((RooRealVar*)(model->coefList().at(0)))->getVal(),
@@ -114,7 +146,7 @@ void smft::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
       bg_unc.CentralValue()
    );
 
-   const Parameter lumi(1,0.05,0.05);
+   const Parameter lumi(1,0.20,0.20);
    const Parameter sig_unc = sig->Sample()->SelectionEfficiency();
    const Parameter null(0,0,0);
    fprintf( card_file , "----------------------------------------\n" );
@@ -134,10 +166,9 @@ void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooF
    TCanvas* c = new TCanvas("c","c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
    RooPlot* frame = SampleRooFitMgr::x().frame();
 
-   const string full_tag = sig->Name()+tag;
    RooDataSet* data_set = data->GetDataFromAlias( dataset_alias );
-   RooAddPdf*  model    = (RooAddPdf*)data->GetPdfFromAlias( full_tag );
-   RooAbsPdf*  bg_pdf   = data->GetPdfFromAlias("bg"+full_tag );
+   RooAddPdf*  model    = (RooAddPdf*)data->GetPdfFromAlias( sig->Name() );
+   RooAbsPdf*  bg_pdf   = data->GetPdfFromAlias("bg"+sig->Name() );
    RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias("key");
    RooRealVar* bg_var   = (RooRealVar*)(model->coefList().at(0));
    RooRealVar* sig_var  = (RooRealVar*)(model->coefList().at(1));

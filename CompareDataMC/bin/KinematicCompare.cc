@@ -38,9 +38,9 @@ int main(int argc, char* argv[])
 
    InitSampleStatic( compare_namer );
 
-
    const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
    const string           data_tag = compare_namer.GetChannelEXT("Data Tag");
+
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( data_tag , master );
    // Defining out channels see data/Groups.json for sample settings
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
    // Declaring sample sample
    SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , master );
 
-   // Making combined stack plots
+   // Making combined stack plots src/KinematicComp:are.cc
    MakeComparePlot( data, background, signal_mgr );
 
    // Normalizing MC to data

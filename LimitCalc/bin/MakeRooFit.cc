@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
       ("fitmethod,m", opt::value<string>() , "Which fitting method to use" )
       ("fitfunc,f"  , opt::value<string>() , "Which fitting function to use" )
    ;
-   
+
    limit_namer.SetNamingOptions( {"fitmethod","fitfunc"} );
    const int run = limit_namer.LoadOptions(desc,argc,argv);
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
@@ -37,17 +37,16 @@ int main(int argc, char* argv[])
    InitSampleStatic( limit_namer );
    InitRooFitSettings( limit_namer );
 
-   InitDataAndSignal( data,signal_list );
+   InitDataAndSignal( data, signal_list );
+   InitMC(mc);
    if( limit_namer.GetInput("fitmethod") == "SimFit"  ){
       cout  << "Running SimFit Method!" << endl;
-      MakeSimFit(data,signal_list);
+      MakeSimFit(data,mc,signal_list);
    } else if( limit_namer.GetInput("fitmethod") == "Template" ){
       cout << "Running MC template method!" << endl;
-      InitMC(mc);
       MakeTemplate(data,mc,signal_list);
    } else if( limit_namer.GetInput("fitmethod").find("Bias") != string::npos ){
       cout << "Running Bias check!" << endl;
-      InitMC(mc);
       MakeBias(data,mc,signal_list);
    } else {
       cerr << "Unrecognized method!" << endl;

@@ -10,6 +10,16 @@
          "Root Name": "e channel",
          "Data Tag": "Data_Electron"
       },
+      "MuonSignal2016" : {
+         "Latex Name" : "$\\mu$ signal channel",
+         "Root Name": "#mu channel",
+         "Data Tag": "Data2016_Muon"
+      },
+      "ElectronSignal2016" : {
+         "Latex Name" : "$e$ signal channel",
+         "Root Name": "e channel",
+         "Data Tag": "Data2016_Electron"
+      },
       "SignalMerge" : {
          "Latex Name" : "$\\mu + e $ channel",
          "Root Name": "#mu + e channel"
@@ -68,6 +78,9 @@
    "reco":{
       "ChiSq6jet2b":{
          "Root Name": "#chi^{2} sorting, 6 jets (2 bjets)"
+      },
+      "NoTopConstrain6j2b":{
+         "Root Name": "HitFit, 6 jets (2 bjets)"
       }
    },
 

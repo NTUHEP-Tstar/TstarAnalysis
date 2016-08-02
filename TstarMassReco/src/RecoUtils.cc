@@ -74,7 +74,7 @@ FitParticle MakeResultMuon( const pat::Muon* lepton )
 
    ans.ObservedP4() = ConvertToRoot( *lepton );
    ans.FittedP4()   = ConvertToRoot( *lepton );
-   ans.TypeFromFit()= lepton_label;
+   ans.TypeFromFit()= muon_label;
 
    if( lepton->genLepton() ){
       const reco::GenParticle* gen =  lepton->genLepton();
@@ -96,7 +96,7 @@ FitParticle MakeResultElectron( const pat::Electron* lepton )
 
    ans.ObservedP4() = ConvertToRoot( *lepton );
    ans.FittedP4()   = ConvertToRoot( *lepton );
-   ans.TypeFromFit()= lepton_label;
+   ans.TypeFromFit()= electron_label;
 
    if( lepton->genLepton() ){
       const reco::GenParticle* gen =  lepton->genLepton();
@@ -118,13 +118,14 @@ FitParticle MakeResultLepton( const reco::RecoCandidate* lepton )
 
    ans.ObservedP4() = ConvertToRoot( *lepton );
    ans.FittedP4()   = ConvertToRoot( *lepton );
-   ans.TypeFromFit()= lepton_label;
 
    if( ((const pat::Electron*)(lepton))->genLepton() ){
+      ans.TypeFromFit()= electron_label;
       const reco::GenParticle* gen =  ((const pat::Electron*)(lepton))->genLepton();
       ans.GenP4() = ConvertToRoot( *gen );
       ans.TypeFromTruth() = GetLeptonType( gen ) ;
    } else if( ((const pat::Muon*)(lepton))->genLepton() ){
+      ans.TypeFromFit()= muon_label;
       const reco::GenParticle* gen =  ((const pat::Muon*)(lepton))->genLepton();
       ans.GenP4() = ConvertToRoot( *gen );
       ans.TypeFromTruth() = GetLeptonType( gen ) ;
@@ -187,9 +188,9 @@ Particle_Label GetLeptonType( const reco::GenParticle* x )
 {
    if( FromLeptonicW(x) ){
       if( abs(x->pdgId()) == ELEC_ID ){
-         return lepton_label;
+         return electron_label;
       } else if( abs(x->pdgId()) == MUON_ID ){
-         return lepton_label;
+         return muon_label;
       } else {
          return unknown_label;
       }

@@ -8,8 +8,25 @@
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
-         "SingleMuon_Run2016B-PromptReco-v2_*.root",
+         "SingleMuon_Run2016B-PromptReco-v2_*.root"
+      ]
+   },
+   "Run2016C_PromptReco2":{
+      "Latex Name": "Run 2016 C Prompt Reco v2",
+      "Cross Section": [0,0,0],
+      "K Factor":[1.0],
+      "EDM Files":[
+         "SingleMuon_Run2016C-PromptReco-v2_*.root"
+      ]
+   },
+   "Run2016D_PromptReco2":{
+      "Latex Name": "Run 2016 D Prompt Reco v2",
+      "Cross Section": [0,0,0],
+      "K Factor":[1.0],
+      "EDM Files":[
+         "SingleMuon_Run2016D-PromptReco-v2_*.root"
       ]
    }
+
 
 }

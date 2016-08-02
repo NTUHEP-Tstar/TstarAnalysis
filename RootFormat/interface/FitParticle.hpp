@@ -14,8 +14,9 @@
 //   Label enum
 //------------------------------------------------------------------------------
 enum Particle_Label {
-   lepton_label   = 1,
-   neutrino_label = 2,
+   electron_label = 1,
+   muon_label     = 2,
+   neutrino_label = 5,
    lepb_label     = 11,
    hadb_label     = 12,
    hadw1_label    = 13,

@@ -35,6 +35,7 @@ extern TstarNamer        limit_namer;
 // in src/RooFit_SimFit.cc
 extern void MakeSimFit(
    SampleRooFitMgr* data,
+   SampleRooFitMgr* mc,
    std::vector<SampleRooFitMgr*>& sig_list
 );
 namespace smft
@@ -42,7 +43,7 @@ namespace smft
 RooFitResult* FitPDFs (
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
-   const std::string& extratag = ""
+   RooFitResult*    bgconstrain
 );
 
 void MakeValidationPlot(
@@ -104,21 +105,6 @@ Parameter  MakePullPlot( RooDataSet&, const std::string& masstag, const std::str
 Parameter  MakeNormPlot( RooDataSet&, const std::string& masstag, const std::string& tag );
 void       MakePullComparePlot( TGraph*, const std::string& tag );
 }
-
-//------------------------------------------------------------------------------
-//   PDF Definitions, see Common_PDF.cc
-//------------------------------------------------------------------------------
-extern RooAbsPdf*     MakePDF(
-   SampleRooFitMgr*    smplmgr,
-   const std::string&  fitfunc,
-   const std::string&  tag
-);
-extern RooKeysPdf*    MakeKeysPdf(SampleRooFitMgr*, const std::string& tag);
-extern RooGenericPdf* MakeFermi  (SampleRooFitMgr*, const std::string& tag);
-extern RooGenericPdf* MakeExo    (SampleRooFitMgr*, const std::string& tag);
-extern RooLognormal*  MakeLognorm(SampleRooFitMgr*, const std::string& tag);
-extern RooLandau*     MakeLandau (SampleRooFitMgr*, const std::string& tag);
-extern RooGenericPdf* MakeTrial  (SampleRooFitMgr*, const std::string& tag);
 
 //------------------------------------------------------------------------------
 //   Initalizing functions, see Common_Init.cc

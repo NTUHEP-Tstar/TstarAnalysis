@@ -52,10 +52,9 @@ void ChiSquareSolver::RunPermutations()
    TLorentzVector had_tstar;
    TLorentzVector lepton;
 
-   if(_muon){ lepton = ConvertToRoot(*_muon);}
+   if(_muon)    { lepton = ConvertToRoot(*_muon);}
    if(_electron){ lepton = ConvertToRoot(*_electron);}
 
-   unsigned config = 0;
    do{ // Running jet permutations
       if( !CheckPermutation() ){ continue; }
       had_w     = had_q1() + had_q2();
@@ -76,7 +75,6 @@ void ChiSquareSolver::RunPermutations()
          tstarMass = (lep_tstar.M() + had_tstar.M()) / 2.;
          AddResult( tstarMass , chiSquare , i );
       }
-      ++config;
    } while( next_permutation( _jetList.begin() , _jetList.end(), SortJet ) );
 }
 

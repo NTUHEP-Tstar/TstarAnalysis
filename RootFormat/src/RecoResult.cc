@@ -43,7 +43,27 @@ const FitParticle& RecoResult::GetParticle( const Particle_Label& x ) const
    }
    return __dummy_particle__;
 }
-const FitParticle& RecoResult::Lepton()        const { return GetParticle( lepton_label   ); }
+
+FitParticle& RecoResult::GetParticle( const Particle_Label& x )
+{
+   for( auto& particle : _fitted_particle_list ){
+      if( particle.TypeFromFit() == x ){
+         return particle;
+      }
+   }
+   return __dummy_particle__;
+}
+
+const FitParticle& RecoResult::Lepton()        const {
+   for( auto& particle : _fitted_particle_list ){
+      if( particle.TypeFromFit() == electron_label ||
+          particle.TypeFromFit() == muon_label ){
+         return particle;
+      }
+   }
+   return __dummy_particle__;
+}
+
 const FitParticle& RecoResult::Neutrino()      const { return GetParticle( neutrino_label ); }
 const FitParticle& RecoResult::LeptonicBJet()  const { return GetParticle( lepb_label     ); }
 const FitParticle& RecoResult::LeptonicGluon() const { return GetParticle( lepg_label     ); }
@@ -77,4 +97,10 @@ const TLorentzVector RecoResult::HadronicTop() const
 const TLorentzVector RecoResult::HadronicTstar() const
 {
    return HadronicTop() + HadronicGluon().FittedP4();
+}
+
+
+void RecoResult::ComputeFromPaticleList()
+{
+   _tstarMass = (HadronicTstar().M() + LeptonicTstar().M())/2.;
 }

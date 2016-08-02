@@ -25,7 +25,7 @@ VarMgr::VarMgr()
 VarMgr::~VarMgr()
 {
    for( auto* ptr : _var_list ){
-      cout << ptr->GetName() << " " << ptr->getVal() << endl;
+      cout << ptr->GetName() << " " << ptr->getVal() << " " << ptr->getError() << endl;
       delete ptr;
    }
 }

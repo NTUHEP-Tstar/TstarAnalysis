@@ -309,8 +309,9 @@ void HitFitter::AddHitFitJet( hitfit::Lepjets_Event& hitFitEvent, const pat::Jet
 bool HitFitter::CheckBTagOrder( const std::vector<int>& jet_type_list ) const
 {
    for( unsigned i = 0 ; i < _btagJetList.size(); ++i ){
-      if( jet_type_list[i] != hitfit::hadb_label &&
-          jet_type_list[i] != hitfit::lepb_label ) return false;
+      if( jet_type_list[i] != hitfit::hadb_label && jet_type_list[i] != hitfit::lepb_label ) {
+         return false;
       }
-      return true;
    }
+   return true;
+}

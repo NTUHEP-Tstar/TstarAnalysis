@@ -43,17 +43,18 @@ public:
    RooDataSet* GetReduceDataSet( const std::string& );
 
    // Generic Data Adding ( for generated datasets )
-   std::string MakeDataAlias( const std::string& x ) const;
+   std::string MakeDataAlias   ( const std::string& x ) const;
    RooDataSet* GetDataFromAlias( const std::string& x ) ;
-   void AddDataSet    ( RooDataSet*  ); // Note: this will automatically rename the object
-   void AddDataHist   ( RooDataHist* );
-   void RemoveDataSet ( RooDataSet*   );
+   void        AddDataSet      ( RooDataSet*  ); // Note: this will automatically rename the object
+   void        AddDataHist     ( RooDataHist* );
+   void        RemoveDataSet   ( RooDataSet*   );
 
    // Adding/Accessing pdfs
+   std::vector<RooRealVar*>  MakePDF( const std::string& functag, const std::string& alias );
+   void        AddPdf( RooAbsPdf* );
    std::string MakePdfAlias( const std::string& x ) const;
-   void AddPdf( RooAbsPdf* );
-   RooAbsPdf* GetPdfFromAlias( const std::string& x );
-   RooAbsPdf* GetPdfFromName( const std::string& x );
+   RooAbsPdf*  GetPdfFromAlias( const std::string& x );
+   RooAbsPdf*  GetPdfFromName( const std::string& x );
 
 private:
    static double _min_mass;

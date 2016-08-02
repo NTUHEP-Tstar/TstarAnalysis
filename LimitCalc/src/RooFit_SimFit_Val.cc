@@ -25,7 +25,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
-   tmplt::MakeBGFromMC( mc );
+   RooFitResult* bgconstrain = tmplt::MakeBGFromMC( mc );
    const string funcname = mc->MakePdfAlias("template");
    const double bkgnum   = data->OriginalDataSet()->sumEntries();
    const double signum   = limit_namer.HasOption("relmag") ?
@@ -35,8 +35,10 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
    const double param1 = var_mgr.FindByName("a"+funcname)->getVal();
    const double param2 = var_mgr.FindByName("b"+funcname)->getVal();
    TRandom ran;
+
+   sigmgr->MakePDF( "Key", "key" );
    RooAbsPdf* bkgfunc =  mc->GetPdfFromAlias("template");
-   RooAbsPdf* sigfunc =  MakeKeysPdf(sigmgr,"key");
+   RooAbsPdf* sigfunc =  sigmgr->GetPdfFromAlias("key");
 
    const string strgthtag = val::SigStrengthTag();
    FILE* result = fopen( limit_namer.TextFileName("valsimfit" , {strgthtag}).c_str(), "w" );
@@ -58,21 +60,10 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
          gensignum
       );
       psuedoset->append( *sigset );
-
-      cout << "\n\n#########\n\n\n" << endl;
-      cout << gensignum << " " << genbkgnum << endl;
-      cout << psuedoset->numEntries() << " " << sigset->numEntries() << " ";
-      for( int i = 0 ; i < 10 ; ++i ){
-         cout << ((RooRealVar*)(psuedoset->get(i)->find("x")))->getVal() << " ";
-      }
       data->AddDataSet(psuedoset );
-      cout << "\n##\n##" <<
-         data->GetDataFromAlias( dataset_alias ) << " " <<
-         psuedoset << "\n##" << endl;
-
       // Running sim fit
       var_mgr.SetConstant(kFALSE);
-      smft::FitPDFs( data, sigmgr );
+      smft::FitPDFs( data, sigmgr, bgconstrain );
 
       // Getting results
       const string psuedobgname = data->MakePdfAlias( "bg"+sigmgr->Name() );

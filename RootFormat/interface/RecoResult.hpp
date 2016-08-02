@@ -26,8 +26,14 @@ public:
    double TstarMass() const;
    double ChiSquare() const;
 
+   void ComputeFromPaticleList();
+
    void  AddParticle( const FitParticle& );
+   FitParticle&       GetParticle( const Particle_Label& );
    const FitParticle& GetParticle( const Particle_Label& ) const;
+
+   std::vector<FitParticle>&       ParticleList()       { return _fitted_particle_list; }
+   const std::vector<FitParticle>& ParticleList() const { return _fitted_particle_list; }
 
    const FitParticle&   Lepton()        const;
    const FitParticle&   Neutrino()      const;

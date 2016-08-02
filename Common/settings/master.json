@@ -3,13 +3,15 @@
    #    Static Settings
    -----------------------------------------------------------------------------""",
 
-   "Total Luminosity": 2182.6,
+   "Total Luminosity": 2180,
+   "Total Luminosity 2015": 2180,
+   "Total Luminosity 2016": 12890,
 
    "Before Cut Label": "beforeAny",
    "After Cut Label":"afterBaseLine",
 
    "Mass Min":350,
-   "Mass Max":3000,
+   "Mass Max":2500,
 
    "___Comment___":"""-----------------------------------------------------------
    #    Defining Groups:
@@ -25,6 +27,16 @@
    "Data_Electron" : {
       "Latex Name" : "Data",
       "File List" : ["Data_Electron.json" ]
+   },
+
+   "Data2016_Muon" : {
+      "Latex Name": "Data",
+      "File List": [ "Data2016_Muon.json" ]
+   },
+
+   "Data2016_Electron" : {
+      "Latex Name" : "Data",
+      "File List" : ["Data2016_Electron.json" ]
    },
 
    "TTJets" : {

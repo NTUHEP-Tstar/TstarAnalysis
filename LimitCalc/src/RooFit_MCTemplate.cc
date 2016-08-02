@@ -28,11 +28,13 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
    using namespace tmplt;
    vector<RooAbsPdf*> sig_pdf_list;
 
-   for( auto& sig : signal_list ){ sig_pdf_list.push_back( MakeKeysPdf(sig,tag) ); }
+   for( auto& sig : signal_list ){
+      sig->MakePDF("Key",tag);
+      sig_pdf_list.push_back( sig->GetPdfFromAlias(tag) );
+   }
    RooFitResult* err = MakeBGFromMC(bg);
    MakeTemplatePlot( data, bg, signal_list.front(), err , true );
    MakeTemplatePlot( data, bg, signal_list.front(), err , false );
-
 
    SaveRooWorkSpace(
       data->GetDataFromAlias( dataset_alias ),
@@ -50,7 +52,8 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 //------------------------------------------------------------------------------
 RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 {
-   RooAbsPdf* bg_pdf = MakePDF( bg, limit_namer.GetInput("fitfunc"), tag );
+   bg->MakePDF( limit_namer.GetInput("fitfunc"), tag );
+   RooAbsPdf*    bg_pdf  =  bg->GetPdfFromAlias( tag );
    RooFitResult* results =  bg_pdf->fitTo(
       *(bg->OriginalDataSet()) ,
       RooFit::Save() ,            // Suppressing output

@@ -9,6 +9,7 @@
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 
+#include <boost/algorithm/string.hpp>
 #include <map>
 #include <vector>
 #include <string>
@@ -164,7 +165,11 @@ void MakeLimitPlot()
 
 
    plt::DrawCMSLabel();
-   plt::DrawLuminosity( cfg.GetStaticDouble("Total Luminosity") );
+   if( boost::contains( limit_namer.GetChannel(), "2016" ) ){
+      plt::DrawLuminosity( cfg.GetStaticDouble("Total Luminosity 2016") );
+   } else {
+      plt::DrawLuminosity( cfg.GetStaticDouble("Total Luminosity 2015") );
+   }
 
    TLatex tl;
    tl.SetNDC(kTRUE);
