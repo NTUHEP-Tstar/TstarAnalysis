@@ -3,10 +3,17 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include <vector>
 
 #include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
@@ -38,6 +45,8 @@ private:
    edm::Handle<MuonList>     _muonHandle;
    edm::Handle<ElectronList> _electronHandle;
 
+   edm::ESHandle<JetCorrectorParametersCollection> _jetcorHandle;
+
    BTagChecker _check;
 };
 
@@ -49,7 +58,7 @@ JetProducer::JetProducer(const edm::ParameterSet& iConfig):
    _jetsrc( consumes<JetList>(iConfig.getParameter<edm::InputTag>("jetsrc"))),
    _muonsrc( consumes<MuonList>(iConfig.getParameter<edm::InputTag>("muonsrc"))),
    _electronsrc(consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc"))),
-   _check("check" , CMSSWSrc()+"/TstarAnalysis/Common/settings/btagsf.csv" )
+   _check("check" , "./btagsf.csv" )
 {
    produces<JetList> ();
 }
@@ -69,8 +78,18 @@ bool JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::auto_ptr<JetList> selectedJets( new JetList );
 
+   // Getting jet Energy Correction information
+   iSetup.get<JetCorrectionsRecord>().get("AK4PF",_jetcorHandle);  // Tailored for AK4 Jets
+   const JetCorrectorParameters& JetCorPar = (*_jetcorHandle)["Uncertainty"];
+   JetCorrectionUncertainty jecunc(JetCorPar);
+
+   // Getting Jet Resolution information
+   const JME::JetResolution            jetptres ( JME::JetResolution::get(iSetup, "AK4PFchs_pt") );
+   const JME::JetResolution            jetetares( JME::JetResolution::get(iSetup, "AK4PFchs_phi") );
+   const JME::JetResolutionScaleFactor jetressf ( JME::JetResolutionScaleFactor::get(iSetup, "AK4PFchs") );
+
    unsigned num_bjets = 0;
-   for( const auto& jet : *(_jetHandle.product())){
+   for( auto& jet : *(_jetHandle.product())) {
       if( IsSelectedJet(jet)  ){
          selectedJets->push_back(jet);
          if( _check.PassMedium(jet,iEvent.isRealData()) ){
@@ -79,12 +98,21 @@ bool JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }
 
+   for( auto& jet : *selectedJets ){
+      AddJetVariables(
+         jet,
+         jecunc,
+         jetptres,
+         jetetares,
+         jetressf
+      );
+   }
+
    // Jet Selection criteria
    if( selectedJets->size() < 6 ){ return false; }
    if( num_bjets < 1 ){ return false; }
 
    iEvent.put( selectedJets );
-
    return true;
 }
 
@@ -98,7 +126,7 @@ bool JetProducer::IsSelectedJet( const pat::Jet& jet ) const
 
    // Jet ID Selection
    if( jet.neutralHadronEnergyFraction() > 0.99 ){ return false; }
-   if( jet.neutralEmEnergyFraction() > 0.99 ) { return false; }
+   if( jet.neutralEmEnergyFraction()     > 0.99 ) { return false; }
    if( jet.numberOfDaughters() <=1 ){ return false; }
    if( abs(jet.eta()) < 2.4 ){
       if( jet.chargedHadronEnergyFraction() <= 0 ){ return false; }

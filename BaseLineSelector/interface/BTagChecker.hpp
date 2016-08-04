@@ -11,8 +11,7 @@
 #ifndef TSTARANALYSIS_BASELINESELECTOR_BTAGCHECKER_HPP
 #define TSTARANALYSIS_BASELINESELECTOR_BTAGCHECKER_HPP
 
-#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
-#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "TstarAnalysis/Common/interface/BTagCalibrationStandalone.hpp"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include <string>
 
@@ -47,7 +46,7 @@ public:
 
 private:
    BTagCalibration _calib;
-   std::map< BTagEntry::OperatingPoint , std::map< const std::string , BTagCalibrationReader > > _reader_map;
+   std::map< BTagEntry::OperatingPoint , BTagCalibrationReader> _reader_map;
 
 };
 

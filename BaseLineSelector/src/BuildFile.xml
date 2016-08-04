@@ -1,6 +1,11 @@
 <use name="DataFormats/PatCandidates"/>
-<use name="CondFormats/BTauObjects"/>
-<use name="CondTools/BTau"/>
+<use name="JetMETCorrections/Modules"/>
+<use name="JetMETCorrections/Objects"/>
+<use name="CondFormats/JetMETObjects"/>
+
+<use name="TstarAnalysis/Common"/>
+<use name="ManagerUtils/PhysUtils"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -7,6 +7,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 #include <vector>
 
 typedef std::vector<pat::Muon> MuonList;
@@ -21,16 +22,18 @@ public:
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    // Public for use !
-   bool IsSelectedMuon( const pat::Muon& , const reco::Vertex& ) const ;
-   bool IsVetoMuon( const pat::Muon& ) const;
+   bool   IsSelectedMuon( const pat::Muon& , const reco::Vertex& ) const ;
+   bool   IsVetoMuon( const pat::Muon& ) const;
 private:
    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
    // Data Members
    const edm::EDGetTokenT<reco::VertexCollection> _vertexsrc;
+   const edm::EDGetTokenT<double>                 _rhosrc;
    const edm::EDGetTokenT<MuonList>               _muonsrc;
    const edm::EDGetTokenT<pat::PackedCandidateCollection> _packedsrc;
    edm::Handle<reco::VertexCollection>         _vertexHandle;
+   edm::Handle<double>                         _rhoHandle;
    edm::Handle<pat::PackedCandidateCollection> _packedHandle;
    edm::Handle<MuonList>                       _muonHandle;
 
@@ -43,9 +46,10 @@ private:
 //------------------------------------------------------------------------------
 
 MuonProducer::MuonProducer(const edm::ParameterSet& iConfig):
-   _vertexsrc( consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexsrc"))),
-   _muonsrc( consumes<MuonList>(iConfig.getParameter<edm::InputTag>("muonsrc"))),
-   _packedsrc( consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedsrc")))
+   _vertexsrc ( consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexsrc"))),
+   _rhosrc    ( consumes<double>                (iConfig.getParameter<edm::InputTag>("rhosrc"))),
+   _muonsrc   ( consumes<MuonList>              (iConfig.getParameter<edm::InputTag>("muonsrc"))),
+   _packedsrc ( consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedsrc")))
 {
    produces<MuonList>();
 }
@@ -59,6 +63,7 @@ MuonProducer::~MuonProducer()
 //------------------------------------------------------------------------------
 bool MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   iEvent.getByToken( _rhosrc    , _rhoHandle    );
    iEvent.getByToken( _muonsrc   , _muonHandle   );
    iEvent.getByToken( _vertexsrc , _vertexHandle );
    iEvent.getByToken( _packedsrc , _packedHandle );
@@ -115,7 +120,7 @@ bool MuonProducer::IsSelectedMuon( const pat::Muon& mu, const reco::Vertex& vtx 
    if( !mu.isTightMuon(vtx) ) { return false; }
    if( mu.pt()  < 30  ) { return false; }
    if( fabs(mu.eta()) > 2.1 ) { return false; }
-   if( mu.trackIso()/mu.pt() > 0.05 ){ return false; }
+   if( MuPfIso(mu) > MUPFISO_TIGHT ){ return false; }
    return true;
 }
 
@@ -124,7 +129,7 @@ bool MuonProducer::IsVetoMuon( const pat::Muon& mu ) const
    if( !mu.isLooseMuon() ) { return false; }
    if( mu.pt() < 15.0 )    { return false; }
    if( fabs(mu.eta()) > 2.4 ) { return false; }
-   if( mu.trackIso()/mu.pt() > 0.10 ){ return false; }
+   if( MuPfIso(mu) > MUPFISO_LOOSE ){ return false; }
    return true;
 }
 

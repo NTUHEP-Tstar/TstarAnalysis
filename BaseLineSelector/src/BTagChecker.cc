@@ -15,10 +15,16 @@ BTagChecker::BTagChecker( const string& tagger, const string& filename ):
    _calib( tagger, filename )
 {
    for( int i = BTagEntry::OP_LOOSE ; i != BTagEntry::OP_RESHAPING ; ++i ){
-      for( const auto& sys : {"central","up","down"} ){
-         _reader_map[BTagEntry::OperatingPoint(i)][sys]
-            = BTagCalibrationReader( &_calib, BTagEntry::OperatingPoint(i) , "comb", sys );
-      }
+      _reader_map[BTagEntry::OperatingPoint(i)] = BTagCalibrationReader(
+         BTagEntry::OP_LOOSE,  // operating point
+         "central",            // central sys type
+         {"up", "down"}
+      );      // other sys types
+      _reader_map[BTagEntry::OperatingPoint(i)].load(
+         _calib,
+         BTagEntry::FLAV_B,
+         "comb"
+      );
    }
 }
 
@@ -32,23 +38,17 @@ BTagChecker::~BTagChecker()
 //------------------------------------------------------------------------------
 bool BTagChecker::PassLoose( const pat::Jet& jet , bool IsData ) const
 {
-   double scalefactor = 1 ;
-   if( ! IsData ) scalefactor = GetLooseScaleFactor( jet );
-   return jet.bDiscriminator(DISCRIMTAG)*scalefactor > LOOSEWP_VAL ;
+   return jet.bDiscriminator(DISCRIMTAG) > LOOSEWP_VAL ;
 }
 
 bool BTagChecker::PassMedium( const pat::Jet& jet, bool IsData ) const
 {
-   double scalefactor = 1 ;
-   if( ! IsData ) scalefactor = GetMediumScaleFactor( jet );
-   return jet.bDiscriminator(DISCRIMTAG)*scalefactor > MEDIUMWP_VAL ;
+   return jet.bDiscriminator(DISCRIMTAG) > MEDIUMWP_VAL ;
 }
 
 bool BTagChecker::PassTight( const pat::Jet& jet, bool IsData ) const
 {
-   double scalefactor = 1 ;
-   if( ! IsData ) scalefactor = GetTightScaleFactor( jet );
-   return jet.bDiscriminator(DISCRIMTAG)*scalefactor > TIGHTWP_VAL ;
+   return jet.bDiscriminator(DISCRIMTAG) > TIGHTWP_VAL ;
 }
 
 
@@ -85,9 +85,10 @@ double BTagChecker::scalefactor(
    const std::string& sys
 ) const
 {
-   return _reader_map.at(op).at(sys).eval(
-         BTagEntry::FLAV_B,
-         jet.eta(),
-         jet.pt()
+   return _reader_map.at(op).eval_auto_bounds(
+      sys,
+      BTagEntry::FLAV_B,
+      jet.eta(),
+      jet.pt()
    );
 }

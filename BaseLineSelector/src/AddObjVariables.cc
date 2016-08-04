@@ -6,6 +6,8 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
 //------------------------------------------------------------------------------
 //   Muon Variables
@@ -29,7 +31,7 @@ void AddMuonVariables(
    mu.addUserInt("isHighPtMuon", isHighPtMuon );
 
    // See https://github.com/cmsb2g/B2GAnaFW/blob/master/src/MuonUserData.cc
-   double miniIso = GetPFMiniIsolation(
+   double miniIso = PFMiniIsolation(
          packedHandle ,
          dynamic_cast<const reco::Candidate*>(&mu),
          0.05,
@@ -42,12 +44,12 @@ void AddMuonVariables(
 //------------------------------------------------------------------------------
 //   Electron Variables
 //------------------------------------------------------------------------------
-extern void AddElectronVariables(
+void AddElectronVariables(
    pat::Electron& el,
    const edm::Handle<pat::PackedCandidateCollection>& packedHandle )
 {
    // See https://github.com/cmsb2g/B2GAnaFW/blob/master/src/MuonUserData.cc
-   double miniIso = GetPFMiniIsolation(
+   double miniIso = PFMiniIsolation(
          packedHandle ,
          dynamic_cast<const reco::Candidate*>(&el),
          0.05,
@@ -60,7 +62,24 @@ extern void AddElectronVariables(
 //------------------------------------------------------------------------------
 //   Jet Variables
 //------------------------------------------------------------------------------
-extern void AddJetVariables( pat::Jet& )
+void AddJetVariables(
+   pat::Jet& jet,
+   JetCorrectionUncertainty& jecunc, // Cannot be const!
+   const JME::JetResolution& jetptres,
+   const JME::JetResolution& jetphires,
+   const JME::JetResolutionScaleFactor& jetressf
+)
 {
+   // Caching jet correction uncertainty
+   jecunc.setJetPt( jet.pt() );
+   jecunc.setJetEta( jet.eta() );
+   jet.addUserFloat( "jecunc", jecunc.getUncertainty(true));
+
+   // Caching resolution information
+   JME::JetParameters jetparm;
+   jetparm.setJetPt( jet.pt() ).setJetEta( jet.eta() );
+   jet.addUserFloat( "respt" , jetptres.getResolution(jetparm)  );
+   jet.addUserFloat( "resphi", jetphires.getResolution(jetparm) );
+   jet.addUserFloat( "ressf" , jetressf.getScaleFactor(jetparm) );
 
 }

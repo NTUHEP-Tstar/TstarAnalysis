@@ -14,6 +14,8 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 //------------------------------------------------------------------------------
 //   Main Object part, see src/AddObjVariables.cc
@@ -29,18 +31,14 @@ extern void AddElectronVariables(
    const edm::Handle<pat::PackedCandidateCollection>&
 );
 
-extern void AddJetVariables( pat::Jet& );
+extern void AddJetVariables(
+   pat::Jet& ,
+   JetCorrectionUncertainty& jecunc, // Cannot be const!
+   const JME::JetResolution& jetptres,
+   const JME::JetResolution& jetphires,
+   const JME::JetResolutionScaleFactor& jetressf
+);
 
-//------------------------------------------------------------------------------
-//   Helper functions
-//------------------------------------------------------------------------------
-extern double GetPFMiniIsolation(
-   const edm::Handle<pat::PackedCandidateCollection>& pfcands,
-   const reco::Candidate* ptcl,
-   const double r_iso_min,
-   const double r_iso_max,
-   const double kt_scale,
-   const bool charged_only ); // in src/PFIsolation.cc
 
 
 #endif /* end of include guard: __OBJECTCACHE_HH__ */
