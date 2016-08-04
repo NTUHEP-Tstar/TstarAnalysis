@@ -29,8 +29,6 @@ void MakeComparePlot(
    background[3]->SetColor( TColor::GetColor("#33EEEE") );
    background[4]->SetColor( TColor::GetColor("#0066EE") );
 
-
-
    for( const auto& hist_name : background.front()->AvailableHistList() ){
       const unsigned bins = background.front()->Hist(hist_name)->GetXaxis()->GetNbins();
       const double   xmin = background.front()->Hist(hist_name)->GetXaxis()->GetXmin();
@@ -193,4 +191,21 @@ void MakeComparePlot(
       delete tb;
    }
 
+}
+
+
+void Normalize( SampleHistMgr* data, vector<SampleHistMgr*>& bgstack )
+{
+   for( const auto& histname : data->AvailableHistList() ){
+      double datamag = data->Hist(histname)->Integral();
+      double bgmag   = 0;
+      for( const auto mgr : bgstack ){
+         bgmag += mgr->Hist(histname)->Integral();
+      }
+
+      double scale = datamag/bgmag;
+      for( auto& mgr: bgstack ){
+         mgr->Hist(histname)->Scale(scale);
+      }
+   }
 }

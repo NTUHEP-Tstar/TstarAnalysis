@@ -42,6 +42,7 @@ void SampleHistMgr::define_hist()
    AddHist( "Jet5Pt"    , "Fifth Jet p_{T}"           , "GeV/c"     , 60 , 30   , 400.  );
    AddHist( "Jet6Pt"    , "Sixth Jet p_{T}"           , "GeV/c"     , 60 , 30   , 400.  );
    AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^{2}" , 50 , 0    , 2000  );
+   AddHist( "TstarZoom" , "M_{t+g}"                   , "GeV/c^{2}" , 50 , 350  , 2500  );
    AddHist( "ChiSq"     , "#chi^{2}"                  , ""          , 50 , 0    , 10000 );
    AddHist( "LepGluonPt", "Leptonic Gluon Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
    AddHist( "HadGluonPt", "Hadronic Gluon Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
@@ -110,9 +111,11 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
       Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
 
       Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
+      Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
       Hist("ChiSq"     )->Fill( chisqHandle->ChiSquare()     , total_weight );
       Hist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().ObservedP4().Pt() , total_weight  );
       Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().ObservedP4().Pt() , total_weight  );
+
    }
    cout << "Done!" << endl;
 }

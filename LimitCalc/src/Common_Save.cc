@@ -124,3 +124,16 @@ void PrintNuisanceFloats(
       bkg_nuisance.DataCardFormat().c_str()
    );
 }
+
+void PrintFloatParam(
+   FILE* card_file,
+   const RooRealVar* var
+){
+   fprintf(
+      card_file, "%s %s %lf %lf\n",
+      var->GetName(),
+      "param",
+      var->getVal(),
+      var->getError()
+   );
+}

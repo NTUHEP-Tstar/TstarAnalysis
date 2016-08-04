@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
       return 1;
    }
 
-   SampleRooFitMgr::ClearRooVars();
+   SampleRooFitMgr::ClearStaticVars();
 
    return 0;
 }

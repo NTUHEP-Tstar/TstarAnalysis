@@ -32,7 +32,7 @@ void InitRooFitSettings( const TstarNamer& x )
    const mgr::ConfigReader cfg( x.MasterConfigFile() );
    const double mass_min = cfg.GetStaticDouble( "Mass Min" );
    const double mass_max = cfg.GetStaticDouble( "Mass Max" );
-   SampleRooFitMgr::InitRooVars( mass_min, mass_max );
+   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
    SampleRooFitMgr::x().setRange("FitRange",mass_min,mass_max);
 }
 
@@ -40,8 +40,6 @@ void InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& sig_li
 {
    const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
    data = new SampleRooFitMgr( limit_namer.GetChannelEXT("Data Tag") , cfg );
-   data->MakeReduceDataSet("FitRange",RooFit::CutRange("FitRange"));
-
    for( const auto& signal_tag : cfg.GetStaticStringList("Signal List") ){
       sig_list.push_back( new SampleRooFitMgr( signal_tag, cfg ) );
    }

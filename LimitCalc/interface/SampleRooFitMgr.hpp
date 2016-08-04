@@ -1,9 +1,12 @@
 /*******************************************************************************
  *
  *  Filename    : SampleRooFitMgr.hh
- *  Description : RooFit object manager class
+ *  Description : RooFit object per SampleGroup management process
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
+ *  - For basic access functions and inititializing, see SampleRooFitMgr.cc
+ *  - For Pdf specialization, see SampleRooFitMgr_MakePdf.cc
+ *  - For DataSet filling functions, see SampleRooFitMgr_FillSet.cc
 *******************************************************************************/
 #ifndef __SAMPLE_ROOFIT_MGR_HH__
 #define __SAMPLE_ROOFIT_MGR_HH__
@@ -14,59 +17,69 @@
 #include <string>
 #include <vector>
 #include "RooRealVar.h"
-#include "RooDataHist.h"
 #include "RooDataSet.h"
 #include "RooAbsPdf.h"
+#include "RooKeysPdf.h"
 
 class SampleRooFitMgr : public mgr::SampleGroup
 {
 public:
-   SampleRooFitMgr( const std::string&, const mgr::ConfigReader& ); // Single Sample ( for signal )
+   SampleRooFitMgr( const std::string&, const mgr::ConfigReader& );
    ~SampleRooFitMgr();
 
    // Static member functions
-   static double MinMass() { return _min_mass; }
-   static double MaxMass() { return _max_mass; }
    static RooRealVar& x()  { return *_x; }
    static RooRealVar& w()  { return *_w; }
-   static void  InitRooVars(const double, const double) ;
-   static void  ClearRooVars();
+   static double MinMass() { return _min_mass; }
+   static double MaxMass() { return _max_mass; }
+   static void  InitStaticVars(const double, const double) ;
+   static void  ClearStaticVars();
 
-   // Additional access functions
-   RooDataSet* OriginalDataSet() { return _dataset; }
+   // RooRealVar Access member functions
+   RooRealVar*  NewVar( const std::string&, const double, const double);
+   RooRealVar*  NewVar( const std::string&, const double, const double, const double );
+   RooRealVar*          Var( const std::string& );
+   const RooRealVar*    Var( const std::string& ) const;
+   std::vector<std::string>   AvailableVarNameList()   const;
+   std::vector<RooRealVar*>&        VarList()       { return _varlist; }
+   const std::vector<RooRealVar*>&  VarList() const { return _varlist; }
+   std::vector<RooRealVar*>   VarContains( const std::string& ) const ;
+   void SetConstant(bool set=kTRUE);
 
-   // Making/Acessing extended dataset
-   RooDataSet* MakeReduceDataSet(
-      const std::string&,
-      const RooCmdArg&  ,
-      const RooCmdArg& = RooCmdArg() );
-   RooDataSet* GetReduceDataSet( const std::string& );
 
-   // Generic Data Adding ( for generated datasets )
-   std::string MakeDataAlias   ( const std::string& x ) const;
-   RooDataSet* GetDataFromAlias( const std::string& x ) ;
-   void        AddDataSet      ( RooDataSet*  ); // Note: this will automatically rename the object
-   void        AddDataHist     ( RooDataHist* );
-   void        RemoveDataSet   ( RooDataSet*   );
+   // DataSet access list
+   RooDataSet* NewDataSet( const std::string& );
+   void        AddDataSet( RooDataSet* );
+   RooDataSet*       DataSet( const std::string& name="" ); // Should contain a default dataset
+   const RooDataSet* DataSet( const std::string& name="" ) const ;
+   std::vector<RooDataSet*>&        SetList()       { return _setlist; }
+   const std::vector<RooDataSet*>&  SetList() const { return _setlist; }
+   std::vector<std::string>  AvailableSetNameList() const;
+   void RemoveDataSet( const std::string& );
 
-   // Adding/Accessing pdfs
-   std::vector<RooRealVar*>  MakePDF( const std::string& functag, const std::string& alias );
+   // PDF making functions
+   RooAbsPdf*  NewPdf     ( const std::string& name, const std::string& type ); // Specialized functions! see SampleRooFitMgr_MakePdf.cc
+   RooKeysPdf* MakeKeysPdf( const std::string& name, const std::string& dataset="" ); // Specialization for RooKeysPdf
    void        AddPdf( RooAbsPdf* );
-   std::string MakePdfAlias( const std::string& x ) const;
-   RooAbsPdf*  GetPdfFromAlias( const std::string& x );
-   RooAbsPdf*  GetPdfFromName( const std::string& x );
+   RooAbsPdf*       Pdf( const std::string& );
+   const RooAbsPdf* Pdf( const std::string& ) const ;
+   std::vector<RooAbsPdf*>&       PdfList()       { return _pdflist; }
+   const std::vector<RooAbsPdf*>& PdfList() const { return _pdflist; }
+   std::vector<std::string> AvailablePdfNameList() const;
+
 
 private:
    static double _min_mass;
    static double _max_mass;
    static RooRealVar* _x;
    static RooRealVar* _w;
-   RooDataSet* _dataset;
-   std::vector<RooDataSet*>  _ext_dataset;
-   std::vector<RooDataHist*> _binned_dataset;
-   std::vector<RooAbsPdf*>   _pdf_list;
+   std::vector<RooRealVar*>  _varlist;
+   std::vector<RooDataSet*>  _setlist;
+   std::vector<RooAbsPdf*>   _pdflist;
 
-   void FillDataSet( mgr::SampleMgr& );
+   // Filling functions specific to this analysis, see SampleRooFitMgr_FillSet.cc
+   void definesets();
+   void fillsets( mgr::SampleMgr& );
 };
 
 #endif /* end of include guard: __SAMPLE_ROOFIT_MGR_HH__ */

@@ -6,7 +6,6 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
-#include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
@@ -29,16 +28,15 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
    vector<RooAbsPdf*> sig_pdf_list;
 
    for( auto& sig : signal_list ){
-      sig->MakePDF("Key",tag);
-      sig_pdf_list.push_back( sig->GetPdfFromAlias(tag) );
+      sig_pdf_list.push_back( sig->MakeKeysPdf(tag) );
    }
    RooFitResult* err = MakeBGFromMC(bg);
    MakeTemplatePlot( data, bg, signal_list.front(), err , true );
    MakeTemplatePlot( data, bg, signal_list.front(), err , false );
 
    SaveRooWorkSpace(
-      data->GetDataFromAlias( dataset_alias ),
-      {bg->GetPdfFromAlias(tag)},
+      data->DataSet( dataset_alias ),
+      {bg->Pdf(tag)},
       sig_pdf_list,
       {err}
    ); // See src/RooFit_Common.cc
@@ -52,10 +50,9 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 //------------------------------------------------------------------------------
 RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
 {
-   bg->MakePDF( limit_namer.GetInput("fitfunc"), tag );
-   RooAbsPdf*    bg_pdf  =  bg->GetPdfFromAlias( tag );
+   RooAbsPdf*    bg_pdf  = bg->NewPdf( tag, limit_namer.GetInput("fitfunc") );
    RooFitResult* results =  bg_pdf->fitTo(
-      *(bg->OriginalDataSet()) ,
+      *(bg->DataSet()) ,
       RooFit::Save() ,            // Suppressing output
       RooFit::SumW2Error(kTRUE),  // For Weighted dataset
       RooFit::Range("FitRange"),  // Fitting range
@@ -65,16 +62,16 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
       RooFit::PrintEvalErrors(-1),
       RooFit::Warnings(kFALSE)
    );
-   var_mgr.SetConstant();
+   bg->SetConstant(kTRUE);//Freezing constants
    return results;
 }
 
 void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
 {
-   RooDataSet* data_obs = data->GetReduceDataSet(dataset_alias);
-   RooAbsPdf*  bg_pdf   = bg->GetPdfFromAlias(tag);
-   RooDataSet* sig_set  = sig->OriginalDataSet();
-   RooAbsPdf*  sig_pdf  = sig->GetPdfFromAlias(tag);
+   RooDataSet* data_obs = data->DataSet(dataset_alias);
+   RooAbsPdf*  bg_pdf   = bg->Pdf(tag);
+   RooDataSet* sig_set  = sig->DataSet();
+   RooAbsPdf*  sig_pdf  = sig->Pdf(tag);
 
    FILE* card_file = MakeCardCommon( data_obs, bg_pdf, sig_pdf, sig->Name() );
 
@@ -117,38 +114,37 @@ void tmplt::MakeTemplatePlot(
    TGraph* sig_plot;
    TGraph* set_plot;
 
-
    if( use_data ){
-      set_plot = PlotOn( frame, data->OriginalDataSet() );
+      set_plot = PlotOn( frame, data->DataSet(dataset_alias) );
       pdf_plot_err= PlotOn(
-         frame, mc->GetPdfFromAlias(tag),
+         frame, mc->Pdf(tag),
          RooFit::VisualizeError(*err,1),
          RooFit::Range("FitRange"),
-         RooFit::Normalization( data->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+         RooFit::Normalization( data->DataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       pdf_plot = PlotOn(
-         frame, mc->GetPdfFromAlias(tag),
+         frame, mc->Pdf(tag),
          RooFit::Range("FitRange") ,
-         RooFit::Normalization( data->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+         RooFit::Normalization( data->DataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
-      set_plot = PlotOn( frame, data->OriginalDataSet() );
+      set_plot = PlotOn( frame, data->DataSet() );
    } else {
-      set_plot = PlotOn( frame, mc->OriginalDataSet() );
+      set_plot = PlotOn( frame, mc->DataSet() );
       pdf_plot_err= PlotOn(
-         frame, mc->GetPdfFromAlias(tag),
+         frame, mc->Pdf(tag),
          RooFit::VisualizeError(*err,1),
          RooFit::Range("FitRange"),
-         RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+         RooFit::Normalization( mc->DataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       pdf_plot = PlotOn(
-         frame, mc->GetPdfFromAlias(tag),
+         frame, mc->Pdf(tag),
          RooFit::Range("FitRange") ,
-         RooFit::Normalization( mc->OriginalDataSet()->sumEntries() , RooAbsReal::NumEvent )
+         RooFit::Normalization( mc->DataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
-      set_plot = PlotOn( frame, data->OriginalDataSet() );
+      set_plot = PlotOn( frame, data->DataSet() );
    }
    sig_plot = PlotOn(
-      frame, signal->GetPdfFromAlias(tag),
+      frame, signal->Pdf(tag),
       RooFit::DrawOption("LB"),
       RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
    );

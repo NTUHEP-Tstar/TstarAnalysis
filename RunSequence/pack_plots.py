@@ -32,3 +32,4 @@ for direc in dirlist:
             os.system( 'cp {} {}'.format(plotfile,newname) )
 
 os.system('tar -zcvf results.tar.gz results')
+os.system("rm ./results -rf")

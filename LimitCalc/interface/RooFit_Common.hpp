@@ -54,7 +54,8 @@ void MakeValidationPlot(
 );
 void MakeCardFile(
    SampleRooFitMgr* data,
-   SampleRooFitMgr* sig
+   SampleRooFitMgr* sig,
+   RooFitResult*    err
 );
 };
 
@@ -139,4 +140,9 @@ extern void PrintNuisanceFloats(
    const std::string& nuisance_type,
    const Parameter& sig_nuisance, // Leave (0,0,0) if skip
    const Parameter& bkg_nuisance
+);
+
+extern void PrintFloatParam(
+   FILE*,
+   const RooRealVar*
 );

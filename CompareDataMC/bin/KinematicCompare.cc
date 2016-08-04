@@ -21,6 +21,10 @@ extern void MakeComparePlot(
    SampleHistMgr* signal,
    const string label = ""
 );
+extern void Normalize(
+   SampleHistMgr* data,
+   vector<SampleHistMgr*>& bg
+);
 
 //------------------------------------------------------------------------------
 //   Main control flow
@@ -38,9 +42,9 @@ int main(int argc, char* argv[])
 
    InitSampleStatic( compare_namer );
 
+
    const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
    const string           data_tag = compare_namer.GetChannelEXT("Data Tag");
-
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( data_tag , master );
    // Defining out channels see data/Groups.json for sample settings
@@ -54,18 +58,11 @@ int main(int argc, char* argv[])
    // Declaring sample sample
    SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , master );
 
-   // Making combined stack plots src/KinematicComp:are.cc
+   // Making combined stack plots
    MakeComparePlot( data, background, signal_mgr );
 
    // Normalizing MC to data
-   Parameter bg_original_yield(0,0,0);
-   for( const auto sample : background ){
-      bg_original_yield += sample->ExpectedYield();
-   }
-   const double bg_scale = data->EventsInFile()/bg_original_yield.CentralValue();
-   for( auto sample: background){
-      sample->Scale(bg_scale);
-   }
+   Normalize( data, background );
 
    MakeComparePlot( data, background, signal_mgr , "normalized");
 

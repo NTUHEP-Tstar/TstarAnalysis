@@ -6,12 +6,6 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
-#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
-
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
-#include "DataFormats/FWLite/interface/Handle.h"
-
-#include <cstdio>
 
 using namespace std;
 using namespace mgr;
@@ -20,19 +14,19 @@ using namespace mgr;
 //------------------------------------------------------------------------------
 double SampleRooFitMgr::_min_mass = 0 ;
 double SampleRooFitMgr::_max_mass = 0 ;
-RooRealVar* SampleRooFitMgr::_x    = NULL;
-RooRealVar* SampleRooFitMgr::_w    = NULL;
+RooRealVar* SampleRooFitMgr::_x   = NULL;
+RooRealVar* SampleRooFitMgr::_w   = NULL;
 
-void SampleRooFitMgr::InitRooVars( const double min, const double max )
+void SampleRooFitMgr::InitStaticVars( const double min, const double max )
 {
-   ClearRooVars();
+   ClearStaticVars();
    _x = new RooRealVar( "x" , "M_{t+g}"      , min   , max , "GeV/c^{2}" );
    _w = new RooRealVar( "w" , "event_weight" , -1000., 1000, "");
    _min_mass = min;
    _max_mass = max;
 }
 
-void SampleRooFitMgr::ClearRooVars()
+void SampleRooFitMgr::ClearStaticVars()
 {
    if( _x != NULL) { delete _x; }
    if( _w != NULL) { delete _w; }
@@ -46,158 +40,213 @@ SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ):
    Named( name ),
    SampleGroup(name, cfg )
 {
-   SampleRooFitMgr::x().setBins(40); // 40 bins for plotting
-   _dataset = new RooDataSet(
-      Name().c_str(), Name().c_str(),
-      RooArgSet(x(),w()),
-      RooFit::WeightVar(w())
-   );
+   definesets();
    for( auto& sample : SampleList() ){
-      FillDataSet( *sample );
+      fillsets( *sample );
    }
 }
 
 SampleRooFitMgr::~SampleRooFitMgr()
 {
-   delete _dataset;
-   for( auto& dataset : _ext_dataset ){
-      delete dataset;
-   }
-   for( auto& datahist: _binned_dataset ){
-      delete datahist;
-   }
-   for( auto& pdf : _pdf_list){
-      delete pdf;
-   }
-   delete _x;
-   delete _w;
-}
-
-//------------------------------------------------------------------------------
-//   Filling original dataset
-//------------------------------------------------------------------------------
-void SampleRooFitMgr::FillDataSet( mgr::SampleMgr& sample )
-{
-   fwlite::Handle<LHEEventProduct>  lheHandle;
-   fwlite::Handle<RecoResult>  chiHandle;
-   double sample_weight =  1. ;
-
-   if( !sample.IsRealData() ){
-      sample_weight = sample.GetSampleWeight();
-   }
-
-   unsigned i = 0 ;
-   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() ){
-      printf( "\rSample [%s|%s], Event[%6u/%6llu]..." ,
-         Name().c_str(),
-         sample.Name().c_str(),
-         ++i ,
-         sample.Event().size() );
+   for( auto& var : _varlist ) {
+      printf("%30s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
       fflush(stdout);
-
-      chiHandle.getByLabel( sample.Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
-      if( !sample.IsRealData() ){
-         lheHandle.getByLabel( sample.Event() , "externalLHEProducer" );
-      }
-
-      double tstarMass = chiHandle->TstarMass() ;
-      double event_weight = 1.0 ;
-      if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ) { event_weight = -1.; }
-      double weight = event_weight * sample_weight ;
-      if( MinMass() <=tstarMass && tstarMass <= MaxMass()  &&
-          -1000.    <= weight   && weight    <= 1000. ){
-         x() = tstarMass;
-         _dataset->add( RooArgSet(x()) , weight );
-      }
+      delete var;
    }
-   cout << "Done!" << endl;
+   for( auto& set : _setlist ) { delete set; }
+   for( auto& pdf : _pdflist ) { delete pdf; }
+
+   ClearStaticVars();
 }
 
 //------------------------------------------------------------------------------
-//   Dataset augmentation
+//   Variable access functions
 //------------------------------------------------------------------------------
-RooDataSet* SampleRooFitMgr::MakeReduceDataSet(
-   const string& name ,
-   const RooCmdArg& arg1,
-   const RooCmdArg& arg2 )
+RooRealVar*  SampleRooFitMgr::NewVar( const std::string& name, const double min, const double max )
 {
-   const string new_name = Name() + name;
-   _ext_dataset.push_back( (RooDataSet*) _dataset->reduce(
-      RooFit::Name(new_name.c_str()),
-      RooFit::Title(new_name.c_str()),
-      arg1,
-      arg2 ) );
-   return _ext_dataset.back();
+   if( Var(name) ){ // If it already exists
+      RooRealVar* var = Var(name);
+      var->setConstant(kFALSE);
+      var->setMax(max);
+      var->setMin(min);
+      return var;
+   } else {
+      const string varname = Name()+name;
+      RooRealVar* var = new RooRealVar( varname.c_str(), varname.c_str(), min, max );
+      _varlist.push_back( var );
+      return var;
+   }
 }
 
-RooDataSet* SampleRooFitMgr::GetReduceDataSet( const string& name )
+RooRealVar*  SampleRooFitMgr::NewVar( const std::string& name, const double init, const double min, const double max )
 {
-   for( auto dataset : _ext_dataset ){
-      if( dataset->GetName() == MakeDataAlias(name) ){
-         return dataset;
+   if( Var(name) ){ // If it already exists
+      RooRealVar* var = Var(name);
+      var->setConstant(kFALSE);
+      var->setMax(max);
+      var->setMin(min);
+      *var = init;
+      return var;
+   } else {
+      const string varname = Name()+name;
+      RooRealVar* var = new RooRealVar( varname.c_str(), varname.c_str(), init, min, max );
+      _varlist.push_back( var );
+      return  var;
+   }
+}
+
+RooRealVar* SampleRooFitMgr::Var( const std::string& name )
+{
+   for( auto& var : _varlist ){
+      if( (Name()+name)  == var->GetName() ){
+         return var;
       }
    }
-   return (RooDataSet*)(_dataset);
+   return NULL;
+}
+const RooRealVar* SampleRooFitMgr::Var( const std::string& name ) const
+{
+   for( const auto& var : _varlist ){
+      if( (Name()+name)  == var->GetName() ){
+         return var;
+      }
+   }
+   return NULL;
 }
 
-void SampleRooFitMgr::AddDataSet( RooDataSet* x )
+vector<string>  SampleRooFitMgr::AvailableVarNameList()   const
 {
-   _ext_dataset.push_back( x );
+   vector<string> ans;
+   for( const auto& var : _varlist ){
+      string name = var->GetName();
+      name.erase( 0 , Name().length() );
+      ans.push_back( name );
+   }
+   return ans;
 }
 
-void SampleRooFitMgr::AddDataHist( RooDataHist* x )
+vector<RooRealVar*> SampleRooFitMgr::VarContains( const string& substring) const
 {
-   _binned_dataset.push_back( x );
+   vector<RooRealVar*> ans;
+   for( const auto& var : _varlist ){
+      string varname = var->GetName();
+      if( varname.find(substring)!= string::npos ){
+         ans.push_back(var);
+      }
+   }
+   return ans;
 }
 
-RooDataSet* SampleRooFitMgr::GetDataFromAlias( const string& name )
+void SampleRooFitMgr::SetConstant( bool x )
 {
-   return GetReduceDataSet(name);
+   for( auto& var : _varlist ){
+      var->setConstant(x);
+   }
 }
 
-std::string SampleRooFitMgr::MakeDataAlias( const string& name ) const
+//------------------------------------------------------------------------------
+//   Dataset argument options
+//------------------------------------------------------------------------------
+RooDataSet* SampleRooFitMgr::NewDataSet( const std::string& name )
 {
-   return Name() + name;
+   if(DataSet(name)){
+      return DataSet(name);
+   } else {
+      const string setname = Name() + name;
+      RooDataSet* set = new RooDataSet(
+         setname.c_str(), setname.c_str(),
+         RooArgSet( x(), w() ),
+         RooFit::WeightVar(w())
+      );
+      _setlist.push_back( set );
+      return set;
+   }
 }
 
-void SampleRooFitMgr::RemoveDataSet( RooDataSet* target )
+void  SampleRooFitMgr::AddDataSet( RooDataSet* set )
 {
-   for( auto x = _ext_dataset.begin() ; x != _ext_dataset.end() ; ++ x  ){
-      if( (*x) == target ){
-         _ext_dataset.erase(x);
+   const string newname = Name() + set->GetName();
+   set->SetName( newname.c_str() );
+   _setlist.push_back( set );
+}
+
+RooDataSet*  SampleRooFitMgr::DataSet( const std::string& name )
+{
+   for( auto& set : _setlist ){
+      if( (Name()+name)  == set->GetName() ){
+         return set;
+      }
+   }
+   return NULL;
+}
+
+const RooDataSet*  SampleRooFitMgr::DataSet( const std::string& name ) const
+{
+   for( const auto& set : _setlist ){
+      if( (Name()+name)  == set->GetName() ){
+         return set;
+      }
+   }
+   return NULL;
+}
+
+vector<std::string>  SampleRooFitMgr::AvailableSetNameList() const
+{
+   vector<string> ans;
+   for( const auto& set : _setlist ){
+      string name = set->GetName();
+      name.erase( 0 , Name().length() );
+      ans.push_back( name );
+   }
+   return ans;
+}
+
+void SampleRooFitMgr::RemoveDataSet( const std::string& name )
+{
+   for( auto x = _setlist.begin() ; x != _setlist.end() ; ++x ){
+      if( (*x)->GetName() == Name() + name ) {
+         _setlist.erase(x);
          return;
       }
    }
 }
 
 //------------------------------------------------------------------------------
-//   PDF Related functions
+//   PDF Access functions, for making pdf for analysis see SampleRooFitMgr_MakePdf.cc
 //------------------------------------------------------------------------------
-void SampleRooFitMgr::AddPdf( RooAbsPdf* x ){
-   _pdf_list.push_back(x);
-}
-
-RooAbsPdf* SampleRooFitMgr::GetPdfFromName( const string& name )
+void  SampleRooFitMgr::AddPdf( RooAbsPdf*  pdf)
 {
-   for( auto pdf : _pdf_list ){
-      if( pdf->GetName() == name ){
+   const string newname = Name() + pdf->GetName();
+   pdf->SetName( newname.c_str() );
+   _pdflist.push_back( pdf );
+}
+RooAbsPdf*  SampleRooFitMgr::Pdf( const std::string& name )
+{
+   for( auto& pdf : _pdflist ){
+      if( (Name()+name)  == pdf->GetName() ){
          return pdf;
       }
    }
    return NULL;
 }
 
-RooAbsPdf* SampleRooFitMgr::GetPdfFromAlias( const string& alias )
+const RooAbsPdf*  SampleRooFitMgr::Pdf( const std::string& name ) const
 {
-   for( auto pdf : _pdf_list ){
-      if( pdf->GetName() == MakePdfAlias(alias) ){
+   for( const auto& pdf : _pdflist ){
+      if( (Name()+name)  == pdf->GetName() ){
          return pdf;
       }
    }
    return NULL;
 }
 
-string SampleRooFitMgr::MakePdfAlias( const string& alias ) const
+vector<std::string>  SampleRooFitMgr::AvailablePdfNameList() const
 {
-   return Name() + alias + "_pdf";
+   vector<string> ans;
+   for( const auto& pdf : _pdflist ){
+      string name = pdf->GetName();
+      name.erase( 0 , Name().length() );
+      ans.push_back( name );
+   }
+   return ans;
 }

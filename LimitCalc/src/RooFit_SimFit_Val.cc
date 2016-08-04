@@ -7,7 +7,6 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
-#include "TstarAnalysis/LimitCalc/interface/VarMgr.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
@@ -26,19 +25,18 @@ using namespace std;
 void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
    RooFitResult* bgconstrain = tmplt::MakeBGFromMC( mc );
-   const string funcname = mc->MakePdfAlias("template");
-   const double bkgnum   = data->OriginalDataSet()->sumEntries();
+   const double bkgnum   = data->DataSet()->sumEntries();
    const double signum   = limit_namer.HasOption("relmag") ?
       sigmgr->ExpectedYield().CentralValue() * limit_namer.InputDou("relmag") :
       limit_namer.InputDou("absmag")
    ;
-   const double param1 = var_mgr.FindByName("a"+funcname)->getVal();
-   const double param2 = var_mgr.FindByName("b"+funcname)->getVal();
+   vector<RooRealVar*> paramlist = mc->VarContains("template");
+   const double param1 = paramlist[0]->getVal();
+   const double param2 = paramlist[1]->getVal();
    TRandom ran;
 
-   sigmgr->MakePDF( "Key", "key" );
-   RooAbsPdf* bkgfunc =  mc->GetPdfFromAlias("template");
-   RooAbsPdf* sigfunc =  sigmgr->GetPdfFromAlias("key");
+   RooAbsPdf* bkgfunc =  mc->Pdf("template");
+   RooAbsPdf* sigfunc =  sigmgr->MakeKeysPdf( "key" );
 
    const string strgthtag = val::SigStrengthTag();
    FILE* result = fopen( limit_namer.TextFileName("valsimfit" , {strgthtag}).c_str(), "w" );
@@ -46,31 +44,30 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
 
    for( int i = 0 ; i < limit_namer.InputInt("num") ; ++i ){
       dataset_alias = "valgen";
-      const string psuedoname    = data->MakeDataAlias(dataset_alias);
       const int genbkgnum = ran.Poisson( bkgnum );
       const int gensignum = ran.Poisson( signum );
 
       RooDataSet* psuedoset = bkgfunc->generate(
          SampleRooFitMgr::x(),
          genbkgnum,
-         RooFit::Name(psuedoname.c_str())
+         RooFit::Name(dataset_alias.c_str())
       );
       RooDataSet* sigset = sigfunc->generate(
          SampleRooFitMgr::x(),
          gensignum
       );
       psuedoset->append( *sigset );
-      data->AddDataSet(psuedoset );
+      data->AddDataSet( psuedoset );
       // Running sim fit
-      var_mgr.SetConstant(kFALSE);
+      data->SetConstant(kFALSE);
       smft::FitPDFs( data, sigmgr, bgconstrain );
 
       // Getting results
-      const string psuedobgname = data->MakePdfAlias( "bg"+sigmgr->Name() );
-      const RooRealVar* bkgfit = var_mgr.FindByName( "nb"+sigmgr->Name() );
-      const RooRealVar* sigfit = var_mgr.FindByName( "ns"+sigmgr->Name() );
-      const RooRealVar* p1fit  = var_mgr.FindByName( "a"+psuedobgname );
-      const RooRealVar* p2fit  = var_mgr.FindByName( "b"+psuedobgname );
+      const string psuedobgname = "bg"+sigmgr->Name();
+      const RooRealVar* bkgfit = data->Var( sigmgr->Name()+"nb" );
+      const RooRealVar* sigfit = data->Var( sigmgr->Name()+"ns" );
+      const RooRealVar* p1fit  = data->Var( psuedobgname + "a" );
+      const RooRealVar* p2fit  = data->Var( psuedobgname + "b" );
       fprintf(
          result, "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf\n",
          bkgfit->getVal() , bkgfit->getError(),
@@ -80,7 +77,7 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
       );
 
 
-      data->RemoveDataSet( psuedoset );
+      data->RemoveDataSet( dataset_alias );
 
       delete psuedoset;
       delete sigset;
