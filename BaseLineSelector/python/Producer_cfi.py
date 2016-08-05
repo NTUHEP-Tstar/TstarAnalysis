@@ -8,6 +8,7 @@ selectedMuons = cms.EDFilter(
     vertexsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
     muonsrc   = cms.InputTag("slimmedMuons"),
     packedsrc = cms.InputTag("packedPFCandidates"),
+    rhosrc    = cms.InputTag("fixedGridRhoFastjetAll")
 )
 
 skimmedPatMuons = cms.EDFilter(

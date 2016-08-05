@@ -15,7 +15,7 @@ import FWCore.ParameterSet.VarParsing as opts
 options = opts.VarParsing('analysis')
 
 options.register( 'sample',
-    'file:////afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TTJets.root',
+    'file:///afs/cern.ch/work/y/yichen/MiniAOD/MC_76X/Tstar_M1000.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -54,6 +54,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Services_cff')
+process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("RecoEgamma.ElectronIdentification.ElectronIDValueMapProducer_cfi")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -87,6 +88,7 @@ process.hltfilter = hltHighLevel.clone(
     TriggerResultsTag = "TriggerResults::HLT",
     HLTPaths = requiredHLTs
 )
+
 if '80X_mcRun2_asymptotic_2016_miniAODv2_v1' == options.GlobalTag:
     process.hltfilter.TriggerResultsTag = "TriggerResults::HLT2"
 
