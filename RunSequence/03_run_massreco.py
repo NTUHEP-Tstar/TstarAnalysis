@@ -39,7 +39,7 @@ def main():
             glob_query = my_name.GetStoreGlob('tstarbaseline',data_set,  opt.mode)
             file_master_list = glob.glob( glob_query )
 
-            file_chunks = [file_master_list[i:i+16] for i in range(0, len(file_master_list), 16)]
+            file_chunks = [file_master_list[i:i+8] for i in range(0, len(file_master_list), 8)]
 
             for index, file_list in enumerate(file_chunks):
                 file_list = ['file://'+x for x in file_list ]

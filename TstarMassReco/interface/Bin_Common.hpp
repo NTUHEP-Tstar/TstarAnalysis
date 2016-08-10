@@ -8,7 +8,10 @@
 #ifndef TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP
 #define TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP
 
+#include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
+#include "TstarAnalysis/TstarMassReco/interface/ScaleHistMgr.hpp"
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "TstarAnalysis/Common/interface/InitSampleStatic.hpp"
 
 
 //------------------------------------------------------------------------------
@@ -21,5 +24,10 @@ extern TstarNamer reconamer;
 //------------------------------------------------------------------------------
 extern void ComparePlot( const std::string&, const std::vector<CompareHistMgr*> );
 extern void MatchPlot( CompareHistMgr* );
+
+//------------------------------------------------------------------------------
+//   Plotting functions for comparing effects of scale ;
+//------------------------------------------------------------------------------
+extern void ScalePlot( ScaleHistMgr* );
 
 #endif /* end of include guard: TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP */

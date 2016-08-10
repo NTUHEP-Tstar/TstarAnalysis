@@ -7,6 +7,10 @@
 *******************************************************************************/
 #include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
+#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
+
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
 
 #include "TLorentzVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -19,8 +23,8 @@
 //------------------------------------------------------------------------------
 //   Helper functions
 //------------------------------------------------------------------------------
-Particle_Label GetJetType( const reco::GenParticle* );
-Particle_Label GetLeptonType( const reco::GenParticle* );
+tstar::Particle_Label GetJetType( const reco::GenParticle* );
+tstar::Particle_Label GetLeptonType( const reco::GenParticle* );
 
 //------------------------------------------------------------------------------
 //   Main control flow functions
@@ -37,19 +41,25 @@ TLorentzVector ConvertToRoot( const CLHEP::HepLorentzVector& x )
 
 FitParticle MakeResultJet( const pat::Jet* jet, int x )
 {
+   static BTagChecker bcheck("check", CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" );
+
    FitParticle ans ;
-   ans.ObservedP4() = ConvertToRoot( *jet );
-   ans.FittedP4()   = ConvertToRoot( *jet ); // Requires overwrite for HitFit
-   ans.TypeFromFit()= (Particle_Label)(x);
-   ans.IsBTagged()  = ( jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ) ;
+   ans.P4(tstar::original )  = ConvertToRoot( *jet );
+   // Making smeared jet momentums
+   ans.P4(tstar::res_up   )  = ans.P4(tstar::original) * (1. + jet->userFloat("respt"));
+   ans.P4(tstar::res_down )  = ans.P4(tstar::original) * (1. - jet->userFloat("respt"));
+   ans.P4(tstar::corr_up  )  = ans.P4(tstar::original) * (1. + jet->userFloat("jecunc"));
+   ans.P4(tstar::corr_down)  = ans.P4(tstar::original) * (1. - jet->userFloat("jecunc"));
+   ans.TypeFromFit() = (tstar::Particle_Label)(x);
+   ans.IsBTagged()   = ( bcheck.PassMedium(*jet,true) ) ;
 
    if( jet->genParton() ){
-      ans.GenP4() = ConvertToRoot( *(jet->genParton()) );
+      ans.P4(tstar::gen)  = ConvertToRoot( *(jet->genParton()) );
       ans.TypeFromTruth() = GetJetType( jet->genParton() );
-      ans.TruthFlavour() = jet->hadronFlavour();
+      ans.TruthFlavour()  = jet->hadronFlavour();
    } else {
-      ans.GenP4() = ConvertToRoot( *jet );
-      ans.TypeFromTruth() = unknown_label;
+      ans.P4(tstar::gen)  = TLorentzVector(0,0,0,0);
+      ans.TypeFromTruth() = tstar::unknown_label;
       ans.TruthFlavour()  = 0;
    }
 
@@ -59,10 +69,9 @@ FitParticle MakeResultJet( const pat::Jet* jet, int x )
 FitParticle MakeResultMET( const pat::MET* met )
 {
    FitParticle ans;
-   ans.ObservedP4() = ConvertToRoot( *met ) ;
-   ans.GenP4() = ConvertToRoot( *met );
-   ans.TypeFromFit()   = neutrino_label;
-   ans.TypeFromTruth() = unknown_label;
+   ans.P4(tstar::original)    = ConvertToRoot( *met ) ;
+   ans.TypeFromFit()   = tstar::neutrino_label;
+   ans.TypeFromTruth() = tstar::unknown_label;
    ans.IsBTagged() = false;
    ans.TruthFlavour() = 0 ;
    return ans;
@@ -72,17 +81,16 @@ FitParticle MakeResultMuon( const pat::Muon* lepton )
 {
    FitParticle ans;
 
-   ans.ObservedP4() = ConvertToRoot( *lepton );
-   ans.FittedP4()   = ConvertToRoot( *lepton );
-   ans.TypeFromFit()= muon_label;
+   ans.P4(tstar::original) = ConvertToRoot( *lepton );
+   ans.TypeFromFit()= tstar::muon_label;
 
    if( lepton->genLepton() ){
       const reco::GenParticle* gen =  lepton->genLepton();
-      ans.GenP4() = ConvertToRoot( *gen );
+      ans.P4(tstar::gen)  = ConvertToRoot( *gen );
       ans.TypeFromTruth() = GetLeptonType( gen ) ;
    } else {
-      ans.GenP4().SetPtEtaPhiE(0,0,0,0);
-      ans.TypeFromTruth() = unknown_label;
+      ans.P4(tstar::gen) = TLorentzVector(0,0,0,0);
+      ans.TypeFromTruth() = tstar::unknown_label;
    }
    ans.IsBTagged()    = false;
    ans.TruthFlavour() = 0 ;
@@ -94,44 +102,16 @@ FitParticle MakeResultElectron( const pat::Electron* lepton )
 {
    FitParticle ans;
 
-   ans.ObservedP4() = ConvertToRoot( *lepton );
-   ans.FittedP4()   = ConvertToRoot( *lepton );
-   ans.TypeFromFit()= electron_label;
+   ans.P4(tstar::original) = ConvertToRoot( *lepton );
+   ans.TypeFromFit()= tstar::electron_label;
 
    if( lepton->genLepton() ){
       const reco::GenParticle* gen =  lepton->genLepton();
-      ans.GenP4() = ConvertToRoot( *gen );
+      ans.P4(tstar::gen)  = ConvertToRoot( *gen );
       ans.TypeFromTruth() = GetLeptonType( gen ) ;
    } else {
-      ans.GenP4().SetPtEtaPhiE(0,0,0,0);
-      ans.TypeFromTruth() = unknown_label;
-   }
-   ans.IsBTagged()    = false;
-   ans.TruthFlavour() = 0 ;
-
-   return ans;
-}
-
-FitParticle MakeResultLepton( const reco::RecoCandidate* lepton )
-{
-   FitParticle ans;
-
-   ans.ObservedP4() = ConvertToRoot( *lepton );
-   ans.FittedP4()   = ConvertToRoot( *lepton );
-
-   if( ((const pat::Electron*)(lepton))->genLepton() ){
-      ans.TypeFromFit()= electron_label;
-      const reco::GenParticle* gen =  ((const pat::Electron*)(lepton))->genLepton();
-      ans.GenP4() = ConvertToRoot( *gen );
-      ans.TypeFromTruth() = GetLeptonType( gen ) ;
-   } else if( ((const pat::Muon*)(lepton))->genLepton() ){
-      ans.TypeFromFit()= muon_label;
-      const reco::GenParticle* gen =  ((const pat::Muon*)(lepton))->genLepton();
-      ans.GenP4() = ConvertToRoot( *gen );
-      ans.TypeFromTruth() = GetLeptonType( gen ) ;
-   } else {
-      ans.GenP4().SetPtEtaPhiE(0,0,0,0);
-      ans.TypeFromTruth() = unknown_label;
+      ans.P4(tstar::gen)  = TLorentzVector(0,0,0,0);
+      ans.TypeFromTruth() = tstar::unknown_label;
    }
    ans.IsBTagged()    = false;
    ans.TruthFlavour() = 0 ;
@@ -150,8 +130,9 @@ FitParticle MakeResultLepton( const reco::RecoCandidate* lepton )
 #define W_BOSON_ID   24
 #define TSTAR_ID     9000005
 
-Particle_Label GetJetType( const reco::GenParticle* x )
+tstar::Particle_Label GetJetType( const reco::GenParticle* x )
 {
+   using namespace tstar;
    if( FromLeptonicTop(x) ){
       if( abs(x->pdgId()) == BOTTOM_ID ){
          return lepb_label;
@@ -184,8 +165,9 @@ Particle_Label GetJetType( const reco::GenParticle* x )
    return unknown_label;
 }
 
-Particle_Label GetLeptonType( const reco::GenParticle* x )
+tstar::Particle_Label GetLeptonType( const reco::GenParticle* x )
 {
+   using namespace tstar;
    if( FromLeptonicW(x) ){
       if( abs(x->pdgId()) == ELEC_ID ){
          return electron_label;

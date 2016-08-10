@@ -40,6 +40,7 @@ selectedJets =  cms.EDFilter(
     jetsrc      = cms.InputTag("slimmedJets"),
     muonsrc     = cms.InputTag("selectedMuons"),
     electronsrc = cms.InputTag("selectedElectrons"),
+    rhosrc      = cms.InputTag("fixedGridRhoFastjetAll")
 )
 
 skimmedPatJets = cms.EDFilter(

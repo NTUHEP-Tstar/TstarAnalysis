@@ -41,6 +41,8 @@ void SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
          lheHandle.getByLabel( sample.Event() , "externalLHEProducer" );
       }
 
+      if( chiHandle->ChiSquare() < 0 ){ continue; } // Skipping over unphysical results
+
       double tstarMass = chiHandle->TstarMass() ;
       double event_weight = 1.0 ;
       if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ) { event_weight = -1.; }

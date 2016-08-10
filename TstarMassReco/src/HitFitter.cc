@@ -189,25 +189,22 @@ void HitFitter::AddResult(
    const double chisq,
    const hitfit::Lepjets_Event& ev)
 {
+   using namespace tstar;
    RecoResult new_result;
    new_result._tstarMass = tstarmass;
    new_result._chiSquare = chisq;
 
    // Lepton
-   FitParticle new_lepton ;
-   if( _muon != NULL ){
-      new_lepton = MakeResultLepton( _muon ) ;
-   }
-   if( _elec != NULL ){
-      new_lepton = MakeResultLepton( _elec ) ;
-   }
-   new_lepton.FittedP4() = ConvertToRoot( ev.lep(0).p() );
+   FitParticle new_lepton = _muon != NULL?
+      MakeResultMuon( _muon ) :
+      MakeResultElectron( _elec ) ;
+   new_lepton.P4(fitted) = ConvertToRoot( ev.lep(0).p() );
    new_result.AddParticle( new_lepton );
 
    // Neutrino
    FitParticle new_met ;
    new_met = MakeResultMET( _met );
-   new_met.FittedP4() = ConvertToRoot( ev.met() );
+   new_met.P4(fitted) = ConvertToRoot( ev.met() );
    new_result.AddParticle( new_met );
 
    const vector<int>& jet_type_list = ev.jet_types();
@@ -217,7 +214,7 @@ void HitFitter::AddResult(
       Particle_Label jet_type = Particle_Label(jet_type_list[i]);
       if( jet_type == unknown_label ) { continue; }
       FitParticle  new_jet    = MakeResultJet(jet,jet_type);
-      new_jet.FittedP4()      = ConvertToRoot( ev.sum(jet_type));
+      new_jet.P4(fitted)      = ConvertToRoot( ev.sum(jet_type));
       new_result.AddParticle( new_jet );
       ++i;
    }
@@ -225,7 +222,7 @@ void HitFitter::AddResult(
       Particle_Label jet_type = Particle_Label(jet_type_list[i]);
       if( jet_type == unknown_label ) { continue; }
       FitParticle  new_jet    = MakeResultJet(jet,jet_type);
-      new_jet.FittedP4()      = ConvertToRoot( ev.sum(jet_type));
+      new_jet.P4(fitted)      = ConvertToRoot( ev.sum(jet_type));
       new_result.AddParticle( new_jet );
       ++i;
    }

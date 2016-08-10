@@ -46,3 +46,15 @@ def GetStoreGlob( tag, data_set, mode ):
 
 def GetScriptFile( tag, data_set, mode , index ):
     return "{}/{}_{}.sh".format( my_settings.script_dir, GetTaskName(tag,data_set,mode), index)
+
+def GetHLT( data_set ):
+    if IsData( data_set ):
+        return 'TriggerResults::HLT'
+    elif re.match('/.*/RunIISpring16MiniAODv2.*reHLT.*/.*' , data_set ):
+        return "TriggerResults::HLT2"
+    elif re.match('/.*/RunIISpring16MiniAODv2.*withHLT.*/.*' , data_set ):
+        return 'TriggerResults::HLT'
+    elif re.match('/.*/RunIISpring16MiniAODv2.*/.*' , data_set ):
+        return ''
+    else:
+        return 'TriggerResults::HLT'

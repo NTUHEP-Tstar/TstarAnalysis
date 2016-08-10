@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 using namespace std;
+using namespace tstar;
 
 int main(int argc, char* argv[])
 {
@@ -28,17 +29,17 @@ int main(int argc, char* argv[])
       printf(
          "%lf | %d%d%d%d | %d%d%d%d | %lf %lf\n",
          reco_result.TstarMass(),
-         reco_result.Lepton().FitMatchTruth(),
-         reco_result.Neutrino().FitMatchTruth(),
-         reco_result.LeptonicBJet().FitMatchTruth(),
-         reco_result.LeptonicGluon().FitMatchTruth(),
-         reco_result.HadronicJet1().FitMatchTruth(),
-         reco_result.HadronicJet2().FitMatchTruth(),
-         reco_result.HadronicBJet().FitMatchTruth(),
-         reco_result.HadronicGluon().FitMatchTruth(),
+         reco_result.GetParticle(muon_label)    .FitMatchTruth(),
+         reco_result.GetParticle(neutrino_label).FitMatchTruth(),
+         reco_result.GetParticle(lepb_label)    .FitMatchTruth(),
+         reco_result.GetParticle(lepg_label)    .FitMatchTruth(),
+         reco_result.GetParticle(hadw1_label)   .FitMatchTruth(),
+         reco_result.GetParticle(hadw2_label)   .FitMatchTruth(),
+         reco_result.GetParticle(hadb_label)    .FitMatchTruth(),
+         reco_result.GetParticle(hadg_label)    .FitMatchTruth(),
 
-         reco_result.HadronicJet1().FittedP4().Pt() - reco_result.HadronicJet1().ObservedP4().Pt(),
-         reco_result.HadronicJet2().FittedP4().Pt() - reco_result.HadronicJet2().ObservedP4().Pt()
+         reco_result.HadronicJet1().Pt() - reco_result.HadronicJet1().Pt(),
+         reco_result.HadronicJet2().Pt() - reco_result.HadronicJet2().Pt()
       );
    }
    return 0;

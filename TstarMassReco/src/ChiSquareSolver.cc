@@ -7,11 +7,12 @@
 *******************************************************************************/
 #include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
-#include "TstarAnalysis/BaseLineSelector/interface/BTagChecker.hpp"
+#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 #include <algorithm>
 #include <iostream>
+#include <cfloat>
 using namespace std;
 
 //------------------------------------------------------------------------------
@@ -42,8 +43,8 @@ ChiSquareSolver::~ChiSquareSolver(){}
 //------------------------------------------------------------------------------
 void ChiSquareSolver::RunPermutations()
 {
-   double chiSquare;
-   double tstarMass;
+   double chiSquare = 0.0 ;
+   double tstarMass = 0.0 ;
    TLorentzVector lep_w;
    TLorentzVector lep_t;
    TLorentzVector lep_tstar;
@@ -80,6 +81,8 @@ void ChiSquareSolver::RunPermutations()
 
 void ChiSquareSolver::AddResult(const double tstar_mass,const double chi_square, const unsigned neu_index )
 {
+   using namespace tstar;
+
    RecoResult new_result;
    new_result._tstarMass = tstar_mass ;
    new_result._chiSquare = chi_square ;
@@ -92,7 +95,7 @@ void ChiSquareSolver::AddResult(const double tstar_mass,const double chi_square,
 
    // Neutrino
    FitParticle new_met = MakeResultMET( _met );
-   new_met.FittedP4() = _neutrino[neu_index];
+   new_met.P4(fitted)  = _neutrino[neu_index];
    new_result.AddParticle( new_met);
 
    // Jets
@@ -123,7 +126,7 @@ const RecoResult& ChiSquareSolver::BestResult() const
    static RecoResult __null_result__;
    __null_result__._chiSquare = -1000;
    int index = -1;
-   double min_chiSq = 100000000.;
+   double min_chiSq = DBL_MAX;
    for( unsigned i = 0 ; i < _resultsList.size() ; ++i  ){
       if( _resultsList[i].ChiSquare() < min_chiSq ){
          min_chiSq = _resultsList[i].ChiSquare();
@@ -133,15 +136,15 @@ const RecoResult& ChiSquareSolver::BestResult() const
 
    if( index != -1 ){
       return _resultsList[index];
+   } else {
+      cerr << "Warning! minimum chi square is at limit! Storing a dummy result!" << endl;
+      return __null_result__;
    }
-   return __null_result__;
 }
 
 //------------------------------------------------------------------------------
 //   Setting functions
 //------------------------------------------------------------------------------
-
-
 void ChiSquareSolver::SetMET( const pat::MET* x )
 {
    _met = x;
@@ -263,3 +266,15 @@ bool ChiSquareSolver::CheckPermutation() const
       return true;
    }
 }
+
+
+
+//------------------------------------------------------------------------------
+//   Object sequence functions
+//------------------------------------------------------------------------------
+TLorentzVector ChiSquareSolver::had_b()  const { return ConvertToRoot( *_jetList[0] ); }
+TLorentzVector ChiSquareSolver::lep_b()  const { return ConvertToRoot( *_jetList[1] ); }
+TLorentzVector ChiSquareSolver::had_g()  const { return ConvertToRoot( *_jetList[2] ); }
+TLorentzVector ChiSquareSolver::had_q1() const { return ConvertToRoot( *_jetList[3] ); }
+TLorentzVector ChiSquareSolver::had_q2() const { return ConvertToRoot( *_jetList[4] ); }
+TLorentzVector ChiSquareSolver::lep_g()  const { return ConvertToRoot( *_jetList[5] ); }

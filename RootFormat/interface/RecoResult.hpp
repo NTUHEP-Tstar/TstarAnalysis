@@ -23,33 +23,36 @@ public:
    friend class HitFitter;
 
    RecoResult& operator=( const RecoResult& );
-   double TstarMass() const;
-   double ChiSquare() const;
+   double& TstarMass() {return _tstarMass;}
+   double& ChiSquare() {return _chiSquare;}
+   const double& TstarMass() const{ return _tstarMass;}
+   const double& ChiSquare() const{ return _chiSquare;}
 
-   void ComputeFromPaticleList();
+   double ComputeFromPaticleList(tstar::Momentum_Label x = tstar::fitted) const;
 
    void  AddParticle( const FitParticle& );
-   FitParticle&       GetParticle( const Particle_Label& );
-   const FitParticle& GetParticle( const Particle_Label& ) const;
+   FitParticle&       GetParticle( const tstar::Particle_Label& );
+   const FitParticle& GetParticle( const tstar::Particle_Label& ) const;
 
    std::vector<FitParticle>&       ParticleList()       { return _fitted_particle_list; }
    const std::vector<FitParticle>& ParticleList() const { return _fitted_particle_list; }
 
-   const FitParticle&   Lepton()        const;
-   const FitParticle&   Neutrino()      const;
-   const TLorentzVector LeptonicW()     const;
-   const FitParticle&   LeptonicBJet()  const;
-   const TLorentzVector LeptonicTop()   const;
-   const FitParticle&   LeptonicGluon() const;
-   const TLorentzVector LeptonicTstar() const;
+   // Accessing particle four momentum only
+   TLorentzVector Lepton       (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector Neutrino     (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector LeptonicW    (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector LeptonicBJet (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector LeptonicTop  (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector LeptonicGluon(tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector LeptonicTstar(tstar::Momentum_Label x = tstar::fitted ) const;
 
-   const FitParticle&   HadronicJet1()  const;
-   const FitParticle&   HadronicJet2()  const;
-   const TLorentzVector HadronicW()     const ;
-   const FitParticle&   HadronicBJet()  const;
-   const TLorentzVector HadronicTop()   const;
-   const FitParticle&   HadronicGluon() const;
-   const TLorentzVector HadronicTstar() const ;
+   TLorentzVector HadronicJet1 (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector HadronicJet2 (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector HadronicW    (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector HadronicBJet (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector HadronicTop  (tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector HadronicGluon(tstar::Momentum_Label x = tstar::fitted ) const;
+   TLorentzVector HadronicTstar(tstar::Momentum_Label x = tstar::fitted ) const;
 
 private:
    double _tstarMass;

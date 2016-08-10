@@ -1,5 +1,6 @@
 <lcgdict>
    <selection>
+      <class name="std::map<tstar::Momentum_Label, TLorentzVector>" />
       <class name="FitParticle"/>
       <class name="RecoResult"/>
       <class name="edm::Wrapper<RecoResult>"/>

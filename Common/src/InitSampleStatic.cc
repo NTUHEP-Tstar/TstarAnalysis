@@ -18,11 +18,11 @@ void InitSampleStatic( const TstarNamer& namer )
    using namespace std;
    const mgr::ConfigReader cfg(namer.MasterConfigFile() );
    mgr::SampleMgr::InitStaticFromReader( cfg );
-   if( boost::contains( namer.GetChannel(), "2016" ) ){
-      cout << "Using 2016 Luminosity" << endl;
-      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble("Total Luminosity 2016") );
+   if( boost::contains( namer.GetChannel(), "2015" ) ){
+      cout << "Using 2015 Luminosity" << endl;
+      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble("Total Luminosity 2015") );
    } else {
-      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble("Total Luminosity 2015") ) ;
+      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble("Total Luminosity 2016") ) ;
    }
    mgr::SampleMgr::SetFilePrefix     ( namer.GetChannelEDMPath() );
    mgr::SampleGroup::SetSampleCfgPrefix( namer.SettingsDir() );

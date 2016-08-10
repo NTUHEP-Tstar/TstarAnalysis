@@ -26,9 +26,9 @@ crab_work_dir  = storage_dir + 'CrabWorkSpace/'
 #   Default settings for crab bjobs, change if needed
 #-------------------------------------------------------------------------------
 crab_default_site = 'T2_CH_CERN'
-crab_default_path = '/store/user/yichen/tstar_76X/'
+crab_default_path = '/store/user/yichen/tstar_80X/'
 crab_default_lumi = setting_dir + 'lumi_mask_latest.json'
 
 
-data_global_tag = "76X_dataRun2_v15"
-mc_global_tag   = "76X_mcRun2_asymptotic_v12"
+data_global_tag = "80X_dataRun2_Prompt_ICHEP16JEC_v0"
+mc_global_tag   = "80X_mcRun2_asymptotic_2016_miniAODv2_v1"

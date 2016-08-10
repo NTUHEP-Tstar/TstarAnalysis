@@ -15,7 +15,7 @@ import FWCore.ParameterSet.VarParsing as opts
 options = opts.VarParsing('analysis')
 
 options.register( 'sample',
-    'file:///afs/cern.ch/work/y/yichen/MiniAOD/MC_76X/Tstar_M1000.root',
+    'file:///afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/Tstar_M1000.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -36,10 +36,16 @@ options.register( 'Mode',
     )
 
 options.register('GlobalTag',
-    '',
+    '80X_mcRun2_asymptotic_2016_miniAODv2_v1',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Global Tag to use'
+)
+options.register('HLT',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'High Level Trigger Input Tag to use'
 )
 
 options.setDefault('maxEvents',1000)
@@ -82,15 +88,13 @@ else:
     print "Mode not recognized!"
     sys.exit(1)
 
+if options.HLT :
+    from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+    process.hltfilter = hltHighLevel.clone(
+        TriggerResultsTag = options.HLT,
+        HLTPaths = requiredHLTs
+    )
 
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-process.hltfilter = hltHighLevel.clone(
-    TriggerResultsTag = "TriggerResults::HLT",
-    HLTPaths = requiredHLTs
-)
-
-if '80X_mcRun2_asymptotic_2016_miniAODv2_v1' == options.GlobalTag:
-    process.hltfilter.TriggerResultsTag = "TriggerResults::HLT2"
 
 #-------------------------------------------------------------------------------
 #   Electron ID Processes
@@ -155,20 +159,34 @@ process.edmOut = cms.OutputModule(
     SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('myfilterpath') )
     )
 
-process.myfilterpath = cms.Path(
-    process.beforeAny
-    * process.hltfilter
-    * process.afterHLT
-    * process.selectedMuons
-    * process.skimmedPatMuons
-    * process.egmGsfElectronIDSequence
-    * process.selectedElectrons
-    * process.skimmedPatElectrons
-    * process.selectedJets
-    * process.skimmedPatJets
-    * process.tstarFilter
-    * process.afterBaseLine
-)
+if options.HLT:
+    process.myfilterpath = cms.Path(
+        process.beforeAny
+        * process.hltfilter
+        * process.afterHLT
+        * process.selectedMuons
+        * process.skimmedPatMuons
+        * process.egmGsfElectronIDSequence
+        * process.selectedElectrons
+        * process.skimmedPatElectrons
+        * process.selectedJets
+        * process.skimmedPatJets
+        * process.tstarFilter
+        * process.afterBaseLine
+        )
+else:
+    process.myfilterpath = cms.Path(
+        process.beforeAny
+        * process.selectedMuons
+        * process.skimmedPatMuons
+        * process.egmGsfElectronIDSequence
+        * process.selectedElectrons
+        * process.skimmedPatElectrons
+        * process.selectedJets
+        * process.skimmedPatJets
+        * process.tstarFilter
+        * process.afterBaseLine
+        )
 
 
 process.endPath = cms.EndPath( process.edmOut )

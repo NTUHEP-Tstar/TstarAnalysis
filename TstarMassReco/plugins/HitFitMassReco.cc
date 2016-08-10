@@ -20,7 +20,7 @@
 
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/HitFitter.hpp"
-#include "TstarAnalysis/BaseLineSelector/interface/BTagChecker.hpp"
+#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 typedef std::vector<pat::MET>      METList;

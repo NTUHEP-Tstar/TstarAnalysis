@@ -28,18 +28,19 @@ config.JobType.psetName = '{2}'
 
 ## Input parameters
 config.JobType.pyCfgParams = [
-   'Mode={3}',
-   'GlobalTag={4}'
+    'Mode={3}',
+    'GlobalTag={4}',
+    'HLT={5}'
 ]
 
-config.Data.inputDataset = '{5}'
+config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 16
-config.Data.outLFNDirBase = '{6}'
+config.Data.outLFNDirBase = '{7}'
 config.Data.publication = False
 
-config.Site.storageSite = '{7}'
+config.Site.storageSite = '{8}'
 """
 
 
@@ -54,6 +55,7 @@ def MakeCrabFile( data_set, opt ):
     run_file  = my_settings.cmsrun_dir + 'run_baseline_selection.py'
     mode      = opt.mode
     global_tag= ""
+    hlt       = my_name.GetHLT(data_set)
     lfn_dir   = opt.path
     site      = opt.site
     lumi_file = opt.lumi
@@ -69,9 +71,10 @@ def MakeCrabFile( data_set, opt ):
         run_file   , #{2}
         mode       , #{3}
         global_tag , #{4}
-        data_set   , #{5}
-        lfn_dir    , #{6}
-        site       , #{7}
+        hlt        , #{5}
+        data_set   , #{6}
+        lfn_dir    , #{7}
+        site       , #{8}
     )
 
     if my_name.IsData( data_set ):

@@ -7,6 +7,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
+using namespace tstar;
 //------------------------------------------------------------------------------
 //   Constructor and Desctructor
 //------------------------------------------------------------------------------
@@ -29,9 +30,6 @@ void RecoResult::AddParticle( const FitParticle& x )
 //------------------------------------------------------------------------------
 //   Access Members
 //------------------------------------------------------------------------------
-double RecoResult::TstarMass() const { return _tstarMass; }
-double RecoResult::ChiSquare() const { return _chiSquare; }
-
 static FitParticle __dummy_particle__;
 
 const FitParticle& RecoResult::GetParticle( const Particle_Label& x ) const
@@ -54,53 +52,48 @@ FitParticle& RecoResult::GetParticle( const Particle_Label& x )
    return __dummy_particle__;
 }
 
-const FitParticle& RecoResult::Lepton()        const {
+TLorentzVector RecoResult::Lepton( Momentum_Label x ) const
+{
    for( auto& particle : _fitted_particle_list ){
       if( particle.TypeFromFit() == electron_label ||
           particle.TypeFromFit() == muon_label ){
-         return particle;
+         return particle.P4(x);
       }
    }
-   return __dummy_particle__;
+   return TLorentzVector(0,0,0,0);
 }
 
-const FitParticle& RecoResult::Neutrino()      const { return GetParticle( neutrino_label ); }
-const FitParticle& RecoResult::LeptonicBJet()  const { return GetParticle( lepb_label     ); }
-const FitParticle& RecoResult::LeptonicGluon() const { return GetParticle( lepg_label     ); }
-const FitParticle& RecoResult::HadronicJet1()  const { return GetParticle( hadw1_label    ); }
-const FitParticle& RecoResult::HadronicJet2()  const { return GetParticle( hadw2_label    ); }
-const FitParticle& RecoResult::HadronicBJet()  const { return GetParticle( hadb_label     ); }
-const FitParticle& RecoResult::HadronicGluon() const { return GetParticle( hadg_label     ); }
+// Kienmatics by particle access
+TLorentzVector RecoResult::Neutrino( Momentum_Label x ) const
+{ return GetParticle( neutrino_label ).P4(x); }
+TLorentzVector RecoResult::LeptonicBJet ( Momentum_Label x ) const
+{ return GetParticle( lepb_label     ).P4(x); }
+TLorentzVector RecoResult::LeptonicGluon( Momentum_Label x ) const
+{ return GetParticle( lepg_label     ).P4(x); }
+TLorentzVector RecoResult::HadronicJet1 ( Momentum_Label x ) const
+{ return GetParticle( hadw1_label    ).P4(x); }
+TLorentzVector RecoResult::HadronicJet2 ( Momentum_Label x ) const
+{ return GetParticle( hadw2_label    ).P4(x); }
+TLorentzVector RecoResult::HadronicBJet ( Momentum_Label x ) const
+{ return GetParticle( hadb_label     ).P4(x); }
+TLorentzVector RecoResult::HadronicGluon( Momentum_Label x ) const
+{ return GetParticle( hadg_label     ).P4(x); }
 
 // Extended Kinematics
-const TLorentzVector RecoResult::LeptonicW() const
-{
-   return Lepton().FittedP4() + Neutrino().FittedP4();
-}
-const TLorentzVector RecoResult::LeptonicTop() const
-{
-   return LeptonicW() + LeptonicBJet().FittedP4() ;
-}
-const TLorentzVector RecoResult::LeptonicTstar() const
-{
-   return LeptonicTop() + LeptonicGluon().FittedP4();
-}
+TLorentzVector RecoResult::LeptonicW(Momentum_Label x) const
+{ return Lepton(x) + Neutrino(x); }
+TLorentzVector RecoResult::LeptonicTop(Momentum_Label x) const
+{ return LeptonicW(x) + LeptonicBJet(x) ; }
+TLorentzVector RecoResult::LeptonicTstar(Momentum_Label x) const
+{ return LeptonicTop(x) + LeptonicGluon(x); }
 
-const TLorentzVector RecoResult::HadronicW() const
-{
-   return HadronicJet1().FittedP4() + HadronicJet2().FittedP4();
-}
-const TLorentzVector RecoResult::HadronicTop() const
-{
-   return HadronicW() + HadronicBJet().FittedP4();
-}
-const TLorentzVector RecoResult::HadronicTstar() const
-{
-   return HadronicTop() + HadronicGluon().FittedP4();
-}
+TLorentzVector RecoResult::HadronicW(Momentum_Label x) const
+{ return HadronicJet1(x) + HadronicJet2(x); }
+TLorentzVector RecoResult::HadronicTop(Momentum_Label x) const
+{ return HadronicW(x) + HadronicBJet(x); }
+TLorentzVector RecoResult::HadronicTstar(Momentum_Label x) const
+{ return HadronicTop(x) + HadronicGluon(x); }
 
 
-void RecoResult::ComputeFromPaticleList()
-{
-   _tstarMass = (HadronicTstar().M() + LeptonicTstar().M())/2.;
-}
+double RecoResult::ComputeFromPaticleList(Momentum_Label x) const
+{ return (HadronicTstar(x).M() + LeptonicTstar(x).M())/2.; }

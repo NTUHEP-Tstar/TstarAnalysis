@@ -1,7 +1,13 @@
 <use name="boost"/>
 <use name="boost_program_options"/>
+
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
+
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/SampleMgr"/>
+
+
 
 <flags CXXFLAGS="-g"/>
 

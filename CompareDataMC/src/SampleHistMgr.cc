@@ -110,11 +110,16 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
       Hist("MET")->Fill( metHandle->front().pt()     , total_weight );
       Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
 
-      Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
-      Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
-      Hist("ChiSq"     )->Fill( chisqHandle->ChiSquare()     , total_weight );
-      Hist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().ObservedP4().Pt() , total_weight  );
-      Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().ObservedP4().Pt() , total_weight  );
+      if( chisqHandle->ChiSquare() > 0 ){ // Only sotring physical results
+         Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
+         Hist("ChiSq"     )->Fill( chisqHandle->ChiSquare() , total_weight );
+         Hist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().Pt() , total_weight  );
+         Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().Pt() , total_weight  );
+
+         if( chisqHandle->TstarMass() > 350 ){
+            Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
+         }
+      }
 
    }
    cout << "Done!" << endl;
@@ -125,9 +130,9 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
 SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg ):
-   Named( name ),
-   SampleGroup( name, cfg  ),
-   HistMgr( name )
+Named( name ),
+SampleGroup( name, cfg  ),
+HistMgr( name )
 {
    define_hist();
    for( auto& sample : SampleList() ){

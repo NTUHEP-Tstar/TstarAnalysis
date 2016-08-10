@@ -11,7 +11,8 @@
 #ifndef TSTARANALYSIS_BASELINESELECTOR_BTAGCHECKER_HPP
 #define TSTARANALYSIS_BASELINESELECTOR_BTAGCHECKER_HPP
 
-#include "TstarAnalysis/Common/interface/BTagCalibrationStandalone.hpp"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include <string>
 

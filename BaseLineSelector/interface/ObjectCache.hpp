@@ -33,10 +33,12 @@ extern void AddElectronVariables(
 
 extern void AddJetVariables(
    pat::Jet& ,
+   const double   rho,
    JetCorrectionUncertainty& jecunc, // Cannot be const!
    const JME::JetResolution& jetptres,
    const JME::JetResolution& jetphires,
-   const JME::JetResolutionScaleFactor& jetressf
+   const JME::JetResolutionScaleFactor& jetressf,
+   const bool is_data
 );
 
 

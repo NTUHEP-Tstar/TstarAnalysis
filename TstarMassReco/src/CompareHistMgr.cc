@@ -12,9 +12,9 @@
 #include <iostream>
 
 using namespace std;
+using namespace tstar;
 using fwlite::Event;
 using fwlite::Handle;
-
 //------------------------------------------------------------------------------
 //   Constructor and destructor
 //------------------------------------------------------------------------------
@@ -73,19 +73,19 @@ void CompareHistMgr::AddEvent( const fwlite::Event& ev )
    Hist( "LepTopMass" )->Fill( result.LeptonicTop().M()   );
    Hist( "HadTopMass" )->Fill( result.HadronicTop().M()   );
    Hist( "HadWMass"   )->Fill( result.HadronicW().M()   );
-   Hist( "LepPtDiff"  )->Fill( result.Lepton().FittedP4().Pt()        - result.Lepton().ObservedP4().Pt() );
-   Hist( "LepBPtDiff" )->Fill( result.LeptonicBJet().FittedP4().Pt()  - result.LeptonicBJet().ObservedP4().Pt() );
-   Hist( "LepGPtDiff" )->Fill( result.LeptonicGluon().FittedP4().Pt() - result.LeptonicGluon().ObservedP4().Pt() );
-   Hist( "HadBPtDiff" )->Fill( result.HadronicBJet().FittedP4().Pt()  - result.HadronicBJet().ObservedP4().Pt() );
-   Hist( "HadGPtDiff" )->Fill( result.HadronicGluon().FittedP4().Pt() - result.HadronicGluon().ObservedP4().Pt() );
-   Hist( "NeuPz"      )->Fill( result.Neutrino().FittedP4().Pz()   );
+   Hist( "LepPtDiff"  )->Fill( result.Lepton(fitted).Pt()        - result.Lepton(original).Pt()        );
+   Hist( "LepBPtDiff" )->Fill( result.LeptonicBJet(fitted).Pt()  - result.LeptonicBJet(original).Pt()  );
+   Hist( "LepGPtDiff" )->Fill( result.LeptonicGluon(fitted).Pt() - result.LeptonicGluon(original).Pt() );
+   Hist( "HadBPtDiff" )->Fill( result.HadronicBJet(fitted).Pt()  - result.HadronicBJet(original).Pt()  );
+   Hist( "HadGPtDiff" )->Fill( result.HadronicGluon(fitted).Pt() - result.HadronicGluon(original).Pt() );
+   Hist( "NeuPz"      )->Fill( result.Neutrino(fitted).Pz()   );
 
-   _match_map->Fill( GetBinPosition(lepb_label), GetBinPosition(result.LeptonicBJet().TypeFromTruth()) );
-   _match_map->Fill( GetBinPosition(lepg_label), GetBinPosition(result.LeptonicGluon().TypeFromTruth()) );
-   _match_map->Fill( GetBinPosition(hadw1_label), GetBinPosition(result.HadronicJet1().TypeFromTruth()) , 0.5);
-   _match_map->Fill( GetBinPosition(hadw2_label), GetBinPosition(result.HadronicJet2().TypeFromTruth()) , 0.5);
-   _match_map->Fill( GetBinPosition(hadb_label), GetBinPosition(result.HadronicBJet().TypeFromTruth()) );
-   _match_map->Fill( GetBinPosition(hadg_label), GetBinPosition(result.HadronicGluon().TypeFromTruth()) );
+   _match_map->Fill( GetBinPosition(lepb_label ), GetBinPosition(result.GetParticle(lepb_label) .TypeFromTruth()) );
+   _match_map->Fill( GetBinPosition(lepg_label ), GetBinPosition(result.GetParticle(lepg_label) .TypeFromTruth()) );
+   _match_map->Fill( GetBinPosition(hadw1_label), GetBinPosition(result.GetParticle(hadw1_label).TypeFromTruth()) , 0.5);
+   _match_map->Fill( GetBinPosition(hadw2_label), GetBinPosition(result.GetParticle(hadw2_label).TypeFromTruth()) , 0.5);
+   _match_map->Fill( GetBinPosition(hadb_label ), GetBinPosition(result.GetParticle(hadb_label) .TypeFromTruth())  );
+   _match_map->Fill( GetBinPosition(hadg_label ), GetBinPosition(result.GetParticle(hadg_label) .TypeFromTruth())  );
 }
 
 

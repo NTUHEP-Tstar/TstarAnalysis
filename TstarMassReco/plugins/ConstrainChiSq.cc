@@ -30,6 +30,8 @@ static const edm::FileInPath muonres( "TopQuarkAnalysis/TopHitFit/data/resolutio
 static const edm::FileInPath ljetres( "TopQuarkAnalysis/TopHitFit/data/resolution/tqafUdscJetResolution.txt" );
 static const edm::FileInPath bjetres( "TopQuarkAnalysis/TopHitFit/data/resolution/tqafBJetResolution.txt" );
 
+using namespace tstar;
+
 //------------------------------------------------------------------------------
 //   Class Definition
 //------------------------------------------------------------------------------
@@ -105,7 +107,7 @@ void ConstrainChiSq::produce( edm::Event& iEvent, const edm::EventSetup& )
 
    // Making hitfit Event
    for( const auto& particle : conreco->ParticleList() ){
-      TLorentzVector p4 = particle.ObservedP4();
+      TLorentzVector p4 = particle.P4();
       double eta = p4.Eta();
       if( particle.TypeFromFit() == electron_label ){
          Fourvec           fit_p4( p4.Px(), p4.Py(), p4.Pz(), p4.Energy() );
@@ -139,15 +141,15 @@ void ConstrainChiSq::produce( edm::Event& iEvent, const edm::EventSetup& )
       pullx, pully
    );
 
-   conreco->GetParticle(electron_label).FittedP4()=ConvertToRoot( hitFitEvent.lep(0).p() );
-   conreco->GetParticle(muon_label    ).FittedP4()=ConvertToRoot( hitFitEvent.lep(0).p() );
-   conreco->GetParticle(neutrino_label).FittedP4()=ConvertToRoot( hitFitEvent.met() );
+   conreco->GetParticle(electron_label).P4(fitted)=ConvertToRoot( hitFitEvent.lep(0).p() );
+   conreco->GetParticle(muon_label    ).P4(fitted)=ConvertToRoot( hitFitEvent.lep(0).p() );
+   conreco->GetParticle(neutrino_label).P4(fitted)=ConvertToRoot( hitFitEvent.met() );
    for( int i = lepb_label ; i <= hadg_label ; ++i ){
       if( i == higgs_label ) { continue; }
       Particle_Label lab = (Particle_Label)(i);
-      conreco->GetParticle(lab).FittedP4() = ConvertToRoot( hitFitEvent.sum(i) );
+      conreco->GetParticle(lab).P4(fitted) = ConvertToRoot( hitFitEvent.sum(i) );
    }
-   conreco->ComputeFromPaticleList();
+   conreco->TstarMass() = conreco->ComputeFromPaticleList();
 
    iEvent.put( conreco );
 }

@@ -6,7 +6,9 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
-
+#include <iostream>
+using namespace std;
+using namespace tstar;
 //------------------------------------------------------------------------------
 //   Constructor and Destructor
 //------------------------------------------------------------------------------
@@ -19,17 +21,41 @@ FitParticle::FitParticle():
 FitParticle::~FitParticle() {}
 
 //------------------------------------------------------------------------------
+//   Four momentum access functions
+//------------------------------------------------------------------------------
+TLorentzVector& FitParticle::P4( Momentum_Label x )
+{
+   return _p4map[x];
+}
+
+const TLorentzVector& FitParticle::P4( Momentum_Label x ) const
+{
+   if( _p4map.find(x) != _p4map.end() ){
+      try{
+         return _p4map.at(x);
+      } catch (std::exception e ){
+         cerr << "Exception with _p4map.find(x) != _p4map.end() but _p4map.at(x) has error!" << endl;
+         cerr << "_p4map.size() = " << _p4map.size() << endl;
+         cerr << _p4map.find(x)->first << " " << _p4map.find(x)->second.Pt() << endl;
+         return _p4map.at(original);
+      }
+   } else {
+      try{
+         return _p4map.at(original);
+      } catch ( std::exception e ) {
+         cerr << "No p4[original] found!" << endl;
+         cerr << "Map size : " << _p4map.size() << endl;
+         throw e;
+      }
+   }
+}
+
+//------------------------------------------------------------------------------
 //   Direct Access Members
 //------------------------------------------------------------------------------
-TLorentzVector& FitParticle::ObservedP4()    { return _observed_p4 ; }
-TLorentzVector& FitParticle::FittedP4()      { return _fitted_p4; }
-TLorentzVector& FitParticle::GenP4()         { return _gen_p4; }
 Particle_Label& FitParticle::TypeFromFit()   { return _fit_label; }
 Particle_Label& FitParticle::TypeFromTruth() { return _truth_label; }
 
-const TLorentzVector& FitParticle::ObservedP4()    const  { return _observed_p4; }
-const TLorentzVector& FitParticle::FittedP4()      const  { return _fitted_p4; }
-const TLorentzVector& FitParticle::GenP4()         const  { return _gen_p4; }
 const Particle_Label& FitParticle::TypeFromFit()   const  { return _fit_label; }
 const Particle_Label& FitParticle::TypeFromTruth() const  { return _truth_label; }
 

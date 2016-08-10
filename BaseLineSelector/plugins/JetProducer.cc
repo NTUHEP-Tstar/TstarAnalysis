@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
-#include "TstarAnalysis/BaseLineSelector/interface/BTagChecker.hpp"
+#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 typedef std::vector<pat::Jet> JetList;
@@ -41,9 +41,11 @@ private:
    const edm::EDGetTokenT<JetList>       _jetsrc;
    const edm::EDGetTokenT<MuonList>      _muonsrc;
    const edm::EDGetTokenT<ElectronList>  _electronsrc;
+   const edm::EDGetTokenT<double>        _rhosrc;
    edm::Handle<JetList>      _jetHandle;
    edm::Handle<MuonList>     _muonHandle;
    edm::Handle<ElectronList> _electronHandle;
+   edm::Handle<double>       _rhoHandle;
 
    edm::ESHandle<JetCorrectorParametersCollection> _jetcorHandle;
 
@@ -55,10 +57,11 @@ private:
 //------------------------------------------------------------------------------
 
 JetProducer::JetProducer(const edm::ParameterSet& iConfig):
-   _jetsrc( consumes<JetList>(iConfig.getParameter<edm::InputTag>("jetsrc"))),
-   _muonsrc( consumes<MuonList>(iConfig.getParameter<edm::InputTag>("muonsrc"))),
-   _electronsrc(consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc"))),
-   _check("check" , "./btagsf.csv" )
+   _jetsrc     ( consumes<JetList>     (iConfig.getParameter<edm::InputTag>("jetsrc"))),
+   _muonsrc    ( consumes<MuonList>    (iConfig.getParameter<edm::InputTag>("muonsrc"))),
+   _electronsrc( consumes<ElectronList>(iConfig.getParameter<edm::InputTag>("electronsrc"))),
+   _rhosrc     ( consumes<double>      (iConfig.getParameter<edm::InputTag>("rhosrc"))),
+   _check("check" , edm::FileInPath("TstarAnalysis/Common/data/CSVv2_ichep.csv").fullPath() )
 {
    produces<JetList> ();
 }
@@ -72,9 +75,10 @@ JetProducer::~JetProducer()
 //------------------------------------------------------------------------------
 bool JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   iEvent.getByToken( _jetsrc , _jetHandle );
-   iEvent.getByToken( _muonsrc , _muonHandle );
+   iEvent.getByToken( _jetsrc      , _jetHandle      );
+   iEvent.getByToken( _muonsrc     , _muonHandle     );
    iEvent.getByToken( _electronsrc , _electronHandle );
+   iEvent.getByToken( _rhosrc      , _rhoHandle      );
 
    std::auto_ptr<JetList> selectedJets( new JetList );
 
@@ -101,10 +105,12 @@ bool JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
    for( auto& jet : *selectedJets ){
       AddJetVariables(
          jet,
+         *_rhoHandle,
          jecunc,
          jetptres,
          jetetares,
-         jetressf
+         jetressf,
+         iEvent.isRealData()
       );
    }
 

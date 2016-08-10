@@ -1,0 +1,20 @@
+<use name="root" />
+<use name="roofit" />
+
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+
+<use name="ManagerUtils/BaseClass"/>
+<use name="ManagerUtils/HistMgr"/>
+<use name="ManagerUtils/SampleMgr"/>
+<use name="ManagerUtils/SysUtils"/>
+<use name="ManagerUtils/PlotUtils"/>
+
+<use name="TstarAnalysis/RootFormat"/>
+<use name="TstarAnalysis/Common"/>
+
+
+<flags CXXFLAGS="-g"/>
+
+<bin name="simpleplot" file="simpleplot.cc"/>

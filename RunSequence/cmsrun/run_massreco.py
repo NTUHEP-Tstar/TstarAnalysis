@@ -10,14 +10,14 @@ import sys
 options = opts.VarParsing('analysis')
 
 options.register( 'sample',
-    '',
+    'file://tstarBaseline.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Files to process'
     )
 
 options.register( 'output',
-    'edm_MassReco.root',
+    'tstarMassReco.root',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Output EDM filename'

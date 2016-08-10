@@ -21,6 +21,7 @@
 #include "TRandom3.h"
 
 using namespace std;
+using namespace tstar;
 //------------------------------------------------------------------------------
 //   Class Definition
 //------------------------------------------------------------------------------
@@ -55,9 +56,9 @@ FakeMassReco::FakeMassReco( const edm::ParameterSet& iConfig ):
       double eta = _rand.Uniform(-1.5,1.5);
       double phi = _rand.Uniform(-3.14,+3.14);
       double e   = pt*asin(2*atan(exp(-eta)));
-      _previous_list.back().ObservedP4().SetPtEtaPhiE( pt, eta, phi, e );
-      _previous_list.back().FittedP4()  .SetPtEtaPhiE( pt, eta, phi, e );
-      _previous_list.back().GenP4()     .SetPtEtaPhiE( pt, eta, phi, e );
+      _previous_list.back().P4(original).SetPtEtaPhiE( pt, eta, phi, e );
+      _previous_list.back().P4(fitted)  .SetPtEtaPhiE( pt, eta, phi, e );
+      _previous_list.back().P4(gen)     .SetPtEtaPhiE( pt, eta, phi, e );
    }
 }
 
@@ -70,6 +71,7 @@ FakeMassReco::~FakeMassReco()
 //------------------------------------------------------------------------------
 void FakeMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
 {
+
    iEvent.getByToken( _recosrc  , _recohandle  );
    std::auto_ptr<RecoResult>  fakeresult( new RecoResult );
 
@@ -91,7 +93,7 @@ void FakeMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
       _previous_list[i].TypeFromFit() = changelist[i];
       fakeresult->GetParticle( changelist[i] ) = _previous_list[i];
    }
-   fakeresult->ComputeFromPaticleList();
+   fakeresult->TstarMass() = fakeresult->ComputeFromPaticleList();
    cout << "After copy: " << fakeresult->TstarMass() << endl;
 
    // Saving results to be used in next interation

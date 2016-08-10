@@ -22,6 +22,8 @@
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
+
 #include "TLorentzVector.h"
 #include <vector>
 
@@ -66,12 +68,12 @@ private:
    void solveNeutrino();
    bool IsBtagged( const pat::Jet* ) const;
    bool CheckPermutation() const ;
-   TLorentzVector had_b()  const { return ConvertToRoot( *_jetList[0]); }
-   TLorentzVector lep_b()  const { return ConvertToRoot( *_jetList[1]); }
-   TLorentzVector had_g()  const { return ConvertToRoot( *_jetList[2]); }
-   TLorentzVector had_q1() const { return ConvertToRoot( *_jetList[3]); }
-   TLorentzVector had_q2() const { return ConvertToRoot( *_jetList[4]); }
-   TLorentzVector lep_g()  const { return ConvertToRoot( *_jetList[5]); }
+   TLorentzVector had_b()  const ;
+   TLorentzVector lep_b()  const ;
+   TLorentzVector had_g()  const ;
+   TLorentzVector had_q1() const ;
+   TLorentzVector had_q2() const ;
+   TLorentzVector lep_g()  const ;
 };
 
 #endif // __CHISQUARESOLVER_H__

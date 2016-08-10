@@ -9,10 +9,13 @@
 #define TSTARANALYSIS_ROOTFORMAT_FITPARTICLE_HPP
 
 #include "TLorentzVector.h"
+#include <map>
 
 //------------------------------------------------------------------------------
 //   Label enum
 //------------------------------------------------------------------------------
+namespace tstar {
+
 enum Particle_Label {
    electron_label = 1,
    muon_label     = 2,
@@ -28,6 +31,17 @@ enum Particle_Label {
    unknown_label = 100
 };
 
+enum Momentum_Label {
+   original = 1,
+   fitted   = 2,
+   gen      = 3,
+   res_up   = 10,
+   res_down = 11,
+   corr_up  = 20,
+   corr_down= 21
+};
+
+}
 //------------------------------------------------------------------------------
 //   Particle class declaration
 //------------------------------------------------------------------------------
@@ -36,30 +50,28 @@ public:
    FitParticle();
    virtual ~FitParticle ();
 
-   TLorentzVector& ObservedP4();
-   TLorentzVector& FittedP4();
-   TLorentzVector& GenP4();
-   Particle_Label& TypeFromFit();
-   Particle_Label& TypeFromTruth();
-   const TLorentzVector& ObservedP4()    const;
-   const TLorentzVector& FittedP4()      const;
-   const TLorentzVector& GenP4()         const;
-   const Particle_Label& TypeFromFit()   const;
-   const Particle_Label& TypeFromTruth() const;
+   // Four momentum access functions,
+   TLorentzVector&       P4(tstar::Momentum_Label x = tstar::original);
+   const TLorentzVector& P4(tstar::Momentum_Label x = tstar::original) const ;
 
-   bool& IsBTagged() ;
+
+   tstar::Particle_Label& TypeFromFit();
+   tstar::Particle_Label& TypeFromTruth();
+   const tstar::Particle_Label& TypeFromFit()   const;
+   const tstar::Particle_Label& TypeFromTruth() const;
+
+   // Member function access
+   bool&     IsBTagged() ;
    unsigned& TruthFlavour();
    bool FitMatchTruth() const ;
 
 private:
-   TLorentzVector _observed_p4;
-   TLorentzVector _fitted_p4;
-   TLorentzVector _gen_p4;
+   std::map<tstar::Momentum_Label,TLorentzVector> _p4map;
 
-   Particle_Label _fit_label;
-   Particle_Label _truth_label;
+   tstar::Particle_Label _fit_label;
+   tstar::Particle_Label _truth_label;
 
-   bool _b_tag;
+   bool     _b_tag;
    unsigned _flavour;
 };
 
