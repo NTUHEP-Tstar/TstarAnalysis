@@ -86,5 +86,11 @@ int main(int argc, char* argv[])
    cout << "Making lumi summary table...." << endl;
    SummaryMCLumi(signal_mc_list,bkg_mc_list);
 
+   cout << data->EventsInFile() << endl;
+   for( const auto& sample : data->SampleList() ){
+      cout << sample->EventsInFile() << endl;
+      cout << sample->SelectionEfficiency() << endl;
+   }
+
    return 0;
 }

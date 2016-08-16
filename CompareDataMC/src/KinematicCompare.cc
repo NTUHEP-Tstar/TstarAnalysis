@@ -75,8 +75,10 @@ void MakeComparePlot(
       }
       // Making Signal plots
       TH1D*  signal_hist     = signal_mgr->Hist(hist_name);
-      const double sig_scale = all_data->EventsInFile()/signal_mgr->ExpectedYield()/2. ;
-      if( signal_hist->Integral() < all_data->EventsInFile()/4.0 ){
+      const unsigned datanum = all_data->EventsInFile();
+      const double   signum  = signal_mgr->ExpectedYield();
+      const double   sig_scale = datanum / signum / 2. ;
+      if( signal_hist->Integral() < datanum /4.0 ){
          signal_hist->Scale( sig_scale );
       }
 

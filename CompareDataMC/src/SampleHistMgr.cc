@@ -44,6 +44,7 @@ void SampleHistMgr::define_hist()
    AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^{2}" , 50 , 0    , 2000  );
    AddHist( "TstarZoom" , "M_{t+g}"                   , "GeV/c^{2}" , 50 , 350  , 2500  );
    AddHist( "ChiSq"     , "#chi^{2}"                  , ""          , 50 , 0    , 10000 );
+   AddHist( "VtxNum"    , "Number of primary vertex"  , ""          , 50 , 0    , 50    );
    AddHist( "LepGluonPt", "Leptonic Gluon Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
    AddHist( "HadGluonPt", "Hadronic Gluon Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
 }
@@ -51,6 +52,7 @@ void SampleHistMgr::define_hist()
 void SampleHistMgr::fill_histograms( SampleMgr& sample )
 {
    fwlite::Handle<vector<pat::MET>>      metHandle;
+   fwlite::Handle<vector<reco::Vertex>>  vtxHandle;
    fwlite::Handle<vector<pat::Jet>>      jetHandle;
    fwlite::Handle<vector<pat::Muon>>     muonHandle;
    fwlite::Handle<vector<pat::Electron>> electronHandle;
@@ -74,6 +76,7 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
       fflush(stdout);
 
       metHandle.getByLabel     ( sample.Event(), "slimmedMETs"    );
+      vtxHandle.getByLabel     ( sample.Event(), "offlineSlimmedPrimaryVertices" );
       jetHandle.getByLabel     ( sample.Event(), "skimmedPatJets" );
       muonHandle.getByLabel    ( sample.Event(), "skimmedPatMuons" );
       electronHandle.getByLabel( sample.Event(), "skimmedPatElectrons" );
@@ -109,6 +112,7 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
 
       Hist("MET")->Fill( metHandle->front().pt()     , total_weight );
       Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
+      Hist("VtxNum")->Fill( vtxHandle->size()        , total_weight );
 
       if( chisqHandle->ChiSquare() > 0 ){ // Only sotring physical results
          Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );

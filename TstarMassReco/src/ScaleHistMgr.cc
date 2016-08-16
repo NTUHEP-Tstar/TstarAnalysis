@@ -22,11 +22,11 @@ using mgr::ConfigReader;
 void ScaleHistMgr::define_hist()
 {
    //       Short tag         , X axis name , X axis unit , bin, min, max
-   AddHist( "TstarMass"       , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 50000  );
-   AddHist( "TstarMass_resup" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 50000  );
-   AddHist( "TstarMass_resdw" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 50000  );
-   AddHist( "TstarMass_jecup" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 50000  );
-   AddHist( "TstarMass_jecdw" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 50000  );
+   AddHist( "TstarMass"       , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 2500  );
+   AddHist( "TstarMass_resup" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 2500  );
+   AddHist( "TstarMass_resdw" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 2500  );
+   AddHist( "TstarMass_jecup" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 2500  );
+   AddHist( "TstarMass_jecdw" , "M_{t+g}"   , "GeV/c^{2}" , 50 , 0  , 2500  );
 }
 
 void ScaleHistMgr::fill_histograms( SampleMgr& sample )

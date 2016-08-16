@@ -36,7 +36,7 @@ config.JobType.pyCfgParams = [
 config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 16
+config.Data.unitsPerJob = 8
 config.Data.outLFNDirBase = '{7}'
 config.Data.publication = False
 
