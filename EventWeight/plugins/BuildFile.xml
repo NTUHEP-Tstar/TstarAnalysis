@@ -5,4 +5,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
+
+<use name="TstarAnalysis/EventWeight"/>
+
 <flags EDM_PLUGIN="1"/>

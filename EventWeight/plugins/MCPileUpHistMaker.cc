@@ -57,8 +57,6 @@ MCPileUpHistMaker::MCPileUpHistMaker( const edm::ParameterSet& iConfig ):
 MCPileUpHistMaker::~MCPileUpHistMaker()
 {
    std::cout << _pileuphist->Integral() << std::endl;
-   _pileuphist->Write();
-   delete _pileuphist;
 }
 
 

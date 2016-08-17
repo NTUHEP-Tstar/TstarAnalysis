@@ -46,6 +46,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 #   Load default Settings
 #-------------------------------------------------------------------------------
 process.load("TstarAnalysis.TstarMassReco.Producer_cfi")
+process.load("TstarAnalysis.EventWeight.EventWeighter_cfi")
 
 #-------------------------------------------------------------------------------
 #   Defining output Module

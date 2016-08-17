@@ -1,0 +1,5 @@
+<use name="PhysicsTools/Utilities"/>
+
+<flags CXXFLAGS="-g"/>
+
+<bin name="MakePileupWeights" file="MakePileupWeights.cc"/>
