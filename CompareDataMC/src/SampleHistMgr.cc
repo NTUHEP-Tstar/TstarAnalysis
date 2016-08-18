@@ -45,12 +45,15 @@ void SampleHistMgr::define_hist()
    AddHist( "TstarZoom" , "M_{t+g}"                   , "GeV/c^{2}" , 50 , 350  , 2500  );
    AddHist( "ChiSq"     , "#chi^{2}"                  , ""          , 50 , 0    , 10000 );
    AddHist( "VtxNum"    , "Number of primary vertex"  , ""          , 50 , 0    , 50    );
+   AddHist( "VtxNumNW"  , "Number of primary vertex(no weighting)"  , ""          , 50 , 0    , 50    );
    AddHist( "LepGluonPt", "Leptonic Gluon Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
    AddHist( "HadGluonPt", "Hadronic Gluon Jet p_{T}"  , "GeV/c"     , 60 , 30   , 1000. );
 }
 
 void SampleHistMgr::fill_histograms( SampleMgr& sample )
 {
+   fwlite::Handle<double>                weightHandle;
+   fwlite::Handle<double>                puwHandle;
    fwlite::Handle<vector<pat::MET>>      metHandle;
    fwlite::Handle<vector<reco::Vertex>>  vtxHandle;
    fwlite::Handle<vector<pat::Jet>>      jetHandle;
@@ -59,18 +62,15 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
    fwlite::Handle<LHEEventProduct>       lheHandle;
    fwlite::Handle<RecoResult>            chisqHandle;
 
-   double sample_weight = 1.;
-   if( !sample.IsRealData() ) {
-      sample_weight = sample.GetSampleWeight(); // For running on data
-   }
-
-   unsigned i = 0;
-   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() ){
+   double weight_sum = 0 ;
+   unsigned i = 1;
+   // Looping over events
+   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() , ++i ){
       printf(
          "\rSample [%s|%s], Event[%u/%llu]..." ,
          Name().c_str(),
          sample.Name().c_str(),
-         ++i ,
+         i ,
          sample.Event().size()
       );
       fflush(stdout);
@@ -82,14 +82,29 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
       electronHandle.getByLabel( sample.Event(), "skimmedPatElectrons" );
       chisqHandle.getByLabel   ( sample.Event(), "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
 
-      double event_weight = 1.;
+      double total_weight = 1. ;
+      double pileup_weight = 1.;
       if( !sample.IsRealData() ){
-         lheHandle.getByLabel( sample.Event() , "externalLHEProducer" );
-         if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ){
-            event_weight = -1. ;
+         try{
+            weightHandle.getByLabel( sample.Event() , "EventWeight", "EventWeight", "TstarMassReco" );
+            puwHandle.getByLabel( sample.Event() , "EventWeight", "PileupWeight" , "TstarMassReco"  );
+
+            if( *weightHandle < 2.0 && *weightHandle > -2.0 ){
+               total_weight = *weightHandle;
+            } else {
+               fprintf( stderr , "Strange weight found! %lf\n", *weightHandle );
+               fflush(stderr);
+            }
+
+            if( *puwHandle < 2.0 && *puwHandle > -2.0 && *puwHandle != 0. ){
+               pileup_weight = *puwHandle;
+            }
+         } catch ( std::exception e ){
+
          }
       }
-      double total_weight = event_weight * sample_weight ;
+
+      weight_sum += total_weight;
 
       for( const auto& mu : *muonHandle.product() ){
          Hist("LepPt")->Fill( mu.pt() , total_weight );
@@ -113,6 +128,7 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
       Hist("MET")->Fill( metHandle->front().pt()     , total_weight );
       Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
       Hist("VtxNum")->Fill( vtxHandle->size()        , total_weight );
+      Hist("VtxNumNW")->Fill( vtxHandle->size()      , total_weight/pileup_weight );
 
       if( chisqHandle->ChiSquare() > 0 ){ // Only sotring physical results
          Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
@@ -124,9 +140,18 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
             Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
          }
       }
-
    }
-   cout << "Done!" << endl;
+   cout << "Done!"
+   << " Sum Weight:"  << weight_sum
+   << " Event Count:" << sample.SelectedEventCount()
+   << endl;
+
+   // Weighting events according to expected yield
+   const double expyeild = sample.ExpectedYield().CentralValue();
+   const double scale    = expyeild / weight_sum;
+   for( const auto& histname : AvailableHistList() ){
+      Hist(histname)->Scale( scale );
+   }
 }
 
 

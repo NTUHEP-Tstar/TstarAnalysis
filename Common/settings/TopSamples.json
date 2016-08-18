@@ -29,7 +29,7 @@
       "Cross Section":        [ 70.69, 2.94, 2.51 ],
       "K Factor":        [1.0],
       "EDM Files":[
-         "ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_*.root"
+         "ST_t-channel_*4f_leptonDecays_*.root"
       ]
    },
    "SingleT_TW": {

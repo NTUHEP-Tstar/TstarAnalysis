@@ -15,6 +15,7 @@ PileUpWeighter::PileUpWeighter( const string& filename )
    double weight = 0;
    FILE* pufile = fopen( filename.c_str() , "r" );
    while( fscanf(pufile,"%lf", &weight ) != EOF ){
+      cout << _pileupweights.size() << " " << weight << endl;
       _pileupweights.push_back( weight );
    }
 }

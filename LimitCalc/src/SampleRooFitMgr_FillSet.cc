@@ -19,34 +19,60 @@ void SampleRooFitMgr::definesets()
 
 void SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
-   fwlite::Handle<LHEEventProduct>  lheHandle;
+   fwlite::Handle<double>      weightHandle;
    fwlite::Handle<RecoResult>  chiHandle;
-   double sample_weight =  1. ;
 
-   if( !sample.IsRealData() ){
-      sample_weight = sample.GetSampleWeight();
+   // Getting the total weight of the objects 
+   double weight_sum = 0.;
+   double weight     = 1. ;
+   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() ){
+      if( !sample.Event().isRealData() ){
+         try{
+            weightHandle.getByLabel( sample.Event() , "EventWeight", "EventWeight", "TstarMassReco" );
+            if( *weightHandle < 2.0 && *weightHandle > -2.0 ){
+               weight = *weightHandle;
+            } else {
+               weight = 1. ;
+            }
+         } catch ( std::exception e ){
+            weight = 1. ;
+         }
+      }
+      weight_sum += weight ;
    }
 
+   const double expyield = sample.ExpectedYield().CentralValue();
+   const double scale    = expyield / weight_sum ;
+
    unsigned i = 0 ;
-   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() ){
+   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event(), ++i ){
       printf( "\rSample [%s|%s], Event[%6u/%6llu]..." ,
          Name().c_str(),
          sample.Name().c_str(),
-         ++i ,
+         i ,
          sample.Event().size() );
       fflush(stdout);
 
       chiHandle.getByLabel( sample.Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
-      if( !sample.IsRealData() ){
-         lheHandle.getByLabel( sample.Event() , "externalLHEProducer" );
+
+      // Getting event weight
+      if( !sample.Event().isRealData() ){
+         try{
+            weightHandle.getByLabel( sample.Event() , "EventWeight", "EventWeight", "TstarMassReco" );
+            if( *weightHandle < 2.0 && *weightHandle > -2.0 ){
+               weight = *weightHandle;
+            } else {
+               weight = 1. ;
+            }
+         } catch ( std::exception e ){
+            weight = 1. ;
+         }
       }
 
       if( chiHandle->ChiSquare() < 0 ){ continue; } // Skipping over unphysical results
 
       double tstarMass = chiHandle->TstarMass() ;
-      double event_weight = 1.0 ;
-      if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ) { event_weight = -1.; }
-      double weight = event_weight * sample_weight ;
+      weight *= scale ;
       if( MinMass() <=tstarMass && tstarMass <= MaxMass()  &&
           -1000.    <= weight   && weight    <= 1000. ){
          x() = tstarMass;
