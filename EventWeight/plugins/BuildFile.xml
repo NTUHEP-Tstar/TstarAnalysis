@@ -1,11 +1,14 @@
+<use name="root"/>
+<use name="roofit"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="SimDataFormats/GeneratorProducts"/>
-<use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
+<use name="DataFormats/PatCandidates"/>
 
-<use name="TstarAnalysis/EventWeight"/>
+<use name="ManagerUtils/EDMUtils"/>
 
 <flags EDM_PLUGIN="1"/>

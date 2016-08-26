@@ -10,15 +10,15 @@
          "Root Name": "e channel",
          "Data Tag": "Data_Electron"
       },
-      "MuonSignal2016" : {
+      "MuonSignal2015" : {
          "Latex Name" : "$\\mu$ signal channel",
          "Root Name": "#mu channel",
-         "Data Tag": "Data2016_Muon"
+         "Data Tag": "Data2015_Muon"
       },
-      "ElectronSignal2016" : {
+      "ElectronSignal2015" : {
          "Latex Name" : "$e$ signal channel",
          "Root Name": "e channel",
-         "Data Tag": "Data2016_Electron"
+         "Data Tag": "Data2015_Electron"
       },
       "SignalMerge" : {
          "Latex Name" : "$\\mu + e $ channel",

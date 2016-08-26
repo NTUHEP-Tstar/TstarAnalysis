@@ -29,14 +29,14 @@
       "File List" : ["Data_Electron.json" ]
    },
 
-   "Data2016_Muon" : {
+   "Data2015_Muon" : {
       "Latex Name": "Data",
-      "File List": [ "Data2016_Muon.json" ]
+      "File List": [ "Data2015_Muon.json" ]
    },
 
-   "Data2016_Electron" : {
+   "Data2015_Electron" : {
       "Latex Name" : "Data",
-      "File List" : ["Data2016_Electron.json" ]
+      "File List" : ["Data2015_Electron.json" ]
    },
 
    "TTJets" : {

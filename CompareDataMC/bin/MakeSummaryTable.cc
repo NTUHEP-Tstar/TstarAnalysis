@@ -9,6 +9,7 @@
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 
 #include <boost/program_options.hpp>
 #include <string>
@@ -76,6 +77,20 @@ int main(int argc, char* argv[])
       bkg_mc_list.push_back( new mgr::SampleGroup(bkg_tag,master ) );
    }
 
+   cout << "Re-computing the selection efficiencies!" << endl;
+   for( auto& sample : data->SampleList() ){
+      ComputeSelectionEff( *sample );
+   }
+   for( auto& group : bkg_mc_list ) {
+      for( auto& sample : group->SampleList() ){
+         ComputeSelectionEff( *sample );
+      }
+   }
+   for( auto& group : signal_mc_list ){
+      for( auto& sample : group->SampleList() ){
+         ComputeSelectionEff( *sample );
+      }
+   }
 
    cout << "Making complete summary table...." << endl;
    SummaryComplete(signal_mc_list,bkg_mc_list,data);

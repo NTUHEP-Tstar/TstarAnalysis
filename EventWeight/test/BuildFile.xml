@@ -1,0 +1,5 @@
+<use name="root"/>
+<use name="DataFormats/FWLite"/>
+<use name="TstarAnalysis/EventWeight"/>
+
+<bin name="readweights" file="readweights.cc"/>

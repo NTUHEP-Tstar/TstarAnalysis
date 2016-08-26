@@ -7,13 +7,14 @@
 
 <use name="ManagerUtils/BaseClass"/>
 <use name="ManagerUtils/HistMgr"/>
+<use name="ManagerUtils/Maths"/>
 <use name="ManagerUtils/SampleMgr"/>
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PlotUtils"/>
 
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/Common"/>
-
+<use name="TstarAnalysis/EventWeight"/>
 
 <flags CXXFLAGS="-g"/>
 

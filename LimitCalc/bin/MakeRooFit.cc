@@ -53,6 +53,9 @@ int main(int argc, char* argv[])
       return 1;
    }
 
+   delete data;
+   delete mc;
+   for( auto& sig : signal_list ){ delete sig; }
    SampleRooFitMgr::ClearStaticVars();
 
    return 0;

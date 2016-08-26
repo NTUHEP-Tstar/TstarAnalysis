@@ -6,7 +6,9 @@
  *
 *******************************************************************************/
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
+#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -42,7 +44,6 @@ static void CloseTableFile(FILE*);
 void SummaryComplete( const GroupList& sig_list, const GroupList& bkg_list, const SampleGroup* data )
 {
    FILE* file = OpenSelecFile("");
-
    for( const auto& sig : sig_list ){ PrintSampleLine(file,sig->Sample()); }
    PrintHline(file);
 
@@ -137,10 +138,10 @@ void PrintSampleLine( FILE* file, const SampleMgr* x )
 {
    fprintf( file, selec_line,
       x->LatexName().c_str(),
-      x->CrossSection().LatexFormat().c_str(),
-      x->SelectionEfficiency().LatexFormat(2).c_str(),
-      x->KFactor().LatexFormat().c_str(),
-      x->ExpectedYield().LatexFormat(1).c_str()
+      FloatingPoint( x->CrossSection(), -1 ).c_str(),
+      Scientific   ( x->SelectionEfficiency(), 2 ).c_str(),
+      FloatingPoint( x->KFactor(),      -1 ).c_str() ,
+      FloatingPoint( x->ExpectedYield(), 1 ).c_str()
    );
 }
 
@@ -151,7 +152,7 @@ void PrintCount( FILE* file , const string& tag, const Parameter& x )
       "",
       "",
       "",
-      x.LatexFormat(0).c_str()
+      FloatingPoint( x, 0 ).c_str()
    );
 }
 
@@ -175,8 +176,8 @@ void PrintSimpleLine( FILE* file, const SampleGroup* x )
 {
    fprintf( file , simple_line ,
       x->LatexName().c_str(),
-      x->TotalCrossSection().LatexFormat(1).c_str(),
-      x->ExpectedYield().LatexFormat(1).c_str()
+      FloatingPoint( x->TotalCrossSection(), 1 ).c_str(),
+      Scientific   ( x->ExpectedYield(),     2 ).c_str()
    );
 }
 
@@ -185,7 +186,7 @@ void PrintSimpleCount( FILE* file, const string& tag, const Parameter& x )
    fprintf( file , simple_line ,
       tag.c_str(),
       "",
-      x.LatexFormat(1).c_str()
+      FloatingPoint( x, 1 ).c_str()
    );
 }
 
@@ -208,13 +209,13 @@ FILE* OpenLumiFile( const string& tag )
 
 void PrintLumiLine( FILE* file , const SampleMgr* x )
 {
-   double equiv = x->OriginalEventCount();
+   double equiv = GetOriginalEventCount( *x );
    equiv /= x->CrossSection().CentralValue();
    equiv /= x->KFactor().CentralValue();
    fprintf( file , lumi_line ,
       x->LatexName().c_str(),
-      x->CrossSection().LatexFormat().c_str(),
-      x->KFactor().LatexFormat().c_str(),
-      Parameter(equiv,0,0).LatexFormat().c_str()
+      FloatingPoint( x->CrossSection(), -1 ).c_str(),
+      FloatingPoint( x->KFactor()     , -1 ).c_str(),
+      FloatingPoint( Parameter(equiv,0,0) , 1 ).c_str()
    );
 }

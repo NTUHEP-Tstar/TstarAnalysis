@@ -7,6 +7,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
+#include "TstarAnalysis/EventWeight/interface/GetEventWeight.hpp"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
@@ -19,26 +20,13 @@ void SampleRooFitMgr::definesets()
 
 void SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
-   fwlite::Handle<double>      weightHandle;
    fwlite::Handle<RecoResult>  chiHandle;
 
-   // Getting the total weight of the objects 
+   // Getting the total weight of the objects
    double weight_sum = 0.;
    double weight     = 1. ;
    for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() ){
-      if( !sample.Event().isRealData() ){
-         try{
-            weightHandle.getByLabel( sample.Event() , "EventWeight", "EventWeight", "TstarMassReco" );
-            if( *weightHandle < 2.0 && *weightHandle > -2.0 ){
-               weight = *weightHandle;
-            } else {
-               weight = 1. ;
-            }
-         } catch ( std::exception e ){
-            weight = 1. ;
-         }
-      }
-      weight_sum += weight ;
+      weight_sum += GetEventWeight( sample.Event() ) ;
    }
 
    const double expyield = sample.ExpectedYield().CentralValue();
@@ -54,29 +42,17 @@ void SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       fflush(stdout);
 
       chiHandle.getByLabel( sample.Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
+      weight = GetEventWeight( sample.Event() ) * scale ;
 
       // Getting event weight
-      if( !sample.Event().isRealData() ){
-         try{
-            weightHandle.getByLabel( sample.Event() , "EventWeight", "EventWeight", "TstarMassReco" );
-            if( *weightHandle < 2.0 && *weightHandle > -2.0 ){
-               weight = *weightHandle;
-            } else {
-               weight = 1. ;
-            }
-         } catch ( std::exception e ){
-            weight = 1. ;
-         }
-      }
-
       if( chiHandle->ChiSquare() < 0 ){ continue; } // Skipping over unphysical results
 
       double tstarMass = chiHandle->TstarMass() ;
-      weight *= scale ;
       if( MinMass() <=tstarMass && tstarMass <= MaxMass()  &&
           -1000.    <= weight   && weight    <= 1000. ){
          x() = tstarMass;
          DataSet()->add( RooArgSet(x()) , weight );
+
       }
    }
    printf( "Done!\n"); fflush( stdout );

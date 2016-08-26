@@ -14,6 +14,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
+#include "TstarAnalysis/EventWeight/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 
 #include <iostream>
 #include <stdlib.h>
@@ -62,7 +64,10 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
    fwlite::Handle<LHEEventProduct>       lheHandle;
    fwlite::Handle<RecoResult>            chisqHandle;
 
-   double weight_sum = 0 ;
+   const double selectedEvents = GetSelectedEventCount( sample );
+   const double exp_yield      = sample.ExpectedYield().CentralValue();
+   const double sampleweight   = exp_yield / selectedEvents ;
+
    unsigned i = 1;
    // Looping over events
    for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() , ++i ){
@@ -74,61 +79,49 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
          sample.Event().size()
       );
       fflush(stdout);
+      double total_weight  = GetEventWeight ( sample.Event() ) * sampleweight;
+      double pileup_weight = GetPileupWeight( sample.Event() );
 
       metHandle.getByLabel     ( sample.Event(), "slimmedMETs"    );
       vtxHandle.getByLabel     ( sample.Event(), "offlineSlimmedPrimaryVertices" );
       jetHandle.getByLabel     ( sample.Event(), "skimmedPatJets" );
       muonHandle.getByLabel    ( sample.Event(), "skimmedPatMuons" );
       electronHandle.getByLabel( sample.Event(), "skimmedPatElectrons" );
-      chisqHandle.getByLabel   ( sample.Event(), "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
+      chisqHandle.getByLabel   ( sample.Event(), "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
 
-      double total_weight = 1. ;
-      double pileup_weight = 1.;
-      if( !sample.IsRealData() ){
-         try{
-            weightHandle.getByLabel( sample.Event() , "EventWeight", "EventWeight", "TstarMassReco" );
-            puwHandle.getByLabel( sample.Event() , "EventWeight", "PileupWeight" , "TstarMassReco"  );
+      cout << jetHandle->size() << endl;
+      cout << jetHandle.product() << endl;
+      cout << jetHandle.isValid() << endl;
+      cout << jetHandle.ptr()     << endl;
 
-            if( *weightHandle < 2.0 && *weightHandle > -2.0 ){
-               total_weight = *weightHandle;
-            } else {
-               fprintf( stderr , "Strange weight found! %lf\n", *weightHandle );
-               fflush(stderr);
-            }
-
-            if( *puwHandle < 2.0 && *puwHandle > -2.0 && *puwHandle != 0. ){
-               pileup_weight = *puwHandle;
-            }
-         } catch ( std::exception e ){
-
-         }
+      for( auto& histpair : HistMap() ){
+         cout << histpair.second << endl;
       }
 
-      weight_sum += total_weight;
+      Hist("JetNum" )->Fill( jetHandle->size()      , total_weight );
+      Hist("Jet1Pt" )->Fill( jetHandle->at(0).pt()  , total_weight );
+      Hist("Jet1Eta")->Fill( jetHandle->at(0).eta() , total_weight );
+      Hist("Jet2Pt" )->Fill( jetHandle->at(1).pt()  , total_weight );
+      Hist("Jet2Eta")->Fill( jetHandle->at(1).eta() , total_weight );
+      Hist("Jet3Pt" )->Fill( jetHandle->at(2).pt()  , total_weight );
+      Hist("Jet4Pt" )->Fill( jetHandle->at(3).pt()  , total_weight );
+      Hist("Jet5Pt" )->Fill( jetHandle->at(4).pt()  , total_weight );
+      Hist("Jet6Pt" )->Fill( jetHandle->at(5).pt()  , total_weight );
 
-      for( const auto& mu : *muonHandle.product() ){
+      for( const auto& mu : *muonHandle ){
          Hist("LepPt")->Fill( mu.pt() , total_weight );
          Hist("LepEta")->Fill( mu.eta() , total_weight );
       }
-      for( const auto& el : *electronHandle.product() ){
+      for( const auto& el : *electronHandle ){
          Hist("LepPt")->Fill( el.pt() , total_weight );
          Hist("LepEta")->Fill( el.eta(), total_weight );
       }
 
-      Hist("JetNum")->Fill( jetHandle->size()       , total_weight );
-      Hist("Jet1Pt")->Fill( jetHandle->at(0).pt()   , total_weight );
-      Hist("Jet1Eta")->Fill( jetHandle->at(0).eta() , total_weight );
-      Hist("Jet2Pt")->Fill( jetHandle->at(1).pt()   , total_weight );
-      Hist("Jet2Eta")->Fill( jetHandle->at(1).eta() , total_weight );
-      Hist("Jet3Pt")->Fill( jetHandle->at(2).pt()   , total_weight );
-      Hist("Jet4Pt")->Fill( jetHandle->at(3).pt()   , total_weight );
-      Hist("Jet5Pt")->Fill( jetHandle->at(4).pt()   , total_weight );
-      Hist("Jet6Pt")->Fill( jetHandle->at(5).pt()   , total_weight );
-
-      Hist("MET")->Fill( metHandle->front().pt()     , total_weight );
+      Hist("MET")   ->Fill( metHandle->front().pt()  , total_weight );
       Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
-      Hist("VtxNum")->Fill( vtxHandle->size()        , total_weight );
-      Hist("VtxNumNW")->Fill( vtxHandle->size()      , total_weight/pileup_weight );
+
+      Hist("VtxNum")  ->Fill( vtxHandle->size() , total_weight );
+      Hist("VtxNumNW")->Fill( vtxHandle->size() , total_weight/pileup_weight );
 
       if( chisqHandle->ChiSquare() > 0 ){ // Only sotring physical results
          Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
@@ -140,18 +133,13 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
             Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
          }
       }
-   }
-   cout << "Done!"
-   << " Sum Weight:"  << weight_sum
-   << " Event Count:" << sample.SelectedEventCount()
-   << endl;
 
-   // Weighting events according to expected yield
-   const double expyeild = sample.ExpectedYield().CentralValue();
-   const double scale    = expyeild / weight_sum;
-   for( const auto& histname : AvailableHistList() ){
-      Hist(histname)->Scale( scale );
+      for( auto& histpair : HistMap() ){
+         cout << histpair.second << " " << histpair.second->GetName() << " " << endl;
+      }
+
    }
+   cout << "Done!" << endl;
 }
 
 
@@ -160,11 +148,12 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
 //------------------------------------------------------------------------------
 SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg ):
 Named( name ),
-SampleGroup( name, cfg  ),
+SampleGroup( name, cfg ),
 HistMgr( name )
 {
    define_hist();
    for( auto& sample : SampleList() ){
+      ComputeSelectionEff(*sample); // calculating the efficiencies
       fill_histograms(*sample);
    }
 }

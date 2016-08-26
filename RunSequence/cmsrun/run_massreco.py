@@ -40,7 +40,6 @@ process.source = cms.Source("PoolSource",
     )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 #-------------------------------------------------------------------------------
 #   Load default Settings
@@ -57,7 +56,17 @@ process.edmOut = cms.OutputModule(
     outputCommands = cms.untracked.vstring(
         "keep *",
         ),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('path')
     )
+    )
+
+process.path = cms.Path(
+    process.tstarMassReco
+    * process.ElectronWeight
+    * process.PileupWeight
+    * process.EventWeight
+)
 
 # process.myfilterpath = cms.Path(process.tstarMassReco)
 process.endPath = cms.EndPath( process.edmOut )

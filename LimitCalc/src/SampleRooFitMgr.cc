@@ -55,8 +55,6 @@ SampleRooFitMgr::~SampleRooFitMgr()
    }
    for( auto& set : _setlist ) { delete set; }
    for( auto& pdf : _pdflist ) { delete pdf; }
-
-   ClearStaticVars();
 }
 
 //------------------------------------------------------------------------------

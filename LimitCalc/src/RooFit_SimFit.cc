@@ -135,7 +135,6 @@ void smft::MakeCardFile(
       ((RooRealVar*)(model->coefList().at(0)))->getErrorHi(),
       ((RooRealVar*)(model->coefList().at(0)))->getErrorLo()
    );
-
    vector<RooRealVar*> bgvarlist = data->VarContains( "bg"+sig->Name() );
 
    FILE* card_file = MakeCardCommon( data_set, bg_pdf, sig_pdf, sig->Name() );
@@ -173,22 +172,16 @@ void smft::MakeValidationPlot(
    RooPlot* frame = SampleRooFitMgr::x().frame();
 
    RooDataSet* data_set = data->DataSet( dataset_alias );
-   RooAddPdf*  model    = (RooAddPdf*)data->Pdf( sig->Name()      );
+   RooAddPdf*  model    = (RooAddPdf*)data->Pdf( sig->Name() );
    RooAbsPdf*  bg_pdf   = data->Pdf( "bg"+sig->Name() );
    RooAbsPdf*  sig_pdf  = sig->Pdf("key");
    RooRealVar* bg_var   = (RooRealVar*)(model->coefList().at(0));
-   RooRealVar* sig_var  = (RooRealVar*)(model->coefList().at(1));
-   const double sig_fit_stgth = sig_var->getVal();
    const double bg_strength   = bg_var->getVal();
    const double bg_err        = bg_var->getError();
    const double sig_strength  = sig->Sample()->ExpectedYield();
 
    TGraph* data_plot    = PlotOn( frame, data_set );
    TGraph* model_plot   = PlotOn( frame, model    );
-   TGraph* sig_fit_plot = PlotOn( frame, sig_pdf,
-      RooFit::Normalization(sig_fit_stgth,RooAbsReal::NumEvent),
-      RooFit::DrawOption("L")
-   );
    TGraph* bg_plot = PlotOn( frame, bg_pdf,
       RooFit::Normalization(bg_strength,RooAbsReal::NumEvent)
    );
@@ -204,7 +197,6 @@ void smft::MakeValidationPlot(
    // frame->GetYaxis()->SetTitle( data_plot->GetYaxis()->GetTitle() );
 
    model_plot->SetLineColor(kGreen);
-   sig_fit_plot->SetLineColor(kGreen);
    bg_plot->SetFillColor(kCyan);
    sig_plot->SetLineColor(kRed);
    sig_plot->SetFillStyle(3004);
@@ -222,9 +214,9 @@ void smft::MakeValidationPlot(
    );
    if( tag != "" ) { leg->AddEntry( data_plot,  "Pseudo data", "lp" ); }
    else            { leg->AddEntry( data_plot,  "Data", "lp" ); }
-   leg->AddEntry( bg_plot  ,  "Fitted Background",      "l" );
-   leg->AddEntry( model_plot, "Fitted Signal/Combine" , "l" );
-   leg->AddEntry( sig_plot , sig_entry , "lf" );
+   leg->AddEntry( bg_plot   , "Fitted Background", "l"  );
+   leg->AddEntry( model_plot, "Fitted Combine"   , "l"  );
+   leg->AddEntry( sig_plot  , sig_entry          , "lf" );
    leg->Draw();
 
    if( tag != "" ) { plt::DrawCMSLabel(SIMULATION) ; }

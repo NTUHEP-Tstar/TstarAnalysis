@@ -6,7 +6,7 @@
    -----------------------------------------------------------------------------""",
    "WJets_100_200": {
       "Latex Name" : "$W$ + Jets ( $H_{T} \\in [100,200)$ )",
-      "Cross Section":[ 1345, 1.2 ,1.2 ],
+      "Cross Section":[1345, 1.2, 1.2],
       "K Factor":     [1.21],
       "EDM Files":[
          "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
@@ -22,8 +22,8 @@
    },
    "WJets_400_600": {
       "Latex Name" : "$W$ + Jets ( $H_{T} \\in [400,600)$ )",
-      "Cross Section":        [ 48.91 , 0.072, 0.072 ],
-      "K Factor":        [1.21],
+      "Cross Section": [ 48.91 , 0.072, 0.072 ],
+      "K Factor":      [1.21],
       "EDM Files":[
          "WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]

@@ -10,6 +10,7 @@
 
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/Common"/>
+<use name="TstarAnalysis/EventWeight"/>
 
 
 <flags CXXFLAGS="-g"/>

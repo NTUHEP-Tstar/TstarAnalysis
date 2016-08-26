@@ -8,6 +8,7 @@
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 
+
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
@@ -42,9 +43,8 @@ int main(int argc, char* argv[])
 
    InitSampleStatic( compare_namer );
 
-
    const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
-   const string           data_tag = compare_namer.GetChannelEXT("Data Tag");
+   const string            data_tag = compare_namer.GetChannelEXT("Data Tag");
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( data_tag , master );
    // Defining out channels see data/Groups.json for sample settings
@@ -54,7 +54,6 @@ int main(int argc, char* argv[])
    background.push_back( new SampleHistMgr("TTBoson"    , master ) );
    background.push_back( new SampleHistMgr("SingleBoson", master ) );
    background.push_back( new SampleHistMgr("DiBoson"    , master ) );
-
    // Declaring sample sample
    SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , master );
 

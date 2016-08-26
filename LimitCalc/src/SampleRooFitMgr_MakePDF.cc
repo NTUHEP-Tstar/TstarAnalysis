@@ -99,8 +99,8 @@ RooAbsPdf* MakeFermi(SampleRooFitMgr* sample, const string& name = "fermi" )
 RooAbsPdf* MakeExo( SampleRooFitMgr* sample, const string& name="exo" )
 {
    static char formula[1024];
-   RooRealVar* a  = sample->NewVar( name+"a" , 1, -100, +100);
-   RooRealVar* b  = sample->NewVar( name+"b" , 1, -100, +100);
+   RooRealVar* a  = sample->NewVar( name+"a" , 61.7, 0, 100);
+   RooRealVar* b  = sample->NewVar( name+"b" , 0.18, 0, +1);
    sprintf(
       formula, "(TMath::Power((1-(x/13000.)),(%s)))/(TMath::Power((x/13000.),(%s)))",
       a->GetName(),
