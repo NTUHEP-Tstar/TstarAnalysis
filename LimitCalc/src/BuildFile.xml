@@ -5,6 +5,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 
+<use name="ManagerUtils/RootMgr"/>
 <use name="ManagerUtils/SampleMgr"/>
 <use name="ManagerUtils/PlotUtils"/>
 

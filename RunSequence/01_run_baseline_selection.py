@@ -25,6 +25,7 @@ config.General.transferLogs = False
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '{2}'
+config.JobType.maxMemoryMB = 5000 ## Requesting 5G of memory!
 
 ## Input parameters
 config.JobType.pyCfgParams = [
@@ -36,11 +37,12 @@ config.JobType.pyCfgParams = [
 config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 8
+config.Data.unitsPerJob = 8 ## Very fine job splitting
 config.Data.outLFNDirBase = '{7}'
 config.Data.publication = False
 
 config.Site.storageSite = '{8}'
+config.Site.blacklist = ['T2_DE_DESY']
 """
 
 
@@ -50,15 +52,15 @@ config.Site.storageSite = '{8}'
 def MakeCrabFile( data_set, opt ):
 
     # Preparing variables
-    task_name = my_name.GetTaskName( 'tstarbaseline' , data_set , opt.mode )
+    task_name = my_name.GetTaskName( 'tstar' , data_set , opt.mode )
     work_area = my_settings.crab_work_dir
     run_file  = my_settings.cmsrun_dir + 'run_baseline_selection.py'
     mode      = opt.mode
     global_tag= ""
     hlt       = my_name.GetHLT(data_set)
-    lfn_dir   = opt.path
-    site      = opt.site
-    lumi_file = opt.lumi
+    lfn_dir   = my_settings.crab_default_path
+    site      = my_settings.crab_default_site
+    lumi_file = my_settings.crab_default_lumi
 
     if my_name.IsData( data_set ):
         global_tag = my_settings.data_global_tag
@@ -93,9 +95,6 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option('-i', '--inputlist', dest='input', help='list of data sets to generate', default=None, type='string')
     parser.add_option('-m', '--mode',      dest='mode',  help='which mode to run with',        default=None, type='string')
-    parser.add_option('-s', '--site',      dest='site',  help='which site to pass the output', default=my_settings.crab_default_site, type='string')
-    parser.add_option('-p', '--path',      dest='path',  help='which path to pass the output', default=my_settings.crab_default_path, type='string')
-    parser.add_option('-l', '--lumi',      dest='lumi',  help='lumi mask file to use'        , default=my_settings.crab_default_lumi, type='string')
     parser.add_option('-r', '--runcrab'  , dest='run' , action="store_true", help="whether to run submit command", default=False )
 
     (opt,args) = parser.parse_args()

@@ -7,7 +7,8 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
-
+#include "TstarAnalysis/LimitCalc/interface/Template.hpp"
+#include "TstarAnalysis/LimitCalc/interface/SimFit.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
@@ -56,7 +57,6 @@ int main(int argc, char* argv[])
    delete data;
    delete mc;
    for( auto& sig : signal_list ){ delete sig; }
-   SampleRooFitMgr::ClearStaticVars();
 
    return 0;
 }

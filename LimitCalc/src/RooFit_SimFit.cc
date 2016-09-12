@@ -1,16 +1,18 @@
 /*******************************************************************************
- *
- *  Filename    : RooFit_SimFit.cc
- *  Description : Making simultaneous fit objects
- *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
- *
+*
+*  Filename    : RooFit_SimFit.cc
+*  Description : Making simultaneous fit objects
+*  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+*
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "TstarAnalysis/LimitCalc/interface/MakeKeysPdf.hpp"
+#include "TstarAnalysis/LimitCalc/interface/Template.hpp"
+#include "TstarAnalysis/LimitCalc/interface/SimFit.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
-
 
 #include <stdio.h>
 #include <fstream>
@@ -26,81 +28,99 @@
 
 using namespace std;
 
+//------------------------------------------------------------------------------
+//   Object naming conventions
+//------------------------------------------------------------------------------
+string SimFitBGPdfName( const string& datasetname, const string& signalname ){
+   return datasetname + signalname + "simfitbg";
+}
+string SimFitCombinePdfName( const string& datasetname, const string& signalname ){
+   return datasetname + signalname  + "simfitcomb";
+}
+string StitchSimFitBgPdfname( const std::string& signalname ){
+   return signalname + "simfitbfmaster";
+}
+
+//------------------------------------------------------------------------------
+//   Main control flow, to be called by main function
+//------------------------------------------------------------------------------
 void MakeSimFit(
    SampleRooFitMgr* data,
    SampleRooFitMgr* mc,
    vector<SampleRooFitMgr*>& signal_list
 )
 {
-   using namespace smft;
    vector<RooAbsPdf*>    bg_pdf_list;
    vector<RooAbsPdf*>    sig_pdf_list;
-   vector<RooFitResult*> results_list;
 
-   // Getting fit result from MC template;
-   RooFitResult*  bgconstrain = tmplt::MakeBGFromMC(mc);
-   for( auto& sig : signal_list ){
-      RooFitResult* err = FitPDFs( data, sig , bgconstrain);
-      MakeCardFile( data,sig, err);
-      MakeValidationPlot( data, sig, err );
+   // Getting fit result from default MC dataset ;
+   RooFitResult*  bgconstrain = FitBackgroundTemplate(mc,"");
 
-      bg_pdf_list .push_back( data->Pdf("bg"+sig->Name()) );
-      sig_pdf_list.push_back( sig ->Pdf("key") );
-      results_list.push_back( err );
+   for( auto& sig : signal_list ) {
+      MakeFullKeysPdf( sig );
+      MakeFullSimFit ( data, sig, bgconstrain );
+      MakeSimFitCardFile( data, sig );
+      MakeSimFitPlot( data, sig, ""  );
+
+      bg_pdf_list.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
+      sig_pdf_list.push_back( sig->Pdf( StitchKeyPdfName ) );
    }
 
    SaveRooWorkSpace(
       data->DataSet( dataset_alias ),
       bg_pdf_list,
-      sig_pdf_list,
-      results_list
+      sig_pdf_list
    );
 }
 
 //------------------------------------------------------------------------------
-//   RooFit control flow
+//   Fitting control flow
 //------------------------------------------------------------------------------
-RooFitResult* smft::FitPDFs(
+RooFitResult* SimFitSingle(
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
+   const string&    datasetname,
    RooFitResult*    bgconstrain
 ){
-   const string bgfun_name = "bg"+sig->Name();
-   const string fitfunc    = limit_namer.GetInput("fitfunc");
+   const string bgfuncname = SimFitBGPdfName     ( datasetname, sig->Name() );
+   const string combfuncname = SimFitCombinePdfName( datasetname, sig->Name() );
+   const string fitfunc = limit_namer.GetInput("fitfunc");
 
-   RooAbsPdf*  bg_pdf      = data->NewPdf( bgfun_name, fitfunc );
-   RooAbsPdf*  sig_pdf     = sig ->MakeKeysPdf( "key" );
-   RooDataSet* data_to_fit = data->DataSet( dataset_alias ) ;
-   vector<RooRealVar*> bgfitvarlist = data->VarContains( bgfun_name );
+   RooAbsPdf*  bgpdf = data->NewPdf( bgfuncname, fitfunc );
+   RooAbsPdf*  sigpdf = MakeFullKeysPdf(sig);      // attempting simfit will default signal regardless
+   RooDataSet* fitdataset = data->DataSet( datasetname );
+   vector<RooRealVar*> bgfitvarlist = data->VarContains( bgfuncname );
 
-   const double num_data   = data_to_fit->sumEntries();
-   RooRealVar*  nb         = data->NewVar( sig->Name()+"nb", num_data, -1000000, 1000000);
-   RooRealVar*  ns         = data->NewVar( sig->Name()+"ns", 0       , -1000000, 1000000);
+   const double numdata = fitdataset->sumEntries();
+   RooRealVar*  nb = data->NewVar( combfuncname+"nb", numdata, -1000000, 1000000);
+   RooRealVar*  ns = data->NewVar( combfuncname+"ns", 0, -1000000, 1000000);
 
-   RooArgSet  fitconstraints ;
-   for( unsigned i = 0 ; i < bgfitvarlist.size(); ++i ){
-      RooRealVar* bgvar    = bgfitvarlist[i];
-      RooRealVar* bgconvar = (RooRealVar*)(bgconstrain->floatParsFinal().at(i) );
+   RooArgSet fitconstraints;
+   for( unsigned i = 0; i < bgfitvarlist.size(); ++i ) {
+      RooRealVar* bgvar = bgfitvarlist[i];
+      RooRealVar* bgconvar = (RooRealVar*)( bgconstrain->floatParsFinal().at(i) );
 
-      string pdfname(bgvar->GetName()); pdfname += "constrain";
+      string pdfname = bgvar->GetName();
+      pdfname += "constrain";
 
-      RooGaussian bgvar_conpdf(
+      RooGaussian bgvarconpdf(
          pdfname.c_str(), pdfname.c_str(),
          *bgvar,
          RooFit::RooConst( bgconvar->getVal() ),
-         RooFit::RooConst( 5*bgconvar->getError() )
+         RooFit::RooConst( 5*bgconvar->getError() ) // five time sigma constrain for the time being
       );
-      fitconstraints.addClone( bgvar_conpdf );
+      fitconstraints.addClone( bgvarconpdf );
    }
 
    RooAddPdf* model = new RooAddPdf(
-      sig->Name().c_str(), sig->Name().c_str(),
-      RooArgList(*bg_pdf,*sig_pdf),
+      combfuncname.c_str(),
+      combfuncname.c_str(),
+      RooArgList(*bgpdf,*sigpdf),
       RooArgList(*nb,*ns)
-   );
+                      );
 
    RooFitResult* err = model->fitTo(
-      *(data_to_fit),
+      *( fitdataset ),
       RooFit::Range("FitRange"),
       RooFit::Minos(kTRUE),
       RooFit::ExternalConstraints( fitconstraints ),
@@ -109,91 +129,145 @@ RooFitResult* smft::FitPDFs(
       RooFit::PrintLevel(-1),
       RooFit::PrintEvalErrors(-1),
       RooFit::Warnings(kFALSE)
-   );
+                       );
 
-   err->SetName( ("results_"+sig->Name()).c_str() );
    data->AddPdf( model );
    return err;
+}
+
+RooAddPdf* MakeFullSimFit(
+   SampleRooFitMgr*  data,
+   SampleRooFitMgr*  sig,
+   RooFitResult*     bgconstrain
+)
+{
+   vector<string> bgpdfnamelist;
+
+   for( const auto& datasetname : data->SetNameList() ) {
+      SimFitSingle( data, sig, datasetname, bgconstrain );
+      bgpdfnamelist.push_back( SimFitBGPdfName( datasetname, sig->Name() ) );
+   }
+
+   return MakeStichPdf(
+      data,
+      StitchSimFitBgPdfname( sig->Name() ),
+      bgpdfnamelist
+   );
 }
 
 //------------------------------------------------------------------------------
 //   Making data card
 //------------------------------------------------------------------------------
-void smft::MakeCardFile(
+void MakeSimFitCardFile(
    SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   RooFitResult*    err
+   SampleRooFitMgr* sig
 )
 {
-   RooAddPdf*  model    = (RooAddPdf*)(data->Pdf( sig->Name() )) ;
-   RooDataSet* data_set = data->DataSet( dataset_alias );
-   RooDataSet* sig_set  = sig->DataSet();
-   RooAbsPdf*  bg_pdf   = data->Pdf("bg"+sig->Name() );
-   RooAbsPdf*  sig_pdf  = sig->Pdf("key");
-   const Parameter bg_unc = Parameter(
-      ((RooRealVar*)(model->coefList().at(0)))->getVal(),
-      ((RooRealVar*)(model->coefList().at(0)))->getErrorHi(),
-      ((RooRealVar*)(model->coefList().at(0)))->getErrorLo()
-   );
-   vector<RooRealVar*> bgvarlist = data->VarContains( "bg"+sig->Name() );
+   const string centralpdfname = SimFitCombinePdfName ( "", sig->Name() );
+   const string stitchbgpdfname = StitchSimFitBgPdfname( sig->Name() );
+   RooDataSet* dataset = data->DataSet();
+   RooAbsPdf*  bgpdf = data->Pdf(stitchbgpdfname);
+   RooAbsPdf*  sigpdf = sig->Pdf(StitchKeyPdfName);
+   const Parameter bgunc = GetBgNormError( data, "", sig->Name() );
 
-   FILE* card_file = MakeCardCommon( data_set, bg_pdf, sig_pdf, sig->Name() );
+   FILE* card_file = MakeCardCommon( dataset, bgpdf, sigpdf, sig->Name() );
    fprintf(
-      card_file , "%12s %15lf %15lf\n" , "rate",
-      sig_set->sumEntries(),
-      bg_unc.CentralValue()
+      card_file, "%12s %15lf %15lf\n", "rate",
+      sig->DataSet()->sumEntries(),
+      bgunc.CentralValue()
    );
 
+   // Getting list of normalization errors
    const Parameter lumi(1,0.05,0.05);
-   const Parameter sig_unc = sig->Sample()->SelectionEfficiency();
+   const Parameter sigunc = sig->Sample()->SelectionEfficiency();
    const Parameter null(0,0,0);
-   fprintf( card_file , "----------------------------------------\n" );
+   fprintf( card_file, "----------------------------------------\n" );
 
-   PrintNuisanceFloats( card_file, "Lumi"   , "lnN", lumi   , lumi   );
-   PrintNuisanceFloats( card_file, "sig_unc", "lnN", sig_unc, null   );
-   PrintNuisanceFloats( card_file, "bg_unc" , "lnN", null   , bg_unc );
-   for( const auto& var : bgvarlist ){
-      PrintFloatParam( card_file , var );
+   PrintNuisanceFloats( card_file, "Lumi", "lnN", lumi, lumi   );
+   PrintNuisanceFloats( card_file, "sigunc", "lnN", sigunc, null   );
+   PrintNuisanceFloats( card_file, "bgunc", "lnN", null, bgunc  );
+
+   // Getting a list of fitting parameters to permutate.
+   vector<RooRealVar*> bgvarlist;
+   for( const auto& datasetname : data->SetNameList() ) {
+      const string bgfuncname = SimFitBGPdfName( datasetname, sig->Name() );
+      for( auto var : data->VarContains(bgfuncname) ) {
+         bgvarlist.push_back(var);
+      }
+   }
+   for( const auto& var : bgvarlist ) {
+      PrintFloatParam( card_file, var );
    }
 
+   // Closing file
    fclose( card_file );
 }
 
+// Helper function for extracting fitting error
+Parameter GetBgNormError(
+   SampleRooFitMgr* data,
+   const string& datasetname,
+   const string& signalname
+)
+{
+   const string centralpdfname = SimFitCombinePdfName( "", signalname );
+   const string secondpdfname = SimFitCombinePdfName( datasetname, signalname );
+   RooAddPdf* centralmodel = (RooAddPdf*)( data->Pdf( centralpdfname ) );
+   RooAddPdf* secondmodel = (RooAddPdf*)( data->Pdf( secondpdfname ) );
+   if( datasetname == "" ) {
+      return Parameter(
+         ( (RooRealVar*)( centralmodel->coefList().at(0) ) )->getVal(),
+         ( (RooRealVar*)( centralmodel->coefList().at(0) ) )->getErrorHi(),
+         ( (RooRealVar*)( centralmodel->coefList().at(0) ) )->getErrorLo()
+      );
+   } else {
+      const double centralnorm = ( (RooRealVar*)( centralmodel->coefList().at(0) ) )->getVal();
+      const double secondnorm = ( (RooRealVar*)( secondmodel->coefList().at(0) ) )->getVal();
+      const double diff = fabs( centralnorm - secondnorm );
+      return Parameter( centralnorm, diff, diff );
+   }
+}
+
 //------------------------------------------------------------------------------
-//   Making validation plots
+//   Plotting contrl flows
 //------------------------------------------------------------------------------
-void smft::MakeValidationPlot(
+
+void MakeSimFitPlot(
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
-   RooFitResult* err,
-   const string& tag )
+   const string&    datasetname
+)
 {
    TCanvas* c = new TCanvas("c","c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
    RooPlot* frame = SampleRooFitMgr::x().frame();
 
-   RooDataSet* data_set = data->DataSet( dataset_alias );
-   RooAddPdf*  model    = (RooAddPdf*)data->Pdf( sig->Name() );
-   RooAbsPdf*  bg_pdf   = data->Pdf( "bg"+sig->Name() );
-   RooAbsPdf*  sig_pdf  = sig->Pdf("key");
-   RooRealVar* bg_var   = (RooRealVar*)(model->coefList().at(0));
-   const double bg_strength   = bg_var->getVal();
-   const double bg_err        = bg_var->getError();
-   const double sig_strength  = sig->Sample()->ExpectedYield();
+   const string combpdfname = SimFitCombinePdfName( datasetname, sig->Name() );
+   const string bgpdfname = SimFitBGPdfName     ( datasetname, sig->Name() );
+   RooDataSet* data_set = data->DataSet( datasetname );
+   RooAddPdf*  model = (RooAddPdf*)data->Pdf( combpdfname );
+   RooAbsPdf*  bg_pdf = data->Pdf( bgpdfname );
+   RooAbsPdf*  sig_pdf = sig->Pdf( StitchKeyPdfName );
+   const RooRealVar* bg_var = data->Var( combpdfname + "nb" );
+   const double bg_strength = bg_var->getVal();
+   const double bg_err = bg_var->getError();
+   const double sig_strength = sig->Sample()->ExpectedYield();
 
-   TGraph* data_plot    = PlotOn( frame, data_set );
-   TGraph* model_plot   = PlotOn( frame, model    );
+   TGraph* data_plot = PlotOn( frame, data_set );
+   TGraph* model_plot = PlotOn( frame, model    );
+
    TGraph* bg_plot = PlotOn( frame, bg_pdf,
-      RooFit::Normalization(bg_strength,RooAbsReal::NumEvent)
-   );
-   TGraph* sig_plot  = PlotOn( frame, sig_pdf,
-      RooFit::Normalization(sig_strength,RooAbsReal::NumEvent),
-      RooFit::DrawOption("LB")
-   );
+                             RooFit::Normalization(bg_strength,RooAbsReal::NumEvent)
+                     );
+
+   TGraph* sig_plot = PlotOn( frame, sig_pdf,
+                              RooFit::Normalization(sig_strength,RooAbsReal::NumEvent),
+                              RooFit::DrawOption("LB")
+                      );
    PlotOn( frame, data_set );
 
    frame->Draw();
    frame->SetMinimum(0.3);
-   SetFrame(frame,AXIS_TITLE_FONT_SIZE); // see Utils/src/RooFitUtils.cc
+   SetFrame(frame);
    // frame->GetYaxis()->SetTitle( data_plot->GetYaxis()->GetTitle() );
 
    model_plot->SetLineColor(kGreen);
@@ -202,25 +276,24 @@ void smft::MakeValidationPlot(
    sig_plot->SetFillStyle(3004);
    sig_plot->SetFillColor(kRed);
 
-   const double legend_x_min = 0.6;
+   const double legend_x_min = 0.57;
    const double legend_y_min = 0.7;
 
    TLegend* leg = plt::NewLegend( legend_x_min, legend_y_min );
    char sig_entry[1024];
    sprintf(
-      sig_entry,  "t* {}_{M_{t*}=%dGeV} (%.1lf pb)",
-      GetInt(sig->Name()),
+      sig_entry,  "t*%dGeV (%.2lf pb)",
+      GetInt( sig->Name() ),
       sig->Sample()->CrossSection().CentralValue()
    );
-   if( tag != "" ) { leg->AddEntry( data_plot,  "Pseudo data", "lp" ); }
+   if( datasetname != "" ) { leg->AddEntry( data_plot,  "Pseudo data", "lp" ); }
    else            { leg->AddEntry( data_plot,  "Data", "lp" ); }
-   leg->AddEntry( bg_plot   , "Fitted Background", "l"  );
-   leg->AddEntry( model_plot, "Fitted Combine"   , "l"  );
-   leg->AddEntry( sig_plot  , sig_entry          , "lf" );
+   leg->AddEntry( bg_plot, "Fitted Background", "l"  );
+   leg->AddEntry( model_plot, "Fitted Combine", "l"  );
+   leg->AddEntry( sig_plot, sig_entry, "lf" );
    leg->Draw();
 
-   if( tag != "" ) { plt::DrawCMSLabel(SIMULATION) ; }
-   else            { plt::DrawCMSLabel(); }
+   plt::DrawCMSLabel();
    plt::DrawLuminosity( sig->Sample()->TotalLuminosity() );
    TLatex tl;
    tl.SetNDC(kTRUE);
@@ -236,8 +309,8 @@ void smft::MakeValidationPlot(
    char exp_yield[1024];
    char delta[1024];
    sprintf( obs_yield, "Observed Yield: %d", obs );
-   sprintf( exp_yield, "Fitted bkg: %.2lf #pm %.2lf" , bg_strength, bg_err );
-   sprintf( delta    , "#Delta: %.3lf%%", 100.* (bg_strength-obs)/obs );
+   sprintf( exp_yield, "Fitted bkg: %.2lf #pm %.2lf", bg_strength, bg_err );
+   sprintf( delta, "#Delta: %.3lf%%", 100.* ( bg_strength-obs )/obs );
    tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.02, limit_namer.query_tree("fitmethod","SimFit","Full Name").c_str() );
    tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.07, obs_yield );
    tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.12, exp_yield );
@@ -246,13 +319,13 @@ void smft::MakeValidationPlot(
 
    // Saving and cleaning up
    string prefix = "fitplot";
-   if( tag != "" ){ prefix="valplot"+tag; }
+   if( datasetname != "" ) { prefix = "valplot"+datasetname; }
    c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name()} ).c_str() );
    c->SetLogy(kTRUE);
    c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name(),"log"}).c_str() );
 
    c->SetLogy(kFALSE);
-   const double peak_value = model_plot->Eval( GetInt(sig->Name()) );
+   const double peak_value = model_plot->Eval( GetInt( sig->Name() ) );
    frame->SetMaximum(peak_value*1.5);
    c->SaveAs( limit_namer.PlotFileName( prefix, {sig->Name(),"zoom"} ).c_str() );
    c->SetLogy(kTRUE);

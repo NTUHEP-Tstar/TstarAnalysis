@@ -12,7 +12,7 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
-#include "ManagerUtils/HistMgr/interface/HistMgr.hpp"
+#include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
 
 #include <vector>
 #include <string>

@@ -36,7 +36,6 @@ HitFitter::HitFitter( const edm::ParameterSet& iConfig ):
    _elec( NULL ),
    _debug( iConfig.getUntrackedParameter<int>( "Debug" , 0 ) )
 {
-   if( _debug ) { cout << "Getting Top_Fit variables.... " << endl ; }
    const edm::FileInPath fitterFile = iConfig.getUntrackedParameter<edm::FileInPath>( "fitterConfig" , defaultFitter );
    double fitter_lepWMass = iConfig.getUntrackedParameter<double>( "fittingLeptonicWMass" ,  DEFAULT_W_MASS );
    double fitter_hadWMass = iConfig.getUntrackedParameter<double>( "fittingHadronicWMass" ,  DEFAULT_W_MASS );
@@ -63,7 +62,6 @@ HitFitter::HitFitter( const edm::ParameterSet& iConfig ):
 
 HitFitter::~HitFitter()
 {
-   if( _debug ) { cout << "Clearing analysis wide objects" << endl; }
    delete _top_fitter;
    delete _electronResolution;
    delete _muonResolution;
@@ -90,7 +88,6 @@ void HitFitter::RunPermutations()
 
    // Dummy event only handling MET and Lepton
    // Jets are handled in the permutation loop
-   if( _debug ) { cout << " Setting up template event " << endl; }
    hitfit::Lepjets_Event hitFitEventTemplate( 0,0 );
 
    //----- Setting up objects -----
@@ -148,7 +145,6 @@ void HitFitter::RunPermutations()
 
 void HitFitter::ClearAll()
 {
-   if( _debug ) { cout << "Deleting all per-event results" << endl; }
    _results_list.clear();
    _btagJetList.clear();
    _lightJetList.clear();
@@ -162,7 +158,6 @@ const RecoResult& HitFitter::BestResult() const
    static RecoResult __null_return__;
    __null_return__._chiSquare = -1;
 
-   if( _debug ) { cout << "Getting Best Results..." << endl; }
    int index = -1;
    double min_chiSq = 100000000.;
    for( unsigned i = 0 ; i < _results_list.size() ; ++i  ){
@@ -172,12 +167,7 @@ const RecoResult& HitFitter::BestResult() const
       }
    }
 
-   if( _debug ){
-      cout << "Found best results at " << index
-      << " with chi^2 value: " << min_chiSq << endl;
-   }
-
-   if( index > 0 && (unsigned)index < _results_list.size() ){
+   if( index >= 0 && (unsigned)index < _results_list.size() ){
       return _results_list[index];
    } else {
       return __null_return__;

@@ -1,5 +1,5 @@
 <use name="FWCore/FWLite"/>
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/Common"/>
-<bin name="efficiency_test" file="efficiency_test.cc"/>
-<bin name="counter_read"    file="counter_read.cc"/>
+<use name="DataFormats/PatCandidates"/>
+<bin name="check_extvar" file="check_extvar.cc"/>

@@ -7,6 +7,9 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "TstarAnalysis/LimitCalc/interface/MakeKeysPdf.hpp"
+#include "TstarAnalysis/LimitCalc/interface/Template.hpp"
+#include "TstarAnalysis/LimitCalc/interface/SimFit.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
@@ -24,7 +27,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
-   RooFitResult* bgconstrain = tmplt::MakeBGFromMC( mc );
+   RooFitResult* bgconstrain = FitBackgroundTemplate( mc , "" );
    const double bkgnum   = data->DataSet()->sumEntries();
    const double signum   = limit_namer.HasOption("relmag") ?
       sigmgr->ExpectedYield().CentralValue() * limit_namer.InputDou("relmag") :
@@ -36,21 +39,21 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
    TRandom ran;
 
    RooAbsPdf* bkgfunc =  mc->Pdf("template");
-   RooAbsPdf* sigfunc =  sigmgr->MakeKeysPdf( "key" );
+   RooAbsPdf* sigfunc =  MakeSingleKeysPdf( sigmgr, "" );
 
    const string strgthtag = val::SigStrengthTag();
    FILE* result = fopen( limit_namer.TextFileName("valsimfit" , {strgthtag}).c_str(), "w" );
    fprintf( result , "%lf %lf %lf %lf\n" , bkgnum, signum, param1, param2);
 
    for( int i = 0 ; i < limit_namer.InputInt("num") ; ++i ){
-      dataset_alias = "valgen";
+      const string pseudosetname  = "pseudo";
       const int genbkgnum = ran.Poisson( bkgnum );
       const int gensignum = ran.Poisson( signum );
 
       RooDataSet* psuedoset = bkgfunc->generate(
          SampleRooFitMgr::x(),
          genbkgnum,
-         RooFit::Name(dataset_alias.c_str())
+         RooFit::Name(pseudosetname.c_str())
       );
       RooDataSet* sigset = sigfunc->generate(
          SampleRooFitMgr::x(),
@@ -58,16 +61,17 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
       );
       psuedoset->append( *sigset );
       data->AddDataSet( psuedoset );
-      // Running sim fit
       data->SetConstant(kFALSE);
-      smft::FitPDFs( data, sigmgr, bgconstrain );
+
+      SimFitSingle( data, sigmgr, pseudosetname, bgconstrain );
 
       // Getting results
-      const string psuedobgname = "bg"+sigmgr->Name();
-      const RooRealVar* bkgfit = data->Var( sigmgr->Name()+"nb" );
-      const RooRealVar* sigfit = data->Var( sigmgr->Name()+"ns" );
-      const RooRealVar* p1fit  = data->Var( psuedobgname + "a" );
-      const RooRealVar* p2fit  = data->Var( psuedobgname + "b" );
+      const string pseudobgname   = SimFitBGPdfName     ( pseudosetname , sigmgr->Name() );
+      const string pseudocombname = SimFitCombinePdfName( pseudosetname , sigmgr->Name() );
+      const RooRealVar* bkgfit  = data->Var( pseudocombname+"nb" );
+      const RooRealVar* sigfit  = data->Var( pseudocombname+"ns" );
+      const RooRealVar* p1fit   = data->Var( pseudobgname + "a" );
+      const RooRealVar* p2fit   = data->Var( pseudobgname + "b" );
       fprintf(
          result, "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf\n",
          bkgfit->getVal() , bkgfit->getError(),
@@ -76,9 +80,7 @@ void RunValGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* 
          p2fit->getVal() , p2fit->getError()
       );
 
-
-      data->RemoveDataSet( dataset_alias );
-
+      data->RemoveDataSet( pseudosetname );
       delete psuedoset;
       delete sigset;
    }

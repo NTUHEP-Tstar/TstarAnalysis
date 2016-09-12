@@ -62,7 +62,7 @@
    },
    "ZJets_100_200": {
       "Latex Name" : "$Z$ + Jets ( $H_{T} \\in [100,200)$ )",
-      "Cross Section": [ 147.40, 0.09, 0.09],
+      "Cross Section": [147.40, 0.09, 0.09],
       "K Factor": [1.23],
       "EDM Files":[
          "DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
@@ -73,7 +73,7 @@
       "Cross Section": [40.99, 0.04, 0.04],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+         "DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    },
    "ZJets_400_600": {
@@ -81,7 +81,7 @@
       "Cross Section": [ 5.678, 0.005, 0.005 ],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+         "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    },
    "ZJets_600_Inf": {
@@ -89,7 +89,7 @@
       "Cross Section": [ 2.189, 0.002, 0.002 ],
       "K Factor": [1.23],
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+         "DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    }
 }

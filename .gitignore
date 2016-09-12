@@ -10,9 +10,11 @@ __init__.py
 *.swp
 
 # General data file exclusions
+core*
 *.txt
 *.root
 *.log
+temp
 *.tmp
 log*
 *.gz

@@ -29,12 +29,39 @@ double GetEventWeight( const fwlite::EventBase& ev )
 {
    return GetWeightByTag( ev, "EventWeight", "EventWeight" );
 }
-
+//-----------------------------------------------------------------------------
 double GetPileupWeight( const fwlite::EventBase& ev )
 {
    return GetWeightByTag( ev, "PileupWeight", "PileupWeight" );
 }
 
+double GetPileupWeight71260( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "PileupWeight", "PileupWeight71260" );
+}
+
+double GetPileupWeight62000( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "PileupWeight", "PileupWeight62000" );
+}
+//-----------------------------------------------------------------------------
+
+double GetBtagWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "BTagWeight", "BTagWeight" );
+}
+
+double GetBtagWeightUp( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "BTagWeight", "BTagWeightup" );
+}
+
+double GetBtagWeightDown( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "BTagWeight", "Btagweightdown" );
+}
+
+//-----------------------------------------------------------------------------
 double GetElectronWeight( const fwlite::EventBase& ev )
 {
    return GetWeightByTag( ev, "ElectronWeight", "ElectronWeight" );

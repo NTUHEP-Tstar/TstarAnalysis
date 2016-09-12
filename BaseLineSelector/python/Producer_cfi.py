@@ -5,10 +5,13 @@ import FWCore.ParameterSet.Config as cms
 #-------------------------------------------------------------------------------
 selectedMuons = cms.EDFilter(
     "MuonProducer",
-    vertexsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    muonsrc   = cms.InputTag("slimmedMuons"),
-    packedsrc = cms.InputTag("packedPFCandidates"),
-    rhosrc    = cms.InputTag("fixedGridRhoFastjetAll")
+    vertexsrc  = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    muonsrc    = cms.InputTag("slimmedMuons"),
+    packedsrc  = cms.InputTag("packedPFCandidates"),
+    rhosrc     = cms.InputTag("fixedGridRhoFastjetAll"),
+    hltsrc     = cms.InputTag("TriggerResults::HLT"),
+    trgobjsrc  = cms.InputTag("selectedPatTrigger"),
+    reqtrigger = cms.string("") # requireing no trigger by default
 )
 
 skimmedPatMuons = cms.EDFilter(
@@ -23,7 +26,10 @@ skimmedPatMuons = cms.EDFilter(
 selectedElectrons = cms.EDFilter(
     "ElectronProducer",
     electronsrc = cms.InputTag("slimmedElectrons"),
-    packedsrc = cms.InputTag("packedPFCandidates"),
+    packedsrc   = cms.InputTag("packedPFCandidates"),
+    hltsrc      = cms.InputTag("TriggerResults::HLT"),
+    trgobjsrc   = cms.InputTag("selectedPatTrigger"),
+    reqtrigger  = cms.string("") # requireing no trigger by default
 )
 
 skimmedPatElectrons = cms.EDFilter(

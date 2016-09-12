@@ -26,22 +26,6 @@ static RooAbsPdf* MakeLandau (SampleRooFitMgr*, const std::string& tag);
 static RooAbsPdf* MakeTrial  (SampleRooFitMgr*, const std::string& tag);
 
 //------------------------------------------------------------------------------
-//   Making RooKeysPdf
-//------------------------------------------------------------------------------
-RooKeysPdf* SampleRooFitMgr::MakeKeysPdf( const std::string& name, const std::string& setname )
-{
-   RooKeysPdf*  pdf  = new RooKeysPdf(
-      name.c_str(), name.c_str(),
-      SampleRooFitMgr::x(),
-      *(DataSet(setname)),
-      RooKeysPdf::NoMirror,
-      2.
-   );
-   AddPdf( pdf );
-   return pdf;
-}
-
-//------------------------------------------------------------------------------
 //   SampleRooFitMgr Generic MakePDF function for
 //------------------------------------------------------------------------------
 RooAbsPdf* SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
@@ -61,7 +45,6 @@ RooAbsPdf* SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfu
    else if ( fitfunc == "Lognorm" ) { return MakeLognorm( this , name ); }
    else if ( fitfunc == "Landau"  ) { return MakeLandau ( this , name ); }
    else if ( fitfunc == "Trial"   ) { return MakeTrial  ( this , name ); }
-   else if ( fitfunc == "Key"     ) { return MakeKeysPdf( name ); }
    else {
       fprintf(
          stderr, "Warning! %s function not found, using %s\n",
@@ -75,7 +58,7 @@ RooAbsPdf* SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfu
 //------------------------------------------------------------------------------
 //   Fermi function f(m) = 1/(1+exp((m-a)/b))
 //------------------------------------------------------------------------------
-RooAbsPdf* MakeFermi(SampleRooFitMgr* sample, const string& name = "fermi" )
+RooAbsPdf* MakeFermi( SampleRooFitMgr* sample, const string& name = "fermi" )
 {
    static char formula[1024];
    RooRealVar* a  = sample->NewVar( name+"a", 100, -1000,1000);
@@ -100,7 +83,7 @@ RooAbsPdf* MakeExo( SampleRooFitMgr* sample, const string& name="exo" )
 {
    static char formula[1024];
    RooRealVar* a  = sample->NewVar( name+"a" , 61.7, 0, 100);
-   RooRealVar* b  = sample->NewVar( name+"b" , 0.18, 0, +1);
+   RooRealVar* b  = sample->NewVar( name+"b" , 0.18, 0, 1  );
    sprintf(
       formula, "(TMath::Power((1-(x/13000.)),(%s)))/(TMath::Power((x/13000.),(%s)))",
       a->GetName(),

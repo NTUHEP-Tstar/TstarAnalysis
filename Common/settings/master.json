@@ -7,9 +7,6 @@
    "Total Luminosity 2015": 2180,
    "Total Luminosity 2016": 15900,
 
-   "Before Cut Label": "beforeAny",
-   "After Cut Label":"afterBaseLine",
-
    "Mass Min":350,
    "Mass Max":2500,
 
@@ -48,7 +45,13 @@
    "SingleTop":{
       "Latex Name": "Single Top",
       "Subset Json": "TopSamples.json",
-      "Sample List": ["SingleT_S" , "SingleT_T" , "SingleT_TW" , "SingleTbar_TW" ]
+      "Sample List": [
+         "SingleT_S",
+         "SingleT_T_top",
+         "SingleT_T_antitop",
+         "SingleT_TW",
+         "SingleTbar_TW"
+      ]
    },
 
    "TTBoson":{
@@ -85,7 +88,6 @@
    ],
 
    "Signal List" : [
-      "tstar_M700",
       "tstar_M800",
       "tstar_M900",
       "tstar_M1000",

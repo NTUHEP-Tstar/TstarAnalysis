@@ -7,7 +7,7 @@
  #
 #*******************************************************************************
 
-channel_list="MuonSignal ElectronSignal MuonSignal2016 ElectronSignal2016"
+channel_list="MuonSignal ElectronSignal"
 method_list="SimFit"
 fitfunc_list="Fermi Exo Lognorm"
 combine_method="Asymptotic"

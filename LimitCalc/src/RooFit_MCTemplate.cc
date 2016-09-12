@@ -7,6 +7,8 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "TstarAnalysis/LimitCalc/interface/MakeKeysPdf.hpp"
+#include "TstarAnalysis/LimitCalc/interface/Template.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
@@ -17,43 +19,56 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
-//   variables to avoid double making of pdfs
+//   Object naming conventions
 //------------------------------------------------------------------------------
-static const string tag = "template";
+string TemplatePdfName( const std::string& datasetname ) {
+   return datasetname + "template";
+}
 
+extern const string StitchTemplatePdfName = "templatemaster";
 
-void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*>& signal_list )
+//------------------------------------------------------------------------------
+//   Main control flow, to be called by main function
+//------------------------------------------------------------------------------
+void MakeTemplate(
+   SampleRooFitMgr* data,
+   SampleRooFitMgr* bg,
+   vector<SampleRooFitMgr*>& signal_list
+)
 {
-   using namespace tmplt;
    vector<RooAbsPdf*> sig_pdf_list;
 
    for( auto& sig : signal_list ){
-      sig_pdf_list.push_back( sig->MakeKeysPdf(tag) );
+      sig_pdf_list.push_back( MakeFullKeysPdf(sig) );
    }
-   RooFitResult* err = MakeBGFromMC(bg);
-   MakeTemplatePlot( data, bg, signal_list.front(), err , true );
-   MakeTemplatePlot( data, bg, signal_list.front(), err , false );
+   MakeFullTemplate( bg );
+   MakeTemplatePlot( data, bg, signal_list.front() , true );
+   MakeTemplatePlot( data, bg, signal_list.front() , false );
 
    SaveRooWorkSpace(
       data->DataSet( dataset_alias ),
-      {bg->Pdf(tag)},
-      sig_pdf_list,
-      {err}
-   ); // See src/RooFit_Common.cc
+      {bg->Pdf(StitchTemplatePdfName)},
+      sig_pdf_list
+   );
 
-   for( auto& signal : signal_list ){ MakeCardFile(data,bg,signal); }
+   for( auto& signal : signal_list ){
+       MakeTemplateCardFile(data,bg,signal);
+    }
 }
 
 
 //------------------------------------------------------------------------------
-//  Helper function implementations
+//  Fitting function implementations
 //------------------------------------------------------------------------------
-RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
+RooFitResult* FitBackgroundTemplate( SampleRooFitMgr* bg , const string& datatag )
 {
-   RooAbsPdf*    bg_pdf  = bg->NewPdf( tag, limit_namer.GetInput("fitfunc") );
-   RooFitResult* results =  bg_pdf->fitTo(
-      *(bg->DataSet()) ,
-      RooFit::Save() ,            // Suppressing output
+   const string bgpdfname = TemplatePdfName( datatag );
+
+   RooAbsPdf* bg_pdf = bg->NewPdf( bgpdfname , limit_namer.GetInput("fitfunc") );
+
+   RooFitResult* ans = bg_pdf->fitTo(
+      *(bg->DataSet(datatag)) ,
+      RooFit::Save(),
       RooFit::SumW2Error(kTRUE),  // For Weighted dataset
       RooFit::Range("FitRange"),  // Fitting range
       RooFit::Minos(kTRUE),
@@ -62,23 +77,34 @@ RooFitResult* tmplt::MakeBGFromMC( SampleRooFitMgr* bg )
       RooFit::PrintEvalErrors(-1),
       RooFit::Warnings(kFALSE)
    );
-   bg->SetConstant(kTRUE);//Freezing constants
-   return results;
+
+   bg->SetConstant(kTRUE); //Freezing all constants
+
+   return ans;
 }
 
-void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
+RooAddPdf* MakeFullTemplate( SampleRooFitMgr* bg )
+{
+   vector<string> bgpdflist;
+   for( const auto& datasetname : bg->SetNameList() ){
+      FitBackgroundTemplate( bg , datasetname );
+      bgpdflist.push_back( TemplatePdfName(datasetname) );
+   }
+   return MakeStichPdf( bg, StitchTemplatePdfName, bgpdflist );
+}
+
+void MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
 {
    RooDataSet* data_obs = data->DataSet(dataset_alias);
-   RooAbsPdf*  bg_pdf   = bg->Pdf(tag);
-   RooDataSet* sig_set  = sig->DataSet();
-   RooAbsPdf*  sig_pdf  = sig->Pdf(tag);
+   RooAbsPdf*  bg_pdf   = bg->Pdf(StitchTemplatePdfName);
+   RooAbsPdf*  sig_pdf  = sig->Pdf(StitchKeyPdfName);
 
    FILE* card_file = MakeCardCommon( data_obs, bg_pdf, sig_pdf, sig->Name() );
 
    fprintf(
       card_file , "%12s %15lf %15lf\n",
       "rate",
-      sig_set->sumEntries(),
+      sig->DataSet()->sumEntries(),
       data_obs->sumEntries()
    );
 
@@ -98,63 +124,48 @@ void tmplt::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooF
 //------------------------------------------------------------------------------
 //   Plotting fitting results
 //------------------------------------------------------------------------------
-void tmplt::MakeTemplatePlot(
+void MakeTemplatePlot(
    SampleRooFitMgr* data,
    SampleRooFitMgr* mc,
    SampleRooFitMgr* signal,
-   RooFitResult*    err,
    const bool       use_data )
 {
    // First plot against MC
    const double TotalLuminosity = mgr::SampleMgr::TotalLuminosity();
    TCanvas* c = new TCanvas("c","c",DEFAULT_CANVAS_WIDTH,DEFAULT_CANVAS_HEIGHT);
    RooPlot* frame = SampleRooFitMgr::x().frame();
-   TGraph* pdf_plot_err;
    TGraph* pdf_plot;
    TGraph* sig_plot;
    TGraph* set_plot;
 
    if( use_data ){
-      set_plot = PlotOn( frame, data->DataSet(dataset_alias) );
-      pdf_plot_err= PlotOn(
-         frame, mc->Pdf(tag),
-         RooFit::VisualizeError(*err,1),
-         RooFit::Range("FitRange"),
-         RooFit::Normalization( data->DataSet()->sumEntries() , RooAbsReal::NumEvent )
-      );
+      set_plot = PlotOn( frame, data->DataSet() );
       pdf_plot = PlotOn(
-         frame, mc->Pdf(tag),
+         frame,
+         mc->Pdf(StitchTemplatePdfName),
          RooFit::Range("FitRange") ,
          RooFit::Normalization( data->DataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       set_plot = PlotOn( frame, data->DataSet() );
    } else {
       set_plot = PlotOn( frame, mc->DataSet() );
-      pdf_plot_err= PlotOn(
-         frame, mc->Pdf(tag),
-         RooFit::VisualizeError(*err,1),
-         RooFit::Range("FitRange"),
-         RooFit::Normalization( mc->DataSet()->sumEntries() , RooAbsReal::NumEvent )
-      );
       pdf_plot = PlotOn(
-         frame, mc->Pdf(tag),
+         frame, mc->Pdf(StitchTemplatePdfName),
          RooFit::Range("FitRange") ,
          RooFit::Normalization( mc->DataSet()->sumEntries() , RooAbsReal::NumEvent )
       );
       set_plot = PlotOn( frame, data->DataSet() );
    }
    sig_plot = PlotOn(
-      frame, signal->Pdf(tag),
+      frame, signal->Pdf(StitchKeyPdfName),
       RooFit::DrawOption("LB"),
       RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
    );
 
    frame->Draw();
    frame->SetMinimum(0.3);
-   SetFrame(frame,AXIS_TITLE_FONT_SIZE);
+   SetFrame(frame);
    frame->GetYaxis()->SetTitle( set_plot->GetYaxis()->GetTitle() );
-   pdf_plot_err->SetFillStyle(1);
-   pdf_plot_err->SetFillColor(kCyan);
    sig_plot->SetFillStyle(3004);
    sig_plot->SetLineColor(kRed);
    sig_plot->SetFillColor(kRed);
@@ -179,7 +190,6 @@ void tmplt::MakeTemplatePlot(
       l->AddEntry( set_plot, "MC Background", "lp");
       l->AddEntry( pdf_plot, "Template fit (Normalized to Lumi)",  "l");
    }
-   l->AddEntry( pdf_plot_err, "Fit Error (1#sigma)" , "fl");
    l->AddEntry( sig_plot, sig_entry , "fl");
    l->Draw();
 

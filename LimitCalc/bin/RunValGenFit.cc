@@ -59,6 +59,5 @@ int main(int argc, char* argv[]) {
 
    RunValGenFit( data,mc,sigmgr);
 
-   SampleRooFitMgr::ClearStaticVars();
    return 0;
 }

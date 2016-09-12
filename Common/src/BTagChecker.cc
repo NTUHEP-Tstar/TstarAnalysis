@@ -36,17 +36,17 @@ BTagChecker::~BTagChecker()
 //------------------------------------------------------------------------------
 //   Main functions
 //------------------------------------------------------------------------------
-bool BTagChecker::PassLoose( const pat::Jet& jet , bool IsData ) const
+bool BTagChecker::PassLoose( const pat::Jet& jet ) const
 {
    return jet.bDiscriminator(DISCRIMTAG) > LOOSEWP_VAL ;
 }
 
-bool BTagChecker::PassMedium( const pat::Jet& jet, bool IsData ) const
+bool BTagChecker::PassMedium( const pat::Jet& jet ) const
 {
    return jet.bDiscriminator(DISCRIMTAG) > MEDIUMWP_VAL ;
 }
 
-bool BTagChecker::PassTight( const pat::Jet& jet, bool IsData ) const
+bool BTagChecker::PassTight( const pat::Jet& jet ) const
 {
    return jet.bDiscriminator(DISCRIMTAG) > TIGHTWP_VAL ;
 }

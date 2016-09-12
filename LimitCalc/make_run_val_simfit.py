@@ -21,9 +21,10 @@ masspointlist=[
     "tstar_M1600",
 ]
 
-runnum = 3000
-multlist = ["1","0.3","0.1"]
-abslist  = ["3","10","30"]
+functionlist=["Exo","Lognorm"]
+
+runnum   = 3000
+injlist  = ["0", "3","10","30"]
 
 header="""
 #!/bin/bash
@@ -36,13 +37,13 @@ cmd = """
 """
 
 for masspoint in masspointlist:
-    filename = "run/runsimfitval_" + masspoint + ".sh"
-    script = open( filename, 'w')
-    script.write( header )
     for channel in channellist:
-        for mul in multlist :
-            script.write(cmd.format( channel, "Exo", runnum , masspoint , "-x" , mul ))
-        for ab in  abslist :
-            script.write(cmd.format( channel, "Exo", runnum , masspoint , "-a" , ab ))
-    script.close()
-    os.system("chmod +x "+filename)
+        for func in functionlist:
+            for inj in injlist :
+                filename = "run/runsimfitval_{}_{}_{}_a{}.sh".format(
+                    channel, func, masspoint, inj )
+                script = open( filename, 'w')
+                script.write( header )
+                script.write(cmd.format( channel, func, runnum , masspoint , "-a" , inj ))
+                script.close()
+                os.system("chmod +x "+filename)

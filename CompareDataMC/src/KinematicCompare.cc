@@ -87,8 +87,8 @@ void MakeComparePlot(
       TLegend* l = plt::NewLegend(0.62,0.3);
       char data_entry[128];
       char sig_entry[128];
-      sprintf( data_entry , "Data (%.3lf fb^{-1})" , total_lumi/1000. );
-      sprintf( sig_entry  , "Signal_{M=%d} (#times %.1lf)", GetInt(signal_mgr->Name()) , sig_scale );
+      sprintf( data_entry , "Data (%.2lf fb^{-1})" , total_lumi/1000. );
+      sprintf( sig_entry  , "t*=%dGeV (#times %.1lf)", GetInt(signal_mgr->Name()) , sig_scale );
       l->AddEntry( data_hist , data_entry , "lp" );
       for( const auto& entry : background ){
          l->AddEntry( entry->Hist(hist_name), entry->LatexName().c_str()  , "f" );

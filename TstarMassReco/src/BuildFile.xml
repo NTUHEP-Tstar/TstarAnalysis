@@ -4,7 +4,7 @@
 <use name="DataFormats/PatCandidates"/>
 
 <use name="ManagerUtils/BaseClass"/>
-<use name="ManagerUtils/HistMgr"/>
+<use name="ManagerUtils/RootMgr"/>
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PlotUtils"/>
 

@@ -7,6 +7,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 
 #include "TFile.h"
 #include "RooAddPdf.h"
@@ -27,12 +28,10 @@ static const string ws_name     = "wspace";
 void SaveRooWorkSpace(
    RooDataSet*                  data,
    const vector<RooAbsPdf*>&    bg_list ,
-   const vector<RooAbsPdf*>&    sig_list,
-   const vector<RooFitResult*>& result_list
+   const vector<RooAbsPdf*>&    sig_list
 )
 {
    const string roofit_file = limit_namer.RootFileName("roofitobj");
-   const string result_file = limit_namer.RootFileName("roofitresults");
    RooWorkspace ws( ws_name.c_str() , ws_name.c_str() );
 
    cout << "Saving RooFit objects to " << roofit_file << endl;
@@ -41,12 +40,6 @@ void SaveRooWorkSpace(
    for( auto& sig : sig_list ){ ws.import( *sig ); }
    ws.writeToFile( roofit_file.c_str() );
 
-   cout << "Saving fit results to " << result_file.c_str() << endl;
-   TFile* fit_file = TFile::Open( result_file.c_str() , "RECREATE" );
-   for( auto& result: result_list ){
-      result->Write( result->GetName() );
-   }
-   fit_file->Close();
 }
 
 
@@ -120,8 +113,8 @@ void PrintNuisanceFloats(
       card_file , "%8s %3s %15s %15s\n",
       nuisance_name.c_str(),
       nuisance_type.c_str(),
-      sig_nuisance.DataCardFormat().c_str(),
-      bkg_nuisance.DataCardFormat().c_str()
+      HiggsDataCard(sig_nuisance).c_str(),
+      HiggsDataCard(bkg_nuisance).c_str()
    );
 }
 

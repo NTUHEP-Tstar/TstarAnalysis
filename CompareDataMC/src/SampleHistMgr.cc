@@ -19,6 +19,8 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include "TFile.h"
+
 using namespace std;
 using mgr::SampleMgr;
 using mgr::HistMgr;
@@ -70,74 +72,63 @@ void SampleHistMgr::fill_histograms( SampleMgr& sample )
 
    unsigned i = 1;
    // Looping over events
-   for( sample.Event().toBegin() ; !sample.Event().atEnd() ; ++sample.Event() , ++i ){
-      printf(
-         "\rSample [%s|%s], Event[%u/%llu]..." ,
-         Name().c_str(),
-         sample.Name().c_str(),
-         i ,
-         sample.Event().size()
-      );
-      fflush(stdout);
-      double total_weight  = GetEventWeight ( sample.Event() ) * sampleweight;
-      double pileup_weight = GetPileupWeight( sample.Event() );
+   for( const auto& file : sample.GlobbedFileList() ){
+      fwlite::Event ev( TFile::Open(file.c_str()) );
+      for( ev.toBegin() ; !ev.atEnd() ; ++ev , ++i ){
+         printf(
+            "\rSample [%s|%s], Event[%u/%llu]..." ,
+            Name().c_str(),
+            sample.Name().c_str(),
+            i ,
+            sample.Event().size()
+         );
+         fflush(stdout);
+         const double total_weight  = GetEventWeight ( ev ) * sampleweight;
+         const double pileup_weight = GetPileupWeight( ev );
 
-      metHandle.getByLabel     ( sample.Event(), "slimmedMETs"    );
-      vtxHandle.getByLabel     ( sample.Event(), "offlineSlimmedPrimaryVertices" );
-      jetHandle.getByLabel     ( sample.Event(), "skimmedPatJets" );
-      muonHandle.getByLabel    ( sample.Event(), "skimmedPatMuons" );
-      electronHandle.getByLabel( sample.Event(), "skimmedPatElectrons" );
-      chisqHandle.getByLabel   ( sample.Event(), "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+         metHandle.getByLabel     ( ev, "slimmedMETs"    );
+         vtxHandle.getByLabel     ( ev, "offlineSlimmedPrimaryVertices" );
+         jetHandle.getByLabel     ( ev, "skimmedPatJets" );
+         muonHandle.getByLabel    ( ev, "skimmedPatMuons" );
+         electronHandle.getByLabel( ev, "skimmedPatElectrons" );
+         chisqHandle.getByLabel   ( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
 
-      cout << jetHandle->size() << endl;
-      cout << jetHandle.product() << endl;
-      cout << jetHandle.isValid() << endl;
-      cout << jetHandle.ptr()     << endl;
+         Hist("JetNum" )->Fill( jetHandle->size()      , total_weight );
+         Hist("Jet1Pt" )->Fill( jetHandle->at(0).pt()  , total_weight );
+         Hist("Jet1Eta")->Fill( jetHandle->at(0).eta() , total_weight );
+         Hist("Jet2Pt" )->Fill( jetHandle->at(1).pt()  , total_weight );
+         Hist("Jet2Eta")->Fill( jetHandle->at(1).eta() , total_weight );
+         Hist("Jet3Pt" )->Fill( jetHandle->at(2).pt()  , total_weight );
+         Hist("Jet4Pt" )->Fill( jetHandle->at(3).pt()  , total_weight );
+         Hist("Jet5Pt" )->Fill( jetHandle->at(4).pt()  , total_weight );
+         Hist("Jet6Pt" )->Fill( jetHandle->at(5).pt()  , total_weight );
 
-      for( auto& histpair : HistMap() ){
-         cout << histpair.second << endl;
-      }
+         for( const auto& mu : *muonHandle ){
+            Hist("LepPt")->Fill( mu.pt() , total_weight );
+            Hist("LepEta")->Fill( mu.eta() , total_weight );
+         }
+         for( const auto& el : *electronHandle ){
+            Hist("LepPt")->Fill( el.pt() , total_weight );
+            Hist("LepEta")->Fill( el.eta(), total_weight );
+         }
 
-      Hist("JetNum" )->Fill( jetHandle->size()      , total_weight );
-      Hist("Jet1Pt" )->Fill( jetHandle->at(0).pt()  , total_weight );
-      Hist("Jet1Eta")->Fill( jetHandle->at(0).eta() , total_weight );
-      Hist("Jet2Pt" )->Fill( jetHandle->at(1).pt()  , total_weight );
-      Hist("Jet2Eta")->Fill( jetHandle->at(1).eta() , total_weight );
-      Hist("Jet3Pt" )->Fill( jetHandle->at(2).pt()  , total_weight );
-      Hist("Jet4Pt" )->Fill( jetHandle->at(3).pt()  , total_weight );
-      Hist("Jet5Pt" )->Fill( jetHandle->at(4).pt()  , total_weight );
-      Hist("Jet6Pt" )->Fill( jetHandle->at(5).pt()  , total_weight );
+         Hist("MET")   ->Fill( metHandle->front().pt()  , total_weight );
+         Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
 
-      for( const auto& mu : *muonHandle ){
-         Hist("LepPt")->Fill( mu.pt() , total_weight );
-         Hist("LepEta")->Fill( mu.eta() , total_weight );
-      }
-      for( const auto& el : *electronHandle ){
-         Hist("LepPt")->Fill( el.pt() , total_weight );
-         Hist("LepEta")->Fill( el.eta(), total_weight );
-      }
+         Hist("VtxNum")  ->Fill( vtxHandle->size() , total_weight );
+         Hist("VtxNumNW")->Fill( vtxHandle->size() , total_weight/pileup_weight );
 
-      Hist("MET")   ->Fill( metHandle->front().pt()  , total_weight );
-      Hist("METPhi")->Fill( metHandle->front().phi() , total_weight );
+         if( chisqHandle->ChiSquare() > 0 ){ // Only sotring physical results
+            Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
+            Hist("ChiSq"     )->Fill( chisqHandle->ChiSquare() , total_weight );
+            Hist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().Pt() , total_weight  );
+            Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().Pt() , total_weight  );
 
-      Hist("VtxNum")  ->Fill( vtxHandle->size() , total_weight );
-      Hist("VtxNumNW")->Fill( vtxHandle->size() , total_weight/pileup_weight );
-
-      if( chisqHandle->ChiSquare() > 0 ){ // Only sotring physical results
-         Hist("TstarMass" )->Fill( chisqHandle->TstarMass() , total_weight );
-         Hist("ChiSq"     )->Fill( chisqHandle->ChiSquare() , total_weight );
-         Hist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().Pt() , total_weight  );
-         Hist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().Pt() , total_weight  );
-
-         if( chisqHandle->TstarMass() > 350 ){
-            Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
+            if( chisqHandle->TstarMass() > 350 ){
+               Hist("TstarZoom" )->Fill( chisqHandle->TstarMass() , total_weight );
+            }
          }
       }
-
-      for( auto& histpair : HistMap() ){
-         cout << histpair.second << " " << histpair.second->GetName() << " " << endl;
-      }
-
    }
    cout << "Done!" << endl;
 }

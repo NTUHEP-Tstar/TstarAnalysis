@@ -9,6 +9,7 @@
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 #include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -25,15 +26,16 @@ using namespace std;
 #define TSTAR_WIDTH 10
 #define DEFAULT_REQUIRED_BJETS_MATCHING 1
 #define DEFAULT_MAX_JETS_TO_RUN 6
+
 bool SortJet( const pat::Jet* x, const pat::Jet* y ){ return (x->pt() > y->pt()); }
 
 //------------------------------------------------------------------------------
 //   Constructor and destructor
 //------------------------------------------------------------------------------
 ChiSquareSolver::ChiSquareSolver(const edm::ParameterSet& iConfig):
-   _debug( iConfig.getUntrackedParameter<int>( "Debug" , 0 ) ),
-   _max_jets( iConfig.getUntrackedParameter<int>("MaxJet" , DEFAULT_MAX_JETS_TO_RUN )),
-   _req_b_jets( iConfig.getUntrackedParameter<int>("ReqBJet", DEFAULT_REQUIRED_BJETS_MATCHING ))
+   _debug     ( iConfig.getUntrackedParameter<int>( "Debug"  , 0 ) ),
+   _max_jets  ( iConfig.getUntrackedParameter<int>( "MaxJet" , DEFAULT_MAX_JETS_TO_RUN )),
+   _req_b_jets( iConfig.getUntrackedParameter<int>( "ReqBJet", DEFAULT_REQUIRED_BJETS_MATCHING ))
 {}
 
 ChiSquareSolver::~ChiSquareSolver(){}
@@ -53,8 +55,8 @@ void ChiSquareSolver::RunPermutations()
    TLorentzVector had_tstar;
    TLorentzVector lepton;
 
-   if(_muon)    { lepton = ConvertToRoot(*_muon);}
-   if(_electron){ lepton = ConvertToRoot(*_electron);}
+   if(_muon)    { lepton = GetLorentzVector( *_muon     , "" ); }
+   if(_electron){ lepton = GetLorentzVector( *_electron , "" ); }
 
    do{ // Running jet permutations
       if( !CheckPermutation() ){ continue; }
@@ -240,7 +242,7 @@ void ChiSquareSolver::solveNeutrino()
 bool ChiSquareSolver::IsBtagged( const pat::Jet* x ) const
 {
    static BTagChecker check("check",CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" );
-   return check.PassMedium( *x , _is_data );
+   return check.PassMedium( *x );
 }
 
 bool ChiSquareSolver::CheckPermutation() const
@@ -272,9 +274,9 @@ bool ChiSquareSolver::CheckPermutation() const
 //------------------------------------------------------------------------------
 //   Object sequence functions
 //------------------------------------------------------------------------------
-TLorentzVector ChiSquareSolver::had_b()  const { return ConvertToRoot( *_jetList[0] ); }
-TLorentzVector ChiSquareSolver::lep_b()  const { return ConvertToRoot( *_jetList[1] ); }
-TLorentzVector ChiSquareSolver::had_g()  const { return ConvertToRoot( *_jetList[2] ); }
-TLorentzVector ChiSquareSolver::had_q1() const { return ConvertToRoot( *_jetList[3] ); }
-TLorentzVector ChiSquareSolver::had_q2() const { return ConvertToRoot( *_jetList[4] ); }
-TLorentzVector ChiSquareSolver::lep_g()  const { return ConvertToRoot( *_jetList[5] ); }
+TLorentzVector ChiSquareSolver::had_b()  const { return GetLorentzVector( *_jetList[0], "" ); }
+TLorentzVector ChiSquareSolver::lep_b()  const { return GetLorentzVector( *_jetList[1], "" ); }
+TLorentzVector ChiSquareSolver::had_g()  const { return GetLorentzVector( *_jetList[2], "" ); }
+TLorentzVector ChiSquareSolver::had_q1() const { return GetLorentzVector( *_jetList[3], "" ); }
+TLorentzVector ChiSquareSolver::had_q2() const { return GetLorentzVector( *_jetList[4], "" ); }
+TLorentzVector ChiSquareSolver::lep_g()  const { return GetLorentzVector( *_jetList[5], "" ); }

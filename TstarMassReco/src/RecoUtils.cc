@@ -51,7 +51,7 @@ FitParticle MakeResultJet( const pat::Jet* jet, int x )
    ans.P4(tstar::corr_up  )  = ans.P4(tstar::original) * (1. + jet->userFloat("jecunc"));
    ans.P4(tstar::corr_down)  = ans.P4(tstar::original) * (1. - jet->userFloat("jecunc"));
    ans.TypeFromFit() = (tstar::Particle_Label)(x);
-   ans.IsBTagged()   = ( bcheck.PassMedium(*jet,true) ) ;
+   ans.IsBTagged()   = ( bcheck.PassMedium(*jet) ) ;
 
    if( jet->genParton() ){
       ans.P4(tstar::gen)  = ConvertToRoot( *(jet->genParton()) );

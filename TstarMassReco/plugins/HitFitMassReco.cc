@@ -81,10 +81,10 @@ void HitFitMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    iEvent.getByToken( _jetsrc  , _jetHandle  );
    std::auto_ptr<RecoResult>     _hitfit( new RecoResult );
 
-   const METList&  metList   = *(_metHandle.product() );
-   const MuonList& muList    = *(_muonHandle.product());
+   const METList&  metList      = *(_metHandle.product() );
+   const MuonList& muList       = *(_muonHandle.product());
    const ElectronList& elecList = *(_elecHandle.product());
-   const JetList&  jetList   = *(_jetHandle);
+   const JetList&  jetList      = *(_jetHandle);
 
    //----- HitFitter -----
    _hitfitter.ClearAll();
@@ -93,10 +93,10 @@ void HitFitMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    for( const auto& el : elecList ){ _hitfitter.SetElectron( &el ); }
 
    for( const auto& jet : jetList ) {
-      if( _check.PassMedium(jet,iEvent.isRealData()) ){
-        _hitfitter.AddBTagJet( &jet );
+      if( _check.PassMedium(jet) ){
+         _hitfitter.AddBTagJet( &jet );
       } else {
-       _hitfitter.AddLightJet( &jet );
+         _hitfitter.AddLightJet( &jet );
       }
    }
    _hitfitter.RunPermutations();

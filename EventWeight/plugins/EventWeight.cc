@@ -38,10 +38,12 @@ private:
 
    const edm::EDGetToken  _elecw_src;
    const edm::EDGetToken  _puw_src;
+   const edm::EDGetToken  _btagsrc;
    const edm::EDGetToken  _lhesrc;
    edm::Handle<LHEEventProduct> _lheHandle;
    edm::Handle<double>   _elecwhandle;
    edm::Handle<double>   _puwhandle;
+   edm::Handle<double>   _btaghandle;
 
    bool   _isdata;
    double _weightsum;
@@ -55,7 +57,8 @@ using namespace std;
 EventWeight::EventWeight(const edm::ParameterSet& iConfig):
    _elecw_src( consumes<double>(iConfig.getParameter<edm::InputTag>("elecwsrc"))),
    _puw_src  ( consumes<double>(iConfig.getParameter<edm::InputTag>("puwsrc"))),
-   _lhesrc( consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lhesrc")) ),
+   _btagsrc  ( consumes<double>(iConfig.getParameter<edm::InputTag>("btagsrc"))),
+   _lhesrc   ( consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lhesrc")) ),
    _isdata( false )
 {
    produces<double>("EventWeight").setBranchAlias("EventWeight");
@@ -74,9 +77,8 @@ void EventWeight::beginRun( const edm::Run& , const edm::EventSetup& )
 
 void EventWeight::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   if( iEvent.isRealData() ) { _isdata = true; return; }
-   _isdata = false;
-
+   if( iEvent.isRealData() ) { _isdata = true;  return; } // Don't do anything for data
+   _isdata = false; 
    auto_ptr<double> weightptr ( new double(1.) );
    double& eventweight = *weightptr;
 
@@ -88,6 +90,9 @@ void EventWeight::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    iEvent.getByToken( _puw_src   , _puwhandle   );
    eventweight *= *_puwhandle ;
+
+   iEvent.getByToken( _btagsrc , _btaghandle );
+   eventweight *= *_btaghandle;
 
    try {
       iEvent.getByToken( _lhesrc    , _lheHandle );

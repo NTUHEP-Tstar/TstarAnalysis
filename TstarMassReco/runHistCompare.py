@@ -1,3 +1,4 @@
+#!/bin/env python
 #*******************************************************************************
  #
  #  Filename    : runHistCompare.py
@@ -16,7 +17,7 @@ cmsRun python/HitFitCompare.py sample={} output={} maxEvents=-1 &> /dev/null
 """
 
 for channel in channellist:
-    filelist = glob.glob( "samples/" + channel + "/Tstar*.root");
+    filelist = glob.glob( "sample_input/" + channel + "/Tstar*.root");
     for inputfile in filelist:
         mass = re.findall(r'\d+', inputfile )[0]
         outputfile = 'results/' + channel + '/tstar_M' + str(mass) + ".root"

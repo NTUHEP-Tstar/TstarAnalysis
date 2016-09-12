@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
    background.push_back( new SampleHistMgr("SingleBoson", master ) );
    background.push_back( new SampleHistMgr("DiBoson"    , master ) );
    // Declaring sample sample
-   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700" , master );
+   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M800" , master );
 
    // Making combined stack plots
    MakeComparePlot( data, background, signal_mgr );

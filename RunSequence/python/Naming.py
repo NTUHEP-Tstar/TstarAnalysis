@@ -21,7 +21,19 @@ def GetName( data_set ):
     if IsData( data_set ):
         return data_part[1]+'_'+data_part[2]
     else:
-        return data_part[1]
+        primtag = data_part[1]
+        primtagpart = primtag.split('_')
+        retname = ""
+        idx = 1
+        while idx <= len(primtagpart): # limiting to 75 characters long
+            if( len("_".join(primtagpart[0:idx])) < 70 ):
+                retname = "_".join(primtagpart[0:idx])
+            idx = idx + 1
+        return retname
+
+def GetPrimary( data_set ):
+    data_part = data_set.split('/')
+    return data_part[1]
 
 def GetTaskName( tag, data_set, mode ):
     return "{}_{}_{}".format( tag , GetName(data_set), mode )

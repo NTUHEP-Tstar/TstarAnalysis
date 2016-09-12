@@ -160,7 +160,7 @@ Parameter val::MakePullPlot( RooDataSet& set, const string& masstag, const strin
    frame->Draw();
 
    // Styling plots
-   SetFrame( frame , AXIS_TITLE_FONT_SIZE );
+   SetFrame( frame );
    plt::DrawCMSLabel( SIMULATION );
    plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
@@ -191,10 +191,10 @@ Parameter val::MakePullPlot( RooDataSet& set, const string& masstag, const strin
 
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT("Root Name").c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName("fitfunc","Root Name").c_str() );
-   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.16, signal_s.c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.22, inject_s.c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.28, mean_s.c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.34, sigma_s.c_str() );
+   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.20, signal_s.c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.26, inject_s.c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.32, mean_s.c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.38, sigma_s.c_str() );
 
    c.SaveAs(limit_namer.PlotFileName("valpulldist",{masstag,tag,SigStrengthTag()}).c_str() );
 

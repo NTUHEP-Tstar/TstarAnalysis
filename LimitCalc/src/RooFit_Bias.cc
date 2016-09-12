@@ -18,15 +18,15 @@ using namespace std;
 //------------------------------------------------------------------------------
 void MakeBias(SampleRooFitMgr* data, SampleRooFitMgr* mc, vector<SampleRooFitMgr*>& signal_list )
 {
-   using namespace bias;
-   int events_to_gen = data->DataSet()->sumEntries() ;
-   MakePsuedoData(mc,events_to_gen);
+   // using namespace bias;
+   // int events_to_gen = data->DataSet()->sumEntries() ;
+   // MakePsuedoData(mc,events_to_gen);
 
-   if( limit_namer.GetInput("fitmethod") == "BiasTemplate" ){
-      MakeTemplate(mc,mc,signal_list);
-   } else if( limit_namer.GetInput("fitmethod") == "BiasSimFit" ){
-      MakeSimFit(mc,mc,signal_list);
-   }
+   // if( limit_namer.GetInput("fitmethod") == "BiasTemplate" ){
+   //    MakeTemplate(mc,mc,signal_list);
+   // } else if( limit_namer.GetInput("fitmethod") == "BiasSimFit" ){
+   //    MakeSimFit(mc,mc,signal_list);
+   // }
 }
 
 //------------------------------------------------------------------------------

@@ -27,9 +27,9 @@ public:
    BTagChecker( const std::string& tagger, const std::string& filename );
    virtual ~BTagChecker ();
 
-   bool PassLoose ( const pat::Jet& , bool IsData ) const ;
-   bool PassMedium( const pat::Jet& , bool IsData ) const ;
-   bool PassTight ( const pat::Jet& , bool IsData ) const ;
+   bool PassLoose ( const pat::Jet& ) const ;
+   bool PassMedium( const pat::Jet& ) const ;
+   bool PassTight ( const pat::Jet& ) const ;
 
    double GetLooseScaleFactor    ( const pat::Jet& ) const ;
    double GetLooseScaleFactorUp  ( const pat::Jet& ) const ;

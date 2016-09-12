@@ -156,16 +156,20 @@ void PrintCount( FILE* file , const string& tag, const Parameter& x )
    );
 }
 
-static const char simple_line[] = "%-30s & %35s &%35s\\\\ \n";
+//------------------------------------------------------------------------------
+//   Simplified lines for entire sample
+//------------------------------------------------------------------------------
+static const char simple_line[] = "%-30s & %35s & %35s &%35s\\\\ \n";
 
 FILE* OpenSimpleFile( const string& tag )
 {
    FILE* file = fopen( compare_namer.TexFileName("summary",{tag}).c_str() , "w" );
-   fprintf( file, "\\begin{tabular}{|l|cc|}\n");
+   fprintf( file, "\\begin{tabular}{|l|cc|c|}\n");
    fprintf( file, hline_line );
    fprintf( file , simple_line ,
       "Sample" ,
       "Cross section ($pb$)",
+      "Average Efficiency",
       "Expected Yield"
    );
    fprintf( file , hline_line );
@@ -176,8 +180,9 @@ void PrintSimpleLine( FILE* file, const SampleGroup* x )
 {
    fprintf( file , simple_line ,
       x->LatexName().c_str(),
-      FloatingPoint( x->TotalCrossSection(), 1 ).c_str(),
-      Scientific   ( x->ExpectedYield(),     2 ).c_str()
+      FloatingPoint( x->TotalCrossSection()     ,-1 ).c_str(),
+      Scientific   ( x->AvgSelectionEfficiency(), 2 ).c_str(),
+      FloatingPoint( x->ExpectedYield()         , 1 ).c_str()
    );
 }
 
@@ -185,7 +190,7 @@ void PrintSimpleCount( FILE* file, const string& tag, const Parameter& x )
 {
    fprintf( file , simple_line ,
       tag.c_str(),
-      "",
+      "","",
       FloatingPoint( x, 1 ).c_str()
    );
 }

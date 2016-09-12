@@ -68,6 +68,8 @@ void CompareHistMgr::AddEvent( const fwlite::Event& ev )
    const string process = "HitFitCompare";
    _result_handle.getByLabel( ev, Name().c_str() , module.c_str(), process.c_str() );
    const RecoResult& result = *(_result_handle);
+
+   if ( result.ChiSquare() < 0 ){ return ; } // Early exit for unphysical results
    Hist( "TstarMass"  )->Fill( result.TstarMass() );
    Hist( "ChiSq"      )->Fill( result.ChiSquare() );
    Hist( "LepTopMass" )->Fill( result.LeptonicTop().M()   );

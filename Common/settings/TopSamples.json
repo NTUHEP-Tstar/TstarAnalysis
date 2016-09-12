@@ -17,33 +17,41 @@
    #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Single_top
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
-      "Latex Name" : "Single$\\bar{t}$ ($s$ Channel)",
-      "Cross Section":        [ 3.36, 0.13, 0.12 ],
-      "K Factor":        [1.0],
+      "Latex Name" : "Single $t/\\bar{t}$ ($s$ Channel)",
+      "Cross Section": [ 3.36, 0.13, 0.12 ],
+      "K Factor":      [ 1.0 ],
       "EDM Files":[
          "ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_*.root"
       ]
    },
-   "SingleT_T": {
+   "SingleT_T_top": {
       "Latex Name" : "Single $t$ ($t$ Channel)",
-      "Cross Section":        [ 70.69, 2.94, 2.51 ],
-      "K Factor":        [1.0],
+      "Cross Section": [ 44.33 , 2.94, 2.51 ],
+      "K Factor":      [ 1.0 ],
       "EDM Files":[
-         "ST_t-channel_*4f_leptonDecays_*.root"
+         "ST_t-channel_top_*.root"
+      ]
+   },
+   "SingleT_T_antitop": {
+      "Latex Name" : "Single $\\bar{t}$ ($t$ Channel)",
+      "Cross Section": [ 28.38, 1.32, 1.18 ],
+      "K Factor":      [ 1.0 ],
+      "EDM Files":[
+         "ST_t-channel_antitop_*.root"
       ]
    },
    "SingleT_TW": {
       "Latex Name" : "Single $t$ ($tW$ Channel)",
-      "Cross Section":        [ 35.85, 2.60, 2.60 ],
-      "K Factor":        [1.0],
+      "Cross Section": [ 35.85, 2.60, 2.60 ],
+      "K Factor":      [ 1.0 ],
       "EDM Files":[
          "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_*.root"
       ]
    },
    "SingleTbar_TW": {
-      "Latex Name" : "Single $t$ ($tW$ Channel)",
-      "Cross Section":        [ 35.85, 2.60, 2.60 ],
-      "K Factor":        [1.0],
+      "Latex Name" : "Single $\\bar{t}$ ($tW$ Channel)",
+      "Cross Section": [ 35.85, 2.60, 2.60 ],
+      "K Factor":      [ 1.0 ],
       "EDM Files":[
          "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_*.root"
       ]

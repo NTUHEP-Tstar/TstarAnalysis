@@ -28,59 +28,19 @@
 extern std::string       dataset_alias;
 extern TstarNamer        limit_namer;
 
+//------------------------------------------------------------------------------
+//   PDF stitching functions
+//------------------------------------------------------------------------------
+extern RooAddPdf* MakeStichPdf(
+   SampleRooFitMgr* sample ,
+   const std::string& stitchname,
+   const std::vector<std::string>& pdfnamelist
+);
+
 
 //------------------------------------------------------------------------------
 //   Limit calculation main control flow and helper functions
 //------------------------------------------------------------------------------
-// in src/RooFit_SimFit.cc
-extern void MakeSimFit(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* mc,
-   std::vector<SampleRooFitMgr*>& sig_list
-);
-namespace smft
-{
-RooFitResult* FitPDFs (
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   RooFitResult*    bgconstrain
-);
-
-void MakeValidationPlot(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   RooFitResult*    fiterr,
-   const std::string& extratag=""
-);
-void MakeCardFile(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   RooFitResult*    err
-);
-};
-
-// in src/RooFit_MCTemplate.cc
-extern void MakeTemplate(
-   SampleRooFitMgr*,
-   SampleRooFitMgr*,
-   std::vector<SampleRooFitMgr*>&
-);
-namespace tmplt
-{
-RooFitResult* MakeBGFromMC( SampleRooFitMgr* );
-void  MakeTemplatePlot(
-   SampleRooFitMgr*,
-   SampleRooFitMgr*,
-   SampleRooFitMgr*,
-   RooFitResult*,
-   const bool
-);
-void  MakeCardFile(
-   SampleRooFitMgr*,
-   SampleRooFitMgr*,
-   SampleRooFitMgr*
-);
-};
 
 // in src/RooFit_Bias.cc
 extern void MakeBias(
@@ -115,16 +75,14 @@ extern void InitSingle( SampleRooFitMgr*&, const std::string& );
 extern void InitDataAndSignal( SampleRooFitMgr*&, std::vector<SampleRooFitMgr*>& );
 extern void InitMC( SampleRooFitMgr*& );
 
-//------------------------------------------------------------------------------
-//   Saving Functions, see Common_Save.cc
-//------------------------------------------------------------------------------
-extern void SetDataAlias( const std::string& );
 
+//------------------------------------------------------------------------------
+//   Saving functions and card file helpers
+//------------------------------------------------------------------------------
 extern void SaveRooWorkSpace(
    RooDataSet*                        data,
    const std::vector<RooAbsPdf*>&     bkg_pdf_list,
-   const std::vector<RooAbsPdf*>&     sig_pdf_list,
-   const std::vector<RooFitResult*>&  fit_results_list
+   const std::vector<RooAbsPdf*>&     sig_pdf_list
 );
 
 extern FILE* MakeCardCommon(

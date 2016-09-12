@@ -6,23 +6,22 @@
  #
 #*******************************************************************************
 
-./00_gen_dataset.py -i settings/muon_datasets.json      -o MuonList.txt
-./00_gen_dataset.py -i settings/electron_datasets.json  -o ElectronList.txt
-./00_gen_dataset.py -i settings/mc_datasets.json        -o MCList.txt
+./00_gen_dataset.py -i settings/muon80X_datasets.json      -o MuonData80X.txt
+./00_gen_dataset.py -i settings/electron80X_datasets.json  -o ElectronData80X.txt
+./00_gen_dataset.py -i settings/mc80X_datasets.json        -o MC80X.txt
 
 
-./01_run_baseline_selection.py -i MuonList.txt     -m MuonSignal
-./01_run_baseline_selection.py -i ElectronList.txt -m ElectronSignal
-./01_run_baseline_selection.py -i MCList.txt       -m MuonSignal
-./01_run_baseline_selection.py -i MCList.txt       -m ElectronSignal
+./01_run_baseline_selection.py -i MuonData80X.txt     -m MuonSignal
+./01_run_baseline_selection.py -i ElectronData80X.txt -m ElectronSignal
+./01_run_baseline_selection.py -i MC80X.txt           -m MuonSignal
+./01_run_baseline_selection.py -i MC80X.txt           -m ElectronSignal
 
-./02_retrieve_files.py -i MuonList.txt     -m MuonSignal
-./02_retrieve_files.py -i ElectronList.txt -m ElectronSignal
-./02_retrieve_files.py -i MCList.txt       -m MuonSignal
-./02_retrieve_files.py -i MCList.txt       -m ElectronSignal
+./02_retrieve_files.py -i MuonData80X.txt      -m MuonSignal
+./02_retrieve_files.py -i ElectronData80X.txt  -m ElectronSignal
+./02_retrieve_files.py -i MC80X.txt            -m MuonSignal
+./02_retrieve_files.py -i MC80X.txt            -m ElectronSignal
 
-
-./03_run_massreco.py -i MuonList.txt      -m MuonSignal
-./03_run_massreco.py -i ElectronList.txt  -m ElectronSignal
-./03_run_massreco.py -i MCList.txt        -m MuonSignal
-./03_run_massreco.py -i MCList.txt        -m ElectronSignal
+./03_run_massreco.py   -i MuonData80X.txt      -m MuonSignal
+./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal
+./03_run_massreco.py   -i MC80X.txt            -m MuonSignal
+./03_run_massreco.py   -i MC80X.txt            -m ElectronSignal

@@ -15,6 +15,7 @@ import TstarAnalysis.RunSequence.Settings as my_settings
 
 script_template="""
 #!/bin/bash
+/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select -b fuse mount $HOME/eos/
 cd  {0}/RunSequence/store/LFN_Run/
 eval `scramv1 runtime -sh`
 cmsRun {0}/RunSequence/cmsrun/run_massreco.py maxEvents=-1 sample={1} output={2}
@@ -36,7 +37,7 @@ def main():
         data_set_list = f.readlines()
         for data_set in data_set_list :
             data_set   = data_set.strip()
-            glob_query = my_name.GetStoreGlob('tstarbaseline',data_set,  opt.mode)
+            glob_query = my_name.GetStoreGlob('tstarbaseline', data_set,  opt.mode)
             file_master_list = glob.glob( glob_query )
 
             file_chunks = [file_master_list[i:i+8] for i in range(0, len(file_master_list), 8)]

@@ -9,7 +9,7 @@
 #define __SAMPLEHISTMGR_HH__
 
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include "ManagerUtils/HistMgr/interface/HistMgr.hpp"
+#include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include <string>
 

@@ -79,6 +79,9 @@
       "ChiSq6jet2b":{
          "Root Name": "#chi^{2} sorting, 6 jets (2 bjets)"
       },
+      "ChiSq8jet2b":{
+         "Root Name": "#chi^{2} sorting, 8 jets (2 bjets)"
+      },
       "NoTopConstrain6j2b":{
          "Root Name": "HitFit, 6 jets (2 bjets)"
       }

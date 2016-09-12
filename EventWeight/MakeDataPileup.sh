@@ -8,15 +8,20 @@
  #  - Main Reference:
  #     https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData
  #  - Minimum bias cross section reference:
- #     https://hypernews.cern.ch/HyperNews/CMS/get/luminosity/583/3.html
+ #     71620 : https://hypernews.cern.ch/HyperNews/CMS/get/luminosity/583/3.html
+ #     69200 : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData#Pileup_JSON_Files_For_Run_II
  #
 #*******************************************************************************
 
-pileupCalc.py \
+xseclist="62000 69200 71260"
+
+for xsec in $xseclist ; do
+   pileupCalc.py \
      -i data/lumi_mask_latest.json           \
      --inputLumiJSON data/pileup_latest.txt  \
      --calcMode true                         \
-     --minBiasXsec 71260                     \
+     --minBiasXsec ${xsec}                   \
      --maxPileupBin  50                      \
      --numPileupBins 50                      \
-     results/pileuphist.root
+     results/pileuphist_${xsec}.root
+done

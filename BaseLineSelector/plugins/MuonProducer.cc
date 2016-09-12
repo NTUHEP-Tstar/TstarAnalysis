@@ -1,55 +1,20 @@
-#include <memory>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "TstarAnalysis/BaseLineSelector/interface/ObjectCache.hpp"
-#include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
-#include <vector>
-
-typedef std::vector<pat::Muon> MuonList;
-
-//------------------------------------------------------------------------------
-//   Class Definition
-//------------------------------------------------------------------------------
-class MuonProducer : public edm::stream::EDFilter<> {
-public:
-   explicit MuonProducer(const edm::ParameterSet&);
-   ~MuonProducer();
-   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-   // Public for use !
-   bool   IsSelectedMuon( const pat::Muon& , const reco::Vertex& ) const ;
-   bool   IsVetoMuon( const pat::Muon& ) const;
-private:
-   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-
-   // Data Members
-   const edm::EDGetTokenT<reco::VertexCollection> _vertexsrc;
-   const edm::EDGetTokenT<double>                 _rhosrc;
-   const edm::EDGetTokenT<MuonList>               _muonsrc;
-   const edm::EDGetTokenT<pat::PackedCandidateCollection> _packedsrc;
-   edm::Handle<reco::VertexCollection>         _vertexHandle;
-   edm::Handle<double>                         _rhoHandle;
-   edm::Handle<pat::PackedCandidateCollection> _packedHandle;
-   edm::Handle<MuonList>                       _muonHandle;
-
-   //Helper private functions
-   const reco::Vertex GetPrimaryVertex() const;
-};
-
-//------------------------------------------------------------------------------
-//   Constructor and destructor
-//------------------------------------------------------------------------------
+/*******************************************************************************
+ *
+ *  Filename    : MuonProducer.cc
+ *  Description : Defining Direct EDM file interaction functions
+ *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+ *
+*******************************************************************************/
+#include "TstarAnalysis/BaseLineSelector/interface/MuonProducer.hpp"
 
 MuonProducer::MuonProducer(const edm::ParameterSet& iConfig):
-   _vertexsrc ( consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexsrc"))),
    _rhosrc    ( consumes<double>                (iConfig.getParameter<edm::InputTag>("rhosrc"))),
+   _vertexsrc ( consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexsrc"))),
+   _packedsrc ( consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedsrc"))),
    _muonsrc   ( consumes<MuonList>              (iConfig.getParameter<edm::InputTag>("muonsrc"))),
-   _packedsrc ( consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedsrc")))
+   _hltsrc    ( consumes<edm::TriggerResults>   (iConfig.getParameter<edm::InputTag>("hltsrc"))),
+   _triggerobjsrc( consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("trgobjsrc"))),
+   _reqtrigger  ( iConfig.getParameter<std::string>("reqtrigger"))
 {
    produces<MuonList>();
 }
@@ -58,26 +23,26 @@ MuonProducer::~MuonProducer()
 {
 }
 
-//------------------------------------------------------------------------------
-//   Main Control Flow
-//------------------------------------------------------------------------------
 bool MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    iEvent.getByToken( _rhosrc    , _rhoHandle    );
    iEvent.getByToken( _muonsrc   , _muonHandle   );
    iEvent.getByToken( _vertexsrc , _vertexHandle );
    iEvent.getByToken( _packedsrc , _packedHandle );
+   iEvent.getByToken( _hltsrc    , _hltHandle    );
+   iEvent.getByToken( _triggerobjsrc, _triggerObjectHandle );
 
    std::auto_ptr<MuonList> selectedMuons( new MuonList );
 
    // Object selection
-   reco::Vertex pv = GetPrimaryVertex();
-   for( const auto& mu : *(_muonHandle.product()) ) {
-      bool isSelected = IsSelectedMuon( mu, pv );
-      bool isVeto = IsVetoMuon(mu);
+   if( !GetPrimaryVertex() ) { return false; }  // early exit if cannot find primary vertex
+
+   for( auto mu : *_muonHandle ) { // Using duplicate
+      bool isSelected = IsSelectedMuon(mu,iEvent);
+      bool isVeto     = IsVetoMuon(mu,iEvent);
       if( isSelected ){
          if( selectedMuons->empty() ){
-            selectedMuons->push_back( mu );
+            selectedMuons->push_back(mu);
          } else{
             return false;
          }
@@ -86,12 +51,8 @@ bool MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }
 
-   // Adding additional variables
    if( selectedMuons->size() == 1 ){
-      AddMuonVariables(
-         selectedMuons->at(0),
-         pv,
-         _packedHandle );
+      AddMuonVariables( selectedMuons->at(0) , iEvent );
    } else if( selectedMuons->size() > 1 ){
       return false;
    }
@@ -99,40 +60,6 @@ bool MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put( selectedMuons );
    return true;
 }
-
-//------------------------------------------------------------------------------
-//   Selection Criterias
-//------------------------------------------------------------------------------
-const reco::Vertex MuonProducer::GetPrimaryVertex() const
-{
-   for( const auto& vertex : *(_vertexHandle.product())){
-      if( vertex.isFake()      ) { continue; }
-      if( vertex.ndof() <   4. ) { continue; }
-      if( vertex.z()    >= 24. ) { continue; }
-      if( vertex.position().Rho() >= 2.0) { continue; }
-      return vertex;
-   }
-   return *(_vertexHandle->begin());
-}
-
-bool MuonProducer::IsSelectedMuon( const pat::Muon& mu, const reco::Vertex& vtx ) const
-{
-   if( !mu.isTightMuon(vtx) ) { return false; }
-   if( mu.pt()  < 30  ) { return false; }
-   if( fabs(mu.eta()) > 2.1 ) { return false; }
-   if( MuPfIso(mu) > MUPFISO_TIGHT ){ return false; }
-   return true;
-}
-
-bool MuonProducer::IsVetoMuon( const pat::Muon& mu ) const
-{
-   if( !mu.isLooseMuon() ) { return false; }
-   if( mu.pt() < 15.0 )    { return false; }
-   if( fabs(mu.eta()) > 2.4 ) { return false; }
-   if( MuPfIso(mu) > MUPFISO_LOOSE ){ return false; }
-   return true;
-}
-
 
 
 

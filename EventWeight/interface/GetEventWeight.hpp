@@ -16,6 +16,12 @@
 extern double GetEventWeight ( const fwlite::EventBase& );
 
 extern double GetPileupWeight( const fwlite::EventBase& );
+extern double GetPileupWeight71260( const fwlite::EventBase& );
+extern double GetPileupWeight62000( const fwlite::EventBase& );
+
+extern double GetBtagWeight( const fwlite::EventBase& );
+extern double GetBtagWeightUp( const fwlite::EventBase& );
+extern double GetBtagWeightDown( const fwlite::EventBase& );
 
 extern double GetElectronWeight     ( const fwlite::EventBase& );
 extern double GetElectronCutWeight  ( const fwlite::EventBase& );
