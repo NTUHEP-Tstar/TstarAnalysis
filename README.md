@@ -4,8 +4,9 @@ Main code for excited top quark analysis.
 
 # Deploy commands
 ```
-cmsrel CMSSW_7_6_4
-cd CMSSW_7_6_4/src
+export SCRAM_ARCH="slc6_amd64_gcc530"
+cmsrel CMSSW_8_0_12
+cd CMSSW_8_0_12/src
 
 git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git
 git clone https://github.com/NTUHEP-Tstar/ManagerUtils.git
