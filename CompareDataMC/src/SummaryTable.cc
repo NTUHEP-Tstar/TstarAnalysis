@@ -1,13 +1,14 @@
 /*******************************************************************************
- *
- *  Filename    : SummaryTable.cc
- *  Description : Generating latex summary tables
- *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
- *
+*
+*  Filename    : SummaryTable.cc
+*  Description : Generating latex summary tables
+*  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+*
 *******************************************************************************/
-#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"
 #include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 #include <cstdio>
 #include <cstdlib>
@@ -15,212 +16,255 @@
 
 using namespace std;
 using namespace mgr;
-typedef vector<SampleGroup*> GroupList;
 
-//------------------------------------------------------------------------------
-//   Static variables and Stuff
-//------------------------------------------------------------------------------
-
-// For complete summary
-static FILE* OpenSelecFile( const string& );
-static void PrintSampleLine(FILE*,const SampleMgr*);
-static void PrintHline(FILE*);
-static void PrintCount(FILE*,const string&,const Parameter&);
-
-// For simple summary part
-static FILE* OpenSimpleFile( const string&);
-static void PrintSimpleLine(FILE*,const SampleGroup*);
-static void PrintSimpleCount(FILE*,const string&,const Parameter&);
-
-// For lumi part
-static FILE* OpenLumiFile( const string& );
-static void PrintLumiLine(FILE*,const SampleMgr*);
-
-static void CloseTableFile(FILE*);
-
-//------------------------------------------------------------------------------
-//   Main control flow
-//------------------------------------------------------------------------------
-void SummaryComplete( const GroupList& sig_list, const GroupList& bkg_list, const SampleGroup* data )
+/*******************************************************************************
+*   Main control functions
+*******************************************************************************/
+void
+SummaryComplete(
+   const vector<SampleGroup*>& siglist,
+   const vector<SampleGroup*>& bkglist,
+   const SampleGroup*          data )
 {
-   FILE* file = OpenSelecFile("");
-   for( const auto& sig : sig_list ){ PrintSampleLine(file,sig->Sample()); }
-   PrintHline(file);
+   FILE* file = OpenSelecFile( "" );
 
-   Parameter exp_yield(0,0,0);
-   Parameter obs_yield(data->EventsInFile(),0,0);
-   for( const auto& grp : bkg_list ){
-      for( const auto& smp : grp->SampleList() ){ PrintSampleLine(file,smp); }
-      exp_yield += grp->ExpectedYield();
-      PrintHline(file);
+   for( const auto& sig : siglist ){
+      PrintSampleLine( file, sig->Sample() );
    }
 
-   PrintCount(file,"MC background", exp_yield );
-   PrintHline(file);
-   PrintCount(file,"Data",obs_yield);
+   PrintHline( file );
 
-   CloseTableFile(file);
-}
+   Parameter expyield( 0, 0, 0 );
+   Parameter obsyield( data->EventsInFile(), 0, 0 );
 
-void SummarySignal(  const GroupList& sig_list )
-{
-   FILE* file = OpenSelecFile("sig");
-   for( const auto& sig : sig_list ){ PrintSampleLine(file,sig->Sample()); }
-   CloseTableFile(file);
-}
+   for( const auto& grp : bkglist ){
+      for( const auto& smp : grp->SampleList() ){
+         PrintSampleLine( file, smp );
+      }
 
-void SummaryBKGBrief( const GroupList& bkg_list, const SampleGroup* data )
-{
-   FILE* file = OpenSimpleFile("bkg");
-   Parameter exp_yield(0,0,0);
-   Parameter obs_yield(data->EventsInFile(),0,0);
-   for( const auto& grp : bkg_list ){
-      PrintSimpleLine(file,grp);
-      exp_yield += grp->ExpectedYield();
-   }
-   PrintHline(file);
-   PrintSimpleCount(file,"Bkg. Total" , exp_yield );
-   PrintHline(file);
-   PrintSimpleCount(file,"Data",obs_yield);
-
-   CloseTableFile(file);
-}
-
-extern void SummaryMCLumi( const GroupList& sig_list, const GroupList& bkg_list )
-{
-   FILE* file = OpenLumiFile("lumi");
-   for( const auto& sig : sig_list ){ PrintLumiLine(file,sig->Sample()); }
-
-   for( const auto& grp : bkg_list ){
-      PrintHline(file);
-      for( const auto& smp : grp->SampleList() ){ PrintLumiLine(file,smp); }
+      expyield += grp->ExpectedYield();
+      PrintHline( file );
    }
 
-   CloseTableFile(file);
+   PrintCount( file, "MC background", expyield );
+   PrintHline( file );
+   PrintCount( file, "Data", obsyield );
+
+   CloseTableFile( file );
+}
+
+/******************************************************************************/
+
+void
+SummarySignal(  const vector<SampleGroup*>& siglist )
+{
+   FILE* file = OpenSelecFile( "sig" );
+
+   for( const auto& sig : siglist ){
+      PrintSampleLine( file, sig->Sample() );
+   }
+
+   CloseTableFile( file );
 }
 
 
-//------------------------------------------------------------------------------
-//   Helper functions
-//------------------------------------------------------------------------------
-static const char selec_line[] = "%-55s & %25s & %35s & %10s & %35s \\\\ \n" ;
-static const char hline_line[] = "\\hline\n";
-void PrintHline(FILE* file)
+/******************************************************************************/
+
+void
+SummaryBKGBrief( const vector<SampleGroup*>& bkglist, const SampleGroup* data )
 {
+   FILE* file = OpenSimpleFile( "bkg" );
+   Parameter expyield( 0, 0, 0 );
+   Parameter obsyield( data->EventsInFile(), 0, 0 );
+
+   for( const auto& grp : bkglist ){
+      PrintSimpleLine( file, grp );
+      expyield += grp->ExpectedYield();
+   }
+
+   PrintHline( file );
+   PrintSimpleCount( file, "Bkg. Total", expyield );
+   PrintHline( file );
+   PrintSimpleCount( file, "Data", obsyield );
+
+   CloseTableFile( file );
+}
+
+/******************************************************************************/
+
+void
+SummaryMCLumi(
+   const vector<SampleGroup*>& siglist,
+   const vector<SampleGroup*>& bkglist )
+{
+   FILE* file = OpenLumiFile( "lumi" );
+
+   for( const auto& sig : siglist ){
+      PrintLumiLine( file, sig->Sample() );
+   }
+
+   for( const auto& grp : bkglist ){
+      PrintHline( file );
+
+      for( const auto& smp : grp->SampleList() ){
+         PrintLumiLine( file, smp );
+      }
+   }
+
+   CloseTableFile( file );
+}
+
+/*******************************************************************************
+*   Common Helper functions
+*******************************************************************************/
+void
+PrintHline( FILE* file )
+{
+   static const char hline_line[] = "\\hline\n";
    fprintf( file, hline_line );
 }
 
-void CloseTableFile( FILE* file )
+/******************************************************************************/
+
+void
+CloseTableFile( FILE* file )
 {
-   fprintf( file, hline_line);
-   fprintf( file , "\\end{tabular}\n");
+   PrintHline( file );
+   fprintf( file, "\\end{tabular}\n" );
    fclose( file );
 }
 
-FILE* OpenSelecFile( const string& tag )
+/*******************************************************************************
+*   Helper functions for detailed documentaion files
+*******************************************************************************/
+static const char selecline[] = "%-55s & %25s & %35s & %10s & %35s \\\\\n";
+
+FILE*
+OpenSelecFile( const string& tag )
 {
-   FILE* file = fopen( compare_namer.TexFileName("summary",{tag}).c_str() , "w" );
-   fprintf( file, "\\begin{tabular}{|l|ccc|c|}\n");
-   fprintf( file, hline_line );
-   fprintf( file , selec_line ,
-      "Sample" ,
-      "Cross Section ($pb$)" ,
+   FILE* file = fopen( compare_namer.TexFileName( "summary", {tag} ).c_str(), "w" );
+   fprintf( file, "\\begin{tabular}{|l|ccc|c|}\n" );
+   PrintHline( file );
+   fprintf( file, selecline,
+      "Sample",
+      "Cross Section ($pb$)",
       "Selection Efficiency",
-      "K Factor" ,
+      "K Factor",
       "Expected Yield"
-   );
-   fprintf( file , hline_line );
+      );
+   PrintHline( file );
 
    return file;
 }
 
-void PrintSampleLine( FILE* file, const SampleMgr* x )
+/******************************************************************************/
+
+void
+PrintSampleLine( FILE* file, const SampleMgr* x )
 {
-   fprintf( file, selec_line,
+   fprintf( file, selecline,
       x->LatexName().c_str(),
       FloatingPoint( x->CrossSection(), -1 ).c_str(),
-      Scientific   ( x->SelectionEfficiency(), 2 ).c_str(),
-      FloatingPoint( x->KFactor(),      -1 ).c_str() ,
+      Scientific( x->SelectionEfficiency(), 2 ).c_str(),
+      FloatingPoint( x->KFactor(),       -1 ).c_str(),
       FloatingPoint( x->ExpectedYield(), 1 ).c_str()
-   );
+      );
 }
 
-void PrintCount( FILE* file , const string& tag, const Parameter& x )
+/******************************************************************************/
+
+void
+PrintCount( FILE* file, const string& tag, const Parameter& x )
 {
-   fprintf( file, selec_line,
+   fprintf( file, selecline,
       tag.c_str(),
       "",
       "",
       "",
       FloatingPoint( x, 0 ).c_str()
-   );
+      );
 }
 
-//------------------------------------------------------------------------------
-//   Simplified lines for entire sample
-//------------------------------------------------------------------------------
-static const char simple_line[] = "%-30s & %35s & %35s &%35s\\\\ \n";
+/*******************************************************************************
+*   Helper functions for simplified summary
+*******************************************************************************/
+static const char simpleline[] = "%-30s & %35s & %35s &%35s\\\\\n";
 
-FILE* OpenSimpleFile( const string& tag )
+FILE*
+OpenSimpleFile( const string& tag )
 {
-   FILE* file = fopen( compare_namer.TexFileName("summary",{tag}).c_str() , "w" );
-   fprintf( file, "\\begin{tabular}{|l|cc|c|}\n");
-   fprintf( file, hline_line );
-   fprintf( file , simple_line ,
-      "Sample" ,
+   FILE* file = fopen( compare_namer.TexFileName( "summary", {tag} ).c_str(), "w" );
+   fprintf( file, "\\begin{tabular}{|l|cc|c|}\n" );
+   PrintHline( file );
+   fprintf( file, simpleline,
+      "Sample",
       "Cross section ($pb$)",
       "Average Efficiency",
       "Expected Yield"
-   );
-   fprintf( file , hline_line );
+      );
+   PrintHline( file );
    return file;
 }
 
-void PrintSimpleLine( FILE* file, const SampleGroup* x )
+/******************************************************************************/
+
+void
+PrintSimpleLine( FILE* file, const SampleGroup* x )
 {
-   fprintf( file , simple_line ,
+   fprintf( file, simpleline,
       x->LatexName().c_str(),
-      FloatingPoint( x->TotalCrossSection()     ,-1 ).c_str(),
-      Scientific   ( x->AvgSelectionEfficiency(), 2 ).c_str(),
-      FloatingPoint( x->ExpectedYield()         , 1 ).c_str()
-   );
+      FloatingPoint( x->TotalCrossSection(), 2 ).c_str(),
+      Scientific( x->AvgSelectionEfficiency(), 2 ).c_str(),
+      FloatingPoint( x->ExpectedYield(), 0 ).c_str()
+      );
 }
 
-void PrintSimpleCount( FILE* file, const string& tag, const Parameter& x )
+/******************************************************************************/
+
+void
+PrintSimpleCount( FILE* file, const string& tag, const Parameter& x )
 {
-   fprintf( file , simple_line ,
+   fprintf( file, simpleline,
       tag.c_str(),
-      "","",
-      FloatingPoint( x, 1 ).c_str()
-   );
+      "",
+      "",
+      FloatingPoint( x, 0 ).c_str()
+      );
 }
 
-static const char lumi_line[] = "%-55s %25s %10s %35s\\\\ \n";
+/*******************************************************************************
+*   Helper functions for Lumi summary files
+*******************************************************************************/
+static const char lumi_line[] = "%-55s %25s %10s %35s\\\\\n";
 
-FILE* OpenLumiFile( const string& tag )
+FILE*
+OpenLumiFile( const string& tag )
 {
-   FILE* file = fopen( compare_namer.TexFileName("summary",{tag}).c_str() , "w" );
-   fprintf( file, "\\begin{tabular}{|l|ccc|}\n");
-   fprintf( file, hline_line );
-   fprintf( file , lumi_line ,
-      "Sample" ,
+   FILE* file = fopen( compare_namer.TexFileName( "summary", {tag} ).c_str(), "w" );
+   fprintf( file, "\\begin{tabular}{|l|ccc|}\n" );
+   PrintHline( file );
+   fprintf( file, lumi_line,
+      "Sample",
       "Cross section($pb$)",
       "K Factor",
       "Equiv. Luminosity ($pb^{-1}$)"
-   );
-   fprintf( file , hline_line );
+      );
+   PrintHline( file );
    return file;
 }
 
-void PrintLumiLine( FILE* file , const SampleMgr* x )
+/******************************************************************************/
+
+void
+PrintLumiLine( FILE* file, const SampleMgr* x )
 {
    double equiv = GetOriginalEventCount( *x );
-   equiv /= x->CrossSection().CentralValue();
+   equiv /= x->ExpectedYield();
    equiv /= x->KFactor().CentralValue();
-   fprintf( file , lumi_line ,
+   fprintf( file, lumi_line,
       x->LatexName().c_str(),
-      FloatingPoint( x->CrossSection(), -1 ).c_str(),
-      FloatingPoint( x->KFactor()     , -1 ).c_str(),
-      FloatingPoint( Parameter(equiv,0,0) , 1 ).c_str()
-   );
+      FloatingPoint( x->CrossSection(),        -1 ).c_str(),
+      FloatingPoint( x->KFactor(),             -1 ).c_str(),
+      FloatingPoint( Parameter( equiv, 0, 0 ), 1 ).c_str()
+      );
 }

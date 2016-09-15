@@ -5,6 +5,7 @@
 
    "Run2016B_PromptReco2":{
       "Latex Name": "Run 2016 B Prompt Reco v2",
+      "Root Name": "Run 2016 B Prompt Reco v2",
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
@@ -13,6 +14,7 @@
    },
    "Run2016C_PromptReco2":{
       "Latex Name": "Run 2016 C Prompt Reco v2",
+      "Root Name": "Run 2016 C Prompt Reco v2",
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
@@ -21,6 +23,7 @@
    },
    "Run2016D_PromptReco2":{
       "Latex Name": "Run 2016 D Prompt Reco v2",
+      "Root Name": "Run 2016 D Prompt Reco v2",
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
@@ -29,6 +32,7 @@
    },
    "Run2016E_PromptReco2":{
       "Latex Name": "Run 2016 E Prompt Reco v2",
+      "Root Name": "Run 2016 E Prompt Reco v2",
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[

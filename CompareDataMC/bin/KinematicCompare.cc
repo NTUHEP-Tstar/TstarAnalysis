@@ -1,61 +1,49 @@
 /*******************************************************************************
- *
- *  Filename    : KinematicCompare.cc
- *  Description : Simple comparison of kinematic distribution of various
- *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
- *
+*
+*  Filename    : KinematicCompare.cc
+*  Description : Simple comparison of kinematic distribution of various
+*  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+*
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
-
+#include "TstarAnalysis/CompareDataMC/interface/MakeHist.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
 
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
 namespace opt = boost::program_options;
-//------------------------------------------------------------------------------
-//   Helper extern functions, see src/KinematicCompare.cc
-//------------------------------------------------------------------------------
-extern void MakeComparePlot(
-   SampleHistMgr* data,
-   vector<SampleHistMgr*>& bg,
-   SampleHistMgr* signal,
-   const string label = ""
-);
-extern void Normalize(
-   SampleHistMgr* data,
-   vector<SampleHistMgr*>& bg
-);
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 //   Main control flow
-//------------------------------------------------------------------------------
-int main(int argc, char* argv[])
+// ------------------------------------------------------------------------------
+int
+main( int argc, char* argv[] )
 {
-   opt::options_description  desc("Options for KinematicCompare");
+   opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
-      ("channel,c", opt::value<string>(), "What channel to run")
+      ( "channel,c", opt::value<string>(), "What channel to run" )
    ;
 
-   const int parse =  compare_namer.LoadOptions( desc, argc, argv ); // defined in Compare_Common.hpp
+   const int parse = compare_namer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
    if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-   if( parse == mgr::OptsNamer::PARSE_HELP ) { return 0; }
+   if( parse == mgr::OptsNamer::PARSE_HELP ){ return 0; }
 
    InitSampleStatic( compare_namer );
 
    const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
-   const string            data_tag = compare_namer.GetChannelEXT("Data Tag");
+   const string data_tag = compare_namer.GetChannelEXT( "Data Tag" );
    // Defining data settings
-   SampleHistMgr* data = new SampleHistMgr( data_tag , master );
+   SampleHistMgr* data = new SampleHistMgr( data_tag, master );
    // Defining out channels see data/Groups.json for sample settings
-   vector<SampleHistMgr*>  background;
-   background.push_back( new SampleHistMgr("TTJets"     , master ) );
-   background.push_back( new SampleHistMgr("SingleTop"  , master ) );
-   background.push_back( new SampleHistMgr("TTBoson"    , master ) );
-   background.push_back( new SampleHistMgr("SingleBoson", master ) );
-   background.push_back( new SampleHistMgr("DiBoson"    , master ) );
+   vector<SampleHistMgr*> background;
+
+   for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
+      background.push_back( new SampleHistMgr( bkggroup, master ) );
+   }
+
    // Declaring sample sample
-   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M800" , master );
+   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M800", master );
 
    // Making combined stack plots
    MakeComparePlot( data, background, signal_mgr );
@@ -63,12 +51,14 @@ int main(int argc, char* argv[])
    // Normalizing MC to data
    Normalize( data, background );
 
-   MakeComparePlot( data, background, signal_mgr , "normalized");
+   // Remake combined stack plots with "normalize" filename tag;
+   MakeComparePlot( data, background, signal_mgr, "normalized" );
 
    // Cleaning up
    for( auto& histmgr : background ){
       delete histmgr;
    }
+
    delete data;
    delete signal_mgr;
    return 0;

@@ -6,7 +6,7 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
-#include "TstarAnalysis/LimitCalc/interface/RooFit_Common.hpp"
+#include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 
 #include "RooHistPdf.h"
 #include "TRandom3.h"

@@ -8,6 +8,7 @@
    -----------------------------------------------------------------------------""",
    "WW": {
       "Latex Name" : "$WW$",
+      "Root Name" : "WW",
       "Cross Section": [ 118.7, 2.97, 2.61],
       "K Factor": [1.0],
       "EDM Files":[
@@ -16,6 +17,7 @@
    },
    "WZ": {
       "Latex Name" : "$WZ$",
+      "Root Name" : "WZ",
       "Cross Section": [ 49.75, 38.3, 2.99 ],
       "K Factor": [1.0],
       "EDM Files":[
@@ -24,6 +26,7 @@
    },
    "ZZ": {
       "Latex Name" : "$ZZ$",
+      "Root Name" : "ZZ",
       "Cross Section": [ 16.91, 0.54, 0.41 ],
       "K Factor": [1.0],
       "EDM Files":[

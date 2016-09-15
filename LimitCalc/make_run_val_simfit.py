@@ -24,7 +24,7 @@ masspointlist=[
 functionlist=["Exo","Lognorm"]
 
 runnum   = 3000
-injlist  = ["0", "3","10","30"]
+injlist  = ["0","30"]
 
 header="""
 #!/bin/bash

@@ -1,5 +1,7 @@
 <use name="root"/>
 <use name="roofit"/>
+<use name="boost"/>
+
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/PatCandidates"/>
 
@@ -11,6 +13,7 @@
 <use name="TstarAnalysis/Common"/>
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/ModifiedHitFit"/>
+<use name="TstarAnalysis/EventWeight"/>
 <use name="TstarAnalysis/BaseLineSelector"/>
 
 

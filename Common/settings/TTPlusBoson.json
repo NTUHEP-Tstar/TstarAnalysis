@@ -5,6 +5,7 @@
    -----------------------------------------------------------------------------""",
    "TTW_Lepton": {
       "Latex Name" : "$t\\bar{t}$ + ($W\\rightarrow l\\nu$)",
+      "Root Name": "t#bar{t} + W#rightarrow l#nu",
       "Cross Section": [ 0.2043,0.0020,0.0020 ],
       "K Factor": [1.0],
       "EDM Files":[
@@ -13,6 +14,7 @@
    },
    "TTW_Quark": {
       "Latex Name" : "$t\\bar{t}$ + ($W\\rightarrow qq$)",
+      "Root Name": "t#bar{t} + W#rightarrow qq",
       "Cross Section": [ 0.4062, 0.0021, 0.0021],
       "K Factor": [1.0],
       "EDM Files":[
@@ -21,6 +23,7 @@
    },
    "TTZ_Lepton": {
       "Latex Name" : "$t\\bar{t}$ + ($Z\\rightarrow ll$)",
+      "Root Name": "t#bar{t} + Z#rightarrow ll",
       "Cross Section": [0.2529,0.0004,0.0004 ],
       "K Factor": [1.0],
       "EDM Files":[
@@ -29,6 +32,7 @@
    },
    "TTZ_Quark": {
       "Latex Name" : "$t\\bar{t}$ + ($Z\\rightarrow qq$)",
+      "Root Name": "t#bar{t} + Z#rightarrow qq",
       "Cross Section": [ 0.5297, 0.00008, 0.00008 ],
       "K Factor": [1.0],
       "EDM Files":[

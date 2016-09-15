@@ -1,20 +1,21 @@
 import FWCore.ParameterSet.Config as cms
-#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------
 #   Weight Counter
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 beforeAny = cms.EDProducer(
     "WeightCounter",
-    lhesrc = cms.InputTag("externalLHEProducer"),
-    label  = cms.string("Before Any Selection"),
+    lhesrc=cms.InputTag("externalLHEProducer"),
+    label=cms.string("Before Any Selection"),
 )
 afterHLT = cms.EDProducer(
     "WeightCounter",
-    lhesrc = cms.InputTag("externalLHEProducer"),
-    label  = cms.string("After HLT selection"),
+    lhesrc=cms.InputTag("externalLHEProducer"),
+    label=cms.string("After HLT selection"),
 )
 
 afterBaseLine = cms.EDProducer(
     "WeightCounter",
-    lhesrc = cms.InputTag("externalLHEProducer"),
-    label  = cms.string("After all selections"),
+    lhesrc=cms.InputTag("externalLHEProducer"),
+    label=cms.string("After all selections"),
 )

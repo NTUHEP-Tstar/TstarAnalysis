@@ -16,9 +16,12 @@ using namespace std;
 int main(int argc, char const *argv[]) {
    fwlite::Event ev( TFile::Open("tstarMassReco.root") );
    for( ev.toBegin() ; !ev.atEnd() ; ++ev ){
-      cout << "Total event weight:" <<  GetEventWeight( ev ) << endl;
+      cout << "\nTotal event weight:" <<  GetEventWeight( ev ) << endl;
       cout << "\tPileup Weight:" << GetPileupWeight( ev ) << endl;
       cout << "\tElectron Weight:" << GetElectronWeight( ev ) << endl;
+      cout << "\tbtag weight:" << GetBtagWeight( ev ) << endl;
+      cout << "\tbtag weight (up):" << GetBtagWeightUp( ev ) << endl;
+      cout << "\tbtag weight (down):" << GetBtagWeightDown( ev ) << endl;   
    }
    return 0;
 }

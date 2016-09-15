@@ -4,7 +4,8 @@
    -----------------------------------------------------------------------------""",
 
    "Run2015D":{
-      "Latex Name": "Run 2015 D",
+      "Latex Name": "Run2015D",
+      "Root Name": "Run2015D",
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
@@ -13,7 +14,8 @@
    },
 
    "Run2015C":{
-      "Latex Name": "Run 2015 C",
+      "Latex Name": "Run2015C",
+      "Root Name": "Run2015C",
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[

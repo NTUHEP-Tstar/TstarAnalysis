@@ -8,10 +8,10 @@
 #ifndef TSTARANALYSIS_LIMITCALC_SAMPLEROOFITMGR_HPP
 #define TSTARANALYSIS_LIMITCALC_SAMPLEROOFITMGR_HPP
 
-#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include "ManagerUtils/RootMgr/interface/RooFitMgr.hpp"
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
+#include "ManagerUtils/RootMgr/interface/RooFitMgr.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include <string>
 #include <vector>
 
@@ -25,17 +25,18 @@ public:
 
    // Specialization for analysis variables
    static RooRealVar& x();
+   static double      MinMass();
+   static double      MaxMass();
    static RooRealVar& w();
-   static double MinMass();
-   static double MaxMass();
-   static void  InitStaticVars(const double, const double);
+
+   static void InitStaticVars( const double, const double );
 
    // Speicalization for creating new datasets
    RooDataSet* NewDataSet( const std::string& );
    // Specialized function for called default dataset
-   RooDataSet* DataSet( const std::string& name="" );
+   RooDataSet* DataSet( const std::string& name = "" );
    // Speicalized function for creating predefined pdf functions
-   RooAbsPdf*  NewPdf( const std::string& name, const std::string& type );
+   RooAbsPdf* NewPdf( const std::string& name, const std::string& type );
 
 private:
    // Filling functions specific to this analysis, see SampleRooFitMgr_FillSet.cc
@@ -43,4 +44,4 @@ private:
    void fillsets( mgr::SampleMgr& );
 };
 
-#endif /* end of include guard: __SAMPLE_ROOFIT_MGR_HH__ */
+#endif/* end of include guard: __SAMPLE_ROOFIT_MGR_HH__ */
