@@ -21,7 +21,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-   fwlite::Event event( TFile::Open("./test/signal.root") );
+   fwlite::Event event( TFile::Open("./test.root") );
    fwlite::Handle<vector<reco::GenParticle>>  genHandle;
 
    unsigned i = 0 ;

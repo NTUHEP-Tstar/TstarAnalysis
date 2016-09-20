@@ -5,9 +5,8 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "ManagerUtils/Maths/interface/Efficiency.hpp"
-#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
-#include "TstarAnalysis/EventWeight/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
+#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
@@ -29,6 +28,10 @@ SampleRooFitMgr::definesets()
       NewDataSet( "jetresdown" );
       NewDataSet( "btagup" );
       NewDataSet( "btagdown" );
+      NewDataSet( "puup" );
+      NewDataSet( "pudown" );
+      NewDataSet( "elecup" );
+      NewDataSet( "elecdown" );
    }
 }
 
@@ -37,9 +40,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
    fwlite::Handle<RecoResult> chiHandle;
 
-   const double selectedEvents = GetSelectedEventCount( sample );
-   const double exp_yield      = sample.ExpectedYield().CentralValue();
-   const double sampleweight   = exp_yield / selectedEvents;
+   const double sampleweight = GetSampleWeight( sample );
 
    unsigned i = 1;
 
@@ -52,7 +53,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
          sample.Event().size() );
       fflush( stdout );
 
-      const double weight = GetEventWeight( sample.Event() ) * sampleweight;
+      const double weight = GetEventWeight( sample.Event() ) * sampleweight * GetSampleEventTopPtWeight( sample , sample.Event() );
 
       // Getting event weight
       chiHandle.getByLabel( sample.Event(), "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
@@ -83,8 +84,18 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
             const double btagweight     = GetBtagWeight( sample.Event() );
             const double btagweightup   = GetBtagWeightUp( sample.Event() );
             const double btagweightdown = GetBtagWeightDown( sample.Event() );
+            const double puweight       = GetPileupWeight( sample.Event() );
+            const double puweightup     = GetPileupWeight71260 ( sample.Event() );
+            const double puweightdown   = GetPileupWeight62000 ( sample.Event() );
+            const double elecweight     = GetElectronWeight    ( sample.Event() );
+            const double elecweightup   = GetElectronWeightUp  ( sample.Event() );
+            const double elecweightdown = GetElectronWeightDown( sample.Event() );
             DataSet( "btagup"  )->add( RooArgSet( x() ), weight * btagweightup   / btagweight );
             DataSet( "btagdown" )->add( RooArgSet( x() ), weight * btagweightdown / btagweight );
+            DataSet( "puup" )->add( RooArgSet( x() ), weight * puweightup / puweight );
+            DataSet( "pudown" )->add( RooArgSet( x() ), weight * puweightdown / puweight );
+            DataSet( "elecup" )->add( RooArgSet( x() ), weight * elecweightup / elecweight );
+            DataSet( "elecdown" )->add( RooArgSet( x() ), weight * elecweightdown / elecweight );
          }
       }
    }

@@ -8,9 +8,10 @@
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
+#include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"
-#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
+#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
 
 #include <boost/program_options.hpp>
 #include <iostream>

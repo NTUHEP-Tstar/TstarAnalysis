@@ -11,7 +11,6 @@
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
-#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <vector>

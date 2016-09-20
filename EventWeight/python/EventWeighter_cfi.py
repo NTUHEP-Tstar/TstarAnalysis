@@ -12,6 +12,20 @@ ElectronWeight = cms.EDProducer(
     "ElectronWeight",
     elecsrc   = cms.InputTag('skimmedPatElectrons'),
     gsffile   = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
+    cutfile   = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_loosecuteff.root")
+)
+
+ElectronMeidumWeight = cms.EDProducer(
+    "ElectronWeight",
+    elecsrc   = cms.InputTag('skimmedPatElectrons'),
+    gsffile   = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
+    cutfile   = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_mediumcuteff.root")
+)
+
+ElectronTightWeight = cms.EDProducer(
+    "ElectronWeight",
+    elecsrc   = cms.InputTag('skimmedPatElectrons'),
+    gsffile   = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
     cutfile   = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_tightcuteff.root")
 )
 
@@ -19,6 +33,15 @@ BtagWeight = cms.EDProducer(
     "BtagWeight",
     jetsrc   = cms.InputTag('skimmedPatJets'),
     btagfile = cms.FileInPath("TstarAnalysis/Common/data/CSVv2_ichep.csv"),
+)
+
+TopPtWeight = cms.EDProducer(
+    "TopPtWeight",
+    gensrc = cms.InputTag( 'prunedGenParticles' ),
+    a = cms.double(0.159),
+    b = cms.double(-0.00141),
+    ptmin = cms.double(0),
+    ptmax = cms.double(400)
 )
 
 EventWeight = cms.EDProducer(

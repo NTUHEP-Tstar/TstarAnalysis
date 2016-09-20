@@ -5,8 +5,7 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-
-#include "TstarAnalysis/Common/interface/InitSampleStatic.hpp"
+#include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/Common/interface/NameParse.hpp"
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"

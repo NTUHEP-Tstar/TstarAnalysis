@@ -3,7 +3,7 @@
    #    Signal sector:
    #    Reference:
    -----------------------------------------------------------------------------""",
-   "tstar_M700": {
+   "TstarM700": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 700 GeV/c$^{2}$ )",
       "Root Name": "t* = 700GeV",
       "Cross Section": [ 4.9228, 0, 0 ],
@@ -12,7 +12,7 @@
          "TstarTstarToTgluonTgluon_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M800": {
+   "TstarM800": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 800 GeV/c$^{2}$ )",
       "Root Name": "t* = 800GeV",
       "Cross Section": [ 1.6752, 0, 0 ],
@@ -21,7 +21,7 @@
          "TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M900": {
+   "TstarM900": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 900 GeV/c$^{2}$ )",
       "Root Name": "t* = 900GeV",
       "Cross Section": [ 0.63571, 0, 0 ],
@@ -30,7 +30,7 @@
          "TstarTstarToTgluonTgluon_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1000": {
+   "TstarM1000": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1000 GeV/c$^{2}$ )",
       "Root Name": "t* = 1000GeV",
       "Cross Section": [ 0.26231, 0, 0 ],
@@ -39,7 +39,7 @@
          "TstarTstarToTgluonTgluon_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1100": {
+   "TstarM1100": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1100 GeV/c$^{2}$ )",
       "Root Name": "t* = 1100GeV",
       "Cross Section": [ 0.11561, 0, 0 ],
@@ -48,7 +48,7 @@
          "TstarTstarToTgluonTgluon_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1200": {
+   "TstarM1200": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1200 GeV/c$^{2}$ )",
       "Root Name": "t* = 1200GeV",
       "Cross Section": [ 0.053722, 0, 0 ],
@@ -57,7 +57,7 @@
          "TstarTstarToTgluonTgluon_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1300": {
+   "TstarM1300": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1300 GeV/c$^{2}$ )",
       "Root Name": "t* = 1300GeV",
       "Cross Section": [ 0.026058, 0, 0 ],
@@ -66,7 +66,7 @@
          "TstarTstarToTgluonTgluon_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1400": {
+   "TstarM1400": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1400 GeV/c$^{2}$ )",
       "Root Name": "t* = 1400GeV",
       "Cross Section": [  0.0103092, 0, 0 ],
@@ -75,7 +75,7 @@
          "TstarTstarToTgluonTgluon_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1500": {
+   "TstarM1500": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1500 GeV/c$^{2}$ )",
       "Root Name": "t* = 1500GeV",
       "Cross Section": [ 0.0067720, 0, 0 ],
@@ -84,7 +84,7 @@
          "TstarTstarToTgluonTgluon_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8_*.root"
       ]
    },
-   "tstar_M1600": {
+   "TstarM1600": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1600 GeV/c$^{2}$ )",
       "Root Name": "t* = 1600GeV",
       "Cross Section": [ 0.0035883, 0, 0 ],

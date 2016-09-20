@@ -37,8 +37,8 @@ def main():
 
             if opt.copy:
                 print "using copy method!"
-                crab_dir         = my_name.GetCrabDir      ('tstarbaseline',data_set,opt.mode)
-                crab_results_dir = my_name.GetCrabOutputDir('tstarbaseline',data_set,opt.mode)
+                crab_dir         = my_name.GetCrabDir      ('tstar',data_set,opt.mode)
+                crab_results_dir = my_name.GetCrabOutputDir('tstar',data_set,opt.mode)
                 os.system( "crab getoutput "+crab_dir )
                 output_file_list = glob.glob( crab_results_dir + '*.root')
 

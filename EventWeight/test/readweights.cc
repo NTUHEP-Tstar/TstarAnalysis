@@ -6,7 +6,7 @@
  *
 *******************************************************************************/
 #include "DataFormats/FWLite/interface/Event.h"
-#include "TstarAnalysis/EventWeight/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 
 #include <iostream>
 #include "TFile.h"
@@ -21,7 +21,8 @@ int main(int argc, char const *argv[]) {
       cout << "\tElectron Weight:" << GetElectronWeight( ev ) << endl;
       cout << "\tbtag weight:" << GetBtagWeight( ev ) << endl;
       cout << "\tbtag weight (up):" << GetBtagWeightUp( ev ) << endl;
-      cout << "\tbtag weight (down):" << GetBtagWeightDown( ev ) << endl;   
+      cout << "\tbtag weight (down):" << GetBtagWeightDown( ev ) << endl;
+      cout << "\tTop Pt weights: " << GetEventTopPtWeight( ev ) << endl;
    }
    return 0;
 }

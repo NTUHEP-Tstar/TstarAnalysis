@@ -52,7 +52,7 @@ private:
    const pat::MET* _met;
    const pat::Electron* _electron;
    const pat::Muon* _muon;
-   std::vector<const pat::Jet*> _jetList;
+   std::vector<const pat::Jet*> _jetlist;
 
    // Extended objects
    std::vector<RecoResult> _resultsList;

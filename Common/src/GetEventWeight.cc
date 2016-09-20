@@ -7,6 +7,13 @@
 *******************************************************************************/
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/FWLite/interface/Run.h"
+
+#include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
+
+#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
+
+#include "TFile.h"
 #include <iostream>
 #include <string>
 using namespace std;
@@ -100,6 +107,65 @@ double
 GetElectronWeightDown( const fwlite::EventBase& ev )
 {
    return GetWeightByTag( ev, "ElectronWeight", "ElectronWeightdown" );
+}
+
+double GetElectronMediumCutWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "ElectronMediumWeight", "ElectronCutWeight" );
+}
+
+double GetElectronTightCutWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "ElectronTightWeight", "ElectronTightWeight" );
+}
+
+/******************************************************************************/
+
+double
+GetEventTopPtWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "TopPtWeight", "TopPtWeight" );
+}
+
+double
+SetSampleTopPtWeight( mgr::SampleMgr& sample )
+{
+   fwlite::Handle<double> count_handle;
+   double ans = 0;
+
+   try {
+      for( const auto& file_path : sample.GlobbedFileList() ){
+         fwlite::Run run( TFile::Open( file_path.c_str() ) );
+
+         for( run.toBegin(); !run.atEnd(); ++run ){
+            count_handle.getByLabel( run, "TopPtWeight", "TopPtWeightSum" );
+            ans += *count_handle;
+         }
+      }
+   } catch( std::exception ){
+      if( sample.Name().find("Run") == string::npos ){
+         cerr << "Error! Top Pt weight sum not found for MC dataset!" << endl;
+      }
+      ans = sample.Event().size();// For data files
+   }
+
+   sample.AddCacheDouble( "TopPtWeightSum", ans );
+   return ans;
+}
+
+double
+GetSampleTopPtWeight( const mgr::SampleMgr& sample )
+{
+   return sample.GetCacheDouble( "TopPtWeightSum" );
+}
+
+double
+GetSampleEventTopPtWeight( const mgr::SampleMgr& sample, const fwlite::EventBase& ev )
+{
+   const double sample_weightsum   = sample.Event().size();
+   const double sample_ptweightsum = GetSampleTopPtWeight( sample );
+   const double event_ptweight     = GetEventTopPtWeight( ev );
+   return event_ptweight * sample_weightsum / sample_ptweightsum;
 }
 
 /*******************************************************************************

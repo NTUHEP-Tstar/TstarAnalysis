@@ -204,8 +204,7 @@ HitFitter::AddResult(
 
    // Neutrino
    FitParticle new_met;
-   new_met              = MakeResultMET( _met );
-   new_met.P4( fitted ) = ConvertToRoot( ev.met() );
+   new_met = MakeResultMET( _met, ConvertToRoot( ev.met() ) , 1, 1);
    new_result.AddParticle( new_met );
 
    const vector<int>& jet_type_list = ev.jet_types();

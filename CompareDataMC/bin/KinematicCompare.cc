@@ -5,6 +5,7 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
+#include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/MakeHist.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
@@ -32,9 +33,10 @@ main( int argc, char* argv[] )
    InitSampleStatic( compare_namer );
 
    const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
-   const string data_tag = compare_namer.GetChannelEXT( "Data Tag" );
+   const string datatag = compare_namer.GetChannelEXT( "Data Tag" );
+
    // Defining data settings
-   SampleHistMgr* data = new SampleHistMgr( data_tag, master );
+   SampleHistMgr* data = new SampleHistMgr( datatag, master );
    // Defining out channels see data/Groups.json for sample settings
    vector<SampleHistMgr*> background;
 
@@ -43,16 +45,16 @@ main( int argc, char* argv[] )
    }
 
    // Declaring sample sample
-   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M800", master );
+   SampleHistMgr* sigmgr = new SampleHistMgr( "TstarM800", master );
 
    // Making combined stack plots
-   MakeComparePlot( data, background, signal_mgr );
+   MakeComparePlot( data, background, sigmgr );
 
    // Normalizing MC to data
    Normalize( data, background );
 
    // Remake combined stack plots with "normalize" filename tag;
-   MakeComparePlot( data, background, signal_mgr, "normalized" );
+   MakeComparePlot( data, background, sigmgr, "normalized" );
 
    // Cleaning up
    for( auto& histmgr : background ){
@@ -60,6 +62,6 @@ main( int argc, char* argv[] )
    }
 
    delete data;
-   delete signal_mgr;
+   delete sigmgr;
    return 0;
 }

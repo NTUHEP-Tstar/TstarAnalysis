@@ -6,8 +6,8 @@
 *
 *******************************************************************************/
 
-#ifndef __RECO_UTILS_HH__
-#define __RECO_UTILS_HH__
+#ifndef TSTARANALYSIS_TSTARMASSRECO_RECOUTILS_HPP
+#define TSTARANALYSIS_TSTARMASSRECO_RECOUTILS_HPP
 
 #include "CLHEP/Vector/LorentzVector.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -18,26 +18,50 @@
 
 #include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
 
-// ------------------------------------------------------------------------------
-//   Template functions
-// ------------------------------------------------------------------------------
+#include <vector>
+
+/*******************************************************************************
+*   Helper functions to extract Four momentum from non PAT objects
+*******************************************************************************/
 extern TLorentzVector ConvertToRoot( const reco::Candidate& x );
 extern TLorentzVector ConvertToRoot( const CLHEP::HepLorentzVector& x );
 
-// ------------------------------------------------------------------------------
-//   Translation Functions in RecoUtils.cc
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Helper function for getting JES scale of MET from a list of Jets
+*
+*   -- Dumbed down version of algorithm (not complete!)
+*      perform vector sum of jets for central
+*      value, scaled up and scaled down four momentums, the error is then deprived
+*      from the ration between the sum pt
+*
+*******************************************************************************/
+void GetJESMET( const std::vector<const pat::Jet*>&, double& scaleup, double& scaledown  );
+
+/*******************************************************************************
+*   Translations functions, the creating of the storage fit particles from
+*   original pat objects.
+*
+*   ** MakeResultJet - (int) to signify jet type in topology from fitting results
+*
+*   ** MakeResultMET
+*       - TLorentzVector for fitted four momentum of neutrino.
+*       - doubles for effects of Jet energy corrections.
+*
+*******************************************************************************/
 extern FitParticle MakeResultJet( const pat::Jet*, int );
-extern FitParticle MakeResultMET( const pat::MET* );
+extern FitParticle MakeResultMET( const pat::MET*, const TLorentzVector&, const double scaleup, const double scaledown );
 extern FitParticle MakeResultMuon( const pat::Muon* );
 extern FitParticle MakeResultElectron( const pat::Electron* );
 
-// ------------------------------------------------------------------------------
-//   Decay chain crawling functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Decay chain crawling functions
+*******************************************************************************/
 const reco::Candidate* GetDirectMother( const reco::Candidate*, int );
 const reco::Candidate* GetDaughter( const reco::Candidate*, int );
 
+/*******************************************************************************
+*   Decay chain crawling function for hihg level control flow
+*******************************************************************************/
 extern bool FromLeptonicTop( const reco::Candidate* );
 extern bool FromHadronicTop( const reco::Candidate* );
 extern bool FromLeptonicW( const reco::Candidate* );

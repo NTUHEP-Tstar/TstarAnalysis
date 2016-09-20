@@ -10,6 +10,9 @@
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
+#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
+
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
@@ -21,12 +24,24 @@ InitSampleStatic( const TstarNamer& namer )
    mgr::SampleMgr::InitStaticFromReader( cfg );
    if( boost::contains( namer.GetChannel(), "2015" ) ){
       cout << "Using 2015 Luminosity" << endl;
-      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble(
-            "Total Luminosity 2015" ) );
+      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble( "Total Luminosity 2015" ) );
    } else {
-      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble(
-            "Total Luminosity 2016" ) );
+      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble( "Total Luminosity 2016" ) );
    }
    mgr::SampleMgr::SetFilePrefix( namer.GetChannelEDMPath() );
    mgr::SampleGroup::SetSampleCfgPrefix( namer.SettingsDir() );
+}
+
+/*******************************************************************************
+*   Function for caching weight sums
+*******************************************************************************/
+void InitSample( mgr::SampleMgr& sample )
+{
+   SetOriginalEventCount( sample );
+
+   SetSelectedEventCount( sample );
+
+   ComputeSelectionEff( sample );
+
+   SetSampleTopPtWeight( sample );
 }

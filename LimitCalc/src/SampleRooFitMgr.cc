@@ -5,8 +5,8 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
+#include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include <iostream>
 
 using namespace std;
@@ -45,7 +45,10 @@ SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ) 
    definesets();
 
    for( auto& sample : SampleList() ){
-      ComputeSelectionEff( *sample );
+      // Caching sample wide variable (weight sums.. etc), see Common/src/InitSample.cc
+      InitSample( *sample );
+
+      // Fitting the defined dataset, see LimitCalc/src/SampleRooFitMgr_FillSet.cc
       fillsets( *sample );
    }
 }

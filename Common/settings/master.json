@@ -3,9 +3,9 @@
    #    Static Settings
    -----------------------------------------------------------------------------""",
 
-   "Total Luminosity": 15900,
+   "Total Luminosity": 12900,
    "Total Luminosity 2015": 2180,
-   "Total Luminosity 2016": 15900,
+   "Total Luminosity 2016": 12900,
 
    "Mass Min":400,
    "Mass Max":2500,
@@ -98,15 +98,15 @@
    ],
 
    "Signal List" : [
-      "tstar_M700",
-      "tstar_M800",
-      "tstar_M900",
-      "tstar_M1000",
-      "tstar_M1100",
-      "tstar_M1200",
-      "tstar_M1300",
-      "tstar_M1400",
-      "tstar_M1500",
-      "tstar_M1600"
+      "TstarM700",
+      "TstarM800",
+      "TstarM900",
+      "TstarM1000",
+      "TstarM1100",
+      "TstarM1200",
+      "TstarM1300",
+      "TstarM1400",
+      "TstarM1500",
+      "TstarM1600"
    ]
 }

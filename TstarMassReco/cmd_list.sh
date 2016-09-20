@@ -8,24 +8,24 @@
 #*******************************************************************************
 
 ./CompareScale -c MuonSignal -m Data_Muon
-./CompareScale -c MuonSignal -m tstar_M800
-./CompareScale -c MuonSignal -m tstar_M1200
-./CompareScale -c MuonSignal -m tstar_M1600
+./CompareScale -c MuonSignal -m TstarM800
+./CompareScale -c MuonSignal -m TstarM1200
+./CompareScale -c MuonSignal -m TstarM1600
 
 ./CompareScale -c ElectronSignal -m Data_Electron
-./CompareScale -c ElectronSignal -m tstar_M800
-./CompareScale -c ElectronSignal -m tstar_M1200
-./CompareScale -c ElectronSignal -m tstar_M1600
+./CompareScale -c ElectronSignal -m TstarM800
+./CompareScale -c ElectronSignal -m TstarM1200
+./CompareScale -c ElectronSignal -m TstarM1600
 
 
-./CompareMethods -c MuonSignal -m tstar_M800  -o hitfitVchisq -x ChiSq6jet2b NoTopConstrain6j2b
-./CompareMethods -c MuonSignal -m tstar_M1200 -o hitfitVchisq -x ChiSq6jet2b NoTopConstrain6j2b
-./CompareMethods -c MuonSignal -m tstar_M1600 -o hitfitVchisq -x ChiSq6jet2b NoTopConstrain6j2b
+./CompareMethods -c MuonSignal -m TstarM800  -o hitfitVchisq -x ChiSq6jet2b NoTopConstrain6j2b
+./CompareMethods -c MuonSignal -m TstarM1200 -o hitfitVchisq -x ChiSq6jet2b NoTopConstrain6j2b
+./CompareMethods -c MuonSignal -m TstarM1600 -o hitfitVchisq -x ChiSq6jet2b NoTopConstrain6j2b
 
-./CompareMethods -c MuonSignal -m tstar_M800  -o chisqstd     -x ChiSq6jet2b
-./CompareMethods -c MuonSignal -m tstar_M1200 -o chisqstd     -x ChiSq6jet2b
-./CompareMethods -c MuonSignal -m tstar_M1600 -o chisqstd     -x ChiSq6jet2b
+./CompareMethods -c MuonSignal -m TstarM800  -o chisqstd     -x ChiSq6jet2b
+./CompareMethods -c MuonSignal -m TstarM1200 -o chisqstd     -x ChiSq6jet2b
+./CompareMethods -c MuonSignal -m TstarM1600 -o chisqstd     -x ChiSq6jet2b
 
-./CompareMethods -c MuonSignal -m tstar_M800  -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
-./CompareMethods -c MuonSignal -m tstar_M1200 -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
-./CompareMethods -c MuonSignal -m tstar_M1600 -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
+./CompareMethods -c MuonSignal -m TstarM800  -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
+./CompareMethods -c MuonSignal -m TstarM1200 -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
+./CompareMethods -c MuonSignal -m TstarM1600 -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b

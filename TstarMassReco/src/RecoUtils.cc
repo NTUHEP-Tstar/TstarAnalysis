@@ -20,15 +20,15 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-// ------------------------------------------------------------------------------
-//   Helper functions
-// ------------------------------------------------------------------------------
-tstar::Particle_Label GetJetType( const reco::GenParticle* );
-tstar::Particle_Label GetLeptonType( const reco::GenParticle* );
+/*******************************************************************************
+*   Helper functions
+*******************************************************************************/
+static tstar::Particle_Label GetJetType( const reco::GenParticle* );
+static tstar::Particle_Label GetLeptonType( const reco::GenParticle* );
 
-// ------------------------------------------------------------------------------
-//   Main control flow functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Four momentum translation functions
+*******************************************************************************/
 TLorentzVector
 ConvertToRoot( const reco::Candidate& x )
 {
@@ -41,13 +41,36 @@ ConvertToRoot( const CLHEP::HepLorentzVector& x )
    return TLorentzVector( x.px(), x.py(), x.pz(), x.e() );
 }
 
+/*******************************************************************************
+*   GetJESMET functions
+*******************************************************************************/
+void
+GetJESMET( const std::vector<const pat::Jet*>& jetlist, double& scaleup, double& scaledown )
+{
+   TLorentzVector centralp4;
+   TLorentzVector scaleupp4;
+   TLorentzVector scaledownp4;
+   for( const auto& jet : jetlist ){
+      centralp4 += GetLorentzVector( *jet, "ResP4" );
+      scaleupp4 += GetLorentzVector( *jet, "ResP4" ) * (1+jet->userFloat( "jecunc" ) );
+      scaledownp4 += GetLorentzVector( *jet, "ResP4" ) * (1-jet->userFloat( "jecunc" ) );
+   }
+   scaleup   = scaleupp4.Pt() / centralp4.Pt();
+   scaledown = scaledownp4.Pt() / centralp4.Pt();
+}
+
+
+
+/*******************************************************************************
+*   Particle creation functions
+*******************************************************************************/
 FitParticle
 MakeResultJet( const pat::Jet* jet, int x )
 {
    static BTagChecker bcheck( "check", CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" );
 
    FitParticle ans;
-   ans.P4( tstar::original ) = ConvertToRoot( *jet );
+   ans.P4( tstar::original ) = GetLorentzVector( *jet, "ResP4" );
    // Making smeared jet momentums
    ans.P4( tstar::res_up   )  = ans.P4( tstar::original ) * ( 1. + jet->userFloat( "respt" ) );
    ans.P4( tstar::res_down )  = ans.P4( tstar::original ) * ( 1. - jet->userFloat( "respt" ) );
@@ -70,14 +93,27 @@ MakeResultJet( const pat::Jet* jet, int x )
 }
 
 FitParticle
-MakeResultMET( const pat::MET* met )
+MakeResultMET(
+   const pat::MET*       met,
+   const TLorentzVector& fittedP4,
+   const double          scaleup,
+   const double          scaledown )
 {
    FitParticle ans;
-   ans.P4( tstar::original ) = ConvertToRoot( *met );
-   ans.TypeFromFit()         = tstar::neutrino_label;
-   ans.TypeFromTruth()       = tstar::unknown_label;
-   ans.IsBTagged()           = false;
-   ans.TruthFlavour()        = 0;
+
+   const double resup = met->shiftedPt( pat::MET::JetEnUp ) / met->pt();
+   const double resdn = met->shiftedPt( pat::MET::JetEnDown ) / met->pt();
+
+   ans.P4( tstar::fitted    ) = fittedP4;
+   ans.P4( tstar::res_up    ) = fittedP4 * resup;
+   ans.P4( tstar::res_down  ) = fittedP4 * resdn;
+   ans.P4( tstar::corr_up   ) = fittedP4 * scaleup;
+   ans.P4( tstar::corr_down ) = fittedP4 * scaledown;
+   ans.P4( tstar::original  ) = GetLorentzVector( *met, "" );
+   ans.TypeFromFit()          = tstar::neutrino_label;
+   ans.TypeFromTruth()        = tstar::unknown_label;
+   ans.IsBTagged()            = false;
+   ans.TruthFlavour()         = 0;
    return ans;
 }
 
@@ -86,7 +122,7 @@ MakeResultMuon( const pat::Muon* lepton )
 {
    FitParticle ans;
 
-   ans.P4( tstar::original ) = ConvertToRoot( *lepton );
+   ans.P4( tstar::original ) = GetLorentzVector( *lepton, "" );
    ans.TypeFromFit()         = tstar::muon_label;
 
    if( lepton->genLepton() ){
@@ -108,7 +144,7 @@ MakeResultElectron( const pat::Electron* lepton )
 {
    FitParticle ans;
 
-   ans.P4( tstar::original ) = ConvertToRoot( *lepton );
+   ans.P4( tstar::original ) = GetLorentzVector( *lepton, "" );
    ans.TypeFromFit()         = tstar::electron_label;
 
    if( lepton->genLepton() ){
@@ -125,9 +161,9 @@ MakeResultElectron( const pat::Electron* lepton )
    return ans;
 }
 
-// ------------------------------------------------------------------------------
-//   Topology Tracing functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Topology Tracing functions
+*******************************************************************************/
 #define BOTTOM_ID    5
 #define TOP_QUARK_ID 6
 #define ELEC_ID      11
@@ -189,10 +225,9 @@ GetLeptonType( const reco::GenParticle* x )
    }
 }
 
-// ------------------------------------------------------------------------------
-//   Decay Path Crawling algotihms
-// ------------------------------------------------------------------------------
-
+/*******************************************************************************
+*   Decay Crawling Algorithms
+*******************************************************************************/
 // Using BFS to search mother and children
 #include <queue>
 using namespace std;
@@ -268,7 +303,7 @@ IsHadronicW( const reco::Candidate* x )
    if( abs( x->daughter( 0 )->pdgId() ) >= 1 &&
        abs( x->daughter( 0 )->pdgId() ) <= 6 &&
        abs( x->daughter( 1 )->pdgId() ) >= 1 &&
-       abs( x->daughter( 1 )->pdgId() ) <= 6 ){return true; }
+       abs( x->daughter( 1 )->pdgId() ) <= 6 ){ return true; }
    return false;
 }
 

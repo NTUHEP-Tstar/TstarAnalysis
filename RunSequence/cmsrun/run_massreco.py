@@ -69,8 +69,11 @@ process.edmOut = cms.OutputModule(
 process.path = cms.Path(
     process.tstarMassReco
     * (process.ElectronWeight
+        + process.ElectronMeidumWeight
+        + process.ElectronTightWeight 
         + process.PileupWeight
-        + process.BtagWeight)
+        + process.BtagWeight
+        + process.TopPtWeight )
     * process.EventWeight
 )
 

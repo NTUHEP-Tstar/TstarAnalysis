@@ -6,7 +6,8 @@
 *
 *******************************************************************************/
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "TstarAnalysis/EventWeight/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/Common/interface/InitSample.hpp"
+#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/ScaleHistMgr.hpp"
 
@@ -33,6 +34,10 @@ ScaleHistMgr::define_hist()
    AddHist( "TstarMass_jecdw",  "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
    AddHist( "TstarMass_btagup", "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
    AddHist( "TstarMass_btagdw", "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
+   AddHist( "TstarMass_puup",   "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
+   AddHist( "TstarMass_pudw",   "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
+   AddHist( "TstarMass_elup",   "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
+   AddHist( "TstarMass_eldw",   "M_{t+g}", "GeV/c^{2}", 53, 350, 3000  );
 }
 
 void
@@ -60,6 +65,12 @@ ScaleHistMgr::fill_histograms( SampleMgr& sample )
          const double btagweight     = GetBtagWeight( ev );
          const double btagweightup   = GetBtagWeightUp( ev );
          const double btagweightdown = GetBtagWeightDown( ev );
+         const double puweight       = GetPileupWeight( ev );
+         const double puweightup     = GetPileupWeight71260( ev );
+         const double puweightdown   = GetPileupWeight62000( ev );
+         const double elecweight     = GetElectronWeight( ev );
+         const double elecweightup   = GetElectronWeightUp( ev );
+         const double elecweightdown = GetElectronWeightDown( ev );
 
          if( chisqHandle->ChiSquare() > 0 ){// Only storing physical results
             // Central value plot
@@ -74,6 +85,14 @@ ScaleHistMgr::fill_histograms( SampleMgr& sample )
             // btag effects
             Hist( "TstarMass_btagup" )->Fill( chisqHandle->TstarMass(), weight * btagweightup / btagweight );
             Hist( "TstarMass_btagdw" )->Fill( chisqHandle->TstarMass(), weight * btagweightdown / btagweight );
+
+            // Pile up effects
+            Hist( "TstarMass_puup")->Fill( chisqHandle->TstarMass(), weight * puweightup / puweight );
+            Hist( "TstarMass_pudw")->Fill( chisqHandle->TstarMass(), weight * puweightdown / puweight );
+
+            // Electron Weight effects
+            Hist( "TstarMass_elup")->Fill( chisqHandle->TstarMass(), weight * elecweightup / elecweight );
+            Hist( "TstarMass_eldw")->Fill( chisqHandle->TstarMass(), weight * elecweightdown / elecweight );
          }
       }
    }
@@ -93,6 +112,10 @@ ScaleHistMgr::ScaleHistMgr( const string& name, const ConfigReader& cfg ) :
    define_hist();
 
    for( auto& sample : SampleList() ){
+      // Caching sample wide variables, see Common/src/InitSample.cc
+      InitSample( *sample );
+
+      // See above
       fill_histograms( *sample );
    }
 }

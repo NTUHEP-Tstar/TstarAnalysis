@@ -17,8 +17,18 @@
 
 using mgr::SampleMgr;
 
+double GetOriginalEventCount( const SampleMgr& sample )
+{
+   return sample.GetCacheDouble( "OriginalEventCount");
+}
+
+double GetSelectedEventCount( const SampleMgr& sample )
+{
+   return sample.GetCacheDouble( "SelectedEventCount" );
+}
+
 double
-GetOriginalEventCount( const SampleMgr& sample )
+SetOriginalEventCount( SampleMgr& sample )
 {
    fwlite::Handle<edm::MergeableCounter> positive_count;
    fwlite::Handle<edm::MergeableCounter> negative_count;
@@ -34,12 +44,12 @@ GetOriginalEventCount( const SampleMgr& sample )
          count -= negative_count->value;
       }
    }
-
+   sample.AddCacheDouble( "OriginalEventCount" , count );
    return count;
 }
 
 double
-GetSelectedEventCount( const SampleMgr& sample )
+SetSelectedEventCount( SampleMgr& sample )
 {
    fwlite::Handle<double> count_handle;
    double ans = 0;
@@ -56,15 +66,33 @@ GetSelectedEventCount( const SampleMgr& sample )
    } catch( std::exception ){
       ans = sample.Event().size();// For data files
    }
+
+   sample.AddCacheDouble("SelectedEventCount" , ans );
    return ans;
 }
 
 const Parameter&
 ComputeSelectionEff( SampleMgr& sample )
 {
+   if( !sample.HasCacheDouble("OriginalEventCount") ){
+      SetOriginalEventCount(sample);
+   }
+   if( !sample.HasCacheDouble("SelectedEventCount") ){
+      SetSelectedEventCount(sample);
+   }
+
    const double passed = GetSelectedEventCount( sample );
    const double total  = GetOriginalEventCount( sample );
 
    sample.SetSelectionEfficiency( Efficiency( passed, total ) );
    return sample.SelectionEfficiency();
+}
+
+double
+GetSampleWeight( const SampleMgr& sample )
+{
+   const double selectedEvents = GetSelectedEventCount( sample );
+   const double expyield       = sample.ExpectedYield().CentralValue();
+   if( selectedEvents == 0 ) { return 0 ; }
+   else { return expyield / selectedEvents; }
 }

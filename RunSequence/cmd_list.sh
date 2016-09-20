@@ -25,3 +25,8 @@
 ./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal
 ./03_run_massreco.py   -i MC80X.txt            -m MuonSignal
 ./03_run_massreco.py   -i MC80X.txt            -m ElectronSignal
+
+./04_run_supselection.py   -i MuonData80X.txt      -m MuonSignal
+./04_run_supselection.py   -i ElectronData80X.txt  -m ElectronSignal
+./04_run_supselection.py   -i MC80X.txt            -m MuonSignal
+./04_run_supselection.py   -i MC80X.txt            -m ElectronSignal

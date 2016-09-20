@@ -30,7 +30,7 @@
          "SingleMuon_Run2016D-PromptReco-v2_*.root"
       ]
    },
-   "Run2016E_PromptReco2":{
+   "___________________Run2016E_PromptReco2":{
       "Latex Name": "Run 2016 E Prompt Reco v2",
       "Root Name": "Run 2016 E Prompt Reco v2",
       "Cross Section": [0,0,0],

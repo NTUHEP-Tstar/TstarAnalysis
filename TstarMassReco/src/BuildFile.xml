@@ -13,7 +13,6 @@
 <use name="TstarAnalysis/Common"/>
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/ModifiedHitFit"/>
-<use name="TstarAnalysis/EventWeight"/>
 <use name="TstarAnalysis/BaseLineSelector"/>
 
 

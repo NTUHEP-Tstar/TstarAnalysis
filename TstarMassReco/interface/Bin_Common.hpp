@@ -8,7 +8,6 @@
 #ifndef TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP
 #define TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP
 
-#include "TstarAnalysis/Common/interface/InitSampleStatic.hpp"
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/ScaleHistMgr.hpp"

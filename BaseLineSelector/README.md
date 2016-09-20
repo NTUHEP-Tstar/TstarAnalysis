@@ -1,6 +1,6 @@
 # BaseLineSelector
 
-Baseline selections and variable caching to reduce the MINIAOD files to a size that could be handled by single user. For the reasoning and details for what the selection are, read the [documentation](http://yichen.web.cern.ch/yichen/slides/tstar_summary/)
+Baseline selections and variable caching to reduce the MINIAOD files to a size that could be handled by single user. For the reasoning and details for what the selection are, read the [documentation](http://yichen.web.cern.ch/yichen/slides/tstar_summary/). For object selections see the soruce code in [`src`](src).
 
 ## structure:
 

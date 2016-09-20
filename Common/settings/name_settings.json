@@ -10,6 +10,16 @@
          "Root Name": "e channel",
          "Data Tag": "Data_Electron"
       },
+      "MuonSignalTight":{
+         "Latex Name" : "$\\mu$ signal channel",
+         "Root Name": "#mu channel",
+         "Data Tag": "Data_Muon"
+      },
+      "ElectronSignalTight":{
+         "Latex Name" : "$e$ signal channel",
+         "Root Name": "e channel",
+         "Data Tag": "Data_Electron"
+      },
       "MuonSignal2015" : {
          "Latex Name" : "$\\mu$ signal channel",
          "Root Name": "#mu channel",

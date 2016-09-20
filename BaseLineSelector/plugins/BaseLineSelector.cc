@@ -1,7 +1,7 @@
 /*******************************************************************************
 *
 *  Filename    : BaseLineSelector.cc
-*  Description : Final checking for fileter
+*  Description : Final checking for filtering
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/

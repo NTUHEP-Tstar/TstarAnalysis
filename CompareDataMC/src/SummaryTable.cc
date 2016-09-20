@@ -7,9 +7,9 @@
 *******************************************************************************/
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
+#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"
-#include "TstarAnalysis/EventWeight/interface/ComputeSelectionEff.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -29,6 +29,7 @@ SummaryComplete(
    FILE* file = OpenSelecFile( "" );
 
    for( const auto& sig : siglist ){
+      cout << "Signal sample " << sig->Name()  << endl;
       PrintSampleLine( file, sig->Sample() );
    }
 
@@ -39,6 +40,7 @@ SummaryComplete(
 
    for( const auto& grp : bkglist ){
       for( const auto& smp : grp->SampleList() ){
+         cout << "Background sample " << smp->Name() << endl;
          PrintSampleLine( file, smp );
       }
 

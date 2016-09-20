@@ -47,8 +47,9 @@ MakeLimitPlot()
    TGraph* obsgraph    = MakeCalcGraph( siglist, xsec, obslim, skip, skip );
    TGraph* theorygraph = MakeTheoryGraph( xsec );
 
-   const double y_max = plt::GetYmax( {twosiggraph, obsgraph} );
-   const double y_min = plt::GetYmin( {twosiggraph, obsgraph} );
+   const vector<const TGraph*> temp = {twosiggraph,obsgraph};
+   const double y_max = plt::GetYmax( temp );
+   const double y_min = plt::GetYmin( temp );
    const double x_max = obsgraph->GetX()[obsgraph->GetN()-1];
    const double x_min = obsgraph->GetX()[0];
 

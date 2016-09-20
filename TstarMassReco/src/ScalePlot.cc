@@ -50,8 +50,24 @@ ScalePlot( ScaleHistMgr* mgr )
       mgr->Hist( "TstarMass" ),
       mgr->Hist( "TstarMass_btagup" ),
       mgr->Hist( "TstarMass_btagdw" ),
-      "Jet corrections",
+      "b tag scale factors",
       "btag"
+      );
+
+   MakePlot(
+      mgr->Hist( "TstarMass" ),
+      mgr->Hist( "TstarMass_puup" ),
+      mgr->Hist( "TstarMass_pudw" ),
+      "Pile up ( #pm 4.6 mb )",
+      "pileup"
+      );
+
+   MakePlot(
+      mgr->Hist( "TstarMass" ),
+      mgr->Hist( "TstarMass_elup" ),
+      mgr->Hist( "TstarMass_eldw" ),
+      "Electron ID weighting",
+      "elec"
       );
 }
 
@@ -126,7 +142,9 @@ MakePlot(
    plt::DisableXAxis( centralplot );
    plt::SetAxis( uprel );
 
-   centralplot->SetMaximum( centralplot->GetMaximum() * 1.2 );
+   // Setting plot range
+   const double ymax = plt::GetYmax( {centralplot,upplot,downplot} );
+   centralplot->SetMaximum( ymax * 1.2 );
    uprel->SetMaximum( 2.2 );
    uprel->SetMinimum( -0.2 );
    uprel->GetXaxis()->SetTitleOffset( 5.5 );

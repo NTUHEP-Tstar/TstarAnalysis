@@ -13,6 +13,7 @@
 #define TSTARANALYSIS_EVENTWEIGHT_GETEVENTWEIGHT_HPP
 
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 
 // Getting master event (product of everything)
 extern double GetEventWeight( const fwlite::EventBase& );
@@ -27,8 +28,17 @@ extern double GetBtagWeightDown( const fwlite::EventBase& );
 
 extern double GetElectronWeight( const fwlite::EventBase& );
 extern double GetElectronCutWeight( const fwlite::EventBase& );
+extern double GetElectronMediumCutWeight( const fwlite::EventBase& );
+extern double GetElectronTightCutWeight( const fwlite::EventBase& );
 extern double GetElectronTrackWeight( const fwlite::EventBase& );
 extern double GetElectronWeightUp( const fwlite::EventBase& );
 extern double GetElectronWeightDown( const fwlite::EventBase& );
+
+extern double GetEventTopPtWeight( const fwlite::EventBase& );
+
+// special function for getting sample top pt weight
+extern double SetSampleTopPtWeight( mgr::SampleMgr& );
+extern double GetSampleTopPtWeight( const mgr::SampleMgr& );
+extern double GetSampleEventTopPtWeight( const mgr::SampleMgr& , const fwlite::EventBase& );
 
 #endif/* end of include guard: TSTARANALYSIS_EVENTWEIGHT_GETEVENTWEIGHT_HPP */

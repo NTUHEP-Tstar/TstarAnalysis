@@ -1,5 +1,0 @@
-<use name="ManagerUtils/Maths"/>
-<use name="ManagerUtils/SampleMgr"/>
-<use name="DataFormats/FWLite"/>
-<flags CXXFLAGS="-g" />
-<export><lib name="1"/></export>

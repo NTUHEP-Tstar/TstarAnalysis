@@ -194,28 +194,34 @@ MakeSimFitCardFile(
    const Parameter bgunc        = GetBgNormError( data, "", "", sig->Name() );
 
    // Writting the common parts
-   FILE* card_file = MakeCardCommon( dataset, bgpdf, sigpdf, sig->Name() );
+   FILE* cardfile = MakeCardCommon( dataset, bgpdf, sigpdf, sig->Name() );
    fprintf(
-      card_file, "%12s %15lf %15lf\n", "rate",
+      cardfile, "%12s %15lf %15lf\n", "rate",
       sig->DataSet()->sumEntries(),
       bgunc.CentralValue()
       );
 
    // Printing list of normalization errors
-   const Parameter lumi( 1, 0.05, 0.05 );
+   const Parameter lumi( 1, 0.062, 0.062 );
+   const Parameter lepunc = data->Name().find( "Muon" ) == string::npos ?
+                            Parameter( 1, 0.03, 0.03 ) : Parameter( 1, 0.01, 0.01 );
    const Parameter sigunc       = sig->Sample()->SelectionEfficiency();
    const Parameter bgjecunc     = GetBgNormError( data, "jecup", "jecdown", sig->Name() );
    const Parameter sigjecunc    = GetSigNormError( sig, "jecup", "jecdown" );
    const Parameter sigjetresunc = GetSigNormError( sig, "jetresup", "jetresdown" );
    const Parameter sigbjetunc   = GetSigNormError( sig, "btagup", "btagdown" );
+   const Parameter sigpuunc     = GetSigNormError( sig, "puup", "pudown" );
+   const Parameter sigelecunc   = GetSigNormError( sig, "elecup", "elecdown" );
    const Parameter null( 0, 0, 0 );
-   fprintf( card_file, "----------------------------------------\n" );
-   PrintNuisanceFloats( card_file, "Lumi",   "lnN", lumi,         lumi   );
-   PrintNuisanceFloats( card_file, "sigunc", "lnN", sigunc,       null   );
-   PrintNuisanceFloats( card_file, "bgunc",  "lnN", null,         bgunc  );
-   PrintNuisanceFloats( card_file, "jec",    "lnN", sigjecunc,    bgjecunc );
-   PrintNuisanceFloats( card_file, "jer",    "lnN", sigjetresunc, null );
-   PrintNuisanceFloats( card_file, "btag",   "lnN", sigbjetunc,   null );
+   fprintf( cardfile, "----------------------------------------\n" );
+   PrintNuisanceFloats( cardfile, "Lumi",   "lnN", lumi,         lumi   );
+   PrintNuisanceFloats( cardfile, "sigunc", "lnN", sigunc,       null   );
+   PrintNuisanceFloats( cardfile, "bgunc",  "lnN", null,         bgunc  );
+   PrintNuisanceFloats( cardfile, "jec",    "lnN", sigjecunc,    bgjecunc );
+   PrintNuisanceFloats( cardfile, "jer",    "lnN", sigjetresunc, null );
+   PrintNuisanceFloats( cardfile, "btag",   "lnN", sigbjetunc,   null );
+   PrintNuisanceFloats( cardfile, "pileup", "lnN", sigpuunc,     null );
+   PrintNuisanceFloats( cardfile, "elec",   "lnN", sigelecunc,   null );
 
    // Getting a list of fitting parameters to permutate.
    vector<RooRealVar*> bgvarlist;
@@ -229,7 +235,7 @@ MakeSimFitCardFile(
    }
 
    for( const auto& var : bgvarlist ){
-      PrintFloatParam( card_file, var );
+      PrintFloatParam( cardfile, var );
    }
 
    // Getting stitching variables
@@ -245,11 +251,11 @@ MakeSimFitCardFile(
 
    for( const auto& var : stitchvarlist ){
       var->setConstant( kFALSE );
-      PrintFlatParam( card_file, var );
+      PrintFlatParam( cardfile, var );
    }
 
    // Closing file
-   fclose( card_file );
+   fclose( cardfile );
 }
 
 /*******************************************************************************

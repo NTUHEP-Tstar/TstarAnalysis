@@ -17,9 +17,7 @@ JetProducer::JetProducer( const edm::ParameterSet& iConfig ) :
    _muonsrc( GETTOKEN( iConfig, MuonList, "muonsrc" ) ),
    _electronsrc( GETTOKEN( iConfig, ElectronList, "electronsrc" ) ),
    _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) ),
-   _btagcheck( "check",
-               edm::FileInPath(
-                  "TstarAnalysis/Common/data/CSVv2_ichep.csv" ).fullPath() )
+   _btagcheck( "check", edm::FileInPath( "TstarAnalysis/Common/data/CSVv2_ichep.csv" ).fullPath() )
 {
    produces<JetList>();
 }

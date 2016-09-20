@@ -127,10 +127,7 @@ MakeComparePlot(
       tb->Draw();
 
       // setting ranges and saving plots
-      double ymax = 0;
-      ymax = std::max( ymax, plt::GetYmax( bkgerror ) );
-      ymax = std::max( ymax, plt::GetYmax( datahist ) );
-      ymax = std::max( ymax, plt::GetYmax( sighist ) );
+      const double ymax = plt::GetYmax( {bkgerror, datahist, sighist} );
       stack->SetMaximum( ymax * 1.2 );
       c->SaveAs( compare_namer.PlotFileName( histname, {label} ).c_str() );
       pad1->SetLogy();

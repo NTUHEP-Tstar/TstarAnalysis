@@ -80,7 +80,7 @@ ChiSquareSolver::RunPermutations()
          tstarMass = ( lep_tstar.M() + had_tstar.M() ) / 2.;
          AddResult( tstarMass, chiSquare, i );
       }
-   } while( next_permutation( _jetList.begin(), _jetList.end(), SortJet ) );
+   } while( next_permutation( _jetlist.begin(), _jetlist.end(), SortJet ) );
 }
 
 void
@@ -98,29 +98,32 @@ ChiSquareSolver::AddResult( const double tstar_mass, const double chi_square, co
    if( _electron ){ new_lep = MakeResultElectron( _electron ); }
    new_result.AddParticle( new_lep );
 
-   // Neutrino
-   FitParticle new_met = MakeResultMET( _met );
-   new_met.P4( fitted ) = _neutrino[neu_index];
-   new_result.AddParticle( new_met );
 
    // Jets
-   const pat::Jet* had_b_jet = _jetList[0];
+   const pat::Jet* had_b_jet = _jetlist[0];
    new_result.AddParticle( MakeResultJet( had_b_jet, hadb_label ) );
 
-   const pat::Jet* lep_b_jet = _jetList[1];
+   const pat::Jet* lep_b_jet = _jetlist[1];
    new_result.AddParticle( MakeResultJet( lep_b_jet, lepb_label ) );
 
-   const pat::Jet* had_g_jet = _jetList[2];
+   const pat::Jet* had_g_jet = _jetlist[2];
    new_result.AddParticle( MakeResultJet( had_g_jet, hadg_label ) );
 
-   const pat::Jet* had_w1_jet = _jetList[3];
+   const pat::Jet* had_w1_jet = _jetlist[3];
    new_result.AddParticle( MakeResultJet( had_w1_jet, hadw1_label ) );
 
-   const pat::Jet* had_w2_jet = _jetList[4];
+   const pat::Jet* had_w2_jet = _jetlist[4];
    new_result.AddParticle( MakeResultJet( had_w2_jet, hadw2_label ) );
 
-   const pat::Jet* lep_g_jet = _jetList[5];
+   const pat::Jet* lep_g_jet = _jetlist[5];
    new_result.AddParticle( MakeResultJet( lep_g_jet, lepg_label ) );
+
+   // Neutrino
+   double metscaleup;
+   double metscaledown;
+   GetJESMET( _jetlist, metscaleup, metscaledown );
+   FitParticle new_met = MakeResultMET( _met, _neutrino[neu_index], metscaleup, metscaledown );
+   new_result.AddParticle( new_met );
 
    _resultsList.push_back( new_result );
 }
@@ -178,11 +181,11 @@ ChiSquareSolver::SetElectron( const pat::Electron* x )
 void
 ChiSquareSolver::AddJet( const pat::Jet* jet )
 {
-   _jetList.push_back( jet );
-   stable_sort( _jetList.begin(), _jetList.end(), SortJet );
+   _jetlist.push_back( jet );
+   stable_sort( _jetlist.begin(), _jetlist.end(), SortJet );
    // Truncating in size to avoid large run time.
-   if( _jetList.size() > _max_jets ){
-      _jetList.resize( _max_jets );
+   if( _jetlist.size() > _max_jets ){
+      _jetlist.resize( _max_jets );
    }
 }
 
@@ -192,7 +195,7 @@ ChiSquareSolver::ClearAll()
    _met      = NULL;
    _muon     = NULL;
    _electron = NULL;
-   _jetList.clear();
+   _jetlist.clear();
    _resultsList.clear();
 }
 
@@ -262,15 +265,15 @@ ChiSquareSolver::CheckPermutation() const
 {
    unsigned bjets_in_list = 0;
 
-   for( const auto& jet : _jetList ){
+   for( const auto& jet : _jetlist ){
       if( IsBtagged( jet ) ){
          ++bjets_in_list;
       }
    }
 
    unsigned matched_b_jets = 0;
-   if( IsBtagged( _jetList[0] ) ){++matched_b_jets; }
-   if( IsBtagged( _jetList[1] ) ){++matched_b_jets; }
+   if( IsBtagged( _jetlist[0] ) ){ ++matched_b_jets; }
+   if( IsBtagged( _jetlist[1] ) ){ ++matched_b_jets; }
 
    if( matched_b_jets < _req_b_jets ){
       if( matched_b_jets >= bjets_in_list ){
@@ -289,14 +292,14 @@ ChiSquareSolver::CheckPermutation() const
 //   Object sequence functions
 // ------------------------------------------------------------------------------
 TLorentzVector
-ChiSquareSolver::had_b()  const { return GetLorentzVector( *_jetList[0], "" ); }
+ChiSquareSolver::had_b()  const { return GetLorentzVector( *_jetlist[0], "ResP4" ); }
 TLorentzVector
-ChiSquareSolver::lep_b()  const { return GetLorentzVector( *_jetList[1], "" ); }
+ChiSquareSolver::lep_b()  const { return GetLorentzVector( *_jetlist[1], "ResP4" ); }
 TLorentzVector
-ChiSquareSolver::had_g()  const { return GetLorentzVector( *_jetList[2], "" ); }
+ChiSquareSolver::had_g()  const { return GetLorentzVector( *_jetlist[2], "ResP4" ); }
 TLorentzVector
-ChiSquareSolver::had_q1() const { return GetLorentzVector( *_jetList[3], "" ); }
+ChiSquareSolver::had_q1() const { return GetLorentzVector( *_jetlist[3], "ResP4" ); }
 TLorentzVector
-ChiSquareSolver::had_q2() const { return GetLorentzVector( *_jetList[4], "" ); }
+ChiSquareSolver::had_q2() const { return GetLorentzVector( *_jetlist[4], "ResP4" ); }
 TLorentzVector
-ChiSquareSolver::lep_g()  const { return GetLorentzVector( *_jetList[5], "" ); }
+ChiSquareSolver::lep_g()  const { return GetLorentzVector( *_jetlist[5], "ResP4" ); }
