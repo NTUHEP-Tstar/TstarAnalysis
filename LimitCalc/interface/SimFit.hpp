@@ -79,7 +79,8 @@ extern void MakeSimFit(
 extern void MakeSimFitPlot(
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
-   const std::string& datasetname = ""
+   const std::string& datasetname = "",
+   const std::string& exttag = ""
 );
 
 extern void MakeSimFitCardFile(
@@ -94,7 +95,7 @@ extern Parameter GetBgNormError(
    const std::string& signalname
 );
 
-extern Parameter GetSigNormError(
+extern Parameter GetMCNormError(
    SampleRooFitMgr* sig,
    const std::string& uperrorset,
    const std::string& downerrorset

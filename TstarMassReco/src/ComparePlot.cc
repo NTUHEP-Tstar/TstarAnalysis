@@ -7,8 +7,10 @@
 *******************************************************************************/
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "TstarAnalysis/Common/interface/NameParse.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
 
+#include <boost/format.hpp>
 #include <string>
 #include <vector>
 
@@ -32,8 +34,9 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
 {
 
    for( const auto& histname : method_list.front()->AvailableHistList() ){
-      TCanvas* c = new TCanvas( "c", "c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
-      TLegend* l = plt::NewLegend( 0.45, 0.65 );
+
+      TCanvas* c = plt::NewCanvas();
+      TLegend* l = plt::NewLegend( 0.45, 0.70 );
 
       double max = 0;
 
@@ -61,7 +64,17 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
       l->Draw();
       plt::DrawCMSLabel( SIMULATION );
 
-      c->SaveAs( reconamer.PlotFileName( comp_name, {histname} ).c_str() );
+      TLatex ltx;
+      ltx.SetNDC( kTRUE );
+      ltx.SetTextFont( FONT_TYPE );
+      ltx.SetTextSize( AXIS_TITLE_FONT_SIZE );
+      ltx.SetTextAlign( TOP_LEFT );
+      ltx.DrawLatex( 0.45, 0.70, str( boost::format( "M_{t*} = %dGeV/c^{2}" )%GetInt( reconamer.InputStr( "mass" ) ) ).c_str() );
+
+      const string rootfile = reconamer.PlotRootFile();
+      const string filename = reconamer.PlotFileName(comp_name,{histname});
+      plt::SaveToPDF( c, filename );
+      plt::SaveToROOT( c, rootfile, Basename(filename) );
       delete c;
       delete l;
    }
@@ -110,7 +123,10 @@ MatchPlot( CompareHistMgr* mgr )
    plot->GetYaxis()->SetBinLabel( 6, "unknown" );
 
    pad->SetLogz( 1 );
-   c->SaveAs( reconamer.PlotFileName( "jetmatchmap", {mgr->Name()} ).c_str() );
+
+   const string filename  = reconamer.PlotFileName( "jetmatchmap", {mgr->Name()} );
+   plt::SaveToPDF( c , filename );
+   plt::SaveToROOT( c, reconamer.PlotRootFile(), Basename(filename) );
 
    delete pad;
    delete c;

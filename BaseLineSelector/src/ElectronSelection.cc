@@ -20,8 +20,8 @@ ElectronProducer::IsSelectedElectron(
    const edm::Event&              ev
    ) const
 {
-   if( !( ( *_looseMapHandle )[elPtr] ) ){ return false; }
-   if( el.pt() < 53. ){ return false; }
+   if( !( ( *_tightMapHandle )[elPtr] ) ){ return false; }
+   if( el.pt() < 30. ){ return false; }
    if( fabs( el.eta() ) > 2.1 ){ return false; }
    if( fabs( el.eta() ) > 1.44 && fabs( el.eta() ) < 1.57 ){ return false; }
 
@@ -49,7 +49,7 @@ ElectronProducer::IsVetoElectron(
    const edm::Event&              ev
    ) const
 {
-   if( !( ( *_vetoMapHandle )[elPtr] ) ){ return false; }
+   if( !( ( *_looseMapHandle )[elPtr] ) ){ return false; }
    if( el.pt() < 15. ){ return false; }
    if( fabs( el.eta() ) > 2.4 ){ return false; }
    if( fabs( el.eta() ) > 1.44 && fabs( el.eta() ) < 1.57 ){ return false; }

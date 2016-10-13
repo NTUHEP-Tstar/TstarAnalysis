@@ -33,9 +33,14 @@ public:
 
    // Speicalization for creating new datasets
    RooDataSet* NewDataSet( const std::string& );
+
    // Specialized function for called default dataset
    RooDataSet* DataSet( const std::string& name = "" );
-   // Speicalized function for creating predefined pdf functions
+
+   // Speicalized functions for inserting datapoint (defined in fill set)
+   void AddToDataSet( const std::string& name , const double mass, const double weight );
+
+   // Specialized function for creating predefined pdf functions
    RooAbsPdf* NewPdf( const std::string& name, const std::string& type );
 
 private:

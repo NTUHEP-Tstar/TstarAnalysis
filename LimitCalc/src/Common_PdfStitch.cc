@@ -29,18 +29,19 @@ MakeStichPdf(
    for( const string& pdfname : pdfnamelist ){
       if( sample->Pdf( pdfname ) ){
          pdflist.add( *( sample->Pdf( pdfname ) ) );
-         coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) );
+         coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) + "_" + pdfname);
       }
    }
 
-   if( coeffnamelist.size() < 2 ){ return NULL; }// Error! cannot create a RooAdd Pdf with less than one pdf
-
-   coeffnamelist.pop_back();// Last coeff is to be drop
-
    for( const string& coeffname : coeffnamelist ){
-      RooRealVar* coeff = sample->NewVar( coeffname, 0, 1 );
-      if( coeffname == coeffnamelist.front() ){ *coeff = 1.; }// The first one is dominant
-      else                                    { *coeff = 0.; }
+      RooRealVar* coeff = NULL;
+      if( coeffname == coeffnamelist.front() ){ // The first PDF is assumed to be the dominant
+         coeff = sample->NewVar( coeffname, 0.5, 1 );
+         *coeff = 1.;
+      } else{
+         coeff = sample->NewVar( coeffname, 0, 1 );
+          *coeff = 0.;
+       }
       coeff->setConstant( kTRUE );// freezing everying!
       coefflist.add( *coeff );
    }

@@ -16,10 +16,10 @@
 ./01_run_baseline_selection.py -i MC80X.txt           -m MuonSignal
 ./01_run_baseline_selection.py -i MC80X.txt           -m ElectronSignal
 
-./02_retrieve_files.py -i MuonData80X.txt      -m MuonSignal
-./02_retrieve_files.py -i ElectronData80X.txt  -m ElectronSignal
-./02_retrieve_files.py -i MC80X.txt            -m MuonSignal
-./02_retrieve_files.py -i MC80X.txt            -m ElectronSignal
+./02_retrieve_files.py -c -i MuonData80X.txt      -m MuonSignal
+./02_retrieve_files.py -c -i ElectronData80X.txt  -m ElectronSignal
+./02_retrieve_files.py -c -i MC80X.txt            -m MuonSignal
+./02_retrieve_files.py -c -i MC80X.txt            -m ElectronSignal
 
 ./03_run_massreco.py   -i MuonData80X.txt      -m MuonSignal
 ./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal

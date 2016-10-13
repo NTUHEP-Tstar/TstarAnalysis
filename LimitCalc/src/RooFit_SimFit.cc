@@ -204,38 +204,39 @@ MakeSimFitCardFile(
    // Printing list of normalization errors
    const Parameter lumi( 1, 0.062, 0.062 );
    const Parameter lepunc = data->Name().find( "Muon" ) == string::npos ?
-                            Parameter( 1, 0.03, 0.03 ) : Parameter( 1, 0.01, 0.01 );
-   const Parameter sigunc       = sig->Sample()->SelectionEfficiency();
-   const Parameter bgjecunc     = GetBgNormError( data, "jecup", "jecdown", sig->Name() );
-   const Parameter sigjecunc    = GetSigNormError( sig, "jecup", "jecdown" );
-   const Parameter sigjetresunc = GetSigNormError( sig, "jetresup", "jetresdown" );
-   const Parameter sigbjetunc   = GetSigNormError( sig, "btagup", "btagdown" );
-   const Parameter sigpuunc     = GetSigNormError( sig, "puup", "pudown" );
-   const Parameter sigelecunc   = GetSigNormError( sig, "elecup", "elecdown" );
+                            Parameter( 1, 0.03, 0.03 ) : Parameter( 1, 0.03, 0.03 );
+   const Parameter sigunc        = sig->Sample()->SelectionEfficiency();
+   const Parameter sigjecunc     = GetMCNormError( sig, "jecup",    "jecdown" );
+   const Parameter sigjetresunc  = GetMCNormError( sig, "jetresup", "jetresdown" );
+   const Parameter sigbjetunc    = GetMCNormError( sig, "btagup",   "btagdown" );
+   const Parameter sigpuunc      = GetMCNormError( sig, "puup",     "pudown" );
+   const Parameter siglepstatunc = GetMCNormError( sig, "lepup",    "lepdown" );
+   const Parameter sigpdfunc     = GetMCNormError( sig, "pdfup",    "pdfdown" );
+   const Parameter sigscaleunc   = GetMCNormError( sig, "scaleup", "scaledown" );
    const Parameter null( 0, 0, 0 );
    fprintf( cardfile, "----------------------------------------\n" );
-   PrintNuisanceFloats( cardfile, "Lumi",   "lnN", lumi,         lumi   );
-   PrintNuisanceFloats( cardfile, "sigunc", "lnN", sigunc,       null   );
-   PrintNuisanceFloats( cardfile, "bgunc",  "lnN", null,         bgunc  );
-   PrintNuisanceFloats( cardfile, "jec",    "lnN", sigjecunc,    bgjecunc );
-   PrintNuisanceFloats( cardfile, "jer",    "lnN", sigjetresunc, null );
-   PrintNuisanceFloats( cardfile, "btag",   "lnN", sigbjetunc,   null );
-   PrintNuisanceFloats( cardfile, "pileup", "lnN", sigpuunc,     null );
-   PrintNuisanceFloats( cardfile, "elec",   "lnN", sigelecunc,   null );
+   PrintNuisanceFloats( cardfile, "Lumi",     "lnN", lumi,          lumi  );
+   PrintNuisanceFloats( cardfile, "sigunc",   "lnN", sigunc,        null  );
+   PrintNuisanceFloats( cardfile, "bgunc",    "lnN", null,          bgunc );
+   PrintNuisanceFloats( cardfile, "jec",      "lnN", sigjecunc,     null  );
+   PrintNuisanceFloats( cardfile, "jer",      "lnN", sigjetresunc,  null  );
+   PrintNuisanceFloats( cardfile, "btag",     "lnN", sigbjetunc,    null  );
+   PrintNuisanceFloats( cardfile, "pileup",   "lnN", sigpuunc,      null  );
+   PrintNuisanceFloats( cardfile, "lepstat",  "lnN", siglepstatunc, null  );
+   PrintNuisanceFloats( cardfile, "lepsys",   "lnN", lepunc,        null  );
+   PrintNuisanceFloats( cardfile, "pdf",      "lnN", sigpdfunc,     null  );
+   PrintNuisanceFloats( cardfile, "qcdscale", "lnN", sigpdfunc,     null  );
 
    // Getting a list of fitting parameters to permutate.
-   vector<RooRealVar*> bgvarlist;
-
    for( const auto& datasetname : data->SetNameList() ){
       const string bgfuncname = SimFitBGPdfName( datasetname, sig->Name() );
 
       for( auto var : data->VarContains( bgfuncname ) ){
-         bgvarlist.push_back( var );
+         const string varname = var->GetName();
+         if( varname.find( "coeff" ) == string::npos ){// We shouldn't push the joint coefficient inside
+            PrintFloatParam( cardfile, var );
+         }
       }
-   }
-
-   for( const auto& var : bgvarlist ){
-      PrintFloatParam( cardfile, var );
    }
 
    // Getting stitching variables
@@ -298,7 +299,7 @@ GetBgNormError(
 /******************************************************************************/
 
 Parameter
-GetSigNormError(
+GetMCNormError(
    SampleRooFitMgr* sig,
    const string&    uperrorset,
    const string&    downerrorset
@@ -322,10 +323,11 @@ void
 MakeSimFitPlot(
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
-   const string&    datasetname
+   const string&    datasetname,
+   const string&    exttag
    )
 {
-   TCanvas* c     = new TCanvas( "c", "c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
+   TCanvas* c     = plt::NewCanvas();
    RooPlot* frame = SampleRooFitMgr::x().frame();
 
    const string combpdfname = SimFitCombinePdfName( datasetname, sig->Name() );
@@ -378,7 +380,7 @@ MakeSimFitPlot(
       sig->Sample()->CrossSection().CentralValue()
       );
 
-   if( data->Name().find( "Data" ) != string::npos ){
+   if( datasetname == "pseudo" ){
       leg->AddEntry( data_plot, "Pseudo data", "lp" );
    } else {
       leg->AddEntry( data_plot, "Data", "lp" );
@@ -395,8 +397,7 @@ MakeSimFitPlot(
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.02,
-      limit_namer.GetChannelEXT( "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.02, limit_namer.GetChannelEXT( "Root Name" ).c_str() );
    tl.SetTextAlign( TOP_RIGHT );
    tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.08,
       limit_namer.GetExtName( "fitfunc", "Root Name" ).c_str() );
@@ -408,39 +409,43 @@ MakeSimFitPlot(
 
    sprintf( obs_yield, "Observed Yield: %d",          obs );
    sprintf( exp_yield, "Fitted bkg: %.2lf #pm %.2lf", bg_strength, bg_err );
-   sprintf( delta,     "#Delta: %.3lf%%",
-      100.* ( bg_strength-obs )/obs );
-   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.02,
-      limit_namer.query_tree(
-         "fitmethod", "SimFit", "Full Name" ).c_str() );
+   sprintf( delta,     "#Delta: %.3lf%%",             100.* ( bg_strength-obs )/obs );
+   tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.02, limit_namer.query_tree( "fitmethod", "SimFit", "Full Name" ).c_str() );
    tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.07, obs_yield );
    tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.12, exp_yield );
    tl.DrawLatex( legend_x_min-0.02, PLOT_Y_MAX-0.17, delta );
 
 
    // Saving and cleaning up
-   const string prefix = ( data->Name().find( "Data" ) != string::npos ) ?
-                         "fitplot" : "valsimfitplot";
-   const string mainname = limit_namer.PlotFileName( prefix, {datasetname, sig->Name()} );
-   const string logname  = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), "log"} );
-   const string zoomname = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), "zoom"} );
-   const string zoomlog  = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), "zoom", "log"} );
+   const string prefix   = ( datasetname != "pseudo" ) ? "fitplot" : "valsimfitplot";
+   const string mainname = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), exttag} );
+   const string logname  = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), exttag, "log"} );
+   const string zoomname = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), exttag, "zoom"} );
+   const string zoomlog  = limit_namer.PlotFileName( prefix, {datasetname, sig->Name(), exttag, "zoom", "log"} );
+
+   // Saving to ROOTFILE
+   plt::SaveToROOT(
+      c,
+      limit_namer.PlotRootFile(),
+      limit_namer.MakeFileName( "", prefix, {datasetname, sig->Name(), exttag} )
+    );
 
    // Unzoomed plot
-   c->SaveAs( mainname.c_str() );
+   plt::SaveToPDF( c, mainname );
    c->SetLogy( kTRUE );
-   c->SaveAs( logname.c_str() );
+   plt::SaveToPDF( c, logname.c_str() );
    c->SetLogy( kFALSE );
 
    // Zooming into designated position
    const double peak_value = model_plot->Eval( GetInt( sig->Name() ) );
    frame->SetMaximum( peak_value*1.5 );
-   c->SaveAs( zoomname.c_str() );
+   plt::SaveToPDF( c, zoomname.c_str() );
    c->SetLogy( kTRUE );
    frame->SetMaximum( peak_value*10. );
    frame->SetMinimum( peak_value*0.1 );
-   c->SaveAs( zoomlog.c_str() );
+   plt::SaveToPDF( c, zoomlog.c_str() );
 
+   delete frame;
    delete leg;
    delete c;
 }

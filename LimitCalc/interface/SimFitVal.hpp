@@ -10,6 +10,11 @@
 #ifndef TSTARANALYSIS_LIMITCALC_SIMFITVAL_HPP
 #define TSTARANALYSIS_LIMITCALC_SIMFITVAL_HPP
 
+#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
+#include <map>
+#include <string>
+#include <utility>
+
 /*******************************************************************************
 *   Main control functions to be called by main functions
 *
@@ -31,7 +36,7 @@ extern void PlotGenFit( const std::vector<std::string>& );
 /*******************************************************************************
 *   Common Helper functions - getting filename tag for input injected signal strength
 *******************************************************************************/
-std::string SigStrengthTag();
+extern std::string SigStrengthTag();
 
 /*******************************************************************************
 *   Helper functions for Plotting results
@@ -48,9 +53,18 @@ std::string SigStrengthTag();
 *
 *******************************************************************************/
 struct PullResult;
-PullResult PlotSingleGenFit( const std::string& masstag );
-Parameter  MakePullPlot( RooDataSet&, const std::string& masstag, const std::string& tag );
-void       MakePullComparePlot( TGraph*, const std::string& tag );
+extern PullResult PlotSingleGenFit( const std::string& masstag );
+
+extern std::pair<Parameter, Parameter> MakePullPlot(
+   RooDataSet&,
+   const std::string& masstag,
+   const std::string& tag
+   );
+extern void MakePullComparePlot(
+   const std::map<int, PullResult>&,
+   const unsigned,
+   const std::string& tag
+   );
 
 
 #endif/* end of include guard: TSTARANALYSIS_LIMITCALC_SIMFITVAL_HPP */

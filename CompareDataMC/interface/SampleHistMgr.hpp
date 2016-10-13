@@ -5,8 +5,8 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#ifndef __SAMPLEHISTMGR_HH__
-#define __SAMPLEHISTMGR_HH__
+#ifndef TSTARANALYSIS_COMPAREDATAMC_SAMPLEHISTMGR_HPP
+#define TSTARANALYSIS_COMPAREDATAMC_SAMPLEHISTMGR_HPP
 
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
@@ -22,8 +22,8 @@ public:
    ~SampleHistMgr();
 
 private:
-   void         fill_histograms( mgr::SampleMgr& );
-   virtual void define_hist();// From HistMgr
+   void fill_histograms( mgr::SampleMgr& );
+   void define_hist();
 };
 
 #endif/* end of include guard: __SAMPLEHISTMGR_HH__ */

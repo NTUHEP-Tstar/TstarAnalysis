@@ -11,6 +11,7 @@
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 /*******************************************************************************
 *   InitSampleStatic - Static variable initialization
 *******************************************************************************/
@@ -19,6 +20,7 @@ extern void InitSampleStatic( const TstarNamer& );
 /*******************************************************************************
 *   InitSample - Loading variables that should be store by workflow
 *******************************************************************************/
-extern void InitSample( mgr::SampleMgr&  );
+extern void InitSample( mgr::SampleMgr& );
+
 
 #endif/* end of include guard: TSTARANALYSIS_COMMON_INITSAMPLESTATIC_HPP */

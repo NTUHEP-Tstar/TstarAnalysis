@@ -16,8 +16,7 @@ JetProducer::JetProducer( const edm::ParameterSet& iConfig ) :
    _jetsrc( GETTOKEN( iConfig , JetList, "jetsrc" ) ),
    _muonsrc( GETTOKEN( iConfig, MuonList, "muonsrc" ) ),
    _electronsrc( GETTOKEN( iConfig, ElectronList, "electronsrc" ) ),
-   _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) ),
-   _btagcheck( "check", edm::FileInPath( "TstarAnalysis/Common/data/CSVv2_ichep.csv" ).fullPath() )
+   _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) )
 {
    produces<JetList>();
 }
@@ -43,17 +42,12 @@ JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
    _jecunc.reset( new JetCorrectionUncertainty( jetcor["Uncertainty"] ) );
 
    // Getting Jet Resolution information
-   _jetptres.reset( new JME::JetResolution( JME::JetResolution::get(
-            iSetup,
-            "AK4PFchs_pt" ) ) );
-   _jetphires.reset( new JME::JetResolution( JME::JetResolution::get(
-            iSetup,
-            "AK4PFchs_phi" ) ) );
-   _jetressf.reset( new JME::JetResolutionScaleFactor( JME::
-         JetResolutionScaleFactor::get( iSetup, "AK4PFchs" ) ) );
+   _jetptres.reset( new JME::JetResolution( JME::JetResolution::get( iSetup, "AK4PFchs_pt" ) ) );
+   _jetphires.reset( new JME::JetResolution( JME::JetResolution::get( iSetup, "AK4PFchs_phi" ) ) );
+   _jetressf.reset( new JME::JetResolutionScaleFactor( JME::JetResolutionScaleFactor::get( iSetup, "AK4PFchs" ) ) );
 
+   // New JetList to store jet objects
    std::auto_ptr<JetList> selectedJets( new JetList );
-   unsigned num_bjets = 0;
 
    for( const auto& jet : *_jetHandle ){
       // Skipping minimal jets to avoid selection effecting results
@@ -62,15 +56,11 @@ JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
       // Main selection, see src/JetSelection.cc
       if( IsSelectedJet( jet, iEvent.isRealData() ) ){
          selectedJets->push_back( jet );
-         if( _btagcheck.PassMedium( jet ) && selectedJets->size() <= 6 ){
-            ++num_bjets;// only counting number of b-jets in leading six jets
-         }
       }
    }
 
    // Jet Selection criteria
    if( selectedJets->size() < 6 ){ return false; }
-   if( num_bjets < 1 ){ return false; }
 
    // Caching and storing jets
    for( auto& jet : *selectedJets ){

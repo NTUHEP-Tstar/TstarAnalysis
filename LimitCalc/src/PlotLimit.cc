@@ -28,10 +28,9 @@
 
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Helper static functions and variables
-// ------------------------------------------------------------------------------
-
+/*******************************************************************************
+*   Defining plotting control flow
+*******************************************************************************/
 void
 MakeLimitPlot()
 {
@@ -61,14 +60,14 @@ MakeLimitPlot()
    tstar::SetTheoryStyle( theorygraph );
 
    // Making object for plotting
-   TCanvas* c1     = new TCanvas( "c1", "c1", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
+   TCanvas* c1     = plt::NewCanvas();
    TMultiGraph* mg = new TMultiGraph();
 
    mg->Add( twosiggraph );
    mg->Add( onesiggraph );
    mg->Add( theorygraph );
    mg->Add( expgraph );
-   mg->Add( obsgraph );
+   // mg->Add( obsgraph );
 
    mg->Draw( "AL3" );
    plt::SetAxis( mg );
@@ -83,7 +82,7 @@ MakeLimitPlot()
    const double legend_x_min = 0.55;
    const double legend_y_min = 0.65;
    TLegend* l                = plt::NewLegend( legend_x_min, legend_y_min );
-   l->AddEntry( obsgraph,    "95%% CL Limit (Obs.)", "l" );
+   // l->AddEntry( obsgraph,    "95%% CL Limit (Obs.)", "l" );
    l->AddEntry( expgraph,    "Expected limit",       "l" );
    l->AddEntry( onesiggraph, "68%% expected",        "f" );
    l->AddEntry( twosiggraph, "95%% expected",        "f" );
@@ -114,15 +113,17 @@ MakeLimitPlot()
    sprintf( buffer, "Expected Lim (95%% CL.) = %.1lf^{+%.1lf}_{-%.1lf} GeV/c^{2}",
       explim.CentralValue(), explim.AbsUpperError(), explim.AbsLowerError() );
    tl.DrawLatex( 0.42, legend_y_min - 0.02, buffer );
-   sprintf( buffer, "Observed Lim (95%% CL.) = %.1lf GeV/c^{2}",
-      obslim.CentralValue() );
-   tl.DrawLatex( 0.42, legend_y_min - 0.08, buffer );
+   // sprintf( buffer, "Observed Lim (95%% CL.) = %.1lf GeV/c^{2}",
+   //    obslim.CentralValue() );
+   // tl.DrawLatex( 0.42, legend_y_min - 0.08, buffer );
 
 
 
    // ----- Saving and cleaning up  ------------------------------------------------
    c1->SetLogy( kTRUE );
-   c1->SaveAs( limit_namer.PlotFileName( "limit" ).c_str() );
+
+   plt::SaveToROOT( c1, limit_namer.PlotRootFile(), limit_namer.PlotFileName( "limit" ) );
+   plt::SaveToPDF( c1 , limit_namer.PlotFileName( "limit" ) );
    delete onesiggraph;
    delete twosiggraph;
    delete obsgraph;
@@ -178,9 +179,7 @@ MakeTheoryGraph( const map<double, double>& xsec )
    return graph;
 }
 
-
 /******************************************************************************/
-
 extern const int explim      = 2;
 extern const int obslim      = 5;
 extern const int onesig_up   = 3;
@@ -238,14 +237,17 @@ MakeCalcGraph(
 
       graph->SetPoint( bin, mass, central );
       graph->SetPointError( bin, 50, 50, errordown, errorup );
+
+      printf( "%lf %lf %lf %lf\n", mass, central, errorup, errordown );
       ++bin;
    }
 
    return graph;
 }
 
+
 /*******************************************************************************
-*   Function for getting intersect points
+*   Function for calculating intersect points
 *******************************************************************************/
 
 Parameter

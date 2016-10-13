@@ -8,7 +8,7 @@
 #*******************************************************************************
 
 channel_list="MuonSignal ElectronSignal"
-method_list="SimFit"
+method_list="SimFit Template"
 fitfunc_list="Fermi Exo Lognorm"
 combine_method="Asymptotic"
 
@@ -18,5 +18,7 @@ for method in $method_list ; do
          echo "MakeRooFit --channel $channel --fitmethod $method --fitfunc $fitfunc"
          echo "PlotLimit  --channel $channel --fitmethod $method --fitfunc $fitfunc --combine $combine_method"
       done
+      echo "MergeCards --fitmethod $method --fitfunc $fitfunc --channellist $channel_list"
+      echo "PlotLimit --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --combine $combine_method"
    done
 done

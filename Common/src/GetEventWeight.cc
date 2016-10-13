@@ -45,15 +45,21 @@ GetPileupWeight( const fwlite::EventBase& ev )
 }
 
 double
-GetPileupWeight71260( const fwlite::EventBase& ev )
+GetPileupWeightBestFit( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "PileupWeight", "PileupWeight71260" );
+   return GetWeightByTag( ev, "PileupWeightBestFit", "PileupWeight" );
 }
 
 double
-GetPileupWeight62000( const fwlite::EventBase& ev )
+GetPileupWeightXsecup( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "PileupWeight", "PileupWeight62000" );
+   return GetWeightByTag( ev, "PileupWeightXsecup", "PileupWeight" );
+}
+
+double
+GetPileupWeightXsecdown( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "PileupWeightXsecdown", "PileupWeight" );
 }
 
 /******************************************************************************/
@@ -97,6 +103,11 @@ GetElectronTrackWeight( const fwlite::EventBase& ev )
    return GetWeightByTag( ev, "ElectronWeight", "ElectronGsfWeight" );
 }
 
+double GetElectronTriggerWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "ElectronWeight", "ElectronTriggerWeight" );
+}
+
 double
 GetElectronWeightUp( const fwlite::EventBase& ev )
 {
@@ -109,14 +120,42 @@ GetElectronWeightDown( const fwlite::EventBase& ev )
    return GetWeightByTag( ev, "ElectronWeight", "ElectronWeightdown" );
 }
 
-double GetElectronMediumCutWeight( const fwlite::EventBase& ev )
+
+/******************************************************************************/
+
+double
+GetMuonWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronMediumWeight", "ElectronCutWeight" );
+   return GetWeightByTag( ev, "MuonWeight", "MuonWeight" );
 }
 
-double GetElectronTightCutWeight( const fwlite::EventBase& ev )
+double
+GetMuonWeightUp( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronTightWeight", "ElectronTightWeight" );
+   return GetWeightByTag( ev, "MuonWeight", "MuonWeightup" );
+}
+
+double
+GetMuonWeightDown( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "MuonWeight", "MuonWeightdown" );
+}
+
+double
+GetMuonTriggerWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "MuonWeight", "MuonTriggerWeight" );
+}
+double
+GetMuonIDWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "MuonWeight", "MuonIDWeight" );
+}
+
+double
+GetMuonIsoWeight( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "MuonWeight", "MuonIsoWeight" );
 }
 
 /******************************************************************************/
@@ -143,7 +182,7 @@ SetSampleTopPtWeight( mgr::SampleMgr& sample )
          }
       }
    } catch( std::exception ){
-      if( sample.Name().find("Run") == string::npos ){
+      if( sample.Name().find( "Run" ) == string::npos ){
          cerr << "Error! Top Pt weight sum not found for MC dataset!" << endl;
       }
       ans = sample.Event().size();// For data files

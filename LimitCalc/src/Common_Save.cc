@@ -121,7 +121,7 @@ PrintNuisanceFloats(
 {
 
    fprintf(
-      card_file, "%8s %3s %15s %15s\n",
+      card_file, "%-20s %3s %15s %15s\n",
       nuisance_name.c_str(),
       nuisance_type.c_str(),
       HiggsDataCard( sig_nuisance ).c_str(),
@@ -136,7 +136,7 @@ PrintFloatParam(
    )
 {
    fprintf(
-      card_file, "%s %s %lf %lf\n",
+      card_file, "%-45s %-10s %lf %lf\n",
       var->GetName(),
       "param",
       var->getVal(),
@@ -152,7 +152,7 @@ PrintFlatParam(
    )
 {
    fprintf(
-      cardfile, "%s %s\n",
+      cardfile, "%-45s %s\n",
       var->GetName(),
       "flatParam"
       );

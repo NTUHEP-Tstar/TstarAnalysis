@@ -25,6 +25,14 @@ options.register(
     'Output EDM filename'
 )
 
+options.register(
+    'lumimask',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Lumi Mask to apply'
+)
+
 options.setDefault('maxEvents', 1000)
 
 options.parseArguments()
@@ -45,6 +53,10 @@ process.source = cms.Source(
 )
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
+
+if options.lumimask :
+    import FWCore.PythonUtilities.LumiList as LumiList
+    process.source.lumisToProcess = LumiList.LumiList( filename=options.lumimask ).getVLuminosityBlockRange()
 
 #-------------------------------------------------------------------------
 #   Load default Settings
@@ -69,9 +81,11 @@ process.edmOut = cms.OutputModule(
 process.path = cms.Path(
     process.tstarMassReco
     * (process.ElectronWeight
-        + process.ElectronMeidumWeight
-        + process.ElectronTightWeight 
+        + process.MuonWeight
         + process.PileupWeight
+        + process.PileupWeightBestFit
+        + process.PileupWeightXsecup
+        + process.PileupWeightXsecdown
         + process.BtagWeight
         + process.TopPtWeight )
     * process.EventWeight

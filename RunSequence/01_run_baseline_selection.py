@@ -25,7 +25,7 @@ config.General.transferLogs = False
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '{2}'
-config.JobType.maxMemoryMB = 5000 ## Requesting 5G of memory!
+config.JobType.maxMemoryMB = 2500 ## Requesting 2.5G of memory!
 
 ## Input parameters
 config.JobType.pyCfgParams = [
@@ -37,7 +37,7 @@ config.JobType.pyCfgParams = [
 config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 8 ## Very fine job splitting
+config.Data.unitsPerJob = 16 ## Very fine job splitting
 config.Data.outLFNDirBase = '{7}'
 config.Data.publication = False
 
@@ -49,20 +49,20 @@ config.Site.blacklist = ['T2_DE_DESY']
 #-------------------------------------------------------------------------------
 #   Main control flows
 #-------------------------------------------------------------------------------
-def MakeCrabFile( data_set, opt ):
+def MakeCrabFile( dataset, opt ):
 
     # Preparing variables
-    task_name = my_name.GetTaskName( 'tstar' , data_set , opt.mode )
+    task_name = my_name.GetTaskName( 'tstar' , dataset , opt.mode )
     work_area = my_settings.crab_work_dir
     run_file  = my_settings.cmsrun_dir + 'run_baseline_selection.py'
     mode      = opt.mode
     global_tag= ""
-    hlt       = my_name.GetHLT(data_set)
+    hlt       = my_name.GetHLT(dataset)
     lfn_dir   = my_settings.crab_default_path
     site      = my_settings.crab_default_site
     lumi_file = my_settings.crab_default_lumi
 
-    if my_name.IsData( data_set ):
+    if my_name.IsData( dataset ):
         global_tag = my_settings.data_global_tag
     else:
         global_tag = my_settings.mc_global_tag
@@ -74,16 +74,13 @@ def MakeCrabFile( data_set, opt ):
         mode       , #{3}
         global_tag , #{4}
         hlt        , #{5}
-        data_set   , #{6}
+        dataset    , #{6}
         lfn_dir    , #{7}
         site       , #{8}
     )
 
-    if my_name.IsData( data_set ):
-        file_content = file_content + "\nconfig.Data.lumiMask = '{}'\n".format(lumi_file)
-
     ## Writing to Crab file
-    crab_config_file = my_name.GetCrabFile('tstarbaseline',data_set,opt.mode)
+    crab_config_file = my_name.GetCrabFile('tstarbaseline',dataset,opt.mode)
     my_file = open(  crab_config_file , 'w' )
     my_file.write( file_content )
     my_file.close()
@@ -105,10 +102,10 @@ def main():
         return
 
     with open(opt.input) as f:
-        data_set_list = f.readlines()
-        for data_set in data_set_list :
-            data_set =data_set.strip()
-            crab_file = MakeCrabFile( data_set, opt )
+        dataset_list = f.readlines()
+        for dataset in dataset_list :
+            dataset =dataset.strip()
+            crab_file = MakeCrabFile( dataset, opt )
             if opt.run :
                 print 'Submitting to crab'
                 os.system('crab submit '+crab_file)

@@ -5,13 +5,17 @@
 #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 #
 #*************************************************************************
-import FWCore.ParameterSet.Config as cms
 import sys
 
+import FWCore.ParameterSet.Config as cms
 #-------------------------------------------------------------------------
 #   Setting up options parser
 #-------------------------------------------------------------------------
 import FWCore.ParameterSet.VarParsing as opts
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
 options = opts.VarParsing('analysis')
 
 options.register(
@@ -69,7 +73,6 @@ process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 process.load(
     'Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("RecoEgamma.ElectronIdentification.ElectronIDValueMapProducer_cfi")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag.globaltag = options.GlobalTag
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -89,28 +92,24 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 #-------------------------------------------------------------------------
 requiredHLTs = []
 
-if options.Mode == 'MuonSignal':  # Muon Channel
-    requiredHLTs = ['HLT_Mu50_v*']
-elif options.Mode == 'ElectronSignal':  # Electron Channel
-    requiredHLTs = ['HLT_Ele45_WPLoose_Gsf_v*']
-else:
-    print "Mode not recognized!"
-    sys.exit(1)
 
 if options.HLT:
+    if options.Mode == 'MuonSignal':  # Muon Channel
+        requiredHLTs = ['HLT_IsoMu27_v*']
+    elif options.Mode == 'ElectronSignal':  # Electron Channel
+        requiredHLTs = ['HLT_Ele27_WPTight_Gsf_v*']
+    else:
+        print "Mode not recognized!"
+        sys.exit(1)
     from HLTrigger.HLTfilters.hltHighLevel_cfi import *
     process.hltfilter = hltHighLevel.clone(
         TriggerResultsTag=options.HLT,
         HLTPaths=requiredHLTs
     )
 
-
-#-------------------------------------------------------------------------
-#   Electron ID Processes
-#-------------------------------------------------------------------------
-from PhysicsTools.PatAlgos.tools.coreTools import *
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-
+#-------------------------------------------------------------------------------
+#   Importing Electron VID maps
+#-------------------------------------------------------------------------------
 switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 elecIDModules = [
     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'
@@ -119,14 +118,25 @@ elecIDModules = [
 for mod in elecIDModules:
     setupAllVIDIdsInModule(process, mod, setupVIDElectronSelection)
 
+#-------------------------------------------------------------------------------
+#   Importing METFilters
+#-------------------------------------------------------------------------------
+process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
+process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
+process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+
+process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
+process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+
 #-------------------------------------------------------------------------
 #   Load Self Written Filters
 #-------------------------------------------------------------------------
 print "Loading main filter\n\n"
-import TstarAnalysis.BaseLineSelector.Filter_cfi as myfilters
-
-process.tstarFilter = myfilters.tstarFilter
+process.load("TstarAnalysis.BaseLineSelector.Filter_cfi")
 process.tstarFilter.runMode = cms.string(options.Mode)
+
+
 
 #-------------------------------------------------------------------------
 #   Load Self written producers
@@ -185,6 +195,9 @@ if options.HLT:
         process.beforeAny
         * process.hltfilter
         * process.afterHLT
+        * process.BadPFMuonFilter
+        * process.BadChargedCandidateFilter
+        * process.METFilter
         * process.selectedMuons
         * process.skimmedPatMuons
         * process.egmGsfElectronIDSequence
@@ -198,6 +211,9 @@ if options.HLT:
 else:
     process.myfilterpath = cms.Path(
         process.beforeAny
+        * process.BadPFMuonFilter
+        * process.BadChargedCandidateFilter
+        * process.METFilter
         * process.selectedMuons
         * process.skimmedPatMuons
         * process.egmGsfElectronIDSequence

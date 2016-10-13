@@ -1,5 +1,0 @@
-<use name="root"/>
-<use name="DataFormats/FWLite"/>
-<use name="TstarAnalysis/Common"/>
-
-<bin name="readweights" file="readweights.cc"/>

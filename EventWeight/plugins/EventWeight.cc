@@ -40,12 +40,14 @@ private:
    virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
    virtual void endRunProduce( edm::Run&, const edm::EventSetup& ) override;
 
-   const edm::EDGetToken _elecw_src;
-   const edm::EDGetToken _puw_src;
+   const edm::EDGetToken _elecwsrc;
+   const edm::EDGetToken _muonwsrc;
+   const edm::EDGetToken _puwsrc;
    const edm::EDGetToken _btagsrc;
    const edm::EDGetToken _lhesrc;
    edm::Handle<LHEEventProduct> _lheHandle;
    edm::Handle<double> _elecwhandle;
+   edm::Handle<double> _muonwhandle;
    edm::Handle<double> _puwhandle;
    edm::Handle<double> _btaghandle;
 
@@ -59,8 +61,9 @@ using namespace std;
 //   Constructor and destructor
 // ------------------------------------------------------------------------------
 EventWeight::EventWeight( const edm::ParameterSet& iConfig ) :
-   _elecw_src( GETTOKEN( iConfig, double,  "elecwsrc" ) ),
-   _puw_src( GETTOKEN( iConfig, double, "puwsrc" ) ),
+   _elecwsrc( GETTOKEN( iConfig, double,  "elecwsrc" ) ),
+   _muonwsrc( GETTOKEN( iConfig, double, "muonwsrc" ) ),
+   _puwsrc( GETTOKEN( iConfig, double, "puwsrc" ) ),
    _btagsrc( GETTOKEN( iConfig, double, "btagsrc" ) ),
    _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) ),
    _isdata( false )
@@ -88,21 +91,30 @@ EventWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    if( iEvent.isRealData() ){ _isdata = true;  return; }// Don't do anything for data
    _isdata = false;
+
+
    auto_ptr<double> weightptr( new double(1.) );
    double& eventweight = *weightptr;
 
-   // Multilpying by electron weights, skipping over if doesn't exists
+   // Multilpying by electron weights, skipping over if doesn't exist
    try {
-      iEvent.getByToken( _elecw_src, _elecwhandle );
+      iEvent.getByToken( _elecwsrc, _elecwhandle );
       eventweight *= *_elecwhandle;
    } catch( std::exception ){
    }
 
-   // Pileup weight should definitely exists
-   iEvent.getByToken( _puw_src, _puwhandle   );
+   // Multiplying by muon weights, skipping over if doesn't exist
+   try {
+      iEvent.getByToken( _muonwsrc, _muonwhandle );
+      eventweight *= *_muonwhandle;
+   } catch( std::exception ){
+   }
+
+   // Pileup weight should definitely exist
+   iEvent.getByToken( _puwsrc, _puwhandle   );
    eventweight *= *_puwhandle;
 
-   // B tag weights should definitely exists
+   // B tag weights should definitely exist
    iEvent.getByToken( _btagsrc, _btaghandle );
    eventweight *= *_btaghandle;
 

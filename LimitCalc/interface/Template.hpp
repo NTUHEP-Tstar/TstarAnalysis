@@ -69,5 +69,4 @@ extern void MakeTemplateCardFile(
    SampleRooFitMgr* signal
    );
 
-
 #endif/* end of include guard: TSTARANALYSIS_LIMITCALC_TEMPLATE_HPP */

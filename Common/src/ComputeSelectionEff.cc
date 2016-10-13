@@ -7,6 +7,7 @@
 *******************************************************************************/
 #include "ManagerUtils/Maths/interface/Efficiency.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
+#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 
 #include "DataFormats/Common/interface/MergeableCounter.h"
 #include "DataFormats/FWLite/interface/Handle.h"
@@ -17,12 +18,14 @@
 
 using mgr::SampleMgr;
 
-double GetOriginalEventCount( const SampleMgr& sample )
+double
+GetOriginalEventCount( const SampleMgr& sample )
 {
-   return sample.GetCacheDouble( "OriginalEventCount");
+   return sample.GetCacheDouble( "OriginalEventCount" );
 }
 
-double GetSelectedEventCount( const SampleMgr& sample )
+double
+GetSelectedEventCount( const SampleMgr& sample )
 {
    return sample.GetCacheDouble( "SelectedEventCount" );
 }
@@ -44,7 +47,8 @@ SetOriginalEventCount( SampleMgr& sample )
          count -= negative_count->value;
       }
    }
-   sample.AddCacheDouble( "OriginalEventCount" , count );
+
+   sample.AddCacheDouble( "OriginalEventCount", count );
    return count;
 }
 
@@ -54,31 +58,26 @@ SetSelectedEventCount( SampleMgr& sample )
    fwlite::Handle<double> count_handle;
    double ans = 0;
 
-   try {
-      for( const auto& file_path : sample.GlobbedFileList() ){
-         fwlite::Run run( TFile::Open( file_path.c_str() ) );
+   for( const auto& file : sample.GlobbedFileList() ){
+      fwlite::Event ev( TFile::Open( file.c_str() ) );
 
-         for( run.toBegin(); !run.atEnd(); ++run ){
-            count_handle.getByLabel( run, "EventWeight", "WeightSum" );
-            ans += *count_handle;
-         }
+      for( ev.toBegin(); !ev.atEnd(); ++ev ){
+         ans += GetEventWeight( ev ) * GetSampleEventTopPtWeight( sample, ev );
       }
-   } catch( std::exception ){
-      ans = sample.Event().size();// For data files
    }
 
-   sample.AddCacheDouble("SelectedEventCount" , ans );
+   sample.AddCacheDouble( "SelectedEventCount", ans );
    return ans;
 }
 
 const Parameter&
 ComputeSelectionEff( SampleMgr& sample )
 {
-   if( !sample.HasCacheDouble("OriginalEventCount") ){
-      SetOriginalEventCount(sample);
+   if( !sample.HasCacheDouble( "OriginalEventCount" ) ){
+      SetOriginalEventCount( sample );
    }
-   if( !sample.HasCacheDouble("SelectedEventCount") ){
-      SetSelectedEventCount(sample);
+   if( !sample.HasCacheDouble( "SelectedEventCount" ) ){
+      SetSelectedEventCount( sample );
    }
 
    const double passed = GetSelectedEventCount( sample );
@@ -93,6 +92,5 @@ GetSampleWeight( const SampleMgr& sample )
 {
    const double selectedEvents = GetSelectedEventCount( sample );
    const double expyield       = sample.ExpectedYield().CentralValue();
-   if( selectedEvents == 0 ) { return 0 ; }
-   else { return expyield / selectedEvents; }
+   if( selectedEvents == 0 ){ return 0; } else { return expyield / selectedEvents; }
 }

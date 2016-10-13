@@ -9,9 +9,10 @@
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 
-#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "TstarAnalysis/Common/interface/InitSample.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <iostream>
@@ -33,15 +34,16 @@ InitSampleStatic( const TstarNamer& namer )
 }
 
 /*******************************************************************************
-*   Function for caching weight sums
+*   Function for caching weight sums - see ComputeSelectionEff.cc and GetEventWeight.cc for implementation
 *******************************************************************************/
-void InitSample( mgr::SampleMgr& sample )
+void
+InitSample( mgr::SampleMgr& sample )
 {
    SetOriginalEventCount( sample );
+
+   SetSampleTopPtWeight( sample );
 
    SetSelectedEventCount( sample );
 
    ComputeSelectionEff( sample );
-
-   SetSampleTopPtWeight( sample );
 }

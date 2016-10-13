@@ -26,11 +26,6 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include <vector>
 
-#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
-
-// ------------------------------------------------------------------------------
-//   Class Definition
-// ------------------------------------------------------------------------------
 class JetProducer : public edm::stream::EDFilter<>
 {
 public:
@@ -58,8 +53,6 @@ private:
    std::unique_ptr<JME::JetResolution> _jetptres;
    std::unique_ptr<JME::JetResolution> _jetphires;
    std::unique_ptr<JME::JetResolutionScaleFactor> _jetressf;
-
-   BTagChecker _btagcheck;
 
    // Helper variables, see src/JetSelection.cc
    bool           IsSelectedJet( const pat::Jet&, const bool isdata ) const;

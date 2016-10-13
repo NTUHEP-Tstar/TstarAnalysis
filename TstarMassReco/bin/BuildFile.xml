@@ -15,4 +15,3 @@
 <flag CXXFLAGS="-g"/>
 
 <bin name="CompareMethods" file="CompareMethods.cc"/>
-<bin name="CompareScale"   file="CompareScale.cc"/>

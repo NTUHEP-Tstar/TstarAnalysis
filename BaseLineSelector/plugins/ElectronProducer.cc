@@ -17,7 +17,7 @@ ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
    _mediumMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "mediumMap" ) ),
    _tightMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "tightMap" ) ),
    _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) ),
-   _hltsrc( GETTOKEN( iconf, TriggerResults, "hltsrc " ) ),
+   _hltsrc( GETTOKEN( iconf, TriggerResults, "hltsrc" ) ),
    _triggerobjsrc( GETTOKEN( iconf, TriggerObjList, "trgobjsrc" ) ),
    _reqtrigger( iconf.getParameter<std::string>( "reqtrigger" ) )
 {

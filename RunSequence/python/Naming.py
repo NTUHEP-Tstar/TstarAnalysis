@@ -10,15 +10,15 @@
 import TstarAnalysis.RunSequence.Settings as my_settings
 import re ## Importing regular expression
 
-def IsData( data_set ):
-    if re.match( '/.*/.*Run[0-9]{4}.*/.*' , data_set ):
+def IsData( dataset ):
+    if re.match( '/.*/.*Run[0-9]{4}.*/.*' , dataset ):
         return True
     else :
         return False
 
-def GetName( data_set ):
-    data_part = data_set.split('/')
-    if IsData( data_set ):
+def GetName( dataset ):
+    data_part = dataset.split('/')
+    if IsData( dataset ):
         return data_part[1]+'_'+data_part[2]
     else:
         primtag = data_part[1]
@@ -31,42 +31,37 @@ def GetName( data_set ):
             idx = idx + 1
         return retname
 
-def GetPrimary( data_set ):
-    data_part = data_set.split('/')
+def GetPrimary( dataset ):
+    data_part = dataset.split('/')
     return data_part[1]
 
-def GetTaskName( tag, data_set, mode ):
-    return "{}_{}_{}".format( tag , GetName(data_set), mode )
+def GetTaskName( tag, dataset, mode ):
+    return "{}_{}_{}".format( tag , GetName(dataset), mode )
 
-def GetCrabFile( tag, data_set, mode):
-    return "{}/{}.py".format( my_settings.crab_cfg_dir , GetTaskName(tag,data_set,mode))
+def GetCrabFile( tag, dataset, mode):
+    return "{}/{}.py".format( my_settings.crab_cfg_dir , GetTaskName(tag,dataset,mode))
 
-def GetCrabDir( tag, data_set, mode ):
-    return "{}/crab_{}/".format( my_settings.crab_work_dir, GetTaskName(tag,data_set,mode) )
+def GetCrabDir( tag, dataset, mode ):
+    return "{}/crab_{}/".format( my_settings.crab_work_dir, GetTaskName(tag,dataset,mode) )
 
-def GetCrabOutputDir( tag, data_set, mode ):
-    return "{}/results/".format( GetCrabDir(tag,data_set,mode))
+def GetCrabOutputDir( tag, dataset, mode ):
+    return "{}/results/".format( GetCrabDir(tag,dataset,mode))
 
-def GetStoreDir( tag, data_set, mode ):
+def GetStoreDir( tag, dataset, mode ):
     return "{}/EDM_Files/{}/{}/".format( my_settings.storage_dir , tag, mode )
 
-def GetStoreFile( tag, data_set, mode, index ):
-    return "{}/{}_{}.root".format( GetStoreDir(tag,data_set,mode) , GetName(data_set), index )
+def GetStoreFile( tag, dataset, mode, index ):
+    return "{}/{}_{}.root".format( GetStoreDir(tag,dataset,mode) , GetName(dataset), index )
 
-def GetStoreGlob( tag, data_set, mode ):
-    return "{}/{}*.root".format( GetStoreDir(tag,data_set,mode), GetName(data_set) )
+def GetStoreGlob( tag, dataset, mode ):
+    return "{}/{}*.root".format( GetStoreDir(tag,dataset,mode), GetName(dataset) )
 
-def GetScriptFile( tag, data_set, mode , index ):
-    return "{}/{}_{}.sh".format( my_settings.script_dir, GetTaskName(tag,data_set,mode), index)
+def GetScriptFile( tag, dataset, mode , index ):
+    return "{}/{}_{}.sh".format( my_settings.script_dir, GetTaskName(tag,dataset,mode), index)
 
-def GetHLT( data_set ):
-    if IsData( data_set ):
+def GetHLT( dataset ):
+    if IsData( dataset ):
         return 'TriggerResults::HLT'
-    elif re.match('/.*/RunIISpring16MiniAODv2.*reHLT.*/.*' , data_set ):
-        return "TriggerResults::HLT2"
-    elif re.match('/.*/RunIISpring16MiniAODv2.*withHLT.*/.*' , data_set ):
-        return 'TriggerResults::HLT'
-    elif re.match('/.*/RunIISpring16MiniAODv2.*/.*' , data_set ):
-        return ''
     else:
-        return 'TriggerResults::HLT'
+        # ONLY Apply HLT selection to Data samples
+        return ''

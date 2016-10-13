@@ -19,6 +19,8 @@
 /*******************************************************************************
 *   Main control flows to be called by main functions
 *
+*   ** InitSampleForTables - Caching required variables for samples
+*
 *   ** SummaryComplete - Every sample is treated individually.
 *
 *   ** SummarySignal - list every signal sample
@@ -28,23 +30,37 @@
 *   ** SummaryMCLumi - print the MC sample as a list of equivalent luminosities.
 *
 *******************************************************************************/
+extern void InitGroupForTable( mgr::SampleGroup& );
+
 extern void SummaryComplete(
-   const std::vector<mgr::SampleGroup*>& sig_list,
-   const std::vector<mgr::SampleGroup*>& bkg_list,
+   const std::vector<mgr::SampleGroup*>& siglist,
+   const std::vector<mgr::SampleGroup*>& bkglist,
    const mgr::SampleGroup*               data
    );
 
-extern void SummarySignal( const std::vector<mgr::SampleGroup*>& sig_list );
-
-extern void SummaryBKGBrief(
-   const std::vector<mgr::SampleGroup*>& bkg_list,
+extern void SummaryBrief(
+   const std::vector<mgr::SampleGroup*>& siglist,
+   const std::vector<mgr::SampleGroup*>& bkglist,
    const mgr::SampleGroup*               data
    );
 
 extern void SummaryMCLumi(
-   const std::vector<mgr::SampleGroup*>& sig_list,
-   const std::vector<mgr::SampleGroup*>& bkg_list
+   const std::vector<mgr::SampleGroup*>& siglist,
+   const std::vector<mgr::SampleGroup*>& bkglist
    );
+
+/*******************************************************************************
+*   Initialization Helper functions
+*
+*   ** InitGroupString - Recrawling group configuration json file and adding
+*                        string caches to sample mgr list
+*   ** InitSampleString - Actually defining what sample stringto cache
+*******************************************************************************/
+extern void InitGroupString( mgr::SampleGroup&  );
+extern void InitSampleForTable( mgr::SampleMgr& );
+extern void InitSampleString( mgr::SampleMgr&, const mgr::ConfigReader& );
+extern Parameter GetWeightError( const mgr::SampleMgr& );
+
 
 /*******************************************************************************
 *   Common Helper function

@@ -34,10 +34,10 @@ bool
 MuonProducer::IsSelectedMuon( const pat::Muon&  mu,
                               const edm::Event& iEvent ) const
 {
-   if( !mu.isHighPtMuon( _primary_vertex ) ){ return false; }
-   if( mu.pt()        < 53.              ){ return false; }
-   if( fabs( mu.eta() ) > 2.1              ){ return false; }
-   if( MuTrackIso( mu ) > MUTRACKISO_TIGHT ){ return false; }
+   if( !mu.isTightMuon( _primary_vertex ) ){ return false; }
+   if( mu.pt()        < 30.               ){ return false; }
+   if( fabs( mu.eta() ) > 2.1             ){ return false; }
+   if( MuPfIso( mu )  > MUPFISO_TIGHT     ){ return false; }
 
    // Trigger matching
    if(
@@ -58,10 +58,10 @@ MuonProducer::IsSelectedMuon( const pat::Muon&  mu,
 bool
 MuonProducer::IsVetoMuon( const pat::Muon& mu, const edm::Event& ) const
 {
-   if( !mu.isLooseMuon() ){ return false; }
-   if( mu.pt() < 15.0       ){ return false; }
+   if( !mu.isLooseMuon()      ){ return false; }
+   if( mu.pt() < 15.0         ){ return false; }
    if( fabs( mu.eta() ) > 2.4 ){ return false; }
-   if( MuTrackIso( mu ) > MUTRACKISO_LOOSE ){ return false; }
+   if( MuPfIso( mu ) > MUPFISO_LOOSE ){ return false; }
    return true;
 }
 

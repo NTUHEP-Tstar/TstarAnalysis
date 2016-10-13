@@ -35,12 +35,17 @@ public:
    // Options parsing and access
    int LoadOptions(
       const boost::program_options::options_description& desc,
-      int argc, char* argv[] );
+      int argc, char* argv[]
+      );
+
+
    void
    SetNamingOptions( const std::vector<std::string>& x )
    {
       _naming_option_list = x;
    }
+   // PlotRootFile - Specialized file name for saving object into
+   std::string PlotRootFile() const { return RootFileName("PLOTROOT"); }
 
    // turns input ( ext, {tag1,tag2,tag3...} ) into filename: tag1_tag2_tag3_..._tagn.ext
    std::string CustomFileName(
@@ -74,6 +79,7 @@ public:
 private:
    std::string _channel_tag;
    std::vector<std::string> _naming_option_list;
+
 };
 
 

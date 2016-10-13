@@ -14,12 +14,14 @@
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
+#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 
-#include "TRandom.h"
+#include "RooRandom.h"
 
 using namespace std;
 
@@ -39,30 +41,41 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
    const double param1           = paramlist[0]->getVal();
    const double param2           = paramlist[1]->getVal();
 
-   TRandom ran;
-
    RooAbsPdf* bkgfunc = mc->Pdf( "template" );
    RooAbsPdf* sigfunc = MakeSingleKeysPdf( sigmgr, "" );
 
    const string strgthtag = SigStrengthTag();
-   FILE* result           = fopen( limit_namer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "w" );
-   fprintf( result, "%lf %lf %lf %lf\n", bkgnum, signum, param1, param2 );
+   FILE* result;
+   if ( !boost::filesystem::exists( limit_namer.TextFileName("valsimfit",{strgthtag}) ) ){
+      // If doesn't already exists create new file and print first fitting value.
+      result = fopen( limit_namer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "w" );
+      fprintf( result, "%lf %lf %lf %lf\n", bkgnum, signum, param1, param2 );
+   } else {
+      // Else open in append mode.
+      result = fopen( limit_namer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "a" );
+   }
+
+   // Setting random seed to present time to allow multiple reruns
+   RooRandom::randomGenerator()->SetSeed(time(NULL));
 
    for( int i = 0; i < limit_namer.InputInt( "num" ); ++i ){
       const string pseudosetname = "pseudo";
-      const int genbkgnum        = ran.Poisson( bkgnum );
-      const int gensignum        = ran.Poisson( signum );
 
       RooDataSet* psuedoset = bkgfunc->generate(
          SampleRooFitMgr::x(),
-         genbkgnum,
+         bkgnum,
+         RooFit::Extended(),
          RooFit::Name( pseudosetname.c_str() )
-         );
+      );
       RooDataSet* sigset = sigfunc->generate(
          SampleRooFitMgr::x(),
-         gensignum
-         );
+         signum,
+         RooFit::Extended()
+      );
       psuedoset->append( *sigset );
+      delete sigset;
+
+      // Passes ownership to data
       data->AddDataSet( psuedoset );
       data->SetConstant( kFALSE );
 
@@ -82,10 +95,23 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
          sigfit->getVal(), sigfit->getError(),
          p1fit->getVal(), p1fit->getError(),
          p2fit->getVal(), p2fit->getError()
-         );
+      );
 
+      // Saving plots for special cases
+      if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
+         MakeSimFitPlot( data, sigmgr, pseudosetname, "bkgexcess" );
+      } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
+         MakeSimFitPlot( data, sigmgr, pseudosetname, "bkgdifficient" );
+      } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
+         MakeSimFitPlot( data, sigmgr, pseudosetname, "sigexcess" );
+      } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
+         MakeSimFitPlot( data, sigmgr, pseudosetname, "sigdifficient" );
+      } else if( i%100 == 0 ){
+         MakeSimFitPlot( data, sigmgr, pseudosetname );
+      }
+
+      // Deleting to avoid taking up to much memory
       data->RemoveDataSet( pseudosetname );
-      delete sigset;
    }
 
    fclose( result );
@@ -96,6 +122,6 @@ SigStrengthTag()
 {
    static boost::format secfmt( "%1%%2%" );
    return limit_namer.HasOption( "relmag" ) ?
-          str( secfmt % "rel" % limit_namer.InputDou( "relmag" ) ) :
-          str( secfmt % "abs" % limit_namer.InputDou( "absmag" ) );
+   str( secfmt % "rel" % limit_namer.InputDou( "relmag" ) ) :
+   str( secfmt % "abs" % limit_namer.InputDou( "absmag" ) );
 }

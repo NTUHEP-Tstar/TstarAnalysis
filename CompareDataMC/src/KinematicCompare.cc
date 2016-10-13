@@ -28,8 +28,6 @@ MakeComparePlot(
    const string            label
    )
 {
-   const double total_lumi = mgr::SampleMgr::TotalLuminosity();
-
    SetBkgColor( background );
 
    for( const auto& histname : datamgr->AvailableHistList() ){
@@ -39,7 +37,7 @@ MakeComparePlot(
       THStack* stack = MakeBkgStack( background, histname );
       TH1D* bkgerror = MakeBkgError( background, histname );
       TH1D* datahist = (TH1D*)datamgr->Hist( histname )->Clone();
-      TH1D* bkgrel   = MakeBkgRelHist( bkgerror, bkgyield );
+      TH1D* bkgrel   = MakeBkgRelHist( bkgerror );
       TH1D* datarel  = MakeDataRelHist( datahist, bkgerror );
       TH1D* sighist  = (TH1D*)signalmgr->Hist( histname )->Clone();
 
@@ -52,103 +50,35 @@ MakeComparePlot(
       }
 
       // Legend settings
-      TLegend* l = plt::NewLegend( 0.62, 0.3 );
+      TLegend* l = plt::NewLegend( 0.6, 0.3 );
       l->AddEntry( datahist, datamgr->RootName().c_str(), "lp" );
 
       for( const auto& entry : background ){
          l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
       }
 
-      l->AddEntry( bkgerror, "Bkg. error",                                                                        "fl" );
+      l->AddEntry( bkgerror, "Bkg. stat. error",                                                                  "fl" );
       l->AddEntry( sighist,  boost::str( boost::format( "%s (x%.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
-      const double xmin = datahist->GetXaxis()->GetXmin();
-      const double xmax = datahist->GetXaxis()->GetXmax();
+      MakePlot(
+         stack,
+         bkgerror,
+         datahist,
+         sighist,
+         bkgrel,
+         datarel,
+         l,
+         "quickcomp",
+         {histname, label}
+         );
 
-      // Object plotting
-      TCanvas* c = new TCanvas( "c", "c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
-
-      // Drawing the top canvas
-      TPad* pad1 = plt::NewTopPad();
-      pad1->Draw();
-      pad1->cd();
-      stack->Draw( "HIST" );
-      datahist->Draw( "same LPE1" );
-      bkgerror->Draw( "same E2" );
-      sighist->Draw( "same HIST" );
-      l->Draw( "same" );
-      c->cd();
-
-      // Drawing bottom canvas
-      TPad* pad2      = plt::NewBottomPad();
-      TLine* line     = new TLine( xmin, 1, xmax, 1 );
-      TLine* line_top = new TLine( xmin, 2, xmax, 2 );
-      TLine* line_bot = new TLine( xmin, 0, xmax, 0 );
-      pad2->Draw();
-      pad2->cd();
-      datarel->Draw( "axis" );
-      datarel->Draw( "same LPE1" );
-      bkgrel->Draw( "same E2" );
-      line->Draw( "same" );
-      line_top->Draw( "same" );
-      line_bot->Draw( "same" );
-      c->cd();
-
-      // Plot styling ( see Common/interface/PlotStyle.hpp )
-      tstar::SetErrorStyle( bkgerror );
-      tstar::SetErrorStyle( bkgrel );
-      tstar::SetDataStyle( datahist );
-      tstar::SetDataStyle( datarel );
-      tstar::SetSignalStyle( sighist );
-
-      // Font and title settings
-      plt::SetAxis( stack );
-      plt::DisableXAxis( stack );
-      stack->GetYaxis()->SetTitle( datahist->GetYaxis()->GetTitle() );
-
-      plt::SetAxis( datarel );
-      datarel->GetXaxis()->SetTitleOffset( 5.5 );
-      datarel->GetXaxis()->SetTitle( sighist->GetXaxis()->GetTitle() );
-      datarel->GetYaxis()->SetTitle( "#frac{Data}{MC}" );
-      datarel->SetMaximum( 2.2 );
-      datarel->SetMinimum( -0.2 );
-      line->SetLineColor( kRed );
-      line->SetLineStyle( 1 );
-      line_top->SetLineColor( kBlack );
-      line_bot->SetLineColor( kBlack );
-      line_top->SetLineStyle( 3 );
-      line_bot->SetLineStyle( 3 );
-
-      // Writing captiosn
-      plt::DrawCMSLabel();
-      plt::DrawLuminosity( total_lumi );
-      TPaveText* tb = plt::NewTextBox( 0.12, 0.88, 0.30, 0.94 );
-      tb->AddText( compare_namer.GetChannelEXT( "Root Name" ).c_str() );
-      tb->Draw();
-
-      // setting ranges and saving plots
-      const double ymax = plt::GetYmax( {bkgerror, datahist, sighist} );
-      stack->SetMaximum( ymax * 1.2 );
-      c->SaveAs( compare_namer.PlotFileName( histname, {label} ).c_str() );
-      pad1->SetLogy();
-      stack->SetMaximum( ymax * 30 );
-      stack->SetMinimum( 0.3 );
-      c->SaveAs( compare_namer.PlotFileName( histname, {label, "log"} ).c_str() );
-
-      delete pad1;
-      delete pad2;
-      delete c;
-      delete l;
       delete stack;
       delete bkgerror;
-      delete datahist;
       delete bkgrel;
+      delete datahist;
       delete datarel;
       delete sighist;
-      delete line;
-      delete line_top;
-      delete line_bot;
-      delete tb;
+      delete l;
    }
 
 }
@@ -238,28 +168,18 @@ MakeBkgError( const vector<SampleHistMgr*>& bkg, const string& histname )
 /******************************************************************************/
 
 TH1D*
-MakeBkgRelHist( TH1D* bkghist, const Parameter& scale )
+MakeBkgRelHist( const TH1D* bkghist )
 {
-   const Parameter normscale(
-      1,
-      scale.RelAvgError(),
-      scale.RelAvgError()
-      );
    TH1D* bkgrelerr = (TH1D*)bkghist->Clone( "bkgrelhist" );
 
-   for( int i = 0; i < bkghist->GetSize(); ++i ){
+   for( int i = 1; i <= bkghist->GetSize(); ++i ){
       const double bincont = bkghist->GetBinContent( i );
       const double binerr  = bkghist->GetBinError( i );
-      const Parameter bincontpar( bincont, binerr, binerr );
-      const double newBinError = ( bincontpar*normscale ).AbsAvgError();
-
-      // scaling original error
-      bkghist->SetBinError( i, newBinError );
 
       // Setting new historgram
       bkgrelerr->SetBinContent( i, 1.0 );
       if(  bincont != 0 ){
-         bkgrelerr->SetBinError( i, newBinError/bincont );
+         bkgrelerr->SetBinError( i, binerr/bincont );
       } else {
          bkgrelerr->SetBinError( i, 0.0 );
       }
@@ -289,4 +209,106 @@ MakeDataRelHist( const TH1D* data, const TH1D* bkg )
 
    datarelerr->SetStats( 0 );
    return datarelerr;
+}
+
+/******************************************************************************/
+extern void
+MakePlot(
+   THStack*                        stack,
+   TH1D*                           bkgerror,
+   TH1D*                           datahist,
+   TH1D*                           sighist,
+   TH1D*                           bkgrel,
+   TH1D*                           datarel,
+   TLegend*                        legend,
+   const std::string               filenametag,
+   const std::vector<std::string>& taglist
+   )
+{
+   TCanvas* c = plt::NewCanvas();
+
+   const double xmin = datahist->GetXaxis()->GetXmin();
+   const double xmax = datahist->GetXaxis()->GetXmax();
+
+   // Drawing the top canvas
+   TPad* pad1 = plt::NewTopPad();
+   pad1->Draw();
+   pad1->cd();
+   stack->Draw( "HIST" );
+   datahist->Draw( "same LPE1" );
+   bkgerror->Draw( "same E2" );
+   sighist->Draw( "same HIST" );
+   legend->Draw( "same" );
+   c->cd();
+
+   // Drawing bottom canvas
+   TPad* pad2      = plt::NewBottomPad();
+   TLine* line     = new TLine( xmin, 1, xmax, 1 );
+   TLine* line_top = new TLine( xmin, 2, xmax, 2 );
+   TLine* line_bot = new TLine( xmin, 0, xmax, 0 );
+   pad2->Draw();
+   pad2->cd();
+   datarel->Draw( "axis" );
+   datarel->Draw( "same LPE1" );
+   bkgrel->Draw( "same E2" );
+   line->Draw( "same" );
+   line_top->Draw( "same" );
+   line_bot->Draw( "same" );
+   c->cd();
+
+   // Plot styling ( see Common/interface/PlotStyle.hpp )
+   tstar::SetErrorStyle( bkgerror );
+   tstar::SetErrorStyle( bkgrel );
+   tstar::SetDataStyle( datahist );
+   tstar::SetDataStyle( datarel );
+   tstar::SetSignalStyle( sighist );
+
+   // Font and title settings
+   plt::SetTopPlotAxis( stack );
+   stack->GetYaxis()->SetTitle( datahist->GetYaxis()->GetTitle() );
+
+   plt::SetBottomPlotAxis( datarel );
+   datarel->GetXaxis()->SetTitle( sighist->GetXaxis()->GetTitle() );
+   datarel->GetYaxis()->SetTitle( "#frac{Data}{MC}" );
+   datarel->SetMaximum( 2.2 );
+   datarel->SetMinimum( -0.2 );
+   line->SetLineColor( kRed );
+   line->SetLineStyle( 1 );
+   line_top->SetLineColor( kBlack );
+   line_bot->SetLineColor( kBlack );
+   line_top->SetLineStyle( 3 );
+   line_bot->SetLineStyle( 3 );
+
+   // Writing captions
+   plt::DrawCMSLabel();
+   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+   TPaveText* tb = plt::NewTextBox( 0.12, 0.88, 0.30, 0.94 );
+   tb->AddText( compare_namer.GetChannelEXT( "Root Name" ).c_str() );
+   tb->Draw();
+
+   // setting ranges and saving plots
+   const double ymax = plt::GetYmax( {bkgerror, datahist, sighist} );
+   stack->SetMaximum( ymax * 1.2 );
+
+   plt::SaveToPDF( c, compare_namer.PlotFileName( filenametag, taglist ) );
+   plt::SaveToROOT( c,
+      compare_namer.PlotRootFile(),
+      compare_namer.MakeFileName("",filenametag,taglist )
+   );
+
+   // Saving Logged version for comparison
+   vector<string> newtaglist = taglist;
+   newtaglist.push_back( "log" );
+   pad1->SetLogy();
+   stack->SetMaximum( ymax * 30 );
+   stack->SetMinimum( 0.3 );
+   plt::SaveToPDF( c, compare_namer.PlotFileName( filenametag, newtaglist ) );
+
+   delete pad1;
+   delete pad2;
+   delete c;
+   delete line;
+   delete line_top;
+   delete line_bot;
+   delete tb;
 }

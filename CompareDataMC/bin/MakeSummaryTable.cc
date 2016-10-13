@@ -11,7 +11,6 @@
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -44,18 +43,16 @@ main( int argc, char* argv[] )
 
 
    /******************************************************************************/
-   // Declaring data sample group
-   SampleGroup* data = new SampleGroup( compare_namer.GetChannelEXT( "Data Tag" ), master );
+   cout << "Declaring sample groups...." << endl;
 
-   // Declaring the list of signal samples
+   SampleGroup* data = new SampleGroup( compare_namer.GetChannelEXT( "Data Tag" ), master );
    vector<SampleGroup*> siglist;
+   vector<SampleGroup*> bkglist;
 
    for( const auto& tag : master.GetStaticStringList( "Signal List" ) ){
       siglist.push_back( new SampleGroup( tag, master ) );
    }
 
-   // Delcaring the list of background samples
-   vector<SampleGroup*> bkglist;
 
    for( const auto& tag : master.GetStaticStringList( "Background List" ) ){
       bkglist.push_back( new SampleGroup( tag, master ) );
@@ -63,33 +60,26 @@ main( int argc, char* argv[] )
 
 
    /******************************************************************************/
-   // Recomputing efficiencies
-   cout << "Re-computing the selection efficiencies!" << endl;
+   cout << "Re-computing the selection efficiencies and caching variables!" << endl;
 
-   for( auto& sample : data->SampleList() ){
-      ComputeSelectionEff( *sample );
-   }
+   InitGroupForTable( *data );
 
    for( auto& group : bkglist ){
-      for( auto& sample : group->SampleList() ){
-         ComputeSelectionEff( *sample );
-      }
+      InitGroupForTable( *group );
    }
 
    for( auto& group : siglist ){
-      for( auto& sample : group->SampleList() ){
-         ComputeSelectionEff( *sample );
-      }
+      InitGroupForTable( *group );
    }
 
    /******************************************************************************/
    // Calling the samples
    cout << "Making complete summary table...." << endl;
    SummaryComplete( siglist, bkglist, data );
-   cout << "Making signal summary table...." << endl;
-   SummarySignal( siglist );
+
    cout << "Making simple summary table...." << endl;
-   SummaryBKGBrief( bkglist, data );
+   SummaryBrief( siglist, bkglist, data );
+
    cout << "Making lumi summary table...." << endl;
    SummaryMCLumi( siglist, bkglist );
 

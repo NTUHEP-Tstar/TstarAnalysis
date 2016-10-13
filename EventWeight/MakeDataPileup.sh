@@ -8,12 +8,15 @@
  #  - Main Reference:
  #     https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData
  #  - Minimum bias cross section reference:
- #     71620 : https://hypernews.cern.ch/HyperNews/CMS/get/luminosity/583/3.html
  #     69200 : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData#Pileup_JSON_Files_For_Run_II
+ #
+ #     72383 66016 - 4.6% error in same page
+ #
+ #     62000 : "Best Fit" by trial and error.
  #
 #*******************************************************************************
 
-xseclist="62000 69200 71260"
+xseclist="69200 72383 66016 62000"
 
 for xsec in $xseclist ; do
    pileupCalc.py \
@@ -24,4 +27,6 @@ for xsec in $xseclist ; do
      --maxPileupBin  50                      \
      --numPileupBins 50                      \
      results/pileuphist_${xsec}.root
+
+   ./MakePileupWeights $xsec
 done

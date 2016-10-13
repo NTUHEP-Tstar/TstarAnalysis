@@ -41,7 +41,9 @@ SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
       return Pdf( name );
    }
 
-   if( fitfunc == "Exo"     ){ return MakeExo( this, name ); } else if( fitfunc == "Fermi"   ){
+   if( fitfunc == "Exo"     ){
+      return MakeExo( this, name );
+   } else if( fitfunc == "Fermi"   ){
       return MakeFermi( this, name );
    } else if( fitfunc == "Lognorm" ){
       return MakeLognorm( this, name );
@@ -49,7 +51,7 @@ SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
       return MakeLandau( this, name );
    } else if( fitfunc == "Trial"   ){
       return MakeTrial( this, name );
-   } else                                                                                                                                                                                                                                                                                                                                                                         {
+   } else {
       fprintf(
          stderr, "Warning! %s function not found, using %s\n",
          fitfunc.c_str(),
@@ -89,7 +91,7 @@ MakeExo( SampleRooFitMgr* sample, const string& name = "exo" )
 {
    static char formula[1024];
    RooRealVar* a = sample->NewVar( name+"a", 61.7, 0, 100 );
-   RooRealVar* b = sample->NewVar( name+"b", 0.18, 0, 1  );
+   RooRealVar* b = sample->NewVar( name+"b", 0.18, 0, 100 );
    sprintf(
       formula, "(TMath::Power((1-(x/13000.)),(%s)))/(TMath::Power((x/13000.),(%s)))",
       a->GetName(),

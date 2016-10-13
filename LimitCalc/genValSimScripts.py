@@ -9,22 +9,22 @@
 import os,sys
 channellist=["MuonSignal","ElectronSignal"]
 masspointlist=[
-    "tstar_M700",
-    "tstar_M800",
-    "tstar_M900",
-    "tstar_M1000",
-    "tstar_M1100",
-    "tstar_M1200",
-    "tstar_M1300",
-    "tstar_M1400",
-    "tstar_M1500",
-    "tstar_M1600",
+    "TstarM700",
+    "TstarM800",
+    "TstarM900",
+    "TstarM1000",
+    "TstarM1100",
+    "TstarM1200",
+    "TstarM1300",
+    "TstarM1400",
+    "TstarM1500",
+    "TstarM1600",
 ]
 
 functionlist=["Exo","Lognorm"]
 
 runnum   = 3000
-injlist  = ["0","30"]
+injlist  = [0,30,300]
 
 header="""
 #!/bin/bash
@@ -36,10 +36,12 @@ cmd = """
 ./RunValGenFit -c {0} -f {1} -n {2} -m {3} {4} {5} &> /dev/null
 """
 
-for masspoint in masspointlist:
-    for channel in channellist:
-        for func in functionlist:
-            for inj in injlist :
+plotcmd = "./PlotValGenFit -c {0} -f {1} -a {2}"
+
+for channel in channellist:
+    for func in functionlist:
+        for inj in injlist :
+            for masspoint in masspointlist:
                 filename = "run/runsimfitval_{}_{}_{}_a{}.sh".format(
                     channel, func, masspoint, inj )
                 script = open( filename, 'w')
@@ -47,3 +49,4 @@ for masspoint in masspointlist:
                 script.write(cmd.format( channel, func, runnum , masspoint , "-a" , inj ))
                 script.close()
                 os.system("chmod +x "+filename)
+            print plotcmd.format( channel, func, inj )

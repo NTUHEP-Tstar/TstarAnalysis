@@ -1,112 +1,112 @@
 {
-   "___Comment___":"""-----------------------------------------------------------
-   #    Static Settings
-   -----------------------------------------------------------------------------""",
+    "___Comment___": """-----------------------------------------------------------#
+    Static Settings
+    -----------------------------------------------------------------------------""",
 
-   "Total Luminosity": 12900,
-   "Total Luminosity 2015": 2180,
-   "Total Luminosity 2016": 12900,
+    "Total Luminosity": 12900,
+    "Total Luminosity 2015": 2180,
+    "Total Luminosity 2016": 12900,
 
-   "Mass Min":400,
-   "Mass Max":2500,
+    "Mass Min": 400,
+    "Mass Max": 2500,
 
-   "___Comment___":"""-----------------------------------------------------------
-   #    Defining Groups:
-   -----------------------------------------------------------------------------""",
+    "___Comment___": """-----------------------------------------------------------
+    Defining Groups:
+    -----------------------------------------------------------------------------""",
 
-   "Default Json" : "Signal.json",
+    "Default Json": "Signal.json",
 
-   "Data_Muon" : {
-      "Latex Name": "Data",
-      "Root Name": "Data",
-      "File List": [ "Data_Muon.json" ]
-   },
+    "Data_Muon": {
+        "Latex Name": "Data",
+        "Root Name": "Data",
+        "File List": ["Data_Muon.json"]
+    },
 
-   "Data_Electron" : {
-      "Latex Name" : "Data",
-      "Root Name" : "Data",
-      "File List" : ["Data_Electron.json" ]
-   },
+    "Data_Electron": {
+        "Latex Name": "Data",
+        "Root Name": "Data",
+        "File List": ["Data_Electron.json"]
+    },
 
-   "Data2015_Muon" : {
-      "Latex Name": "Data",
-      "Root Name" : "Data",
-      "File List": [ "Data2015_Muon.json" ]
-   },
+    "Data2015_Muon": {
+        "Latex Name": "Data",
+        "Root Name": "Data",
+        "File List": ["Data2015_Muon.json"]
+    },
 
-   "Data2015_Electron" : {
-      "Latex Name" : "Data",
-      "Root Name" : "Data",
-      "File List" : ["Data2015_Electron.json" ]
-   },
+    "Data2015_Electron": {
+        "Latex Name": "Data",
+        "Root Name": "Data",
+        "File List": ["Data2015_Electron.json"]
+    },
 
-   "TTJets" : {
-      "Latex Name": "Top pair",
-      "Root Name" : "t#bar{t} + jets",
-      "Subset Json" : "TopSamples.json",
-      "Sample List": ["TTJets"]
-   },
+    "TTJets": {
+        "Latex Name": "Top pair",
+        "Root Name": "t#bar{t} + jets",
+        "Subset Json": "TopSamples.json",
+        "Sample List": [ "TTJets" ]
+    },
 
-   "SingleTop":{
-      "Latex Name": "Single Top",
-      "Root Name":"Single t",
-      "Subset Json": "TopSamples.json",
-      "Sample List": [
-         "SingleT_S",
-         "SingleT_T_top",
-         "SingleT_T_antitop",
-         "SingleT_TW",
-         "SingleTbar_TW"
-      ]
-   },
+    "SingleTop": {
+        "Latex Name": "Single Top",
+        "Root Name": "Single t",
+        "Subset Json": "TopSamples.json",
+        "Sample List": [
+            "SingleT_S",
+            "SingleT_T_top",
+            "SingleT_T_antitop",
+            "SingleT_TW",
+            "SingleTbar_TW"
+        ]
+    },
 
-   "TTBoson":{
-      "Latex Name": "Top pair + boson",
-      "Root Name": "t#bar{t} + V",
-      "File List": [ "TTPlusBoson.json" ]
-   },
+    "TTBoson": {
+        "Latex Name": "Top pair + boson",
+        "Root Name": "t#bar{t} + V",
+        "File List": [ "TTPlusBoson.json" ]
+    },
 
-   "SingleBoson":{
-      "Latex Name": "Single Boson",
-      "Root Name": "V + jets",
-      "File List":[ "SingleBoson.json" ]
-   },
+    "SingleBoson": {
+        "Latex Name": "Single Boson",
+        "Root Name": "V + jets",
+        "File List": [ "SingleBoson.json" ]
+    },
 
-   "DiBoson":{
-      "Latex Name": "Di boson",
-      "Root Name": "VV",
-      "File List":["DiBoson.json"]
-   },
+    "DiBoson": {
+        "Latex Name": "Di boson",
+        "Root Name": "VV",
+        "File List": [ "DiBoson.json" ]
+    },
 
-   "Background" : {
-      "Latex Name": "MC bkg.",
-      "Root Name": "MC bkg.",
-      "File List":[
-         "TopSamples.json",
-         "TTPlusBoson.json",
-         "SingleBoson.json",
-         "DiBoson.json"
-      ]
-   },
+    "Background": {
+        "Latex Name": "MC bkg.",
+        "Root Name": "MC bkg.",
+        "File List": [
+            "TopSamples.json",
+            "TTPlusBoson.json",
+            "SingleBoson.json",
+            "DiBoson.json"
+        ]
+    },
 
-   "Background List":[
-      "TTJets",
-      "SingleTop",
-      "TTBoson",
-      "SingleBoson",
-      "DiBoson"
-   ],
+    "Background List": [
+        "TTJets",
+        "SingleTop",
+        "TTBoson",
+        "SingleBoson",
+        "DiBoson"
+    ],
 
-   "Signal List" : [
-      "TstarM700",
-      "TstarM800",
-      "TstarM900",
-      "TstarM1000",
-      "TstarM1100",
-      "TstarM1200",
-      "TstarM1300",
-      "TstarM1400",
-      "TstarM1500",
-      "TstarM1600"
-   ]
+    "Signal List": [
+        "TstarM700",
+        "TstarM800",
+        "TstarM900",
+        "TstarM1000",
+        "TstarM1100",
+        "TstarM1200",
+        "TstarM1300",
+        "TstarM1400",
+        "TstarM1500",
+        "TstarM1600"
+    ]
 }

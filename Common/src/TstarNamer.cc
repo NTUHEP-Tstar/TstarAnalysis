@@ -27,7 +27,6 @@ TstarNamer::TstarNamer( const string& sub_package ) :
 
 TstarNamer::~TstarNamer()
 {
-
 }
 
 /*******************************************************************************
@@ -68,6 +67,7 @@ TstarNamer::LoadOptions(
    }
 
    LoadJsonFile( SettingsDir()+"name_settings.json" );
+
    return PARSE_SUCESS;
 }
 
@@ -98,7 +98,10 @@ TstarNamer::CustomFileName(
    mytaglist.erase( remove( mytaglist.begin(), mytaglist.end(), empty ), mytaglist.end() );
    string ans = ResultsDir() + GetChannel() + '/';
    ans += boost::join( mytaglist, "_" );
-   ans += "." + extension;
+
+   if( extension != "" ){
+      ans += "." + extension;
+   }
    return ans;
 }
 
@@ -134,7 +137,7 @@ TstarNamer::TextFileName( const string&         maintag,
 string
 TstarNamer::PlotFileName( const string&         maintag,
                           const vector<string>& subtaglist ) const
-{ return MakeFileName( "png", maintag, subtaglist ); }
+{ return MakeFileName( "pdf", maintag, subtaglist ); }
 
 string
 TstarNamer::TexFileName( const string&         maintag,

@@ -23,13 +23,13 @@ for direc in dirlist:
     channellist = [ os.path.basename(x) for x in channellist ]
     print channellist
     for channel in channellist:
-        plotfilelist = []
-        plotfilelist.extend( glob.glob( tstardir + direc + '/results/' + channel + '/*.png' ) )
-        plotfilelist.extend( glob.glob( tstardir + direc + '/results/' + channel + '/*.tex' ) )
+        filelist = []
+        filelist.extend( glob.glob( tstardir + direc + '/results/' + channel + '/*.pdf' ) )
+        filelist.extend( glob.glob( tstardir + direc + '/results/' + channel + '/*.tex' ) )
 
-        for plotfile in plotfilelist:
-            newname = './results/' +direc +'/'+ channel + '_' + os.path.basename( plotfile )
-            os.system( 'cp {} {}'.format(plotfile,newname) )
+        for myfile in filelist:
+            newname = './results/' +direc +'/'+ channel + '_' + os.path.basename( myfile )
+            os.system( 'cp {} {}'.format(myfile,newname) )
 
 os.system('tar -zcvf results.tar.gz results')
 os.system("rm ./results -rf")

@@ -12,6 +12,7 @@
 
 #include "TH1D.h"
 #include "THStack.h"
+#include "TLegend.h"
 #include <string>
 #include <vector>
 
@@ -46,13 +47,32 @@ extern void Normalize(
 *
 *   ** MakeDataRelHist - Make the realtive data histrogram
 *
+*   ** MakePlot - plotting all the elements onto a single canvas and saving
+*
 *******************************************************************************/
 extern Parameter GetBkgYield( const std::vector<SampleHistMgr*>& );
+
 extern void      SetBkgColor( std::vector<SampleHistMgr*>& );
+
 extern THStack*  MakeBkgStack( const std::vector<SampleHistMgr*>&, const std::string& );
+
 extern TH1D*     MakeBkgError( const std::vector<SampleHistMgr*>&, const std::string& );
-extern TH1D*     MakeBkgRelHist( TH1D*, const Parameter& );
+
+extern TH1D*     MakeBkgRelHist( const TH1D* );
+
 extern TH1D*     MakeDataRelHist( const TH1D* data, const TH1D* bkg );
+
+extern void MakePlot(
+   THStack* bkgstack,
+   TH1D*    bkgerr,
+   TH1D*    datahist,
+   TH1D*    sighist,
+   TH1D*    bkgrelerr,
+   TH1D*    datarelhist,
+   TLegend* legend,
+   const std::string filenametag,
+   const std::vector<std::string>& taglist
+);
 
 
 

@@ -17,7 +17,8 @@
 
 #include "RooGaussian.h"
 #include "RooRealVar.h"
-#include "TGraphErrors.h"
+#include "TGraphAsymmErrors.h"
+#include "TMultiGraph.h"
 
 using namespace std;
 
@@ -29,52 +30,37 @@ static RooRealVar p( "p", "p", 0, -7, 7 );
 /*******************************************************************************
 *   Defining datatype
 *******************************************************************************/
+const unsigned BKG_IDX = 0;
+const unsigned SIG_IDX = 1;
+const unsigned P1_IDX  = 2;
+const unsigned P2_IDX  = 3;
+
 struct PullResult
 {
-   Parameter bkgpull;
-   Parameter sigpull;
-   Parameter p1pull;
-   Parameter p2pull;
+   pair<Parameter, Parameter> fitparm[4];
 };
 
-// ------------------------------------------------------------------------------
-//   Defining main control flows
-// ------------------------------------------------------------------------------
 
+/*******************************************************************************
+*   Defining main control flows
+*******************************************************************************/
 void
 PlotGenFit( const vector<string>& masslist )
 {
-   TGraphErrors* bkgplot = new TGraphErrors( masslist.size() );
-   TGraphErrors* sigplot = new TGraphErrors( masslist.size() );
-   TGraphErrors* p1plot  = new TGraphErrors( masslist.size() );
-   TGraphErrors* p2plot  = new TGraphErrors( masslist.size() );
 
-   unsigned i = 0;
+   map<int, PullResult> pullresults;
 
    for( const auto& masspoint : masslist ){
-      PullResult ans = PlotSingleGenFit( masspoint );
       const int mass = GetInt( masspoint );
+      pullresults[mass] = PlotSingleGenFit( masspoint );
       cout << mass << endl;
-      bkgplot->SetPoint( i, mass, ans.bkgpull.CentralValue() );
-      bkgplot->SetPointError( i, 0, ans.bkgpull.AbsAvgError() );
-      sigplot->SetPoint( i, mass, ans.sigpull.CentralValue() );
-      sigplot->SetPointError( i, 0, ans.sigpull.AbsAvgError() );
-      p1plot->SetPoint( i, mass, ans.p1pull.CentralValue() );
-      p1plot->SetPointError( i, 0, ans.p1pull.AbsAvgError() );
-      p2plot->SetPoint( i, mass, ans.p2pull.CentralValue() );
-      p2plot->SetPointError( i, 0, ans.p2pull.AbsAvgError() );
-      ++i;
    }
 
-   MakePullComparePlot( bkgplot, "bkg"    );
-   MakePullComparePlot( sigplot, "sig"    );
-   MakePullComparePlot( p1plot,  "param1" );
-   MakePullComparePlot( p2plot,  "param2" );
+   MakePullComparePlot( pullresults, BKG_IDX, "bkg"    );
+   MakePullComparePlot( pullresults, SIG_IDX, "sig"    );
+   // MakePullComparePlot( pullresults, P1_IDX ,"param1" );
+   // MakePullComparePlot( pullresults, P2_IDX ,"param2" );
 
-   delete bkgplot;
-   delete sigplot;
-   delete p1plot;
-   delete p2plot;
 }
 
 PullResult
@@ -137,26 +123,26 @@ PlotSingleGenFit( const std::string& masstag )
       signormset.add( RooArgSet( p ) );
    }
 
-   ans.bkgpull = MakePullPlot( bkgset, masstag,  "bkg"    );
-   ans.sigpull = MakePullPlot( sigset, masstag,  "sig"    );
-   ans.p1pull  = MakePullPlot( p1set,  masstag, "param1" );
-   ans.p2pull  = MakePullPlot( p2set,  masstag, "param2" );
+   ans.fitparm[BKG_IDX] = MakePullPlot( bkgset, masstag,  "bkg"    );
+   ans.fitparm[SIG_IDX] = MakePullPlot( sigset, masstag,  "sig"    );
+   ans.fitparm[P1_IDX]  = MakePullPlot( p1set,  masstag, "param1" );
+   ans.fitparm[P2_IDX]  = MakePullPlot( p2set,  masstag, "param2" );
 
    return ans;
 }
 
 
-// ------------------------------------------------------------------------------
-//   Defining plotting functions
-// ------------------------------------------------------------------------------
-Parameter
+/*******************************************************************************
+*   Plotting functions
+*******************************************************************************/
+pair<Parameter, Parameter>
 MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
 {
    RooRealVar mean( "m", "m", 0, -5, 5 );
    RooRealVar sigma( "s", "s", 1,  0, 5 );
    RooGaussian pullfit( "pull", "pull", p, mean, sigma );
 
-   TCanvas c( "c", "c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
+   TCanvas* c = plt::NewCanvas();
 
    pullfit.fitTo( set,
       RooFit::Minos( kTRUE ),
@@ -208,27 +194,81 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.32, mean_s.c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.38, sigma_s.c_str() );
 
-   c.SaveAs( limit_namer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
+   c->SaveAs( limit_namer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
 
-   return Parameter( mean.getVal(), sigma.getVal(), sigma.getVal() );
+   delete frame;
+   delete c;
+
+   cout << mean.getErrorHi() << " " << mean.getErrorLo() << endl;
+   cout << sigma.getErrorHi() << " " << sigma.getErrorLo() << endl;
+
+   return pair<Parameter, Parameter>( mean, sigma );
 }
 
 
 void
-MakePullComparePlot( TGraph* graph, const string& tag )
+MakePullComparePlot(
+   const map<int, PullResult>& pullresultlist,
+   const unsigned idx,
+   const string& tag
+   )
 {
-   TCanvas c( "c", "c", DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT );
-   graph->Draw( "AP" );
-   graph->SetTitle( "" );
-   graph->GetXaxis()->SetTitle( "signal mass (GeV)" );
-   graph->GetYaxis()->SetTitle( ( "pull_{"+tag+"}" ).c_str() );
-   graph->SetMarkerStyle( 21 );
-   graph->SetMaximum( 2.5 );
-   graph->SetMinimum( -2.5 );
+   TCanvas* c = plt::NewCanvas();
+
+   TGraphAsymmErrors* graph = new TGraphAsymmErrors( pullresultlist.size() );
+   TGraphAsymmErrors* meanerr = new TGraphAsymmErrors( pullresultlist.size() );
+   TGraphAsymmErrors* uperr = new TGraphAsymmErrors( pullresultlist.size() );
+   TGraphAsymmErrors* lowerr = new TGraphAsymmErrors( pullresultlist.size() );
+
+   unsigned i = 0;
+
+   for( const auto& resultpair : pullresultlist ){
+      const int mass          = resultpair.first;
+      const PullResult result = resultpair.second;
+      const Parameter fitmean = result.fitparm[idx].first;
+      const Parameter fitsig  = result.fitparm[idx].second;
+
+      graph->SetPoint( i, mass, fitmean.CentralValue() );
+      meanerr->SetPoint( i, mass, fitmean.CentralValue() );
+      uperr->SetPoint( i, mass, fitmean.CentralValue() + fitsig.CentralValue() );
+      lowerr->SetPoint( i, mass, fitmean.CentralValue() - fitsig.CentralValue() );
+
+      graph->SetPointError( i, 0, 0  , fitsig.CentralValue(), fitsig.CentralValue() );
+      meanerr->SetPointError( i, 0, 0, fabs(fitmean.AbsLowerError()), fabs(fitmean.AbsUpperError()) );
+      uperr->SetPointError( i, 0, 0  , fabs(fitsig.AbsLowerError()), fabs(fitsig.AbsUpperError()) );
+      lowerr->SetPointError( i, 0, 0 , fabs(fitsig.AbsUpperError()), fabs(fitsig.AbsLowerError()) );
+      ++i;
+   }
+
+   TMultiGraph* mg = new TMultiGraph();
+   mg->Add( meanerr, "A3" );
+   mg->Add( uperr,   "A3" );
+   mg->Add( lowerr,  "A3" );
+   mg->Add( graph,   "LP" );
+
+   mg->Draw("A");
+   mg->SetTitle( "" );
+   mg->GetXaxis()->SetTitle( "signal mass (GeV)" );
+   mg->GetYaxis()->SetTitle( ( "pull_{"+tag+"}" ).c_str() );
+   mg->SetMaximum( 2.75 );
+   mg->SetMinimum( -2.75 );
    plt::DrawCMSLabel( SIMULATION );
 
-   const double xmin = graph->GetXaxis()->GetXmin();
-   const double xmax = graph->GetXaxis()->GetXmax();
+   // Styling graphs
+   graph->SetMarkerStyle( 21 );
+   meanerr->SetFillStyle( 1001 );
+   meanerr->SetFillColor( kBlue );
+   meanerr->SetLineColor( kBlue );
+   uperr->SetFillStyle( 1001 );
+   uperr->SetFillColor( kCyan );
+   uperr->SetFillColor( kCyan );
+   lowerr->SetFillStyle( 1001 );
+   lowerr->SetFillColor( kCyan );
+   lowerr->SetFillColor( kCyan );
+
+
+   const double xmin = mg->GetXaxis()->GetXmin();
+   const double xmax = mg->GetXaxis()->GetXmax();
    TLine z( xmin, 0, xmax, 0 );
    TLine hi( xmin, 1, xmax, 1 );
    TLine lo( xmin, -1, xmax, -1 );
@@ -257,7 +297,14 @@ MakePullComparePlot( TGraph* graph, const string& tag )
    tl.SetTextAlign( TOP_RIGHT );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT( "Root Name" ).c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName( "fitfunc", "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.16, inject_s.c_str() );
+   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.20, inject_s.c_str() );
 
-   c.SaveAs( limit_namer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
+   c->SaveAs( limit_namer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
+
+   delete graph;
+   delete meanerr;
+   delete uperr;
+   delete lowerr;
+   delete mg;
+   delete c;
 }

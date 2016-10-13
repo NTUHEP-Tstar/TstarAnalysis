@@ -4,10 +4,12 @@
       Reference: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO#Top_quark_pair_cross_sections_at
    ---------------------------------------------------------------------""",
    "TTJets": {
-      "Latex Name" : "$t\\bar{t}$ + Jets",
+      "Latex Name" : "\\ttbar+Jets",
       "Root Name": "t#bar{t} + jets",
       "Cross Section": [ 831.76, 54.84, 64.24 ],
       "K Factor":      [1.0],
+      "Generator": "\\POWHEG",
+      "Cross Section Source": "NNLO",
       "EDM Files":[
          "TT_TuneCUETP8M1_13TeV-powheg-pythia8_*.root"
       ]
@@ -18,46 +20,56 @@
    #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Single_top
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
-      "Latex Name" : "Single $t/\\bar{t}$ ($s$ Channel)",
+      "Latex Name" : "Single \\PQt, \\PQs Channel",
       "Root Name": "Single t (s)",
       "Cross Section": [ 3.36, 0.13, 0.12 ],
       "K Factor":      [ 1.0 ],
+      "Generator": "\\MCATNLO",
+      "Cross Section Source": "NLO",
       "EDM Files":[
          "ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1_*.root"
       ]
    },
    "SingleT_T_top": {
-      "Latex Name" : "Single $t$ ($t$ Channel)",
+      "Latex Name" : "Single \\PQt, \\PQt Channel",
       "Root Name": "Single t (t)",
       "Cross Section": [ 44.33, 2.94, 2.51 ],
       "K Factor":      [ 1.0 ],
+      "Generator": "\\MCATNLO",
+      "Cross Section Source": "NLO",
       "EDM Files":[
          "ST_t-channel_top_*.root"
       ]
    },
    "SingleT_T_antitop": {
-      "Latex Name" : "Single $\\bar{t}$ ($t$ Channel)",
+      "Latex Name" : "Single \\PAQt, \\PQt Channel",
       "Root Name": "Single #bar{t} (t)",
       "Cross Section": [ 28.38, 1.32, 1.18 ],
       "K Factor":      [ 1.0 ],
+      "Generator": "\\MCATNLO",
+      "Cross Section Source": "NLO",
       "EDM Files":[
          "ST_t-channel_antitop_*.root"
       ]
    },
    "SingleT_TW": {
-      "Latex Name" : "Single $t$ ($tW$ Channel)",
+      "Latex Name" : "Single \\PQt, \\PQt\\PW Channel",
       "Root Name": "Single t (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
       "K Factor":      [ 1.0 ],
+      "Generator": "\\MCATNLO",
+      "Cross Section Source": "NLO",
       "EDM Files":[
          "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_*.root"
       ]
    },
    "SingleTbar_TW": {
-      "Latex Name" : "Single $\\bar{t}$ ($tW$ Channel)",
+      "Latex Name" : "Single \\PAQt, \\PQt\\PW Channel)",
       "Root Name": "Single #bar{t} (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
       "K Factor":      [ 1.0 ],
+      "Generator": "\\MCATNLO",
+      "Cross Section Source": "NLO",
       "EDM Files":[
          "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_*.root"
       ]
