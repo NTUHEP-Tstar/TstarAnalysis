@@ -25,10 +25,12 @@ ElectronProducer::IsSelectedElectron(
    if( fabs( el.eta() ) > 2.1 ){ return false; }
    if( fabs( el.eta() ) > 1.44 && fabs( el.eta() ) < 1.57 ){ return false; }
 
-   if( _reqtrigger != "" && !HasTriggerMatch(
+   if( _runtriggermatch
+       && !HasTriggerMatch(
           el,
           *_trigobjHandle,
           _reqtrigger,
+          _reqfilter,
           ev.triggerNames( *_hltHandle )
           ) ){ return false; }
 
@@ -77,12 +79,13 @@ ElectronProducer::AddElectronVariables(
       );
    el.addUserFloat( "miniIso", miniIso );
 
-   if( _reqtrigger == "" ){ return; }// easrly exit if not required
+   if( ! _runtriggermatch ){ return; }// early exit if not required
 
    TLorentzVector trigp4 = TriggerMatchP4(
       el,
       *_trigobjHandle,
       _reqtrigger,
+      _reqfilter,
       iEvent.triggerNames( *_hltHandle )
       );
 

@@ -40,10 +40,7 @@ void
 InitSample( mgr::SampleMgr& sample )
 {
    SetOriginalEventCount( sample );
-
    SetSampleTopPtWeight( sample );
-
    SetSelectedEventCount( sample );
-
    ComputeSelectionEff( sample );
 }

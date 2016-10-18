@@ -1,102 +1,104 @@
 {
-   "channel": {
-      "MuonSignal" : {
-         "Latex Name" : "$\\mu$ signal channel",
-         "Root Name": "#mu channel",
-         "Data Tag": "Data_Muon"
-      },
-      "ElectronSignal" : {
-         "Latex Name" : "$e$ signal channel",
-         "Root Name": "e channel",
-         "Data Tag": "Data_Electron"
-      },
-      "MuonSignalTight":{
-         "Latex Name" : "$\\mu$ signal channel",
-         "Root Name": "#mu channel",
-         "Data Tag": "Data_Muon"
-      },
-      "ElectronSignalTight":{
-         "Latex Name" : "$e$ signal channel",
-         "Root Name": "e channel",
-         "Data Tag": "Data_Electron"
-      },
-      "MuonSignal2015" : {
-         "Latex Name" : "$\\mu$ signal channel",
-         "Root Name": "#mu channel",
-         "Data Tag": "Data2015_Muon"
-      },
-      "ElectronSignal2015" : {
-         "Latex Name" : "$e$ signal channel",
-         "Root Name": "e channel",
-         "Data Tag": "Data2015_Electron"
-      },
-      "SignalMerge" : {
-         "Latex Name" : "$\\mu + e $ channel",
-         "Root Name": "#mu + e channel"
-      }
-   },
+    "channel": {
+        "MuonBaseline": {
+            "Latex Name": "\\Pgm baseline",
+            "Root Name": "#mu baseline",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/tstarbaseline/Muon",
+            "Data Tag": "Data_Muon"
+        },
+        "ElectronBaseline": {
+            "Latex Name": "\\Pe baseline",
+            "Root Name": "e baseline",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/tstarbaseline/Electron",
+            "Data Tag": "Data_Electron"
+        },
+        "MuonSignal": {
+            "Latex Name": "\\Pgm signal channel",
+            "Root Name": "#mu channel",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonSignal",
+            "Data Tag": "Data_Muon"
+        },
+        "ElectronSignal": {
+            "Latex Name": "\\Pe signal channel",
+            "Root Name": "e channel",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronSignal",
+            "Data Tag": "Data_Electron"
+        },
+        "MuonControl": {
+            "Latex Name": "\\Pgm signal channel",
+            "Root Name": "#mu channel",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonControl",
+            "Data Tag": "Data_Muon"
+        },
+        "ElectronControl": {
+            "Latex Name": "\\Pe signal channel",
+            "Root Name": "e channel",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronControl",
+            "Data Tag": "Data_Electron"
+        }
+    },
 
-   "fitmethod": {
-      "SimFit": {
-         "Full Name" : "Simultaneous Fit"
-      },
-      "Template": {
-         "Full Name" : "Template Fit"
-      },
-      "BiasSimFit" : {
-         "Full Name": "Simultaneous Fit (Bias Check)"
-      },
-      "BiasTemplate" : {
-         "Full Name": "Template Fit (Bias Check)"
-      }
-   },
+    "fitmethod": {
+        "SimFit": {
+            "Full Name": "Simultaneous Fit"
+        },
+        "Template": {
+            "Full Name": "Template Fit"
+        },
+        "BiasSimFit": {
+            "Full Name": "Simultaneous Fit (Bias Check)"
+        },
+        "BiasTemplate": {
+            "Full Name": "Template Fit (Bias Check)"
+        }
+    },
 
-   "fitfunc":{
-      "Fermi": {
-         "Full Name" : "Fermi function",
-         "Latex Name": "N\\left(  1+\\exp\\left( \\frac{m-a}{b}\\\right) \\right)",
-         "Root Name" : "N #left(  1+ exp#left( #frac{m-a}{b} #right) #right)"
-      },
-      "Exo" : {
-         "Full Name": "EXO Group function",
-         "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
-         "Root Name": "N #left( (1-x)^{p_{1}} / x^{p_{2}} #right)"
-      },
-      "Lognorm" : {
-         "Full Name": "Log normal",
-         "Latex Name": "\\frac{N}{\\sigma\\sqrt{2\\pi}} \\exp{-\\frac{(\\ln{x}-m_0)^{2}}{2\\sigma^{2}}}",
-         "Root Name": "#frac{N}{m #sigma#sqrt{2#pi}} exp#left(-#frac{ln^{2}(m/m_{0})}{2#sigma^{2}}#right)"
-      },
-      "Landau" : {
-         "Full Name": "Landau",
-         "Latex Name": "",
-         "Root Name": "Landau function"
-      },
-      "Trial" : {
-         "Full Name" : "Trial",
-         "Latex Name": "",
-         "Root Name": "Trial"
-      }
-   },
+    "fitfunc": {
+        "Fermi": {
+            "Full Name": "Fermi function",
+            "Latex Name": "N\\left(  1+\\exp\\left( \\frac{m-a}{b}\\\right) \\right)",
+            "Root Name": "N #left(  1+ exp#left( #frac{m-a}{b} #right) #right)"
+        },
+        "Exo": {
+            "Full Name": "EXO Group function",
+            "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
+            "Root Name": "N #left( (1-x)^{p_{1}} / x^{p_{2}} #right)"
+        },
+        "Lognorm": {
+            "Full Name": "Log normal",
+            "Latex Name": "\\frac{N}{\\sigma\\sqrt{2\\pi}} \\exp{-\\frac{(\\ln{x}-m_0)^{2}}{2\\sigma^{2}}}",
+            "Root Name": "#frac{N}{m #sigma#sqrt{2#pi}} exp#left(-#frac{ln^{2}(m/m_{0})}{2#sigma^{2}}#right)"
+        },
+        "Landau": {
+            "Full Name": "Landau",
+            "Latex Name": "",
+            "Root Name": "Landau function"
+        },
+        "Trial": {
+            "Full Name": "Trial",
+            "Latex Name": "",
+            "Root Name": "Trial"
+        }
+    },
 
-   "combine" : {
-      "Asymptotic": {
-         "Full Name": "Asymptotic"
-      }
-   },
+    "combine": {
+        "Asymptotic": {
+            "Full Name": "Asymptotic"
+        }
+    },
 
-   "reco":{
-      "ChiSq6jet2b":{
-         "Root Name": "#chi^{2} sorting, 6 jets (2 bjets)"
-      },
-      "ChiSq8jet2b":{
-         "Root Name": "#chi^{2} sorting, 8 jets (2 bjets)"
-      },
-      "NoTopConstrain6j2b":{
-         "Root Name": "HitFit, 6 jets (2 bjets)"
-      }
-   },
+    "reco": {
+        "ChiSq6jet2b": {
+            "Root Name": "#chi^{2} sorting, 6 jets (2 bjets)"
+        },
+        "ChiSq8jet2b": {
+            "Root Name": "#chi^{2} sorting, 8 jets (2 bjets)"
+        },
+        "NoTopConstrain6j2b": {
+            "Root Name": "HitFit, 6 jets (2 bjets)"
+        }
+    },
 
-   "Image format" : "png"
+    "Image format": "png"
 
 }

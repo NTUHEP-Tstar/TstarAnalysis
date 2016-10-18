@@ -33,20 +33,20 @@
 extern void InitGroupForTable( mgr::SampleGroup& );
 
 extern void SummaryComplete(
-   const std::vector<mgr::SampleGroup*>& siglist,
-   const std::vector<mgr::SampleGroup*>& bkglist,
-   const mgr::SampleGroup*               data
+   const std::vector<mgr::SampleGroup>& siglist,
+   const std::vector<mgr::SampleGroup>& bkglist,
+   const mgr::SampleGroup&              data
    );
 
 extern void SummaryBrief(
-   const std::vector<mgr::SampleGroup*>& siglist,
-   const std::vector<mgr::SampleGroup*>& bkglist,
-   const mgr::SampleGroup*               data
-   );
+   const std::vector<mgr::SampleGroup>& siglist,
+   const std::vector<mgr::SampleGroup>& bkglist,
+   const mgr::SampleGroup&              data
+);
 
 extern void SummaryMCLumi(
-   const std::vector<mgr::SampleGroup*>& siglist,
-   const std::vector<mgr::SampleGroup*>& bkglist
+   const std::vector<mgr::SampleGroup>& siglist,
+   const std::vector<mgr::SampleGroup>& bkglist
    );
 
 /*******************************************************************************
@@ -55,6 +55,7 @@ extern void SummaryMCLumi(
 *   ** InitGroupString - Recrawling group configuration json file and adding
 *                        string caches to sample mgr list
 *   ** InitSampleString - Actually defining what sample stringto cache
+*   
 *******************************************************************************/
 extern void InitGroupString( mgr::SampleGroup&  );
 extern void InitSampleForTable( mgr::SampleMgr& );
@@ -80,20 +81,20 @@ extern void CloseTableFile( FILE* );
 *   * PrintCount      - Print only yield part ( for mc summary and data )
 *******************************************************************************/
 extern FILE* OpenSelecFile( const std::string& );
-extern void  PrintSampleLine( FILE*, const mgr::SampleMgr* );
+extern void  PrintSampleLine( FILE*, const mgr::SampleMgr& );
 extern void  PrintCount( FILE*, const std::string&, const Parameter& );
 
 /*******************************************************************************
 *   Helper functions for simple summary files
 *******************************************************************************/
 extern FILE* OpenSimpleFile( const std::string& );
-extern void  PrintSimpleLine( FILE*, const mgr::SampleGroup* );
+extern void  PrintSimpleLine( FILE*, const mgr::SampleGroup& );
 extern void  PrintSimpleCount( FILE*, const std::string&, const Parameter& );
 
 /*******************************************************************************
 *   Helper functions for Lumi files
 *******************************************************************************/
 extern FILE* OpenLumiFile( const std::string& );
-extern void  PrintLumiLine( FILE*, const mgr::SampleMgr* );
+extern void  PrintLumiLine( FILE*, const mgr::SampleMgr& );
 
 #endif/* end of include guard: TSTARANALYSIS_COMPAREDATAMC_MAKETABLE_HPP */

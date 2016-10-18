@@ -37,15 +37,14 @@ SetOriginalEventCount( SampleMgr& sample )
    fwlite::Handle<edm::MergeableCounter> negative_count;
    double count = 0;
 
-   for( const auto& file_path : sample.GlobbedFileList() ){
-      fwlite::Run run( TFile::Open( file_path.c_str() ) );
+   mgr::MultiFileRun myrun( sample.GlobbedFileList() );
 
-      for( run.toBegin(); !run.atEnd(); ++run ){
-         positive_count.getByLabel( run, "beforeAny", "positiveEvents" );
-         negative_count.getByLabel( run, "beforeAny", "negativeEvents" );
-         count += positive_count->value;
-         count -= negative_count->value;
-      }
+   for( myrun.toBegin(); !myrun.atEnd(); ++myrun ){
+      const auto& run = myrun.Base();
+      positive_count.getByLabel( run, "beforeAny", "positiveEvents" );
+      negative_count.getByLabel( run, "beforeAny", "negativeEvents" );
+      count += positive_count->value;
+      count -= negative_count->value;
    }
 
    sample.AddCacheDouble( "OriginalEventCount", count );
@@ -58,12 +57,9 @@ SetSelectedEventCount( SampleMgr& sample )
    fwlite::Handle<double> count_handle;
    double ans = 0;
 
-   for( const auto& file : sample.GlobbedFileList() ){
-      fwlite::Event ev( TFile::Open( file.c_str() ) );
-
-      for( ev.toBegin(); !ev.atEnd(); ++ev ){
-         ans += GetEventWeight( ev ) * GetSampleEventTopPtWeight( sample, ev );
-      }
+   for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event() ){
+      const auto& ev = sample.Event().Base();
+      ans += GetEventWeight( ev ) * GetSampleEventTopPtWeight( sample, ev );
    }
 
    sample.AddCacheDouble( "SelectedEventCount", ans );

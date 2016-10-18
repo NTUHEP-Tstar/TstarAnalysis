@@ -8,14 +8,6 @@
 *  For details
 *
 *******************************************************************************/
-
-// system include files
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-// user include files
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -24,14 +16,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
-#include "RooGenericPdf.h"// for normalized weighting
-#include "RooRealVar.h"
+
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 /*******************************************************************************
 *   Class definitions
 *******************************************************************************/
-class TopPtWeight :
-   public edm::one::EDProducer<edm::one::WatchRuns, edm::EndRunProducer>
+class TopPtWeight : public edm::EDProducer
 {
 public:
    explicit
@@ -39,9 +34,6 @@ public:
    ~TopPtWeight();
 
 private:
-   virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
-   virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
-   virtual void endRunProduce( edm::Run&, const edm::EventSetup& ) override;
    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
    // Getting objects from vector of sums
@@ -50,10 +42,10 @@ private:
 
    const double _a;
    const double _b;
-   bool   _isdata;
-   double _weightsum;
+   const double _minpt;
+   const double _maxpt;
 
-   double gettopweight( const double pt ) const;
+   double gettopweight( double pt ) const;
 };
 
 using namespace edm;
@@ -66,10 +58,10 @@ TopPtWeight::TopPtWeight( const edm::ParameterSet& iConfig ) :
    _gensrc( GETTOKEN( iConfig, std::vector<reco::GenParticle>, "gensrc" ) ),
    _a( iConfig.getParameter<double>( "a" ) ),
    _b( iConfig.getParameter<double>( "b" ) ),
-   _isdata( false )
+   _minpt( iConfig.getParameter<double>("minpt") ),
+   _maxpt( iConfig.getParameter<double>("maxpt") )
 {
    produces<double>( "TopPtWeight" );
-   produces<double, edm::InRun>("TopPtWeightSum");
 }
 
 TopPtWeight::~TopPtWeight(){}
@@ -77,15 +69,10 @@ TopPtWeight::~TopPtWeight(){}
 /*******************************************************************************
 *   Main control flow
 *******************************************************************************/
-void TopPtWeight::beginRun( const edm::Run&, const edm::EventSetup& )
-{
-   _weightsum = 0 ;
-}
-
 void
 TopPtWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   if( iEvent.isRealData() ){ _isdata= true; return; }// skipping if is data event
+   if( iEvent.isRealData() ){ return; }// skipping if is data event
 
    std::auto_ptr<double> weight( new double(1.) );
    double topweight     = 1;
@@ -109,31 +96,20 @@ TopPtWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
       }
       ++i;
    }
-   _weightsum += *weight;
+
    iEvent.put( weight, "TopPtWeight" );
 }
 
-/******************************************************************************/
-
-void TopPtWeight::endRun( const edm::Run& , const edm::EventSetup& ) {}
-
-/******************************************************************************/
-
-void TopPtWeight::endRunProduce( edm::Run& iRun, const edm::EventSetup& )
-{
-   if( _isdata ) { return ; }
-   auto_ptr<double> sumptr( new double(_weightsum));
-   iRun.put( sumptr, "TopPtWeightSum" );
-}
 
 /******************************************************************************/
 
 double
-TopPtWeight::gettopweight( const double pt ) const
+TopPtWeight::gettopweight( double pt ) const
 {
+   pt = std::max( _minpt, pt );
+   pt = std::min( _maxpt, pt );
    return exp( _a + _b * pt );
 }
-
 
 /******************************************************************************/
 

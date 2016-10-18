@@ -27,8 +27,7 @@ public:
 
    // channel Specializations: Settings channels separately for channel mixing
    void SetChannel( const std::string& );
-   const std::string&
-               GetChannel() const { return _channel_tag; }
+   const std::string& GetChannel() const { return _channel_tag; }
    std::string GetChannelEDMPath() const;
    std::string GetChannelEXT( const std::string& ) const;
 
@@ -44,7 +43,7 @@ public:
    {
       _naming_option_list = x;
    }
-   // PlotRootFile - Specialized file name for saving object into
+   // PlotRootFile - Specialized file name for saving plot objects
    std::string PlotRootFile() const { return RootFileName("PLOTROOT"); }
 
    // turns input ( ext, {tag1,tag2,tag3...} ) into filename: tag1_tag2_tag3_..._tagn.ext

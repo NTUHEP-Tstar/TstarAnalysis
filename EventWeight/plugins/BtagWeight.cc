@@ -5,26 +5,25 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-
-// system include files
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-
-// user include files
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 #include "TstarAnalysis/Common/interface/BTagChecker.hpp"
-// ------------------------------------------------------------------------------
-//   Class Definition
-// ------------------------------------------------------------------------------
+
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
+/*******************************************************************************
+*   Class definition
+*******************************************************************************/
 class BtagWeight : public edm::EDProducer
 {
 public:
@@ -44,11 +43,11 @@ private:
 using namespace edm;
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Constructor and destructor
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Constructor
+*******************************************************************************/
 BtagWeight::BtagWeight( const edm::ParameterSet & iConfig ) :
-   _jetsrc( GETTOKEN( iConfig, std::vector<pat::Jet>, "jetsrc" ) ),
+   _jetsrc( GETTOKEN( iConfig, vector<pat::Jet> , "jetsrc" ) ),
    _btagcheck( "bcheck", GETFILEPATH( iConfig, "btagfile" ) )
 {
    produces<double>( "BtagWeight" );
@@ -56,11 +55,10 @@ BtagWeight::BtagWeight( const edm::ParameterSet & iConfig ) :
    produces<double>( "BtagWeightdown" );
 }
 
-BtagWeight::~BtagWeight(){}
 
-// ------------------------------------------------------------------------------
-//   Main Control flow
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Main control flow
+*******************************************************************************/
 void
 BtagWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -87,5 +85,10 @@ BtagWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
    iEvent.put( btagweightupptr,   "BtagWeightup" );
    iEvent.put( btagweightdownptr, "BtagWeightdown" );
 }
+
+/*******************************************************************************
+*   Generic requirements
+*******************************************************************************/
+BtagWeight::~BtagWeight(){}
 
 DEFINE_FWK_MODULE( BtagWeight );

@@ -15,34 +15,35 @@
 using namespace std;
 namespace opt = boost::program_options;
 
-// ------------------------------------------------------------------------------
-//   Main control flow
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Main control flow
+*******************************************************************************/
 int
 main( int argc, char* argv[] )
 {
    opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
+      ( "refill,r", "Whether to refill the histograms from sample groups")
    ;
 
-   const int parse = compare_namer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
+   const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
    if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
    if( parse == mgr::OptsNamer::PARSE_HELP ){ return 0; }
 
-   InitSampleStatic( compare_namer );
+   InitSampleStatic( compnamer );
 
-   const mgr::ConfigReader master( compare_namer.MasterConfigFile() );
-   const string datatag = compare_namer.GetChannelEXT( "Data Tag" );
+   const mgr::ConfigReader master( compnamer.MasterConfigFile() );
+   const string datatag = compnamer.GetChannelEXT( "Data Tag" );
+
+   // Defining out channels see data/Groups.json for sample settings
+   vector<SampleHistMgr*> background;
+   for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
+    background.push_back( new SampleHistMgr( bkggroup, master ) );
+   }
 
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( datatag, master );
-   // Defining out channels see data/Groups.json for sample settings
-   vector<SampleHistMgr*> background;
-
-   for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
-      background.push_back( new SampleHistMgr( bkggroup, master ) );
-   }
 
    // Declaring sample sample
    SampleHistMgr* sigmgr = new SampleHistMgr( "TstarM800", master );
@@ -58,10 +59,12 @@ main( int argc, char* argv[] )
 
    // Cleaning up
    for( auto& histmgr : background ){
-      delete histmgr;
+    delete histmgr;
    }
 
    delete data;
    delete sigmgr;
+
+
    return 0;
 }

@@ -169,25 +169,42 @@ GetEventTopPtWeight( const fwlite::EventBase& ev )
 double
 SetSampleTopPtWeight( mgr::SampleMgr& sample )
 {
+   // For data
+   if( sample.IsRealData() ) {
+      sample.AddCacheDouble( "TopPtWeightSum", sample.Event().size() );
+      return sample.Event().size();
+   }
+
+   // For MC
    fwlite::Handle<double> count_handle;
    double ans = 0;
 
    try {
-      for( const auto& file_path : sample.GlobbedFileList() ){
-         fwlite::Run run( TFile::Open( file_path.c_str() ) );
-
-         for( run.toBegin(); !run.atEnd(); ++run ){
-            count_handle.getByLabel( run, "TopPtWeight", "TopPtWeightSum" );
-            ans += *count_handle;
-         }
+      mgr::MultiFileRun myrun( sample.GlobbedFileList() );
+      for( myrun.toBegin(); !myrun.atEnd(); ++myrun ){
+         const auto& run = myrun.Base();
+         count_handle.getByLabel( run, "TopPtWeightSum" );
+         ans += *count_handle;
       }
-   } catch( std::exception ){
-      if( sample.Name().find( "Run" ) == string::npos ){
-         cerr << "Error! Top Pt weight sum not found for MC dataset!" << endl;
-      }
-      ans = sample.Event().size();// For data files
-   }
+      sample.AddCacheDouble( "TopPtWeightSum", ans );
+      return ans;
+   } catch( std::exception ){}
 
+   cerr << "TopPt weight sum not found in MC at run storage! Trying per event... (May take some time)" << endl;
+
+   try {
+      for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event() ){
+         const auto& ev = sample.Event().Base();
+         ans += GetEventTopPtWeight( ev );
+      }
+      sample.AddCacheDouble( "TopPtWeightSum", ans );
+      return ans;
+
+   } catch( std::exception ){}
+
+   cerr << "TopPT weight sum not found anywhere for MC sample! Using sum of events, potentially dangerous" << endl;
+
+   ans = sample.Event().size();// For data files
    sample.AddCacheDouble( "TopPtWeightSum", ans );
    return ans;
 }
@@ -215,22 +232,22 @@ GetWeightByTag(
    const fwlite::EventBase& ev,
    const string&            module,
    const string&            product )
-{
-   fwlite::Handle<double> weighthandle;
-   static const double maxweight = 10.;
-   static const double minweight = -10.;
+   {
+      fwlite::Handle<double> weighthandle;
+      static const double maxweight = 10.;
+      static const double minweight = -10.;
 
-   // Directly skipping over data events
-   if( ev.isRealData() ){ return 1.; }
+      // Directly skipping over data events
+      if( ev.isRealData() ){ return 1.; }
 
-   try {
-      weighthandle.getByLabel( ev, module.c_str(), product.c_str() );
-      if( *weighthandle < maxweight && *weighthandle > minweight ){
-         return *weighthandle;
-      } else {
+      try {
+         weighthandle.getByLabel( ev, module.c_str(), product.c_str() );
+         if( *weighthandle < maxweight && *weighthandle > minweight ){
+            return *weighthandle;
+         } else {
+            return 1.;
+         }
+      } catch( std::exception e ){
          return 1.;
       }
-   } catch( std::exception e ){
-      return 1.;
    }
-}

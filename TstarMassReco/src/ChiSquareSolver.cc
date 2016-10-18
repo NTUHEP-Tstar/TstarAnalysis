@@ -5,9 +5,9 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
+#include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
-#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
@@ -34,6 +34,7 @@ SortJet( const pat::Jet* x, const pat::Jet* y ){ return x->pt() > y->pt();  }
 //   Constructor and destructor
 // ------------------------------------------------------------------------------
 ChiSquareSolver::ChiSquareSolver( const edm::ParameterSet& iConfig ) :
+   _bcheck( "check", GETFILEPATH( iConfig, "btagfile" ) ),
    _debug( iConfig.getUntrackedParameter<int>( "Debug", 0 ) ),
    _max_jets( iConfig.getUntrackedParameter<int>( "MaxJet", DEFAULT_MAX_JETS_TO_RUN ) ),
    _req_b_jets( iConfig.getUntrackedParameter<int>( "ReqBJet", DEFAULT_REQUIRED_BJETS_MATCHING ) )
@@ -175,7 +176,6 @@ ChiSquareSolver::SetElectron( const pat::Electron* x )
    _muon     = NULL;
    _electron = x;
    solveNeutrino();
-
 }
 
 void
@@ -256,8 +256,7 @@ ChiSquareSolver::solveNeutrino()
 bool
 ChiSquareSolver::IsBtagged( const pat::Jet* x ) const
 {
-   static BTagChecker check( "check", CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" );
-   return check.PassMedium( *x );
+   return _bcheck.PassMedium( *x );
 }
 
 bool

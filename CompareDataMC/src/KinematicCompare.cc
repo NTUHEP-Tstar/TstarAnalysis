@@ -16,7 +16,6 @@
 
 using namespace std;
 
-
 /*******************************************************************************
 *   Main control flow
 *******************************************************************************/
@@ -31,8 +30,6 @@ MakeComparePlot(
    SetBkgColor( background );
 
    for( const auto& histname : datamgr->AvailableHistList() ){
-      const Parameter bkgyield = GetBkgYield( background );
-
       // Declaring Histograms, for construction look below.
       THStack* stack = MakeBkgStack( background, histname );
       TH1D* bkgerror = MakeBkgError( background, histname );
@@ -41,10 +38,10 @@ MakeComparePlot(
       TH1D* datarel  = MakeDataRelHist( datahist, bkgerror );
       TH1D* sighist  = (TH1D*)signalmgr->Hist( histname )->Clone();
 
-      // Scaling signal plot for clarity
-      const unsigned datanum = datamgr->EventsInFile();
-      const double signum    = signalmgr->ExpectedYield();
-      const double sigscale  = datanum / signum / 2.;
+      // Scaling signal plot for better clarity
+      const unsigned datanum  = datahist->Integral();
+      const double   signum   = sighist->Integral();
+      const double   sigscale = datanum / signum / 2.;
       if( sighist->Integral() < datahist->Integral() /4.0 ){
          sighist->Scale( sigscale );
       }
@@ -101,23 +98,6 @@ Normalize( SampleHistMgr* data, vector<SampleHistMgr*>& bgstack )
          mgr->Hist( histname )->Scale( scale );
       }
    }
-}
-
-
-
-/*******************************************************************************
-*   Plotting Helper functions
-*******************************************************************************/
-Parameter
-GetBkgYield( const vector<SampleHistMgr*>& bkg )
-{
-   Parameter ans;
-
-   for( const auto& sample : bkg ){
-      ans += sample->ExpectedYield();
-   }
-
-   return ans;
 }
 
 /******************************************************************************/
@@ -225,6 +205,8 @@ MakePlot(
    const std::vector<std::string>& taglist
    )
 {
+   if( datahist->Integral() == 0 ) { return ; }
+
    TCanvas* c = plt::NewCanvas();
 
    const double xmin = datahist->GetXaxis()->GetXmin();
@@ -244,8 +226,8 @@ MakePlot(
    // Drawing bottom canvas
    TPad* pad2      = plt::NewBottomPad();
    TLine* line     = new TLine( xmin, 1, xmax, 1 );
-   TLine* line_top = new TLine( xmin, 2, xmax, 2 );
-   TLine* line_bot = new TLine( xmin, 0, xmax, 0 );
+   TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
+   TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
    pad2->Draw();
    pad2->cd();
    datarel->Draw( "axis" );
@@ -270,8 +252,8 @@ MakePlot(
    plt::SetBottomPlotAxis( datarel );
    datarel->GetXaxis()->SetTitle( sighist->GetXaxis()->GetTitle() );
    datarel->GetYaxis()->SetTitle( "#frac{Data}{MC}" );
-   datarel->SetMaximum( 2.2 );
-   datarel->SetMinimum( -0.2 );
+   datarel->SetMaximum( 1.6 );
+   datarel->SetMinimum( 0.4 );
    line->SetLineColor( kRed );
    line->SetLineStyle( 1 );
    line_top->SetLineColor( kBlack );
@@ -283,17 +265,17 @@ MakePlot(
    plt::DrawCMSLabel();
    plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
    TPaveText* tb = plt::NewTextBox( 0.12, 0.88, 0.30, 0.94 );
-   tb->AddText( compare_namer.GetChannelEXT( "Root Name" ).c_str() );
+   tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
    tb->Draw();
 
    // setting ranges and saving plots
    const double ymax = plt::GetYmax( {bkgerror, datahist, sighist} );
    stack->SetMaximum( ymax * 1.2 );
 
-   plt::SaveToPDF( c, compare_namer.PlotFileName( filenametag, taglist ) );
+   plt::SaveToPDF( c, compnamer.PlotFileName( filenametag, taglist ) );
    plt::SaveToROOT( c,
-      compare_namer.PlotRootFile(),
-      compare_namer.MakeFileName("",filenametag,taglist )
+      compnamer.PlotRootFile(),
+      compnamer.MakeFileName("",filenametag,taglist )
    );
 
    // Saving Logged version for comparison
@@ -302,7 +284,7 @@ MakePlot(
    pad1->SetLogy();
    stack->SetMaximum( ymax * 30 );
    stack->SetMinimum( 0.3 );
-   plt::SaveToPDF( c, compare_namer.PlotFileName( filenametag, newtaglist ) );
+   plt::SaveToPDF( c, compnamer.PlotFileName( filenametag, newtaglist ) );
 
    delete pad1;
    delete pad2;

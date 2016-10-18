@@ -20,7 +20,7 @@ options = opts.VarParsing('analysis')
 
 options.register(
     'sample',
-    'file:///afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg.root',
+    'file:///afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg_2.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -35,20 +35,21 @@ options.register(
 )
 
 options.register(
-    'Mode',
-    '',
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'Filter operation'
-)
-
-options.register(
     'GlobalTag',
     '80X_mcRun2_asymptotic_2016_miniAODv2_v1',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Global Tag to use'
 )
+
+options.register(
+    'Mode',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Lepton mode to use'
+)
+
 options.register(
     'HLT',
     '',
@@ -85,31 +86,33 @@ process.source = cms.Source(
 )
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
-# process.options.allowUnscheduled = cms.untracked.bool(True)
 
 #-------------------------------------------------------------------------
 #   Importing HLT Filter
 #-------------------------------------------------------------------------
-requiredHLTs = []
-
-
 if options.HLT:
-    if options.Mode == 'MuonSignal':  # Muon Channel
-        requiredHLTs = ['HLT_IsoMu27_v*']
-    elif options.Mode == 'ElectronSignal':  # Electron Channel
-        requiredHLTs = ['HLT_Ele27_WPTight_Gsf_v*']
-    else:
-        print "Mode not recognized!"
-        sys.exit(1)
+    print "Defining HLT selection...."
     from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+    requiredHLT = []
+
+    if options.Mode == "Muon":
+        requiredHLT = ['HLT_IsoMu27_v*']
+    elif options.Mode == "Electron":
+        requiredHLT = ['HLT_Ele27_WPTight_Gsf_v*']
+    else:
+        print "[ERROR!!] Unrecognized mode [", options.Mode, "]!!"
+        sys.exit(1)
+
     process.hltfilter = hltHighLevel.clone(
         TriggerResultsTag=options.HLT,
-        HLTPaths=requiredHLTs
+        andOr=True, ## Running in or mode
+        HLTPaths=requiredHLT
     )
 
 #-------------------------------------------------------------------------------
 #   Importing Electron VID maps
 #-------------------------------------------------------------------------------
+print "Loading electron ID processes..."
 switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 elecIDModules = [
     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'
@@ -118,9 +121,25 @@ elecIDModules = [
 for mod in elecIDModules:
     setupAllVIDIdsInModule(process, mod, setupVIDElectronSelection)
 
+#-------------------------------------------------------------------------
+#   Load self written filters
+#-------------------------------------------------------------------------
+print "Loading main filter...."
+process.load("TstarAnalysis.BaseLineSelector.Filter_cfi")
+
+if options.Mode == "Muon":
+    process.leptonSeparator.reqmuon = cms.int32(1)
+elif options.Mode == 'Electron':
+    process.leptonSeparator.reqelec = cms.int32(1)
+else:
+    print "[ERROR!!] Unrecognized option [", options.Mode, "]!"
+    sys.exit(1)
+
+
 #-------------------------------------------------------------------------------
-#   Importing METFilters
+#   Loading met filtering processes
 #-------------------------------------------------------------------------------
+print "Loading met filtering processes....."
 process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
 process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
 process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
@@ -129,42 +148,87 @@ process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
 process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
 process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
-#-------------------------------------------------------------------------
-#   Load Self Written Filters
-#-------------------------------------------------------------------------
-print "Loading main filter\n\n"
-process.load("TstarAnalysis.BaseLineSelector.Filter_cfi")
-process.tstarFilter.runMode = cms.string(options.Mode)
-
-
+process.seqMET = cms.Sequence(
+    process.BadPFMuonFilter
+    * process.BadChargedCandidateFilter
+    * process.METFilter
+)
 
 #-------------------------------------------------------------------------
-#   Load Self written producers
+#   Load selected object producers
 #-------------------------------------------------------------------------
-print "Loading producers\n\n"
+print "Loading producers...."
 process.load("TstarAnalysis.BaseLineSelector.Producer_cfi")
-process.selectedElectrons.vetoMap = cms.InputTag(
-    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
-process.selectedElectrons.looseMap = cms.InputTag(
-    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
-process.selectedElectrons.mediumMap = cms.InputTag(
-    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
-process.selectedElectrons.tightMap = cms.InputTag(
-    "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
 
 if options.HLT:
-    process.selectedMuons.hltsrc = cms.InputTag(options.HLT)
-    process.selectedMuons.reqtrigger = cms.string(requiredHLTs[0].strip('*'))
-    process.selectedElectrons.hltsrc = cms.InputTag(options.HLT)
-    process.selectedElectrons.reqtrigger = cms.string(
-        requiredHLTs[0].strip('*'))
+    if options.Mode == "Muon":
+        process.selectedMuons.runtrigger = cms.bool(True)
+    elif options.Mode == "Electron":
+        process.selectedElectrons.runtrigger = cms.bool(True)
+    else:
+        print "[ERROR!!] Unrecognized option [", options.Mode, "]!"
+        sys.exit(1)
 
+process.seqObjProduce = cms.Sequence(
+    process.selectedMuons
+    * process.skimmedPatMuons
+    * process.egmGsfElectronIDSequence
+    * process.selectedElectrons
+    * process.skimmedPatElectrons
+    * process.selectedJets
+    * process.skimmedPatJets
+)
 
 #-------------------------------------------------------------------------
 #   Load counters
 #-------------------------------------------------------------------------
-print "Loading counters\n\n"
+print "Loading counters...."
 process.load("TstarAnalysis.BaseLineSelector.Counter_cfi")
+
+#-------------------------------------------------------------------------
+#   Load event weighting
+#-------------------------------------------------------------------------
+print "Loading event weighers...."
+process.load("TstarAnalysis.EventWeight.EventWeighter_cfi")
+
+process.seqWeight = cms.Sequence(
+    (
+        process.ElectronWeight
+        + process.MuonWeight
+        + process.PileupWeight
+        + process.PileupWeightBestFit
+        + process.PileupWeightXsecup
+        + process.PileupWeightXsecdown
+        + process.BtagWeight
+    )
+    * process.EventWeight
+    * process.EventWeightSum
+    * process.TopPtWeight
+    * process.TopPtWeightSum
+)
+
+#-------------------------------------------------------------------------------
+#   Defining process paths
+#-------------------------------------------------------------------------------
+print "Defining process path...."
+if options.HLT:
+    process.myfilterpath = cms.Path(
+        process.beforeAny
+        * process.hltfilter
+        * process.afterHLT
+        * process.seqMET
+        * process.seqObjProduce
+        * process.leptonSeparator
+        * process.seqWeight
+    )
+else:
+    process.myfilterpath = cms.Path(
+        process.beforeAny
+        * process.seqMET
+        * process.seqObjProduce
+        * process.leptonSeparator
+        * process.seqWeight
+    )
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -186,44 +250,9 @@ process.edmOut = cms.OutputModule(
         "keep *_skimmedPatJets_*_*",
         "keep *_slimmedAddPileupInfo_*_*",
         "keep edmMergeableCounter_*_*_*",
+        "keep *_*Weight*_*_*",
     ),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))
 )
-
-if options.HLT:
-    process.myfilterpath = cms.Path(
-        process.beforeAny
-        * process.hltfilter
-        * process.afterHLT
-        * process.BadPFMuonFilter
-        * process.BadChargedCandidateFilter
-        * process.METFilter
-        * process.selectedMuons
-        * process.skimmedPatMuons
-        * process.egmGsfElectronIDSequence
-        * process.selectedElectrons
-        * process.skimmedPatElectrons
-        * process.selectedJets
-        * process.skimmedPatJets
-        * process.tstarFilter
-        * process.afterBaseLine
-    )
-else:
-    process.myfilterpath = cms.Path(
-        process.beforeAny
-        * process.BadPFMuonFilter
-        * process.BadChargedCandidateFilter
-        * process.METFilter
-        * process.selectedMuons
-        * process.skimmedPatMuons
-        * process.egmGsfElectronIDSequence
-        * process.selectedElectrons
-        * process.skimmedPatElectrons
-        * process.selectedJets
-        * process.skimmedPatJets
-        * process.tstarFilter
-        * process.afterBaseLine
-    )
-
 
 process.endPath = cms.EndPath(process.edmOut)

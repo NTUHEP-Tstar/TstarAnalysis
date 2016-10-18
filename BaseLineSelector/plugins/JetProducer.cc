@@ -16,7 +16,8 @@ JetProducer::JetProducer( const edm::ParameterSet& iConfig ) :
    _jetsrc( GETTOKEN( iConfig , JetList, "jetsrc" ) ),
    _muonsrc( GETTOKEN( iConfig, MuonList, "muonsrc" ) ),
    _electronsrc( GETTOKEN( iConfig, ElectronList, "electronsrc" ) ),
-   _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) )
+   _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) ),
+   _minjet( iConfig.getParameter<int>("minjet") )
 {
    produces<JetList>();
 }
@@ -60,7 +61,7 @@ JetProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
    }
 
    // Jet Selection criteria
-   if( selectedJets->size() < 6 ){ return false; }
+   if( selectedJets->size() < _minjet ){ return false; }
 
    // Caching and storing jets
    for( auto& jet : *selectedJets ){

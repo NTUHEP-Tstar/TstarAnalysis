@@ -19,7 +19,9 @@ ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
    _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) ),
    _hltsrc( GETTOKEN( iconf, TriggerResults, "hltsrc" ) ),
    _triggerobjsrc( GETTOKEN( iconf, TriggerObjList, "trgobjsrc" ) ),
-   _reqtrigger( iconf.getParameter<std::string>( "reqtrigger" ) )
+   _reqtrigger( iconf.getParameter<std::string>( "reqtrigger" ) ),
+   _reqfilter( iconf.getParameter<std::string>( "reqfilter" ) ),
+   _runtriggermatch( iconf.getParameter<bool>( "runtrigger" ) )
 {
    produces<ElectronList>();
 }

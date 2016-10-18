@@ -10,6 +10,6 @@
 
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 
-extern TstarNamer compare_namer;// see src/Compare_Common.cc
+extern TstarNamer compnamer;// see src/Compare_Common.cc
 
 #endif/* end of include guard: TSTARANALYSIS_COMPAREDATAMC_COMPARECOMMON_HPP */

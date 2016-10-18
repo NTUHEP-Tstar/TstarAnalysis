@@ -47,12 +47,14 @@ private:
    edm::Handle<std::vector<pat::Electron> > _electronHandle;
    edm::Handle<double> _rhoHandle;
 
+   const unsigned _minjet ; 
+
    // Jet energy resolution and correction handler
    edm::ESHandle<JetCorrectorParametersCollection> _jetcorHandle;
-   std::unique_ptr<JetCorrectionUncertainty> _jecunc;
-   std::unique_ptr<JME::JetResolution> _jetptres;
-   std::unique_ptr<JME::JetResolution> _jetphires;
-   std::unique_ptr<JME::JetResolutionScaleFactor> _jetressf;
+   std::unique_ptr<JetCorrectionUncertainty>       _jecunc;
+   std::unique_ptr<JME::JetResolution>             _jetptres;
+   std::unique_ptr<JME::JetResolution>             _jetphires;
+   std::unique_ptr<JME::JetResolutionScaleFactor>  _jetressf;
 
    // Helper variables, see src/JetSelection.cc
    bool           IsSelectedJet( const pat::Jet&, const bool isdata ) const;

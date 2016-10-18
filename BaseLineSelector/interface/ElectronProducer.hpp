@@ -47,15 +47,16 @@ private:
 
    edm::Handle<std::vector<pat::Electron>> _electronHandle;
    edm::Handle<pat::PackedCandidateCollection> _packedHandle;
-
    edm::Handle<edm::ValueMap<bool> > _vetoMapHandle;
    edm::Handle<edm::ValueMap<bool> > _looseMapHandle;
    edm::Handle<edm::ValueMap<bool> > _mediumMapHandle;
    edm::Handle<edm::ValueMap<bool> > _tightMapHandle;
-
    edm::Handle<edm::TriggerResults> _hltHandle;
    edm::Handle<pat::TriggerObjectStandAloneCollection> _trigobjHandle;
+
    const std::string _reqtrigger;
+   const std::string _reqfilter;
+   const bool        _runtriggermatch;
 
    // Helper functions: see src/ElectronSelection.cc
    bool IsSelectedElectron(

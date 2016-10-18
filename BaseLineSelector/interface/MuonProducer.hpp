@@ -21,11 +21,6 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include <vector>
 
-typedef std::vector<pat::Muon> MuonList;
-
-// ------------------------------------------------------------------------------
-//   Class Definition
-// ------------------------------------------------------------------------------
 class MuonProducer : public edm::stream::EDFilter<>
 {
 public:
@@ -53,12 +48,14 @@ private:
    edm::Handle<edm::TriggerResults> _hltHandle;
    edm::Handle<pat::TriggerObjectStandAloneCollection> _triggerObjectHandle;
    const std::string _reqtrigger;
+   const std::string _reqfilter;
+   const bool        _runtriggermatch;
 
    // Helper private functions, see src/MuonSelction.cc
    bool GetPrimaryVertex();
    bool IsSelectedMuon( const pat::Muon&, const edm::Event& ) const;
-   bool IsVetoMuon( const pat::Muon&, const edm::Event& ) const;
-   void AddMuonVariables( pat::Muon&, const edm::Event& )   const;
+   bool IsVetoMuon( const pat::Muon&, const edm::Event& )     const;
+   void AddMuonVariables( pat::Muon&, const edm::Event& )     const;
 };
 
 

@@ -60,7 +60,7 @@ MuonWeight = cms.EDProducer(
 BtagWeight = cms.EDProducer(
     "BtagWeight",
     jetsrc   = cms.InputTag('skimmedPatJets'),
-    btagfile = cms.FileInPath("TstarAnalysis/Common/data/CSVv2_ichep.csv"),
+    btagfile = cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
 )
 
 #-------------------------------------------------------------------------------
@@ -71,9 +71,15 @@ TopPtWeight = cms.EDProducer(
     gensrc = cms.InputTag( 'prunedGenParticles' ),
     a = cms.double(0.159),
     b = cms.double(-0.00141),
-    ptmin = cms.double(0),
-    ptmax = cms.double(400)
+    minpt = cms.double(0),
+    maxpt = cms.double(400)
 )
+
+TopPtWeightSum = cms.EDProducer(
+    "WeightSum",
+    weightsrc = cms.InputTag('TopPtWeight', 'TopPtWeight' )
+)
+
 
 #-------------------------------------------------------------------------------
 #   Total weight ( excluding TopPt weights )
@@ -85,4 +91,9 @@ EventWeight = cms.EDProducer(
     muonwsrc = cms.InputTag( 'MuonWeight' ,    'MuonWeight' ),
     puwsrc   = cms.InputTag( 'PileupWeight',   'PileupWeight' ),
     btagsrc  = cms.InputTag( 'BtagWeight',     'BtagWeight' ),
+)
+
+EventWeightSum = cms.EDProducer(
+    "WeightSum",
+    weightsrc = cms.InputTag( 'EventWeight', 'EventWeight' )
 )

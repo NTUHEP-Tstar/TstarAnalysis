@@ -104,7 +104,7 @@ PlotErrCompare(
 
 
    TPaveText* tb = plt::NewTextBox( 0.12, 0.88, 0.30, 0.94 );
-   tb->AddText( compare_namer.GetChannelEXT( "Root Name" ).c_str() );
+   tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
    tb->Draw();
 
    TLatex ltx;
@@ -121,18 +121,18 @@ PlotErrCompare(
    // cleaning up
    if( listname.find( "Data" ) != string::npos ){
       plt::DrawCMSLabel( PRELIMINARY );
-      const mgr::ConfigReader cfg( compare_namer.MasterConfigFile() );
+      const mgr::ConfigReader cfg( compnamer.MasterConfigFile() );
       plt::DrawLuminosity( cfg.GetStaticDouble( "Total Luminosity" ) );
    } else {
       plt::DrawCMSLabel( SIMULATION );
    }
 
-   plt::SaveToPDF( c, compare_namer.PlotFileName( "errcomp", {listname, histname, err.tag} ) );
+   plt::SaveToPDF( c, compnamer.PlotFileName( "errcomp", {listname, histname, err.tag} ) );
    plt::SaveToROOT(
       c,
-      compare_namer.PlotRootFile(),
-      compare_namer.MakeFileName( "", "errcomp", {listname, histname, err.tag} )
-   );
+      compnamer.PlotRootFile(),
+      compnamer.MakeFileName( "", "errcomp", {listname, histname, err.tag} )
+      );
 
    delete tl;
    delete uprel;
@@ -165,8 +165,8 @@ MakeFullComparePlot(
       TH1D* sighist  = (TH1D*)signalmgr->Hist( histname )->Clone();
 
       // Scaling signal plot for clarity
-      const unsigned datanum = datamgr->EventsInFile();
-      const double signum    = signalmgr->ExpectedYield();
+      const unsigned datanum = datahist->Integral();
+      const double signum    = sighist->Integral();
       const double sigscale  = datanum / signum / 2.;
       if( sighist->Integral() < datahist->Integral() /4.0 ){
          sighist->Scale( sigscale );

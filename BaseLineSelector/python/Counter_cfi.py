@@ -13,9 +13,3 @@ afterHLT = cms.EDProducer(
     lhesrc=cms.InputTag("externalLHEProducer"),
     label=cms.string("After HLT selection"),
 )
-
-afterBaseLine = cms.EDProducer(
-    "WeightCounter",
-    lhesrc=cms.InputTag("externalLHEProducer"),
-    label=cms.string("After all selections"),
-)

@@ -22,8 +22,9 @@ public:
    SampleErrHistMgr( const std::string&, const mgr::ConfigReader& );
    ~SampleErrHistMgr();
 
+   void FillFromSample( mgr::SampleMgr& );
+
 private:
-   void fill_histograms( mgr::SampleMgr& );
    void define_hist();
 
    void AddErrHists(

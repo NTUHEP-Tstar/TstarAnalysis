@@ -17,14 +17,13 @@ MuonProducer::MuonProducer( const edm::ParameterSet& iConfig ) :
    _muonsrc( GETTOKEN( iConfig,  MuonList,  "muonsrc" ) ),
    _hltsrc( GETTOKEN( iConfig,  TriggerResults, "hltsrc" ) ),
    _triggerobjsrc( GETTOKEN( iConfig, TriggerObjList, "trgobjsrc" ) ),
-   _reqtrigger( iConfig.getParameter<std::string>( "reqtrigger" ) )
+   _reqtrigger( iConfig.getParameter<std::string>( "reqtrigger" ) ),
+   _reqfilter( iConfig.getParameter<std::string>( "reqfilter" ) ),
+   _runtriggermatch( iConfig.getParameter<bool>( "runtrigger" ) )
 {
    produces<MuonList>();
 }
 
-MuonProducer::~MuonProducer()
-{
-}
 
 bool
 MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
@@ -66,10 +65,13 @@ MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 
+/*******************************************************************************
+*   Generic Plugin requirements
+*******************************************************************************/
+MuonProducer::~MuonProducer()
+{
+}
 
-// ------------------------------------------------------------------------------
-//   EDM Plugin requirements
-// ------------------------------------------------------------------------------
 void
 MuonProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {

@@ -26,8 +26,7 @@
 // ------------------------------------------------------------------------------
 //   Class Definition
 // ------------------------------------------------------------------------------
-class EventWeight :
-   public edm::one::EDProducer<edm::one::WatchRuns, edm::EndRunProducer>
+class EventWeight : public edm::EDProducer
 {
 public:
    explicit
@@ -36,9 +35,6 @@ public:
 
 private:
    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-   virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
-   virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
-   virtual void endRunProduce( edm::Run&, const edm::EventSetup& ) override;
 
    const edm::EDGetToken _elecwsrc;
    const edm::EDGetToken _muonwsrc;
@@ -51,101 +47,54 @@ private:
    edm::Handle<double> _puwhandle;
    edm::Handle<double> _btaghandle;
 
-   bool _isdata;
-   double _weightsum;
 };
 using namespace edm;
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Constructor and destructor
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Constructor
+*******************************************************************************/
 EventWeight::EventWeight( const edm::ParameterSet& iConfig ) :
    _elecwsrc( GETTOKEN( iConfig, double,  "elecwsrc" ) ),
-   _muonwsrc( GETTOKEN( iConfig, double, "muonwsrc" ) ),
-   _puwsrc( GETTOKEN( iConfig, double, "puwsrc" ) ),
-   _btagsrc( GETTOKEN( iConfig, double, "btagsrc" ) ),
-   _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) ),
-   _isdata( false )
+   _muonwsrc( GETTOKEN( iConfig, double,  "muonwsrc" ) ),
+   _puwsrc( GETTOKEN( iConfig, double,  "puwsrc"   ) ),
+   _btagsrc( GETTOKEN( iConfig, double,  "btagsrc"  ) ),
+   _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) )
 {
-   produces<double>(             "EventWeight" );
-
-   produces<double, edm::InRun>( "WeightSum" );
+   produces<double>( "EventWeight" );
 }
 
 EventWeight::~EventWeight(){}
 
-// ------------------------------------------------------------------------------
-//   Main Control flow
-// ------------------------------------------------------------------------------
-void
-EventWeight::beginRun( const edm::Run&, const edm::EventSetup& )
-{
-   _weightsum = 0;
-}
-
-/******************************************************************************/
-
+/*******************************************************************************
+*   Main control flow
+*******************************************************************************/
 void
 EventWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   if( iEvent.isRealData() ){ _isdata = true;  return; }// Don't do anything for data
-   _isdata = false;
-
+   if( iEvent.isRealData() ){ return; }// Don't do anything for data
 
    auto_ptr<double> weightptr( new double(1.) );
    double& eventweight = *weightptr;
 
-   // Multilpying by electron weights, skipping over if doesn't exist
-   try {
-      iEvent.getByToken( _elecwsrc, _elecwhandle );
-      eventweight *= *_elecwhandle;
-   } catch( std::exception ){
-   }
+   iEvent.getByToken( _elecwsrc, _elecwhandle );
+   iEvent.getByToken( _muonwsrc, _muonwhandle );
+   iEvent.getByToken( _puwsrc,   _puwhandle   );
+   iEvent.getByToken( _btagsrc,  _btaghandle );
+   iEvent.getByToken( _lhesrc,   _lheHandle );
 
-   // Multiplying by muon weights, skipping over if doesn't exist
-   try {
-      iEvent.getByToken( _muonwsrc, _muonwhandle );
-      eventweight *= *_muonwhandle;
-   } catch( std::exception ){
-   }
-
-   // Pileup weight should definitely exist
-   iEvent.getByToken( _puwsrc, _puwhandle   );
+   // weights that should definitely exists
    eventweight *= *_puwhandle;
-
-   // B tag weights should definitely exist
-   iEvent.getByToken( _btagsrc, _btaghandle );
    eventweight *= *_btaghandle;
 
-   // Try to get LHE information
-   try {
-      iEvent.getByToken( _lhesrc, _lheHandle );
-      if( _lheHandle->hepeup().XWGTUP <= 0 ){
-         eventweight *= -1.;
-      }
-   } catch( std::exception ){
+   if( _elecwhandle.isValid() ){ eventweight *= *_elecwhandle; }
+   if( _muonwhandle.isValid() ){ eventweight *= *_muonwhandle; }
+   if( _lheHandle.isValid() && _lheHandle->hepeup().XWGTUP <= 0 ){
+      eventweight *= -1.;
    }
 
+   // Will not be caching Scaled up event weight
    iEvent.put( weightptr, "EventWeight" );
-   _weightsum += eventweight;
-}
-
-/******************************************************************************/
-
-void
-EventWeight::endRun( const edm::Run&, const edm::EventSetup& )
-{
-}
-
-/******************************************************************************/
-
-void
-EventWeight::endRunProduce( edm::Run& iRun, const EventSetup& iSetup )
-{
-   if( _isdata ){ return; }
-   auto_ptr<double> ptr( new double(_weightsum) );
-   iRun.put( ptr, "WeightSum" );
 }
 
 /******************************************************************************/

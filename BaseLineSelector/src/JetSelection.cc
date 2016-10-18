@@ -8,8 +8,10 @@
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
 #include "TstarAnalysis/BaseLineSelector/interface/JetProducer.hpp"
 
-#include "TRandom3.h"
+#include <random>
 #include <iostream>
+
+using namespace std;
 
 bool
 JetProducer::IsSelectedJet( const pat::Jet& jet, const bool isdata ) const
@@ -56,10 +58,7 @@ JetProducer::IsSelectedJet( const pat::Jet& jet, const bool isdata ) const
 /*****************************************************************************/
 
 void
-JetProducer::AddJetVariables(
-   pat::Jet&  jet,
-   const bool is_data
-   )
+JetProducer::AddJetVariables( pat::Jet& jet, const bool is_data )
 {
    // Caching jet correction uncertainty
    _jecunc->setJetPt( jet.pt() );
@@ -126,33 +125,38 @@ JetProducer::MakeScaled( const pat::Jet& jet ) const
 
 // Hack for converting the jet phi to a unsigned seed with bitwise conversion
 // Required for consistant jet smearing for the same jet across multiple calles
-union MyConv
+unsigned bitconv( const float x )
 {
-   float    thefloat;
-   unsigned theint;
-};
+   const void* temp = &x;
+   return *((const unsigned *)(temp));
+}
 
 TLorentzVector
 JetProducer::MakeSmeared( const pat::Jet& jet ) const
 {
-   MyConv seeder;
-   TRandom3 ran;
-   seeder.thefloat = jet.phi();
-   ran.SetSeed( seeder.theint );
-
    // Getting normal
    const double res   = GetJetPtRes( jet );
    const double ressf = GetJetResScale( jet );
-   const double width = sqrt( ressf*ressf -1 ) * res;
-   const double newpt = ran.Gaus( jet.pt(), width );
-   const double scale = jet.pt() / newpt;
+   const double width = ressf > 1 ?
+      sqrt( ressf*ressf-1 ) * res : 0 ; 
+
+   // Generating random number
+   std::default_random_engine gen(bitconv(jet.phi()));
+   std::normal_distribution<double> myrand( jet.pt(), width );
+   const double newpt = myrand(gen);
+
+   // Anonymouns namespace require (bug in gcc530)
+   const double scale = newpt/jet.pt();
    const TLorentzVector jetp4( jet.px(), jet.py(), jet.pz(), jet.energy() );
 
-   if( scale <= 0 ){
+   if( scale <= 0 || ::isnan(scale)){
       std::cout << "Weird jet scaling found!" << std::endl;
+      cout << bitconv(jet.phi()) << endl;
+      return jetp4;
+   } else {
+      return jetp4 * scale;
    }
 
-   return jetp4 * scale;
 }
 
 /*****************************************************************************/

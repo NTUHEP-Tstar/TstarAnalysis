@@ -10,6 +10,7 @@
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+
 #include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"
 
 #include <boost/program_options.hpp>
@@ -33,43 +34,43 @@ main( int argc, char* argv[] )
       ( "channel,c", opt::value<string>(), "What channel to run" )
    ;
 
-   const int parse = compare_namer.LoadOptions( desc, argc, argv );
+   const int parse = compnamer.LoadOptions( desc, argc, argv );
    if( parse == OptsNamer::PARSE_ERROR ){ return 1; }
    if( parse == OptsNamer::PARSE_HELP ){ return 0; }
 
-   InitSampleStatic( compare_namer );
+   InitSampleStatic( compnamer );
 
-   const ConfigReader master( compare_namer.MasterConfigFile() );
+   const ConfigReader master( compnamer.MasterConfigFile() );
 
 
    /******************************************************************************/
    cout << "Declaring sample groups...." << endl;
 
-   SampleGroup* data = new SampleGroup( compare_namer.GetChannelEXT( "Data Tag" ), master );
-   vector<SampleGroup*> siglist;
-   vector<SampleGroup*> bkglist;
+   SampleGroup data( compnamer.GetChannelEXT( "Data Tag" ), master );
+   vector<SampleGroup> siglist;
+   vector<SampleGroup> bkglist;
 
    for( const auto& tag : master.GetStaticStringList( "Signal List" ) ){
-      siglist.push_back( new SampleGroup( tag, master ) );
+      siglist.push_back( SampleGroup( tag, master ) );
    }
 
 
    for( const auto& tag : master.GetStaticStringList( "Background List" ) ){
-      bkglist.push_back( new SampleGroup( tag, master ) );
+      bkglist.push_back( SampleGroup( tag, master ) );
    }
 
 
    /******************************************************************************/
    cout << "Re-computing the selection efficiencies and caching variables!" << endl;
 
-   InitGroupForTable( *data );
+   InitGroupForTable( data );
 
    for( auto& group : bkglist ){
-      InitGroupForTable( *group );
+      InitGroupForTable( group );
    }
 
    for( auto& group : siglist ){
-      InitGroupForTable( *group );
+      InitGroupForTable( group );
    }
 
    /******************************************************************************/
@@ -83,18 +84,6 @@ main( int argc, char* argv[] )
    cout << "Making lumi summary table...." << endl;
    SummaryMCLumi( siglist, bkglist );
 
-
-   /******************************************************************************/
-   // Cleaning up and leaving
-   delete data;
-
-   for( auto sample : bkglist ){
-      delete sample;
-   }
-
-   for( auto sample : siglist ){
-      delete sample;
-   }
 
    return 0;
 }

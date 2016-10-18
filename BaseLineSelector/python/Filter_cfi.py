@@ -7,9 +7,10 @@ METFilter = cms.EDFilter(
     recotrgsrc  = cms.InputTag("TriggerResults","","RECO")
 )
 
-tstarFilter = cms.EDFilter(
-    "BaseLineSelector",
+leptonSeparator = cms.EDFilter(
+    "LeptonSeparator",
     muonsrc=cms.InputTag("selectedMuons"),
     electronsrc=cms.InputTag("selectedElectrons"),
-    jetsrc=cms.InputTag("selectedJets"),
+    reqmuon = cms.int32(0),
+    reqelec = cms.int32(0)
 )

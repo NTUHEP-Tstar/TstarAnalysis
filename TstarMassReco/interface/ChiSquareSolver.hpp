@@ -19,6 +19,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
@@ -43,7 +44,9 @@ public:
    void RunPermutations();
    void ClearAll();
 
-   const std::vector<RecoResult>& ResultList() const { return _resultsList; }
+   const std::vector<RecoResult>&
+   ResultList() const { return _resultsList; }
+
    const RecoResult& BestResult() const;
    void              AddResult( const double, const double, const unsigned );
 
@@ -58,11 +61,14 @@ private:
    std::vector<RecoResult> _resultsList;
    TLorentzVector _neutrino[2];// Two possible solution for neutrino
 
+   // b tag check
+   const BTagChecker _bcheck;
+
    // Operatation flags
    const unsigned _debug;
    const unsigned _max_jets;
    const unsigned _req_b_jets;
-   bool _is_data;
+   bool           _is_data;
 
    // Helper functions
    void           solveNeutrino();

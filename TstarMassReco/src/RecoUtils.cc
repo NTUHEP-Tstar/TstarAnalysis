@@ -67,7 +67,7 @@ GetJESMET( const std::vector<const pat::Jet*>& jetlist, double& scaleup, double&
 FitParticle
 MakeResultJet( const pat::Jet* jet, int x )
 {
-   static BTagChecker bcheck( "check", CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" );
+   static BTagChecker bcheck( "check", CMSSWSrc() + "TstarAnalysis/EventWeight/data/CSVv2_ichep.csv" );
 
    FitParticle ans;
    ans.P4( tstar::original ) = GetLorentzVector( *jet, "ResP4" );

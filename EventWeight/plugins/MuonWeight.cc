@@ -9,13 +9,6 @@
 *
 *******************************************************************************/
 
-// system include files
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-// user include files
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -26,11 +19,16 @@
 #include "ManagerUtils/EDMUtils/interface/TFileUtils.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "TAxis.h"
 #include "TEfficiency.h"
 #include "TFile.h"
 #include "TH2D.h"
-
 
 /*******************************************************************************
 *   Class definition
@@ -182,6 +180,5 @@ MuonWeight::getweightParam( const TEfficiency* eff, double pt, double eta ) cons
       eff->GetEfficiencyErrorLow( binidx )
       );
 }
-
 
 DEFINE_FWK_MODULE( MuonWeight );

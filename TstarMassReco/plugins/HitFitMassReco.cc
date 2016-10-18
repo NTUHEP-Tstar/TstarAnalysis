@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
+#include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 #include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/HitFitter.hpp"
@@ -50,20 +51,20 @@ private:
    edm::Handle<ElectronList> _elecHandle;
    edm::Handle<JetList> _jetHandle;
 
-   HitFitter _hitfitter;
    BTagChecker _check;
+   HitFitter _hitfitter;
 };
 
 // ------------------------------------------------------------------------------
 //   Constructor and Desctructor
 // ------------------------------------------------------------------------------
 HitFitMassReco::HitFitMassReco( const edm::ParameterSet& iConfig ) :
-   _metsrc( consumes<METList>( iConfig.getParameter<edm::InputTag>( "metsrc" ) ) ),
-   _muonsrc( consumes<MuonList>( iConfig.getParameter<edm::InputTag>( "muonsrc" ) ) ),
-   _elecsrc( consumes<ElectronList>( iConfig.getParameter<edm::InputTag>( "electronsrc" ) ) ),
-   _jetsrc( consumes<JetList>( iConfig.getParameter<edm::InputTag>( "jetsrc" ) ) ),
-   _hitfitter( iConfig ),
-   _check( "check", CMSSWSrc() + "TstarAnalysis/Common/settings/btagsf.csv" )
+   _metsrc( GETTOKEN( iConfig, METList,  "metsrc" ) ),
+   _muonsrc( GETTOKEN( iConfig, MuonList, "muonsrc" ) ),
+   _elecsrc( GETTOKEN( iConfig, ElectronList, "electronsrc" ) ),
+   _jetsrc( GETTOKEN( iConfig, JetList, "jetsrc" ) ),
+   _check( "check", GETFILEPATH( iConfig, "btagfile" ) ),
+   _hitfitter( iConfig )
 {
    produces<RecoResult>( "HitFitResult" ).setBranchAlias( "HitFitResult" );
 }

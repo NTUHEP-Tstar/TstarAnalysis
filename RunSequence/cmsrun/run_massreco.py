@@ -1,17 +1,20 @@
-import FWCore.ParameterSet.Config as cms
+#*******************************************************************************
+ #
+ #  Filename    : run_massreco.py
+ #  Description : Python file for CMSRUN for production mass reconstruction
+ #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+ #
+#*******************************************************************************
 
-#-------------------------------------------------------------------------
-#   Option parsing
-#-------------------------------------------------------------------------
+import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as opts
-import glob
 import sys
 
 options = opts.VarParsing('analysis')
 
 options.register(
     'sample',
-    'file://tstarBaseline.root',
+    '/store/user/yichen/tstar_store/tstarbaseline/Muon/TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_0.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Files to process'
@@ -31,6 +34,14 @@ options.register(
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Lumi Mask to apply'
+)
+
+options.register(
+    'Mode',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Mode of for tstar reconstruction (Control and Signal)'
 )
 
 options.setDefault('maxEvents', 1000)
@@ -58,11 +69,30 @@ if options.lumimask :
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList( filename=options.lumimask ).getVLuminosityBlockRange()
 
+#-------------------------------------------------------------------------------
+#   Loading addtional selection
+#-------------------------------------------------------------------------------
+import TstarAnalysis.TstarMassReco.ControlJetSelector_cfi as mysel
+
+if "Control" in options.Mode :
+    process.jetselector = mysel.controlregion
+elif "Signal" in options.Mode :
+    process.jetselector = mysel.signalregion
+else:
+    print "ERROR! Input Mode: [", options.Mode, "] not recognized!"
+    sys.exit(1)
+
+#-------------------------------------------------------------------------------
+#   Reloading the event weight summation
+#-------------------------------------------------------------------------------
+import TstarAnalysis.EventWeight.EventWeighter_cfi as myweights
+process.TopPtWeightSum = myweights.TopPtWeightSum
+process.EventWeightSum = myweights.EventWeightSum
+
 #-------------------------------------------------------------------------
 #   Load default Settings
 #-------------------------------------------------------------------------
 process.load("TstarAnalysis.TstarMassReco.Producer_cfi")
-process.load("TstarAnalysis.EventWeight.EventWeighter_cfi")
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -72,6 +102,8 @@ process.edmOut = cms.OutputModule(
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "keep *",
+        "drop *_*WeightSum*_*_*",
+        "keep *_*WeightSum*_*_TstarMassReco"
     ),
     SelectEvents=cms.untracked.PSet(
         SelectEvents=cms.vstring('path')
@@ -79,16 +111,10 @@ process.edmOut = cms.OutputModule(
 )
 
 process.path = cms.Path(
-    process.tstarMassReco
-    * (process.ElectronWeight
-        + process.MuonWeight
-        + process.PileupWeight
-        + process.PileupWeightBestFit
-        + process.PileupWeightXsecup
-        + process.PileupWeightXsecdown
-        + process.BtagWeight
-        + process.TopPtWeight )
-    * process.EventWeight
+    process.jetselector
+    * process.TopPtWeightSum
+    * process.EventWeightSum
+    * process.tstarMassReco
 )
 
 # process.myfilterpath = cms.Path(process.tstarMassReco)

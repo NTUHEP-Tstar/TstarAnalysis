@@ -6,9 +6,8 @@
  #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  #
 #*******************************************************************************
-import ManagerUtils.EDMUtils.EDMFileList     as list_util
-import TstarAnalysis.RunSequence.Naming      as my_name
-import TstarAnalysis.RunSequence.Settings    as my_settings
+import TstarAnalysis.RunSequence.Naming      as myname
+import TstarAnalysis.RunSequence.Settings    as mysetting
 import sys, os
 import optparse
 #-------------------------------------------------------------------------------
@@ -37,12 +36,11 @@ config.JobType.pyCfgParams = [
 config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 16 ## Very fine job splitting
+config.Data.unitsPerJob = 25 ## Very fine job splitting
 config.Data.outLFNDirBase = '{7}'
 config.Data.publication = False
 
 config.Site.storageSite = '{8}'
-config.Site.blacklist = ['T2_DE_DESY']
 """
 
 
@@ -52,22 +50,22 @@ config.Site.blacklist = ['T2_DE_DESY']
 def MakeCrabFile( dataset, opt ):
 
     # Preparing variables
-    task_name = my_name.GetTaskName( 'tstar' , dataset , opt.mode )
-    work_area = my_settings.crab_work_dir
-    run_file  = my_settings.cmsrun_dir + 'run_baseline_selection.py'
-    mode      = opt.mode
-    global_tag= ""
-    hlt       = my_name.GetHLT(dataset)
-    lfn_dir   = my_settings.crab_default_path
-    site      = my_settings.crab_default_site
-    lumi_file = my_settings.crab_default_lumi
+    task_name  = myname.GetTaskName( 'tstar' , dataset , opt.mode )
+    work_area  = mysetting.crab_work_dir
+    run_file   = mysetting.cmsrun_dir + 'run_baseline_selection.py'
+    mode       = opt.mode
+    global_tag = ""
+    hlt        = myname.GetHLT(dataset)
+    lfn_dir    = mysetting.crab_default_path
+    site       = mysetting.crab_default_site
+    lumi_file  = mysetting.crab_default_lumi
 
-    if my_name.IsData( dataset ):
-        global_tag = my_settings.data_global_tag
+    if myname.IsData( dataset ):
+        global_tag = mysetting.data_global_tag
     else:
-        global_tag = my_settings.mc_global_tag
+        global_tag = mysetting.mc_global_tag
 
-    file_content     = config_file_default.format(
+    file_content  = config_file_default.format(
         task_name  , #{0}
         work_area  , #{1}
         run_file   , #{2}
@@ -80,19 +78,16 @@ def MakeCrabFile( dataset, opt ):
     )
 
     ## Writing to Crab file
-    crab_config_file = my_name.GetCrabFile('tstarbaseline',dataset,opt.mode)
+    crab_config_file = myname.GetCrabFile('tstar',dataset,opt.mode)
     my_file = open(  crab_config_file , 'w' )
     my_file.write( file_content )
     my_file.close()
     return crab_config_file
 
-
-
 def main():
     parser = optparse.OptionParser()
     parser.add_option('-i', '--inputlist', dest='input', help='list of data sets to generate', default=None, type='string')
     parser.add_option('-m', '--mode',      dest='mode',  help='which mode to run with',        default=None, type='string')
-    parser.add_option('-r', '--runcrab'  , dest='run' , action="store_true", help="whether to run submit command", default=False )
 
     (opt,args) = parser.parse_args()
 
@@ -104,13 +99,9 @@ def main():
     with open(opt.input) as f:
         dataset_list = f.readlines()
         for dataset in dataset_list :
-            dataset =dataset.strip()
+            dataset = dataset.strip()
             crab_file = MakeCrabFile( dataset, opt )
-            if opt.run :
-                print 'Submitting to crab'
-                os.system('crab submit '+crab_file)
-            else:
-                print "Written config to", crab_file
+            print "Written config to", crab_file
 
 
 if __name__ == "__main__":

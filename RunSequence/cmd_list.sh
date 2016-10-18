@@ -11,22 +11,22 @@
 ./00_gen_dataset.py -i settings/mc80X_datasets.json        -o MC80X.txt
 
 
-./01_run_baseline_selection.py -i MuonData80X.txt     -m MuonSignal
-./01_run_baseline_selection.py -i ElectronData80X.txt -m ElectronSignal
-./01_run_baseline_selection.py -i MC80X.txt           -m MuonSignal
-./01_run_baseline_selection.py -i MC80X.txt           -m ElectronSignal
+./01_run_baseline_selection.py -i MuonData80X.txt     -m Muon
+./01_run_baseline_selection.py -i ElectronData80X.txt -m Electron
+./01_run_baseline_selection.py -i MC80X.txt           -m Muon
+./01_run_baseline_selection.py -i MC80X.txt           -m Electron
 
-./02_retrieve_files.py -c -i MuonData80X.txt      -m MuonSignal
-./02_retrieve_files.py -c -i ElectronData80X.txt  -m ElectronSignal
-./02_retrieve_files.py -c -i MC80X.txt            -m MuonSignal
-./02_retrieve_files.py -c -i MC80X.txt            -m ElectronSignal
+./02_retrieve_files.py         -i MuonData80X.txt      -m Muon
+./02_retrieve_files.py         -i ElectronData80X.txt  -m Electron
+./02_retrieve_files.py         -i MC80X.txt            -m Muon
+./02_retrieve_files.py         -i MC80X.txt            -m Electron
 
 ./03_run_massreco.py   -i MuonData80X.txt      -m MuonSignal
 ./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal
 ./03_run_massreco.py   -i MC80X.txt            -m MuonSignal
 ./03_run_massreco.py   -i MC80X.txt            -m ElectronSignal
 
-./04_run_supselection.py   -i MuonData80X.txt      -m MuonSignal
-./04_run_supselection.py   -i ElectronData80X.txt  -m ElectronSignal
-./04_run_supselection.py   -i MC80X.txt            -m MuonSignal
-./04_run_supselection.py   -i MC80X.txt            -m ElectronSignal
+./03_run_massreco.py   -i MuonData80X.txt      -m MuonControl
+./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronControl
+./03_run_massreco.py   -i MC80X.txt            -m MuonControl
+./03_run_massreco.py   -i MC80X.txt            -m ElectronControl

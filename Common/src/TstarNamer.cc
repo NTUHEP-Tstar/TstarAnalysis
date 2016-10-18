@@ -73,15 +73,21 @@ TstarNamer::LoadOptions(
 
 void
 TstarNamer::SetChannel( const std::string& x )
-{ _channel_tag = x; }
+{
+   _channel_tag = x;
+}
 
 string
 TstarNamer::GetChannelEDMPath() const
-{ return SamplesDir() + GetChannel() + "/"; }
+{
+   return GetChannelEXT( "EDM path" );
+}
 
 string
 TstarNamer::GetChannelEXT( const string& x ) const
-{ return query_tree( "channel", GetChannel(), x ); }
+{
+   return query_tree( "channel", GetChannel(), x );
+}
 
 
 /*******************************************************************************
@@ -130,21 +136,33 @@ TstarNamer::MakeFileName(
 /******************************************************************************/
 
 string
-TstarNamer::TextFileName( const string&         maintag,
-                          const vector<string>& subtaglist ) const
-{ return MakeFileName( "txt", maintag, subtaglist ); }
+TstarNamer::TextFileName(
+   const string&         maintag,
+   const vector<string>& subtaglist ) const
+{
+   return MakeFileName( "txt", maintag, subtaglist );
+}
 
 string
-TstarNamer::PlotFileName( const string&         maintag,
-                          const vector<string>& subtaglist ) const
-{ return MakeFileName( "pdf", maintag, subtaglist ); }
+TstarNamer::PlotFileName(
+   const string&         maintag,
+   const vector<string>& subtaglist ) const
+{
+   return MakeFileName( "pdf", maintag, subtaglist );
+}
 
 string
-TstarNamer::TexFileName( const string&         maintag,
-                         const vector<string>& subtaglist ) const
-{ return MakeFileName( "tex", maintag, subtaglist ); }
+TstarNamer::TexFileName(
+   const string&         maintag,
+   const vector<string>& subtaglist ) const
+{
+   return MakeFileName( "tex", maintag, subtaglist );
+}
 
 string
-TstarNamer::RootFileName( const string&         maintag,
-                          const vector<string>& subtaglist ) const
-{ return MakeFileName( "root", maintag, subtaglist ); }
+TstarNamer::RootFileName(
+   const string&         maintag,
+   const vector<string>& subtaglist ) const
+{
+   return MakeFileName( "root", maintag, subtaglist );
+}

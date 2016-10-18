@@ -8,5 +8,5 @@ tstarMassReco = cms.EDProducer(
     jetsrc      = cms.InputTag( "skimmedPatJets" ),
     MaxJet      = cms.untracked.int32(6),
     ReqBJet     = cms.untracked.int32(2),
-
+    btagfile    = cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
 )

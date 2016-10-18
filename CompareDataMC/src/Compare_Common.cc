@@ -7,4 +7,4 @@
 *******************************************************************************/
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 
-TstarNamer compare_namer( "CompareDataMC" );
+TstarNamer compnamer( "CompareDataMC" );

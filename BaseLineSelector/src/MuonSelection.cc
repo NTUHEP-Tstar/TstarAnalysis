@@ -41,11 +41,12 @@ MuonProducer::IsSelectedMuon( const pat::Muon&  mu,
 
    // Trigger matching
    if(
-      _reqtrigger != "" &&
+      _runtriggermatch &&
       !HasTriggerMatch(
          mu,
          *_triggerObjectHandle,
          _reqtrigger,
+         _reqfilter,
          iEvent.triggerNames( *_hltHandle )
          ) ){
       return false;
@@ -94,12 +95,13 @@ MuonProducer::AddMuonVariables( pat::Muon& mu,  const edm::Event& iEvent ) const
       false );
    mu.addUserFloat( "miniIso", miniIso );
 
-   if( _reqtrigger == "" ){ return; }// easrly exit if not required
+   if( !_runtriggermatch ){ return; }// early exit if not required
 
    const TLorentzVector trgp4 = TriggerMatchP4(
       mu,
       *_triggerObjectHandle,
       _reqtrigger,
+      _reqfilter,
       iEvent.triggerNames( *_hltHandle )
       );
    AddLorentzVector( mu, trgp4, "TrigP4" );

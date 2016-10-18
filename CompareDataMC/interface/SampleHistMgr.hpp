@@ -21,8 +21,9 @@ public:
    SampleHistMgr( const std::string&, const mgr::ConfigReader& );
    ~SampleHistMgr();
 
+   void FillFromSample( mgr::SampleMgr& );
+
 private:
-   void fill_histograms( mgr::SampleMgr& );
    void define_hist();
 };
 

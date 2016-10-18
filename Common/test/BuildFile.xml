@@ -4,3 +4,5 @@
 
 <bin name="pdfweight_test" file="pdfweight_test.cc"/>
 <bin name="namer_test" file="namer_test.cc" />
+<bin name="dumpWeightXML" file="dumpWeightXml.cc"/>
+<bin name="dumpPDFweights" file="dumpPDFweights.cc"/>

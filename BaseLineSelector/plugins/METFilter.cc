@@ -20,9 +20,7 @@
 
 
 using namespace std;
-// ------------------------------------------------------------------------------
-//   Class Definition
-// ------------------------------------------------------------------------------
+
 class METFilter : public edm::stream::EDFilter<>
 {
 public:
@@ -49,7 +47,8 @@ METFilter::METFilter( const edm::ParameterSet& iconf ) :
    _badmusrc( GETTOKEN( iconf, bool, "badmusrc" ) ),
    _badchhadsrc( GETTOKEN( iconf, bool, "badchhadsrc" ) ),
    _recotrgsrc( GETTOKEN( iconf, edm::TriggerResults, "recotrgsrc" ) ),
-   _checklist(
+   _checklist( // taken from
+      // https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#What_is_available_in_MiniAOD
 {
    "Flag_HBHENoiseFilter",
    "Flag_HBHENoiseIsoFilter",
@@ -61,10 +60,6 @@ METFilter::METFilter( const edm::ParameterSet& iconf ) :
 {
 }
 
-METFilter::~METFilter()
-{
-}
-
 bool
 METFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -72,6 +67,8 @@ METFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
    iEvent.getByToken( _badchhadsrc, _badchhadhandle );
    iEvent.getByToken( _recotrgsrc,  _recotrghandle );
 
+   // Additional recipe found here:
+   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_the_Bad_Charged_Hadro
    if( !*_badmuhandle ){ return false; }
    if( !*_badchhadhandle ){ return false; }
 
@@ -90,10 +87,13 @@ METFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 
+/*******************************************************************************
+*   Generic Plugin requirements
+*******************************************************************************/
+METFilter::~METFilter()
+{
+}
 
-// ------------------------------------------------------------------------------
-//   EDM Plugin requirements
-// ------------------------------------------------------------------------------
 
 void
 METFilter::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
