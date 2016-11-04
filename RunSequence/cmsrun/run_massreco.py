@@ -1,20 +1,24 @@
-#*******************************************************************************
- #
- #  Filename    : run_massreco.py
- #  Description : Python file for CMSRUN for production mass reconstruction
- #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
- #
-#*******************************************************************************
+#*************************************************************************
+#
+#  Filename    : run_massreco.py
+#  Description : Python file for CMSRUN for production mass reconstruction
+#  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+#
+#*************************************************************************
+
+import sys
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as opts
-import sys
+#-------------------------------------------------------------------------
+#   Loading addtional selection
+#-------------------------------------------------------------------------
 
 options = opts.VarParsing('analysis')
 
 options.register(
     'sample',
-    '/store/user/yichen/tstar_store/tstarbaseline/Muon/TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_0.root',
+    'file:tstarBaseline.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Files to process'
@@ -65,34 +69,100 @@ process.source = cms.Source(
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
-if options.lumimask :
+#-------------------------------------------------------------------------------
+#   Adding lumi masking
+#-------------------------------------------------------------------------------
+if options.lumimask:
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList( filename=options.lumimask ).getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(
+        filename=options.lumimask).getVLuminosityBlockRange()
 
 #-------------------------------------------------------------------------------
-#   Loading addtional selection
+#   Jet selection and options b-tag weighting
 #-------------------------------------------------------------------------------
-import TstarAnalysis.TstarMassReco.ControlJetSelector_cfi as mysel
+import TstarAnalysis.AdditionalSelector.ControlJetSelector_cfi as myjetsel
+import TstarAnalysis.EventWeight.EventWeighter_cfi as myweight
 
-if "Control" in options.Mode :
-    process.jetselector = mysel.controlregion
-elif "Signal" in options.Mode :
-    process.jetselector = mysel.signalregion
+if "Control" in options.Mode:
+    print "Loading modules for control region"
+    process.jetselector = myjetsel.controlregion
+elif "Signal" in options.Mode:
+    print "Loading modules for signal region"
+    process.jetselector = myjetsel.signalregion
+    process.BtagWeight = myweight.BtagWeight
+    process.BtagWeight.checkjet = process.jetselector.checkorder
 else:
     print "ERROR! Input Mode: [", options.Mode, "] not recognized!"
     sys.exit(1)
 
 #-------------------------------------------------------------------------------
-#   Reloading the event weight summation
+#   Loading addtional lepton selection
 #-------------------------------------------------------------------------------
-import TstarAnalysis.EventWeight.EventWeighter_cfi as myweights
-process.TopPtWeightSum = myweights.TopPtWeightSum
-process.EventWeightSum = myweights.EventWeightSum
+import TstarAnalysis.AdditionalSelector.AddLeptonSelector_cfi as mylepsel
+process.electronsel = mylepsel.ElectronSelector
+process.muonsel     = mylepsel.MuonSelector
+
+if options.lumimask == "" :
+    # disable trigger selection for non-data samples
+    process.electronsel.reqtrigger = cms.VPSet()
+    process.muonsel.reqtrigger = cms.VPSet()
+
 
 #-------------------------------------------------------------------------
-#   Load default Settings
+#   Reloading weight summing and lepton weight factors
+#-------------------------------------------------------------------------
+
+process.ElectronWeight = myweight.ElectronWeightAll
+process.MuonWeight     = myweight.MuonWeightAll
+
+if "Signal" in options.Mode:
+    process.EventWeight = cms.EDProducer(
+        "WeightProdSum",
+        weightlist=cms.VInputTag(
+            cms.InputTag("ElectronWeight", "ElectronWeight","TstarMassReco"),
+            cms.InputTag("MuonWeight", "MuonWeight","TstarMassReco"),
+            cms.InputTag("PileupWeight", "PileupWeight"),
+            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag('BtagWeight','BtagWeight')
+        )
+    )
+    process.EventWeightAll = cms.EDProducer(
+        "WeightProdSum",
+        weightlist=cms.VInputTag(
+            cms.InputTag("ElectronWeight", "ElectronWeight","TstarMassReco"),
+            cms.InputTag("MuonWeight", "MuonWeight","TstarMassReco"),
+            cms.InputTag("PileupWeight", "PileupWeight"),
+            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag('BtagWeight','BtagWeight'),
+            cms.InputTag("TopPtWeight", "TopPtWeight")
+        )
+    )
+elif "Control" in options.Mode :
+    process.EventWeight = cms.EDProducer(
+        "WeightProdSum",
+        weightlist=cms.VInputTag(
+            cms.InputTag("ElectronWeight", "ElectronWeight","TstarMassReco"),
+            cms.InputTag("MuonWeight", "MuonWeight","TstarMassReco"),
+            cms.InputTag("PileupWeight", "PileupWeight"),
+            cms.InputTag("SignWeight", "SignWeight"),
+        )
+    )
+    process.EventWeightAll = cms.EDProducer(
+        "WeightProdSum",
+        weightlist=cms.VInputTag(
+            cms.InputTag("ElectronWeight", "ElectronWeight"),
+            cms.InputTag("MuonWeight", "MuonWeight"),
+            cms.InputTag("PileupWeight", "PileupWeight"),
+            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("TopPtWeight", "TopPtWeight")
+        )
+    )
+
+#-------------------------------------------------------------------------
+#   Load mass calculator
 #-------------------------------------------------------------------------
 process.load("TstarAnalysis.TstarMassReco.Producer_cfi")
+
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -102,20 +172,43 @@ process.edmOut = cms.OutputModule(
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "keep *",
-        "drop *_*WeightSum*_*_*",
-        "keep *_*WeightSum*_*_TstarMassReco"
+        "drop *_*ElectronWeight*_*_*",
+        "drop *_*MuonWeight*_*_*",
+        "drop *_*_WeightProd_*",
+        "drop *_*_WeightSum_*",
+        "keep *_*ElectronWeight*_*_TstarMassReco",
+        "keep *_*MuonWeight*_*_TstarMassReco",
+        "keep *_*_WeightProd_TstarMassReco",
+        "keep *_*_WeightSum_TstarMassReco",
     ),
     SelectEvents=cms.untracked.PSet(
         SelectEvents=cms.vstring('path')
     )
 )
 
-process.path = cms.Path(
-    process.jetselector
-    * process.TopPtWeightSum
-    * process.EventWeightSum
-    * process.tstarMassReco
-)
+if "Signal" in options.Mode :
+    process.path = cms.Path(
+        process.jetselector
+        * process.BtagWeight
+        * process.electronsel
+        * process.muonsel
+        * process.ElectronWeight
+        * process.MuonWeight
+        * process.EventWeight
+        * process.EventWeightAll
+        * process.tstarMassReco
+     )
+elif "Control" in options.Mode :
+    process.path = cms.Path(
+        process.jetselector
+        * process.electronsel
+        * process.muonsel
+        * process.ElectronWeight
+        * process.MuonWeight
+        * process.EventWeight
+        * process.EventWeightAll
+        * process.tstarMassReco
+     )
 
 # process.myfilterpath = cms.Path(process.tstarMassReco)
 process.endPath = cms.EndPath(process.edmOut)

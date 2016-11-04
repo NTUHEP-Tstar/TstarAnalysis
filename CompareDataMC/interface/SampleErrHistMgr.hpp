@@ -12,7 +12,8 @@
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include <string>
+
+#include "DataFormats/FWLite/interface/EventBase.h"
 
 class SampleErrHistMgr :
    public mgr::SampleGroup,
@@ -22,7 +23,8 @@ public:
    SampleErrHistMgr( const std::string&, const mgr::ConfigReader& );
    ~SampleErrHistMgr();
 
-   void FillFromSample( mgr::SampleMgr& );
+   void FillFromSample();
+   void LoadFromFile();
 
 private:
    void define_hist();
@@ -45,6 +47,8 @@ private:
       const std::vector<std::vector<unsigned>>& pdfidgoup,
       const bool filljec
    );
+
+   void FillFromSample( mgr::SampleMgr& );
 };
 
 extern const std::vector<std::string> histnamelist;

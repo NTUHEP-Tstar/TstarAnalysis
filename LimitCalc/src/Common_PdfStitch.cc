@@ -26,26 +26,26 @@ MakeStichPdf(
    RooArgList coefflist;
    vector<string> coeffnamelist;
 
+   // Creating PDF list and coeffname;
    for( const string& pdfname : pdfnamelist ){
-      if( sample->Pdf( pdfname ) ){
+      if( pdfname != pdfnamelist.front() && sample->Pdf( pdfname ) ){
+         // Skipping the first, shifting it to the last
          pdflist.add( *( sample->Pdf( pdfname ) ) );
-         coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) + "_" + pdfname);
+         coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) + "_" + pdfname );
       }
    }
 
+   pdflist.add( *( sample->Pdf( pdfnamelist.front() ) ) );
+
+   // Creating Coefficient and coefficient list
    for( const string& coeffname : coeffnamelist ){
-      RooRealVar* coeff = NULL;
-      if( coeffname == coeffnamelist.front() ){ // The first PDF is assumed to be the dominant
-         coeff = sample->NewVar( coeffname, 0.5, 1 );
-         *coeff = 1.;
-      } else{
-         coeff = sample->NewVar( coeffname, 0, 1 );
-          *coeff = 0.;
-       }
+      RooRealVar* coeff  = sample->NewVar( coeffname, 0, 1 );
+      *coeff = 0.;
       coeff->setConstant( kTRUE );// freezing everying!
       coefflist.add( *coeff );
    }
 
+   // Creating add pdf list
    RooAddPdf* ans = new RooAddPdf(
       stitchname.c_str(), stitchname.c_str(),
       pdflist,

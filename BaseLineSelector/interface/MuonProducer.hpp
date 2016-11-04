@@ -15,10 +15,8 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include <memory>
 
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include <vector>
 
 class MuonProducer : public edm::stream::EDFilter<>
@@ -37,19 +35,12 @@ private:
    const edm::EDGetToken _vertexsrc;
    const edm::EDGetToken _packedsrc;
    const edm::EDGetToken _muonsrc;
-   const edm::EDGetToken _hltsrc;
-   const edm::EDGetToken _triggerobjsrc;
 
    reco::Vertex _primary_vertex;
    edm::Handle<double> _rhoHandle;
    edm::Handle<reco::VertexCollection> _vertexHandle;
    edm::Handle<pat::PackedCandidateCollection> _packedHandle;
    edm::Handle<std::vector<pat::Muon>> _muonHandle;
-   edm::Handle<edm::TriggerResults> _hltHandle;
-   edm::Handle<pat::TriggerObjectStandAloneCollection> _triggerObjectHandle;
-   const std::string _reqtrigger;
-   const std::string _reqfilter;
-   const bool        _runtriggermatch;
 
    // Helper private functions, see src/MuonSelction.cc
    bool GetPrimaryVertex();

@@ -30,27 +30,27 @@ main( int argc, char* argv[] )
       ( "channellist,c", opt::value<vector<string> >()->multitoken(), "Which channels to merge" )
    ;
 
-   limit_namer.SetNamingOptions( {"fitmethod", "fitfunc"} );
-   const int run = limit_namer.LoadOptions( desc, argc, argv );
+   limnamer.SetNamingOptions( {"fitmethod", "fitfunc"} );
+   const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
 
-   const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
-   const mgr::ConfigReader higgscfg( limit_namer.SettingsDir() + "higgs_combine_settings.json" );
+   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   const mgr::ConfigReader higgscfg( limnamer.SettingsDir() + "higgs_combine_settings.json" );
    const vector<string> masspointlist = cfg.GetStaticStringList( "Signal List" );
-   const vector<string> channellist = limit_namer.GetMap()["channellist"].as<vector<string> >() ;
+   const vector<string> channellist = limnamer.GetMap()["channellist"].as<vector<string> >() ;
 
    for( auto& masspoint : masspointlist ){
       vector<string> inputcardlist;
 
 
       for( const auto& channel : channellist ){
-         limit_namer.SetChannel( channel );
-         inputcardlist.push_back( limit_namer.TextFileName( "card", {masspoint} ) );
+         limnamer.SetChannel( channel );
+         inputcardlist.push_back( limnamer.TextFileName( "card", {masspoint} ) );
       }
 
-      limit_namer.SetChannel( "SignalMerge" );
-      const string combfile = limit_namer.TextFileName( "card", {masspoint} );
+      limnamer.SetChannel( "SignalMerge" );
+      const string combfile = limnamer.TextFileName( "card", {masspoint} );
 
       FILE* tempscript = fopen( "temp.sh", "w" );
       fprintf( tempscript, "#!/bin/bash\n" );
@@ -58,7 +58,7 @@ main( int argc, char* argv[] )
          higgscfg.GetStaticString( "Store Path" ).c_str(),
          higgscfg.GetStaticString( "CMSSW Version" ).c_str()
          );
-      fprintf( tempscript, "eval `scramv1 runtime -sh`\n" );
+      fprintf( tempscript, "eval `scramv1 runtime -sh 2> /dev/null`\n" );
 
       unsigned i = 0;
 

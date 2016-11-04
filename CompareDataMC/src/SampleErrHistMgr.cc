@@ -14,11 +14,13 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
+#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
-#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "TFile.h"
 
@@ -33,12 +35,16 @@ using mgr::ConfigReader;
 
 using namespace std;
 
+/*******************************************************************************
+*   Declaring extern objects
+*******************************************************************************/
+
 extern const vector<string> histnamelist = {
    "LepPt",
    "LepEta",
    "JetNum",
    "JetPt",
-   "JetEta"
+   "JetEta",
    "Jet1Pt",
    "Jet1Eta",
    "Jet2Pt",
@@ -48,31 +54,36 @@ extern const vector<string> histnamelist = {
 };
 
 extern const vector<ErrorSource> histerrlist = {
-   { "jec",    "Jet energy correction",    ""                        },
-   { "jer",    "Jet energy resolution",    ""                        },
-   { "pu",     "Pileup #sigma_{mini}",     "4.6%%"                   },
-   { "btag",   "b-tag scale factor",       ""                        },
-   { "lepton", "lepton scale factor",      ""                        },
-   { "pdf",    "PDF uncertainty",          ""                        },
-   { "scale",  "QCD scale variation",      ""                        }
+   { "jec",    "Jet energy correction",    ""              },
+   { "jer",    "Jet energy resolution",    ""              },
+   { "pu",     "Pileup #sigma_{mini}",     "4.6%"          },
+   { "btag",   "b-tag scale factor",       ""              },
+   { "lepton", "lepton scale factor",      ""              },
+   { "pdf",    "PDF uncertainty",          ""              },
+   { "scale",  "QCD scale variation",      ""              }
 };
+
+
+/******************************************************************************/
 
 
 void
 SampleErrHistMgr::define_hist()
 {
-   AddErrHists( "LepPt",     "Lepton p_{T}",              "GeV/c",     48, 20,    500 );
-   AddErrHists( "LepEta",    "Lepton #eta",               "",          75,  -2.5, 5.0 );
-   AddErrHists( "JetPt",     "Jet p_{T}",                 "GeV/c",     60, 30,   1000 );
-   AddErrHists( "JetEta",    "Jet #eta",                  "",          75,  -2.5, 5.0 );
-   AddErrHists( "Jet1Pt",    "First Leading Jet p_{T}",   "GeV/c",     60, 30,   1000 );
-   AddErrHists( "Jet1Eta",   "First Leading Jet #eta",    "",          75,  -2.5, 5.0 );
-   AddErrHists( "Jet2Pt",    "Second Leading Jet p_{T}",  "GeV/c",     60, 30,   1000 );
-   AddErrHists( "Jet2Eta",   "Second Leading Jet #eta",   "",          75,  -2.5, 5.0 );
-   AddErrHists( "JetNum",    "Number of Jets",            "",          10,  5,     15 );
-   AddErrHists( "MET",       "Missing transverse energy", "GeV",       50,  0,    500 );
-   AddErrHists( "TstarMass", "M_{t+g}",                   "GeV/c^{2}", 50,  0,   3000 );
+   AddErrHists( "LepPt",     "Lepton p_{T}",              "GeV/c",      48, 20,    500 );
+   AddErrHists( "LepEta",    "Lepton #eta",               "",           75,  -2.5, 5.0 );
+   AddErrHists( "JetNum",    "Number of Jets",            "",           18,  2,     20 );
+   AddErrHists( "JetPt",     "Jet p_{T}",                 "GeV/c",      50,  0,    600 );
+   AddErrHists( "JetEta",    "Jet #eta",                  "",           75,  -2.5, 5.0 );
+   AddErrHists( "Jet1Pt",    "First Leading Jet p_{T}",   "GeV/c",      50,  0,    800 );
+   AddErrHists( "Jet1Eta",   "First Leading Jet #eta",    "",           75,  -2.5, 5.0 );
+   AddErrHists( "Jet2Pt",    "Second Leading Jet p_{T}",  "GeV/c",      50,  0,    600 );
+   AddErrHists( "Jet2Eta",   "Second Leading Jet #eta",   "",           75,  -2.5, 5.0 );
+   AddErrHists( "MET",       "Missing transverse energy", "GeV",        50,  0,    500 );
+   AddErrHists( "TstarMass", "M_{t+g}",                   "GeV/c^{2}", 100,  0,   3000 );
 }
+
+/******************************************************************************/
 
 void
 SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
@@ -86,21 +97,26 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
    fwlite::Handle<RecoResult> chisqHandle;
 
    const auto& pdfidgroup    = GetPdfIdGrouping( sample );
-   const double sampleweight = GetSampleWeight( sample );
+   const double sampleweight = sample.ExpectedYield() / sample.SelectedEventCount();
+   double weightsum          = 0;
 
    unsigned i = 1;
 
    boost::format processform( "\rSample [%s|%s] , Event[%u/%llu]..." );
-   cout << processform % Name() % sample.Name() % i % sample.Event().size() << flush;
+
+   cout << sample.GlobbedFileList().size() << endl;
+
+   for( const auto& file : sample.GlobbedFileList() ){
+      cout << file << endl;
+   }
 
    // Looping over events
-   for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event(), ++i ){
-      const auto& ev = sample.Event().Base();
-      cout << processform % Name() % sample.Name() % i % sample.Event().size() << flush;
+   mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
+   cout << processform % Name() % sample.Name() % i % myevt.size() << flush;
 
-      const double eventweight = GetEventWeight( ev );
-      const double topptweight = GetSampleEventTopPtWeight( sample, ev );
-      const double totalweight = sampleweight * eventweight * topptweight;
+   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
+      const auto& ev = myevt.Base();
+      cout << processform % Name() % sample.Name() % i % myevt.size() << flush;
 
       metHandle.getByLabel( ev, "slimmedMETs"    );
       vtxHandle.getByLabel( ev, "offlineSlimmedPrimaryVertices" );
@@ -108,6 +124,11 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
       muonHandle.getByLabel( ev, "skimmedPatMuons" );
       electronHandle.getByLabel( ev, "skimmedPatElectrons" );
       chisqHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+
+      weightsum += GetEventWeight( ev );
+      const double totalweight = sampleweight
+                                 * GetEventWeight( ev )
+                                 * GetSampleEventTopPtWeight( sample, ev );
 
       for( const auto& el : electronHandle.ref() ){
          FillWeightErrHists( "LepPt",  el.pt(),  sampleweight, sample, ev, pdfidgroup, true );
@@ -127,24 +148,24 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
       FillWeightErrHists( "Jet1Pt",  jetHandle->at( 0 ).pt(),  sampleweight, sample, ev, pdfidgroup, false );
       const double jet1scale = jetHandle->at( 0 ).userFloat( "jecunc" );
       const double jet1res   = jetHandle->at( 0 ).userFloat( "respt" );
-      Hist( "Jet1Ptjecup" )->Fill( jetHandle->at( 0 ).pt() * ( 1+jet1scale ), totalweight );
+      Hist( "Jet1Ptjecup"   )->Fill( jetHandle->at( 0 ).pt() * ( 1+jet1scale ), totalweight );
       Hist( "Jet1Ptjecdown" )->Fill( jetHandle->at( 0 ).pt() * ( 1-jet1scale ), totalweight );
-      Hist( "Jet1Ptjerup" )->Fill( jetHandle->at( 0 ).pt() * ( 1+jet1res ), totalweight );
+      Hist( "Jet1Ptjerup"   )->Fill( jetHandle->at( 0 ).pt() * ( 1+jet1res ), totalweight );
       Hist( "Jet1Ptjerdown" )->Fill( jetHandle->at( 0 ).pt() * ( 1-jet1res ), totalweight );
 
       FillWeightErrHists( "Jet2Pt", jetHandle->at( 1 ).pt(), sampleweight, sample, ev, pdfidgroup, false );
       const double jet2scale = jetHandle->at( 1 ).userFloat( "jecunc" );
       const double jet2res   = jetHandle->at( 1 ).userFloat( "respt" );
-      Hist( "Jet2Ptjecup" )->Fill( jetHandle->at( 1 ).pt() * ( 1+jet2scale ), totalweight );
+      Hist( "Jet2Ptjecup"   )->Fill( jetHandle->at( 1 ).pt() * ( 1+jet2scale ), totalweight );
       Hist( "Jet2Ptjecdown" )->Fill( jetHandle->at( 1 ).pt() * ( 1-jet2scale ), totalweight );
-      Hist( "Jet2Ptjerup" )->Fill( jetHandle->at( 1 ).pt() * ( 1+jet2res ), totalweight );
+      Hist( "Jet2Ptjerup"   )->Fill( jetHandle->at( 1 ).pt() * ( 1+jet2res ), totalweight );
       Hist( "Jet2Ptjerdown" )->Fill( jetHandle->at( 1 ).pt() * ( 1-jet2res ), totalweight );
 
       for( const auto& jet : jetHandle.ref() ){
          const double jetscale = jet.userFloat( "jecunc" );
          const double jetres   = jet.userFloat( "respt" );
-         FillWeightErrHists( "JetEta", jet.eta(), sampleweight, sample, ev, pdfidgroup, true );
          FillWeightErrHists( "JetPt",  jet.pt(),  sampleweight, sample, ev, pdfidgroup, false );
+         FillWeightErrHists( "JetEta", jet.eta(), sampleweight, sample, ev, pdfidgroup, true );
          Hist( "JetPtjecup"   )->Fill( jet.pt() * ( 1+jetscale ), totalweight );
          Hist( "JetPtjecdown" )->Fill( jet.pt() * ( 1-jetscale ), totalweight );
          Hist( "JetPtjerup"   )->Fill( jet.pt() * ( 1+jetres   ), totalweight );
@@ -153,13 +174,17 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
 
       if( chisqHandle.isValid() ){
          FillWeightErrHists( "TstarMass", chisqHandle->TstarMass(), sampleweight, sample, ev, pdfidgroup, false );
-         Hist( "TstarMassjecup" )->Fill( chisqHandle->ComputeFromPaticleList( tstar::corr_up ), totalweight );
+         Hist( "TstarMassjecup"   )->Fill( chisqHandle->ComputeFromPaticleList( tstar::corr_up ), totalweight );
          Hist( "TstarMassjecdown" )->Fill( chisqHandle->ComputeFromPaticleList( tstar::corr_down ), totalweight );
-         Hist( "TstarMassjerup" )->Fill( chisqHandle->ComputeFromPaticleList( tstar::res_up ), totalweight );
+         Hist( "TstarMassjerup"   )->Fill( chisqHandle->ComputeFromPaticleList( tstar::res_up ), totalweight );
          Hist( "TstarMassjerdown" )->Fill( chisqHandle->ComputeFromPaticleList( tstar::res_down ), totalweight );
       }
    }
-   cout << "Done!" << endl;
+
+   cout << boost::format( "Done!" ) << endl;
+
+   cout << "Sum of weights:" << weightsum << "| number of selected events: " << sample.SelectedEventCount() << endl;
+
 }
 
 
@@ -184,6 +209,8 @@ SampleErrHistMgr::AddErrHists(
    }
 }
 
+/******************************************************************************/
+
 void
 SampleErrHistMgr::FillWeightErrHists(
    const std::string&               centralhistname,
@@ -195,13 +222,15 @@ SampleErrHistMgr::FillWeightErrHists(
    const bool                       filljec
    )
 {
-   const double eventweight    = GetEventWeight( ev );
-   const double puweight       = GetPileupWeight( ev );
-   const double puweightup     = std::max( GetPileupWeight( ev ), std::max( GetPileupWeightXsecup( ev ), GetPileupWeightXsecdown( ev ) ) );
-   const double puweightdown   = std::min( GetPileupWeight( ev ), std::min( GetPileupWeightXsecup( ev ), GetPileupWeightXsecdown( ev ) ) );
+   double eventweight        = GetEventWeight( ev );
+   const double puweight     = GetPileupWeight( ev );
+   const double puweightup   = std::max( GetPileupWeight( ev ), std::max( GetPileupWeightXsecup( ev ), GetPileupWeightXsecdown( ev ) ) );
+   const double puweightdown = std::min( GetPileupWeight( ev ), std::min( GetPileupWeightXsecup( ev ), GetPileupWeightXsecdown( ev ) ) );
+
    const double btagweight     = GetBtagWeight( ev );
    const double btagweightup   = GetBtagWeightUp( ev );
    const double btagweightdown = GetBtagWeightDown( ev );
+
    const double elecweight     = GetElectronWeight( ev );
    const double elecweightup   = GetElectronWeightUp( ev );
    const double elecweightdown = GetElectronWeightDown( ev );
@@ -225,7 +254,6 @@ SampleErrHistMgr::FillWeightErrHists(
    Hist( centralhistname + "scaleup"    )->Fill( fillvalue, totalweight * ( 1 + scaleweighterr ) );
    Hist( centralhistname + "scaledown"  )->Fill( fillvalue, totalweight * ( 1 - scaleweighterr ) );
 
-
    if( filljec ){
       Hist( centralhistname + "jecup"   )->Fill( fillvalue, totalweight );
       Hist( centralhistname + "jecdown" )->Fill( fillvalue, totalweight );
@@ -244,21 +272,42 @@ SampleErrHistMgr::SampleErrHistMgr( const string& name, const ConfigReader& cfg 
 {
    // Common initialization
    define_hist();
-
-   for( auto& sample : SampleList() ){
-      InitSample( sample );
-   }
-
-   // Case dependent
-   if( compnamer.HasOption( "refill" ) ){
-      for( auto& sample : SampleList() ){
-         FillFromSample( sample );
-      }
-
-      SaveToFile( compnamer.RootFileName( "fullhistcache" ) );
-   } else {
-      LoadFromFile( compnamer.RootFileName( "fullhistcache" ) );
-   }
 }
 
-SampleErrHistMgr::~SampleErrHistMgr(){}
+/******************************************************************************/
+
+void
+SampleErrHistMgr::FillFromSample()
+{
+   for( auto& sample : SampleList() ){
+      InitSampleFromEDM( sample );
+      mgr::SaveCacheToFile( sample, compnamer.TextFileName( sample.Name() ) );
+      FillFromSample( sample );
+   }
+
+   SaveToFile( compnamer.RootFileName( "fullhistcache" ) );
+}
+
+/******************************************************************************/
+
+void
+SampleErrHistMgr::LoadFromFile()
+{
+   for( auto& sample : SampleList() ){
+      mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ) );
+      cout << FloatingPoint( sample.ExpectedYield(), 3 ) << endl;
+   }
+
+   cout << FloatingPoint( ExpectedYield(), 3 ) << endl;
+
+   HistMgr::LoadFromFile( compnamer.RootFileName( "fullhistcache" ) );
+   cout << Hist( "Jet1Pt" )->Integral() << endl;
+}
+
+
+/******************************************************************************/
+
+SampleErrHistMgr::~SampleErrHistMgr()
+{
+
+}

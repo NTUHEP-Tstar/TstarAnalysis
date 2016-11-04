@@ -24,7 +24,7 @@ main( int argc, char* argv[] )
    opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
-      ( "refill,r", "Whether to refill the histograms from sample groups")
+      ( "drawdata,d", "options to add if you wish to add data into plotting")
    ;
 
    const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
@@ -41,21 +41,23 @@ main( int argc, char* argv[] )
    *   Whether to initialize from EDM files or existing root file is handle
    *   by the SampleErrHistMgr constructor.
    *******************************************************************************/
-   // Defining data settings
-   SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
-
    // Defining out channels see data/Groups.json for sample settings
    vector<SampleErrHistMgr*> background;
    for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
       background.push_back( new SampleErrHistMgr( bkggroup, master ) );
+      background.back()->LoadFromFile();
    }
 
    // Declaring sample sample
    vector<SampleErrHistMgr*> siglist;
    for( const auto& signame : master.GetStaticStringList( "Signal List" ) ){
       siglist.push_back( new SampleErrHistMgr( signame, master ) );
+      siglist.back()->LoadFromFile();
    }
 
+   // Defining data settings
+   SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
+   data->LoadFromFile();
 
    /*******************************************************************************
    *   Plotting error comparison histograms
@@ -73,6 +75,7 @@ main( int argc, char* argv[] )
 
    /*******************************************************************************
    *   Making full comparison Plots
+   *   Data plotting is handled by the plotting functions 
    *******************************************************************************/
    MakeFullComparePlot( data, background, siglist[1] );
    Normalize( data, background );

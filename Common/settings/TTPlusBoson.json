@@ -4,21 +4,23 @@
    #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#TT_X
    -----------------------------------------------------------------------------""",
    "TTW_Lepton": {
+      "Is Data": false,
       "Latex Name" : "\\ttbar+(\\PW\\rightarrow\\Pl\\PGnl)",
       "Root Name": "t#bar{t} + W#rightarrow l#nu",
       "Cross Section": [ 0.2043,0.0020,0.0020 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
-         "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_*.root"
+         "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0.root"
       ]
    },
    "TTW_Quark": {
+      "Is Data": false,
       "Latex Name" : "\\ttbar+(\\PW\\rightarrow\\PQq\\PAQq)",
       "Root Name": "t#bar{t} + W#rightarrow q#bar{q}",
       "Cross Section": [ 0.4062, 0.0021, 0.0021],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -26,10 +28,11 @@
       ]
    },
    "TTZ_Lepton": {
+      "Is Data": false,
       "Latex Name" : "\\ttbar+(\\Z\\rightarrow\\Pl\\PAl)",
       "Root Name": "t#bar{t} + Z#rightarrow ll",
       "Cross Section": [0.2529,0.0004,0.0004 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -37,10 +40,11 @@
       ]
    },
    "TTZ_Quark": {
+      "Is Data": false,
       "Latex Name" : "\\ttbar+(\\Z\\rightarrow\\PQq\\PAQq)",
       "Root Name": "t#bar{t} + Z#rightarrow qq",
       "Cross Section": [ 0.5297, 0.00008, 0.00008 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[

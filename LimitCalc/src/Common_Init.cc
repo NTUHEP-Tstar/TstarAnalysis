@@ -15,7 +15,7 @@ using namespace std;
 /*******************************************************************************
 *   External variables for this subpackage
 *******************************************************************************/
-TstarNamer limit_namer( "LimitCalc" );
+TstarNamer limnamer( "LimitCalc" );
 
 /*******************************************************************************
 *   Initialization functions
@@ -23,7 +23,7 @@ TstarNamer limit_namer( "LimitCalc" );
 void
 InitSingle( SampleRooFitMgr*& mgr, const string& tag )
 {
-   const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
+   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
    mgr = new SampleRooFitMgr( tag, cfg );
 }
 
@@ -44,8 +44,8 @@ InitRooFitSettings( const TstarNamer& x )
 void
 InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& sig_list )
 {
-   const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
-   data = new SampleRooFitMgr( limit_namer.GetChannelEXT( "Data Tag" ), cfg );
+   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   data = new SampleRooFitMgr( limnamer.GetChannelEXT( "Data Tag" ), cfg );
 
    for( const auto& signal_tag : cfg.GetStaticStringList( "Signal List" ) ){
       sig_list.push_back( new SampleRooFitMgr( signal_tag, cfg ) );
@@ -57,6 +57,6 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& sig_list )
 void
 InitMC( SampleRooFitMgr*& mc )
 {
-   const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
+   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
    mc = new SampleRooFitMgr( "Background", cfg );
 }

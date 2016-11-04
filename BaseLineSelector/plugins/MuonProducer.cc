@@ -14,12 +14,7 @@ MuonProducer::MuonProducer( const edm::ParameterSet& iConfig ) :
    _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) ),
    _vertexsrc( GETTOKEN( iConfig, VertexList, "vertexsrc" ) ),
    _packedsrc( GETTOKEN( iConfig, PackedCandList,  "packedsrc" ) ),
-   _muonsrc( GETTOKEN( iConfig,  MuonList,  "muonsrc" ) ),
-   _hltsrc( GETTOKEN( iConfig,  TriggerResults, "hltsrc" ) ),
-   _triggerobjsrc( GETTOKEN( iConfig, TriggerObjList, "trgobjsrc" ) ),
-   _reqtrigger( iConfig.getParameter<std::string>( "reqtrigger" ) ),
-   _reqfilter( iConfig.getParameter<std::string>( "reqfilter" ) ),
-   _runtriggermatch( iConfig.getParameter<bool>( "runtrigger" ) )
+   _muonsrc( GETTOKEN( iConfig,  MuonList,  "muonsrc" ) )
 {
    produces<MuonList>();
 }
@@ -32,8 +27,6 @@ MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
    iEvent.getByToken( _muonsrc,       _muonHandle   );
    iEvent.getByToken( _vertexsrc,     _vertexHandle );
    iEvent.getByToken( _packedsrc,     _packedHandle );
-   iEvent.getByToken( _hltsrc,        _hltHandle    );
-   iEvent.getByToken( _triggerobjsrc, _triggerObjectHandle );
 
    std::auto_ptr<MuonList> selectedMuons( new MuonList );
 

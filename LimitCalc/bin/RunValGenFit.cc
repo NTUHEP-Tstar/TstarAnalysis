@@ -36,28 +36,28 @@ main( int argc, char* argv[] )
       ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
    ;
 
-   limit_namer.SetNamingOptions( {"fitfunc", "mass"} );
-   const int run = limit_namer.LoadOptions( desc, argc, argv );
+   limnamer.SetNamingOptions( {"fitfunc", "mass"} );
+   const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
 
    // Parsing options
-   if( limit_namer.HasOption( "relmag" ) && limit_namer.HasOption( "absmag" ) ){
+   if( limnamer.HasOption( "relmag" ) && limnamer.HasOption( "absmag" ) ){
       cerr << "Cannot set both relative and absolute magnitued" << endl;
       return 1;
-   } else if( !limit_namer.HasOption( "relmag" ) && !limit_namer.HasOption( "absmag" ) ){
+   } else if( !limnamer.HasOption( "relmag" ) && !limnamer.HasOption( "absmag" ) ){
       cerr << "Must set either relative of absolute magnitude" << endl;
       return 1;
    }
-   if( !limit_namer.HasOption( "num" ) ){
+   if( !limnamer.HasOption( "num" ) ){
       cerr << "Must specify number of runs!" << endl;
       return 1;
    }
 
-   InitSampleStatic( limit_namer );
-   InitRooFitSettings( limit_namer );
-   InitSingle( data,   limit_namer.GetChannelEXT( "Data Tag" ) );
-   InitSingle( sigmgr, limit_namer.GetInput( "mass" ) );
+   InitSampleStatic( limnamer );
+   InitRooFitSettings( limnamer );
+   InitSingle( data,   limnamer.GetChannelEXT( "Data Tag" ) );
+   InitSingle( sigmgr, limnamer.GetInput( "mass" ) );
    InitMC( mc );
 
    RunGenFit( data, mc, sigmgr );

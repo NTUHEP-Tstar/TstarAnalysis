@@ -13,11 +13,12 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
 
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
+#include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
-#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "TFile.h"
 #include <boost/format.hpp>
@@ -39,12 +40,12 @@ SampleHistMgr::define_hist()
    AddHist( "LepEta",            "Lepton #eta",                                       "",          75,   -2.5, 5.0 );
    AddHist( "MET",               "Missing transverse energy",                         "GeV",       50,   0,    500 );
    AddHist( "METPhi",            "Missing transverse energy #phi",                    "",          96,   -3.2, 6.4 );
-   AddHist( "JetNum",            "Number of Jets",                                    "",          10,   5,     15 );
-   AddHist( "JetPt",             "Jet p_{T}",                                         "GeV/c",     60,  30,   1000 );
-   AddHist( "Jet1Pt",            "First Leading Jet p_{T}",                           "GeV/c",     60,  30,   1000 );
-   AddHist( "Jet2Pt",            "Second Leading Jet p_{T}",                          "GeV/c",     60,  30,   1000 );
-   AddHist( "Jet3Pt",            "Third Jet p_{T}",                                   "GeV/c",     60,  30,    700 );
-   AddHist( "Jet4Pt",            "Fourth Jet p_{T}",                                  "GeV/c",     60,  30,    600 );
+   AddHist( "JetNum",            "Number of Jets",                                    "",          11,   4,     15 );
+   AddHist( "JetPt",             "Jet p_{T}",                                         "GeV/c",     60,   0,   1000 );
+   AddHist( "Jet1Pt",            "First Leading Jet p_{T}",                           "GeV/c",     60,   0,   1000 );
+   AddHist( "Jet2Pt",            "Second Leading Jet p_{T}",                          "GeV/c",     60,   0,   1000 );
+   AddHist( "Jet3Pt",            "Third Jet p_{T}",                                   "GeV/c",     60,   0,    700 );
+   AddHist( "Jet4Pt",            "Fourth Jet p_{T}",                                  "GeV/c",     60,   0,    600 );
    AddHist( "JetEta",            "Jet #eta",                                          "",          75,   -2.5, 5.0 );
    AddHist( "Jet1Eta",           "First Leading Jet #eta",                            "",          75,   -2.5, 5.0 );
    AddHist( "Jet2Eta",           "Second Leading Jet #eta",                           "",          75,   -2.5, 5.0 );
@@ -59,21 +60,21 @@ SampleHistMgr::define_hist()
    // Primary vertexts
    AddHist( "VtxNum",            "Number of primary vertex",                          "",          50,   0,     50 );
    AddHist( "VtxNumBestFit",     "Number of primary vertex (#sigma_{min}=62mb)",      "",          50,   0,     50 );
-   AddHist( "VtxNumUp",          "Number of primary vertex (#sigma_{min}+4.6%%)",     "",          50,   0,     50 );
-   AddHist( "VtxNumDown",        "Number of primary vertex (#sigma_{min}-4.6%%)",     "",          50,   0,     50 );
+   AddHist( "VtxNumUp",          "Number of primary vertex (#sigma_{min}+4.6%)",      "",          50,   0,     50 );
+   AddHist( "VtxNumDown",        "Number of primary vertex (#sigma_{min}-4.6%)",      "",          50,   0,     50 );
    AddHist( "VtxNumNW",          "Number of primary vertex (no PU weight)",           "",          50,   0,     50 );
 
    // Pile up effects
-   AddHist( "Jet1Pt_PuUp",       "First Leading Jet p_{T} (#sigma_{min}+4.6%%)",      "GeV/c",     60,  30,   1000 );
-   AddHist( "Jet1Pt_PuDown",     "First Leading Jet p_{T} (#sigma_{min}-4.6%%)",      "GeV/c",     60,  30,   1000 );
-   AddHist( "JetNum_PuUp",       "Number of Jets (#sigma_{min}+4.6%%)",               "GeV/c^{2}", 10,   5,     15 );
-   AddHist( "JetNum_PuDown",     "Number of Jets (#sigma_{min}-4.6%%)",               "GeV/c^{2}", 10,   5,     15 );
-   AddHist( "TstarMass_PuUp",    "M_{t+g} (#sigma_{min}+4.6%%)",                      "GeV/c^{2}", 50,   0,   2000 );
-   AddHist( "TstarMass_PuDown",  "M_{t+g} (#sigma_{min}-4.6%%)",                      "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "Jet1Pt_PuUp",       "First Leading Jet p_{T} (#sigma_{min}+4.6%)",       "GeV/c",     60,  30,   1000 );
+   AddHist( "Jet1Pt_PuDown",     "First Leading Jet p_{T} (#sigma_{min}-4.6%)",       "GeV/c",     60,  30,   1000 );
+   AddHist( "JetNum_PuUp",       "Number of Jets (#sigma_{min}+4.6%)",                "GeV/c^{2}", 11,   4,     15 );
+   AddHist( "JetNum_PuDown",     "Number of Jets (#sigma_{min}-4.6%)",                "GeV/c^{2}", 11,   4,     15 );
+   AddHist( "TstarMass_PuUp",    "M_{t+g} (#sigma_{min}+4.6%)",                       "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "TstarMass_PuDown",  "M_{t+g} (#sigma_{min}-4.6%)",                       "GeV/c^{2}", 50,   0,   2000 );
 
    // Effects of TopPtWeight
    AddHist( "MET_NoTopPt",       "Missing transverse energy (w/o top p_{T} weights)", "GeV",       50,   0,    500 );
-   AddHist( "JetNum_NoTopPt",    "Number of jets (w/o top p_{T} weights)",            "",          10,   5,     15 );
+   AddHist( "JetNum_NoTopPt",    "Number of jets (w/o top p_{T} weights)",            "",          11,   4,     15 );
    AddHist( "Jet1Pt_NoTopPt",    "Leading Jet p_{T} (w/o top p_{T} weights)",         "GeV/c",     60,  30,   1000 );
    AddHist( "TstarMass_NoTopPt", "M_{t+g} (w/o top p_{T} weights)",                   "GeV/c^{2}", 50,   0,   2000 );
 
@@ -96,17 +97,20 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
    fwlite::Handle<vector<pat::Electron> > electronHandle;
    fwlite::Handle<RecoResult> chisqHandle;
 
-   const double sampleweight = GetSampleWeight( sample );
+   const double sampleweight = sample.ExpectedYield() / sample.SelectedEventCount();
 
    unsigned i = 1;
    boost::format processform( "\rSample [%s|%s] , Event[%u/%llu]..." );
-   cout << processform % Name() % sample.Name() % i % sample.Event().size() << flush;
+
 
    // Looping over events
-   for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event(), ++i ){
-      const auto& ev = sample.Event().Base();
+   mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
+   cout << processform % Name() % sample.Name() % i % myevt.size() << flush;
 
-      cout << processform % Name() % sample.Name() % i % sample.Event().size() << flush;
+   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
+      const auto& ev = myevt.Base();
+
+      cout << processform % Name() % sample.Name() % i % myevt.size() << flush;
 
       const double pileup_weight    = GetPileupWeight( ev );
       const double pileup_weight_bf = GetPileupWeightBestFit( ev );
@@ -203,24 +207,35 @@ SampleHistMgr::SampleHistMgr( const string& name, const ConfigReader& cfg  ) :
    SampleGroup( name, cfg ),
    HistMgr( name )
 {
-   // Common initialization
    define_hist();
+}
 
+
+/******************************************************************************/
+
+void
+SampleHistMgr::FillFromSample()
+{
    for( auto& sample : SampleList() ){
-      InitSample( sample );
+      InitSampleFromEDM( sample );
+      mgr::SaveCacheToFile( sample, compnamer.TextFileName( sample.Name() ) );
+      FillFromSample( sample );
    }
 
-   // Case dependent
-   if( compnamer.HasOption( "refill" ) ){
-      for( auto& sample : SampleList() ){
-         FillFromSample( sample );
-      }
+   SaveToFile( compnamer.RootFileName( "histcache" ) );
+}
 
-      SaveToFile( compnamer.RootFileName( "histcache" ) );
-   } else {
-      LoadFromFile( compnamer.RootFileName( "histcache" ) );
+/******************************************************************************/
+
+void
+SampleHistMgr::LoadFromFile()
+{
+   for( auto& sample : SampleList() ){
+      mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ));
    }
 
+   // calling from histmgr function
+   HistMgr::LoadFromFile( compnamer.RootFileName( "histcache" ) );
 }
 
 SampleHistMgr::~SampleHistMgr(){}

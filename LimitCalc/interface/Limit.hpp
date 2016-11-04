@@ -5,10 +5,10 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-
 #ifndef TSTARANALYSIS_LIMITCALC_LIMIT_HPP
 #define TSTARANALYSIS_LIMITCALC_LIMIT_HPP
 
+#include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "TGraph.h"
 #include <map>
 #include <string>

@@ -11,6 +11,7 @@
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/SampleTableMgr.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -30,23 +31,21 @@
 *   ** SummaryMCLumi - print the MC sample as a list of equivalent luminosities.
 *
 *******************************************************************************/
-extern void InitGroupForTable( mgr::SampleGroup& );
-
 extern void SummaryComplete(
-   const std::vector<mgr::SampleGroup>& siglist,
-   const std::vector<mgr::SampleGroup>& bkglist,
-   const mgr::SampleGroup&              data
+   const std::vector<SampleTableMgr>& siglist,
+   const std::vector<SampleTableMgr>& bkglist,
+   const SampleTableMgr&              data
    );
 
 extern void SummaryBrief(
-   const std::vector<mgr::SampleGroup>& siglist,
-   const std::vector<mgr::SampleGroup>& bkglist,
-   const mgr::SampleGroup&              data
+   const std::vector<SampleTableMgr>& siglist,
+   const std::vector<SampleTableMgr>& bkglist,
+   const SampleTableMgr&              data
 );
 
 extern void SummaryMCLumi(
-   const std::vector<mgr::SampleGroup>& siglist,
-   const std::vector<mgr::SampleGroup>& bkglist
+   const std::vector<SampleTableMgr>& siglist,
+   const std::vector<SampleTableMgr>& bkglist
    );
 
 /*******************************************************************************
@@ -55,13 +54,9 @@ extern void SummaryMCLumi(
 *   ** InitGroupString - Recrawling group configuration json file and adding
 *                        string caches to sample mgr list
 *   ** InitSampleString - Actually defining what sample stringto cache
-*   
+*
 *******************************************************************************/
-extern void InitGroupString( mgr::SampleGroup&  );
-extern void InitSampleForTable( mgr::SampleMgr& );
-extern void InitSampleString( mgr::SampleMgr&, const mgr::ConfigReader& );
 extern Parameter GetWeightError( const mgr::SampleMgr& );
-
 
 /*******************************************************************************
 *   Common Helper function
@@ -88,7 +83,7 @@ extern void  PrintCount( FILE*, const std::string&, const Parameter& );
 *   Helper functions for simple summary files
 *******************************************************************************/
 extern FILE* OpenSimpleFile( const std::string& );
-extern void  PrintSimpleLine( FILE*, const mgr::SampleGroup& );
+extern void  PrintSimpleLine( FILE*, const SampleTableMgr& );
 extern void  PrintSimpleCount( FILE*, const std::string&, const Parameter& );
 
 /*******************************************************************************

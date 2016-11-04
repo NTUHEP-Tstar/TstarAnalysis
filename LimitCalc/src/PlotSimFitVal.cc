@@ -67,7 +67,7 @@ PullResult
 PlotSingleGenFit( const std::string& masstag )
 {
    const string strgthtag = SigStrengthTag();
-   const string filename  = limit_namer.TextFileName( "valsimfit", {masstag, strgthtag} );
+   const string filename  = limnamer.TextFileName( "valsimfit", {masstag, strgthtag} );
    FILE* result           = fopen( filename.c_str(), "r" );
 
    RooDataSet bkgset( "bkg", "bkg", RooArgSet( p ) );
@@ -173,9 +173,9 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
    const string signal_s = str( signalfmt % GetInt( masstag ) );
    const string mean_s   = str( meanfmt   % mean.getVal() % mean.getError() );
    const string sigma_s  = str( sigmafmt  % sigma.getVal()% sigma.getError() );
-   const string inject_s = limit_namer.HasOption( "relmag" ) ?
-                           str( injectfmt % 'x' % limit_namer.InputDou( "relmag" ) ) :
-                           str( injectfmt % '=' % limit_namer.InputDou( "absmag" ) );
+   const string inject_s = limnamer.HasOption( "relmag" ) ?
+                           str( injectfmt % 'x' % limnamer.InputDou( "relmag" ) ) :
+                           str( injectfmt % '=' % limnamer.InputDou( "absmag" ) );
 
    // Making titles
    frame->SetTitle( "" );
@@ -187,14 +187,14 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
 
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT( "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName( "fitfunc", "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limnamer.GetChannelEXT( "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
    tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.20, signal_s.c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.26, inject_s.c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.32, mean_s.c_str() );
    tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.38, sigma_s.c_str() );
 
-   c->SaveAs( limit_namer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
+   c->SaveAs( limnamer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
 
    delete frame;
    delete c;
@@ -286,20 +286,20 @@ MakePullComparePlot(
    lo.Draw();
 
    boost::format injectfmt( "signal events %1% %2%" );
-   const string inject_s = limit_namer.GetMap().count( "relmag" ) ?
-                           str( injectfmt % 'x' % limit_namer.GetMap()["relmag"].as<double>() ) :
-                           str( injectfmt % '=' % limit_namer.GetMap()["absmag"].as<double>() );
+   const string inject_s = limnamer.GetMap().count( "relmag" ) ?
+                           str( injectfmt % 'x' % limnamer.GetMap()["relmag"].as<double>() ) :
+                           str( injectfmt % '=' % limnamer.GetMap()["absmag"].as<double>() );
 
    TLatex tl;
    tl.SetNDC( kTRUE );
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT( "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limit_namer.GetExtName( "fitfunc", "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limnamer.GetChannelEXT( "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
    tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.20, inject_s.c_str() );
 
-   c->SaveAs( limit_namer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
+   c->SaveAs( limnamer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
 
    delete graph;
    delete meanerr;

@@ -11,7 +11,6 @@
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
 #include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include <string>
 
 class SampleHistMgr :
    public mgr::SampleGroup,
@@ -21,10 +20,11 @@ public:
    SampleHistMgr( const std::string&, const mgr::ConfigReader& );
    ~SampleHistMgr();
 
-   void FillFromSample( mgr::SampleMgr& );
-
+   void LoadFromFile();
+   void FillFromSample();
 private:
    void define_hist();
+   void FillFromSample( mgr::SampleMgr& );
 };
 
-#endif/* end of include guard: __SAMPLEHISTMGR_HH__ */
+#endif

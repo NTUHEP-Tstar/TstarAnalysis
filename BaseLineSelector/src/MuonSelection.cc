@@ -38,19 +38,7 @@ MuonProducer::IsSelectedMuon( const pat::Muon&  mu,
    if( mu.pt()        < 30.               ){ return false; }
    if( fabs( mu.eta() ) > 2.1             ){ return false; }
    if( MuPfIso( mu )  > MUPFISO_TIGHT     ){ return false; }
-
-   // Trigger matching
-   if(
-      _runtriggermatch &&
-      !HasTriggerMatch(
-         mu,
-         *_triggerObjectHandle,
-         _reqtrigger,
-         _reqfilter,
-         iEvent.triggerNames( *_hltHandle )
-         ) ){
-      return false;
-   }
+   // Trigger selection moved to later, since it requires intensive study
    return true;
 }
 
@@ -95,14 +83,4 @@ MuonProducer::AddMuonVariables( pat::Muon& mu,  const edm::Event& iEvent ) const
       false );
    mu.addUserFloat( "miniIso", miniIso );
 
-   if( !_runtriggermatch ){ return; }// early exit if not required
-
-   const TLorentzVector trgp4 = TriggerMatchP4(
-      mu,
-      *_triggerObjectHandle,
-      _reqtrigger,
-      _reqfilter,
-      iEvent.triggerNames( *_hltHandle )
-      );
-   AddLorentzVector( mu, trgp4, "TrigP4" );
 }

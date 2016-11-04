@@ -5,11 +5,14 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
+#include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
-#include "TFile.h"
+
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
+
+#include "TFile.h"
 #include <iostream>
 
 using namespace std;
@@ -35,7 +38,6 @@ main( int argc, char const* argv[] )
    fwlite::Event ev( TFile::Open( argv[1] ) );
    fwlite::Handle<LHEEventProduct> evthandle;
    evthandle.getByLabel( ev, "externalLHEProducer" );
-
 
    for( ev.toBegin(); !ev.atEnd(); ++ev ){
       cout << GetPdfWeightError( ev, pdfidgroup ) << " " << GetScaleWeightError( ev, pdfidgroup ) << endl;

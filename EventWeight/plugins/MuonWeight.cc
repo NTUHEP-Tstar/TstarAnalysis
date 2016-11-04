@@ -47,10 +47,18 @@ private:
    const edm::EDGetToken _muonsrc;
    edm::Handle<std::vector<pat::Muon> > _muonhandle;
 
-   // Vector representing weights
-   const TH2D* _idweight;
-   const TH2D* _isoweight;
-   const TEfficiency* _trgweight;
+   struct WeightObj
+   {
+      std::string    weightname;
+      std::string    objecttype;
+      const TObject* weightobj;
+   };
+   const std::vector<MuonWeight::WeightObj> _weightobjlist;
+
+   std::vector<MuonWeight::WeightObj> GetWeightList( const edm::ParameterSet&, const std::string& ) const;
+   std::string                        MakeWeightName( const MuonWeight::WeightObj&  ) const;
+   Parameter                          GetWeight( const MuonWeight::WeightObj&, const double pt, const double eta ) const;
+
    double    getweight( const TH2D*, double pt, double eta ) const;
    double    getweighterr( const TH2D*, double pt, double eta ) const;
    Parameter getweightParam( const TEfficiency*, double pt, double eta ) const;
@@ -64,18 +72,15 @@ using namespace std;
 *******************************************************************************/
 MuonWeight::MuonWeight( const edm::ParameterSet & iConfig ) :
    _muonsrc( GETTOKEN( iConfig, std::vector<pat::Muon>, "muonsrc" ) ),
-   _idweight( (const TH2D*)GETFILEOBJ( iConfig, "idfile", "idhist" ) ),
-   _isoweight( (const TH2D*)GETFILEOBJ( iConfig, "isofile", "isohist" ) ),
-   _trgweight( (const TEfficiency*)GETFILEOBJ( iConfig, "trgfile", "trghist" ) )
+   _weightobjlist( GetWeightList( iConfig, "weightlist" ) )
 {
    produces<double>( "MuonWeight" );
-   produces<double>( "MuonTriggerWeight" );
-   produces<double>( "MuonIDWeight" );
-   produces<double>( "MuonIsoWeight" );
-
-   // These weight errors are all statistical
    produces<double>( "MuonWeightup" );
    produces<double>( "MuonWeightdown" );
+
+   for( const auto& weightobj : _weightobjlist ){
+      produces<double>( MakeWeightName( weightobj ) );
+   }
 }
 
 MuonWeight::~MuonWeight()
@@ -92,46 +97,29 @@ MuonWeight::produce( edm::Event& iEvent, const edm::EventSetup & iSetup )
 
    iEvent.getByToken( _muonsrc, _muonhandle );
 
-   if( _muonhandle->size() == 0 ){ return; }// Skipping events that doen't contain muons
+   Parameter totalweight(1,0,0);
 
-   auto_ptr<double> muonweightptr( new double(1) );
-   auto_ptr<double> muontrgweightptr( new double(1) );
-   auto_ptr<double> muonidweightptr( new double(1) );
-   auto_ptr<double> muonisoweightptr( new double(1) );
-   auto_ptr<double> muonweightupptr( new double(1) );
-   auto_ptr<double> muonweightdownptr( new double(1) );
+   if( _muonhandle->size() == 1 ){// MuonWeight is stuck at 1 otherwise
+      const double pt  = _muonhandle->at( 0 ).pt();
+      const double eta = _muonhandle->at( 0 ).eta();
 
-   const double pt  = _muonhandle->at( 0 ).pt();
-   const double eta = _muonhandle->at( 0 ).eta();
+      for( const auto& weightobj : _weightobjlist ){
+      const Parameter weightparm = GetWeight( weightobj, pt, eta );
 
-   const Parameter trgweight = getweightParam( _trgweight, pt, eta );
-   const Parameter idweight(
-      getweight( _idweight, pt, eta ),
-      getweighterr( _idweight, pt, eta ),
-      getweighterr( _idweight, pt, eta )
-      );
-   const Parameter isoweight(
-      getweight( _isoweight, pt, eta ),
-      getweighterr( _isoweight, pt, eta ),
-      getweighterr( _isoweight, pt, eta )
-      );
+         totalweight *= weightparm;
 
-   const Parameter totalweight = trgweight * idweight * isoweight;
+         auto_ptr<double> ptr( new double(weightparm.CentralValue()));
+         iEvent.put( ptr, MakeWeightName(weightobj) );
+      }
+   }
+   
+   auto_ptr<double> weightptr( new double( totalweight.CentralValue() ) );
+   auto_ptr<double> weightupptr( new double( totalweight.CentralValue()+totalweight.AbsUpperError() ) );
+   auto_ptr<double> weightdownptr( new double( totalweight.CentralValue()-totalweight.AbsLowerError() ) );
 
-   *muonweightptr     = totalweight.CentralValue();
-   *muonweightupptr   = totalweight.CentralValue() + totalweight.AbsUpperError();
-   *muonweightdownptr = totalweight.CentralValue() - totalweight.AbsLowerError();
-   *muontrgweightptr  = trgweight.CentralValue();
-   *muonidweightptr   = idweight.CentralValue();
-   *muonisoweightptr  = isoweight.CentralValue();
-
-   iEvent.put( muonweightptr,     "MuonWeight" );
-   iEvent.put( muontrgweightptr,  "MuonTriggerWeight" );
-   iEvent.put( muonidweightptr,   "MuonIDWeight" );
-   iEvent.put( muonisoweightptr,  "MuonIsoWeight" );
-   iEvent.put( muonweightupptr,   "MuonWeightup" );
-   iEvent.put( muonweightdownptr, "MuonWeightdown" );
-
+   iEvent.put( weightptr,     "MuonWeight" );
+   iEvent.put( weightupptr,   "MuonWeightup" );
+   iEvent.put( weightdownptr, "MuonWeightdown" );
 }
 
 /******************************************************************************/
@@ -179,6 +167,57 @@ MuonWeight::getweightParam( const TEfficiency* eff, double pt, double eta ) cons
       eff->GetEfficiencyErrorUp( binidx ),
       eff->GetEfficiencyErrorLow( binidx )
       );
+}
+
+/*******************************************************************************
+*   Objects for getting objects
+*******************************************************************************/
+std::vector<MuonWeight::WeightObj>
+MuonWeight::GetWeightList(
+   const edm::ParameterSet& iConfig,
+   const std::string&       tag ) const
+{
+   vector<MuonWeight::WeightObj> ans;
+
+   for( const auto& pset : iConfig.getParameter<std::vector<edm::ParameterSet> >( tag ) ){
+      MuonWeight::WeightObj obj;
+      obj.weightname = pset.getParameter<std::string>( "weightname" );
+      obj.objecttype = pset.getParameter<std::string>( "objecttype" );
+      obj.weightobj  = GETFILEOBJ( pset, "file", "fileobj" );
+      ans.push_back( obj );
+   }
+
+   return ans;
+}
+
+/******************************************************************************/
+
+std::string
+MuonWeight::MakeWeightName( const MuonWeight::WeightObj& x ) const
+{
+   return "Muon" + x.weightname;
+}
+
+/******************************************************************************/
+
+Parameter
+MuonWeight::GetWeight( const MuonWeight::WeightObj& x, const double pt, const double eta ) const
+{
+   if( x.objecttype == "TH2D" ){
+      return Parameter(
+         getweight( (const TH2D*)x.weightobj, pt, eta ),
+         getweighterr( (const TH2D*)x.weightobj, pt, eta ),
+         getweighterr( (const TH2D*)x.weightobj, pt, eta )
+         );
+   } else if( x.objecttype == "TEfficiency" ){
+      return getweightParam(
+         (const TEfficiency*)x.weightobj, pt, eta
+         );
+   } else {
+      throw std::invalid_argument( "Unknown type of weight object!" );
+      return Parameter( 0, 0, 0 );
+   }
+
 }
 
 DEFINE_FWK_MODULE( MuonWeight );

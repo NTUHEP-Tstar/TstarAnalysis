@@ -7,10 +7,11 @@
    #      http://arxiv.org/pdf/1408.5243v1.pdf
    -----------------------------------------------------------------------------""",
    "WW": {
+      "Is Data": false,
       "Latex Name" : "\\PW\\PW",
       "Root Name" : "WW",
       "Cross Section": [ 118.7, 2.97, 2.61],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\PYTHIA",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -18,10 +19,11 @@
       ]
    },
    "WZ": {
+      "Is Data": false,
       "Latex Name" : "\\PW\\Z",
       "Root Name" : "WZ",
       "Cross Section": [ 49.75, 38.3, 2.99 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\PYTHIA",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -29,10 +31,11 @@
       ]
    },
    "ZZ": {
+      "Is Data": false,
       "Latex Name" : "\\Z\\Z",
       "Root Name" : "ZZ",
       "Cross Section": [ 16.91, 0.54, 0.41 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\PYTHIA",
       "Cross Section Source": "NLO",
       "EDM Files":[

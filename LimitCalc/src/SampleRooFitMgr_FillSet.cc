@@ -5,12 +5,12 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "ManagerUtils/Maths/interface/Efficiency.hpp"
+#include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 
 #include "DataFormats/FWLite/interface/Handle.h"
 
@@ -46,27 +46,29 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
    fwlite::Handle<RecoResult> chiHandle;
 
-   const double sampleweight = GetSampleWeight( sample );
+   const double sampleweight = sample.ExpectedYield() / sample.SelectedEventCount();
    const auto& pdfidgroup = GetPdfIdGrouping( sample );
 
    unsigned i = 1;
 
-   for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event(), ++i ){
+   mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
+   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ) {
+      const auto& ev = myevt.Base();
 
-      printf( "\rSample [%s|%s], Event[%6u/%6llu]...",
+      printf( "\rSample [%s|%s], Event[%6u/%6u]...",
          Name().c_str(),
          sample.Name().c_str(),
          i,
-         sample.Event().size() );
+         myevt.size() );
       fflush( stdout );
 
       const double weight
-         = GetEventWeight( sample.Event() )
+         = GetEventWeight( ev )
            * sampleweight
-           * GetSampleEventTopPtWeight( sample, sample.Event() );
+           * GetSampleEventTopPtWeight( sample, ev );
 
       // Getting event weight
-      chiHandle.getByLabel( sample.Event(), "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+      chiHandle.getByLabel( ev , "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
       if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
 
       // Points to insert for all mass data types
@@ -84,22 +86,22 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
          AddToDataSet( "jecup",      tstarmass_jecup,   weight );
          AddToDataSet( "jecdown",    tstarmass_jecdown, weight );
 
-         const double btagweight      = GetBtagWeight( sample.Event() );
-         const double btagweightup    = GetBtagWeightUp( sample.Event() );
-         const double btagweightdown  = GetBtagWeightDown( sample.Event() );
-         const double puweight        = GetPileupWeight( sample.Event() );
-         const double puweightup      = GetPileupWeightXsecup( sample.Event() );
-         const double puweightdown    = GetPileupWeightXsecdown( sample.Event() );
-         const double elecweight      = GetElectronWeight( sample.Event() );
-         const double elecweightup    = GetElectronWeightUp( sample.Event() );
-         const double elecweightdown  = GetElectronWeightDown( sample.Event() );
-         const double muonweight      = GetMuonWeight( sample.Event() );
-         const double muonweightup    = GetMuonWeightUp( sample.Event() );
-         const double muonweightdown  = GetMuonWeightDown( sample.Event() );
-         const double pdfweightup     = 1 + GetPdfWeightError( sample.Event(), pdfidgroup );
-         const double pdfweightdown   = 1 - GetPdfWeightError( sample.Event(), pdfidgroup );
-         const double scaleweightup   = 1 + GetScaleWeightError( sample.Event(), pdfidgroup );
-         const double scaleweightdown = 1 - GetScaleWeightError( sample.Event(), pdfidgroup );
+         const double btagweight      = GetBtagWeight( ev );
+         const double btagweightup    = GetBtagWeightUp( ev );
+         const double btagweightdown  = GetBtagWeightDown( ev  );
+         const double puweight        = GetPileupWeight( ev );
+         const double puweightup      = GetPileupWeightXsecup( ev );
+         const double puweightdown    = GetPileupWeightXsecdown( ev );
+         const double elecweight      = GetElectronWeight( ev );
+         const double elecweightup    = GetElectronWeightUp( ev );
+         const double elecweightdown  = GetElectronWeightDown( ev );
+         const double muonweight      = GetMuonWeight( ev );
+         const double muonweightup    = GetMuonWeightUp( ev );
+         const double muonweightdown  = GetMuonWeightDown( ev );
+         const double pdfweightup     = 1 + GetPdfWeightError( ev, pdfidgroup );
+         const double pdfweightdown   = 1 - GetPdfWeightError( ev, pdfidgroup );
+         const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
+         const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
 
          AddToDataSet( "btagup",    tstarmass, weight * btagweightup   / btagweight );
          AddToDataSet( "btagdown",  tstarmass, weight * btagweightdown / btagweight );
@@ -115,8 +117,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
    }
 
    // Recalculating selection efficiency based on number of events pushed to central dataset
-   const Parameter newseleceff = Efficiency( DataSet( "" )->sumEntries(), GetOriginalEventCount( sample ) );
-   sample.SetSelectionEfficiency( newseleceff );
+   sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
 
    printf( "Done!\n" );
    fflush( stdout );

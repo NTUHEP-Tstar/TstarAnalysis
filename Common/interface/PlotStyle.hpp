@@ -10,14 +10,29 @@
 
 #include "TGraph.h"
 
+/*******************************************************************************
+*   Plotting options strings
+*******************************************************************************/
+#define PS_SAME    "SAME"
+#define PS_AXIS    "AXIS"
+#define PS_DATA    "LPE"
+#define PS_HIST    "HIST"
+#define PS_ERROR   "E2"
+#define PGS_DATA   "PZ" // P for point, Z for no end of error bar tick
+#define PGS_SIGNAL "LB"
+
 namespace tstar
 {
 
+/*******************************************************************************
+*   Template functions for fitting Common styling options
+*******************************************************************************/
 template<class T>
 void
 SetDataStyle( T* x )
 {
-   x->SetMarkerStyle( 21 );
+   x->SetMarkerStyle( 20 );
+   x->SetMarkerSize( 0.7 );
    x->SetLineColor( kBlack );
 }
 
@@ -38,7 +53,6 @@ SetSignalStyle( T* x )
    x->SetFillColor( kRed );
    x->SetFillStyle( 3005 );
 }
-
 
 /*******************************************************************************
 *   Limit Graph styling, Using TGraph ( see src/PlotStyle.cc for definitions)

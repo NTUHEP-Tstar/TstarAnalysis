@@ -14,10 +14,8 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include <memory>
 
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include <vector>
 
 
@@ -42,8 +40,6 @@ private:
    const edm::EDGetToken _mediumMapToken;
    const edm::EDGetToken _tightMapToken;
    const edm::EDGetToken _packedsrc;
-   const edm::EDGetToken _hltsrc;
-   const edm::EDGetToken _triggerobjsrc;
 
    edm::Handle<std::vector<pat::Electron>> _electronHandle;
    edm::Handle<pat::PackedCandidateCollection> _packedHandle;
@@ -51,12 +47,6 @@ private:
    edm::Handle<edm::ValueMap<bool> > _looseMapHandle;
    edm::Handle<edm::ValueMap<bool> > _mediumMapHandle;
    edm::Handle<edm::ValueMap<bool> > _tightMapHandle;
-   edm::Handle<edm::TriggerResults> _hltHandle;
-   edm::Handle<pat::TriggerObjectStandAloneCollection> _trigobjHandle;
-
-   const std::string _reqtrigger;
-   const std::string _reqfilter;
-   const bool        _runtriggermatch;
 
    // Helper functions: see src/ElectronSelection.cc
    bool IsSelectedElectron(

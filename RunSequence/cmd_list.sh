@@ -21,12 +21,16 @@
 ./02_retrieve_files.py         -i MC80X.txt            -m Muon
 ./02_retrieve_files.py         -i MC80X.txt            -m Electron
 
-./03_run_massreco.py   -i MuonData80X.txt      -m MuonSignal
-./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal
-./03_run_massreco.py   -i MC80X.txt            -m MuonSignal
-./03_run_massreco.py   -i MC80X.txt            -m ElectronSignal
+./local_run_massreco.py   -i MuonData80X.txt      -m MuonSignal
+./local_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal
+./local_run_massreco.py   -i MC80X.txt            -m MuonSignal
+./local_run_massreco.py   -i MC80X.txt            -m ElectronSignal
+./local_run_massreco.py   -i MuonData80X.txt      -m MuonControl
+./local_run_massreco.py   -i ElectronData80X.txt  -m ElectronControl
+./local_run_massreco.py   -i MC80X.txt            -m MuonControl
+./local_run_massreco.py   -i MC80X.txt            -m ElectronControl
 
-./03_run_massreco.py   -i MuonData80X.txt      -m MuonControl
-./03_run_massreco.py   -i ElectronData80X.txt  -m ElectronControl
-./03_run_massreco.py   -i MC80X.txt            -m MuonControl
-./03_run_massreco.py   -i MC80X.txt            -m ElectronControl
+./local_run_topselection.py -i MuonData80X.txt     -m Muon
+./local_run_topselection.py -i ElectronData80X.txt -m Electron
+./local_run_topselection.py -i MC80X.txt           -m Muon
+./local_run_topselection.py -i MC80X.txt           -m Electron

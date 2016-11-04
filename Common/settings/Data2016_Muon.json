@@ -4,37 +4,33 @@
    -----------------------------------------------------------------------------""",
 
    "Run2016B_PromptReco2":{
+      "Is Data": true,
       "Latex Name": "Run 2016 B Prompt Reco v2",
       "Root Name": "Run 2016 B Prompt Reco v2",
-      "Cross Section": [0,0,0],
-      "K Factor":[1.0],
       "EDM Files":[
          "SingleMuon_Run2016B-PromptReco-v2_*.root"
       ]
    },
    "Run2016C_PromptReco2":{
+      "Is Data": true,
       "Latex Name": "Run 2016 C Prompt Reco v2",
       "Root Name": "Run 2016 C Prompt Reco v2",
-      "Cross Section": [0,0,0],
-      "K Factor":[1.0],
       "EDM Files":[
          "SingleMuon_Run2016C-PromptReco-v2_*.root"
       ]
    },
    "Run2016D_PromptReco2":{
+      "Is Data": true,
       "Latex Name": "Run 2016 D Prompt Reco v2",
       "Root Name": "Run 2016 D Prompt Reco v2",
-      "Cross Section": [0,0,0],
-      "K Factor":[1.0],
       "EDM Files":[
          "SingleMuon_Run2016D-PromptReco-v2_*.root"
       ]
    },
    "___Run2016E_PromptReco2":{
+      "Is Data": true,
       "Latex Name": "Run 2016 E Prompt Reco v2",
       "Root Name": "Run 2016 E Prompt Reco v2",
-      "Cross Section": [0,0,0],
-      "K Factor":[1.0],
       "EDM Files":[
          "SingleMuon_Run2016E-PromptReco-v2_*.root"
       ]

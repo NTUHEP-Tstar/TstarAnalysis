@@ -33,9 +33,9 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
    RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
    const double bkgnum       = data->DataSet()->sumEntries();
-   const double signum       = limit_namer.HasOption( "relmag" ) ?
-                               sigmgr->ExpectedYield().CentralValue() * limit_namer.InputDou( "relmag" ) :
-                               limit_namer.InputDou( "absmag" );
+   const double signum       = limnamer.HasOption( "relmag" ) ?
+                               sigmgr->ExpectedYield() * limnamer.InputDou( "relmag" ) :
+                               limnamer.InputDou( "absmag" );
 
    vector<RooRealVar*> paramlist = mc->VarContains( "template" );
    const double param1           = paramlist[0]->getVal();
@@ -46,19 +46,19 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 
    const string strgthtag = SigStrengthTag();
    FILE* result;
-   if ( !boost::filesystem::exists( limit_namer.TextFileName("valsimfit",{strgthtag}) ) ){
+   if ( !boost::filesystem::exists( limnamer.TextFileName("valsimfit",{strgthtag}) ) ){
       // If doesn't already exists create new file and print first fitting value.
-      result = fopen( limit_namer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "w" );
+      result = fopen( limnamer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "w" );
       fprintf( result, "%lf %lf %lf %lf\n", bkgnum, signum, param1, param2 );
    } else {
       // Else open in append mode.
-      result = fopen( limit_namer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "a" );
+      result = fopen( limnamer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "a" );
    }
 
    // Setting random seed to present time to allow multiple reruns
    RooRandom::randomGenerator()->SetSeed(time(NULL));
 
-   for( int i = 0; i < limit_namer.InputInt( "num" ); ++i ){
+   for( int i = 0; i < limnamer.InputInt( "num" ); ++i ){
       const string pseudosetname = "pseudo";
 
       RooDataSet* psuedoset = bkgfunc->generate(
@@ -121,7 +121,7 @@ string
 SigStrengthTag()
 {
    static boost::format secfmt( "%1%%2%" );
-   return limit_namer.HasOption( "relmag" ) ?
-   str( secfmt % "rel" % limit_namer.InputDou( "relmag" ) ) :
-   str( secfmt % "abs" % limit_namer.InputDou( "absmag" ) );
+   return limnamer.HasOption( "relmag" ) ?
+   str( secfmt % "rel" % limnamer.InputDou( "relmag" ) ) :
+   str( secfmt % "abs" % limnamer.InputDou( "absmag" ) );
 }

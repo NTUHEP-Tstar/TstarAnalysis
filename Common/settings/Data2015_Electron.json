@@ -5,6 +5,7 @@
 
 
     "Run2015D": {
+        "Is Data": true,
         "Latex Name": "Run2015D",
         "Root Name": "Run2015D",
         "Cross Section": [0, 0, 0],
@@ -15,6 +16,7 @@
     },
 
     "Run2015C": {
+        "Is Data": true, 
         "Latex Name": "Run2015C",
         "Root Name": "Run2015C",
         "Cross Section": [0, 0, 0],

@@ -32,23 +32,23 @@ main( int argc, char* argv[] )
       ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
    ;
 
-   limit_namer.SetNamingOptions( {"fitmethod", "fitfunc"} );
-   const int run = limit_namer.LoadOptions( desc, argc, argv );
+   limnamer.SetNamingOptions( {"fitmethod", "fitfunc"} );
+   const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
 
-   InitSampleStatic( limit_namer );
-   InitRooFitSettings( limit_namer );
+   InitSampleStatic( limnamer );
+   InitRooFitSettings( limnamer );
 
    InitDataAndSignal( data, signal_list );
    InitMC( mc );
-   if( limit_namer.GetInput( "fitmethod" ) == "SimFit"  ){
+   if( limnamer.GetInput( "fitmethod" ) == "SimFit"  ){
       cout << "Running SimFit Method!" << endl;
       MakeSimFit( data, mc, signal_list );
-   } else if( limit_namer.GetInput( "fitmethod" ) == "Template" ){
+   } else if( limnamer.GetInput( "fitmethod" ) == "Template" ){
       cout << "Running MC template method!" << endl;
       MakeTemplate( data, mc, signal_list );
-   } else if( limit_namer.GetInput( "fitmethod" ).find( "Bias" ) != string::npos ){
+   } else if( limnamer.GetInput( "fitmethod" ).find( "Bias" ) != string::npos ){
       cout << "Running Bias check!" << endl;
       MakeBias( data, mc, signal_list );
    } else {

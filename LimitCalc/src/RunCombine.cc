@@ -13,24 +13,46 @@
 using namespace std;
 using namespace mgr;
 
-// ------------------------------------------------------------------------------
-//   Main control flows
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Main control flow
+*******************************************************************************/
+static string AdditionalOptions( const string& method );
+
+
 void
 RunCombine( const string& hc_opt )
 {
-   const ConfigReader cfg( limit_namer.MasterConfigFile() );
-   const HiggsCombineSubmitter sub( limit_namer.SettingsDir() + "higgs_combine_settings.json" );
+   const ConfigReader cfg( limnamer.MasterConfigFile() );
+   const HiggsCombineSubmitter sub( limnamer.SettingsDir() + "higgs_combine_settings.json" );
    vector<CombineRequest> submit_list;
 
    for( const auto& sig : cfg.GetStaticStringList( "Signal List" ) ){
+
+      const string cardfile  = limnamer.TextFileName( "card", {sig} );
+      const string storefile = limnamer.RootFileName( "combine", {sig} );
+      const string method    = limnamer.GetInput( "combine" );
+      const string addopts   = AdditionalOptions( method );
+      const int masspoint    = GetInt( sig );
+
       submit_list.push_back( CombineRequest(
-            limit_namer.TextFileName( "card", {sig} ),  // card file
-            limit_namer.RootFileName( "combine", {sig} ),// store store
-            GetInt( sig ),           // mass point
-            limit_namer.GetInput( "combine" )
+            cardfile,
+            storefile,
+            masspoint,
+            method,
+            addopts
             ) );
    }
 
    sub.SubmitParallel( submit_list );
+}
+
+
+string
+AdditionalOptions( const string& method )
+{
+   if( method == "HybridNew" ){
+      return "--iteration=16";
+   }
+
+   return "";
 }

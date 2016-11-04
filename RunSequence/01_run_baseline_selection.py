@@ -30,17 +30,16 @@ config.JobType.maxMemoryMB = 2500 ## Requesting 2.5G of memory!
 config.JobType.pyCfgParams = [
     'Mode={3}',
     'GlobalTag={4}',
-    'HLT={5}'
 ]
 
-config.Data.inputDataset = '{6}'
+config.Data.inputDataset = '{5}'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 25 ## Very fine job splitting
-config.Data.outLFNDirBase = '{7}'
+config.Data.outLFNDirBase = '{6}'
 config.Data.publication = False
 
-config.Site.storageSite = '{8}'
+config.Site.storageSite = '{7}'
 """
 
 
@@ -57,7 +56,7 @@ def MakeCrabFile( dataset, opt ):
     global_tag = ""
     hlt        = myname.GetHLT(dataset)
     lfn_dir    = mysetting.crab_default_path
-    site       = mysetting.crab_default_site
+    site       = mysetting.crab_site
     lumi_file  = mysetting.crab_default_lumi
 
     if myname.IsData( dataset ):
@@ -71,10 +70,9 @@ def MakeCrabFile( dataset, opt ):
         run_file   , #{2}
         mode       , #{3}
         global_tag , #{4}
-        hlt        , #{5}
-        dataset    , #{6}
-        lfn_dir    , #{7}
-        site       , #{8}
+        dataset    , #{5}
+        lfn_dir    , #{6}
+        site       , #{7}
     )
 
     ## Writing to Crab file

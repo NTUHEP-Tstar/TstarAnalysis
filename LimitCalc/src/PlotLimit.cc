@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 #include <cstdlib>
 #include <map>
 #include <string>
@@ -34,7 +35,7 @@ using namespace std;
 void
 MakeLimitPlot()
 {
-   const mgr::ConfigReader cfg( limit_namer.MasterConfigFile() );
+   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
 
    const vector<string> siglist   = cfg.GetStaticStringList( "Signal List" );
    const map<double, double> xsec = GetXsectionMap();
@@ -46,11 +47,11 @@ MakeLimitPlot()
    TGraph* obsgraph    = MakeCalcGraph( siglist, xsec, obslim, skip, skip );
    TGraph* theorygraph = MakeTheoryGraph( xsec );
 
-   const vector<const TGraph*> temp = {twosiggraph,obsgraph};
-   const double y_max = plt::GetYmax( temp );
-   const double y_min = plt::GetYmin( temp );
-   const double x_max = obsgraph->GetX()[obsgraph->GetN()-1];
-   const double x_min = obsgraph->GetX()[0];
+   const vector<const TGraph*> temp = {twosiggraph, obsgraph};
+   const double y_max               = plt::GetYmax( temp );
+   const double y_min               = plt::GetYmin( temp );
+   const double x_max               = obsgraph->GetX()[obsgraph->GetN()-1];
+   const double x_min               = obsgraph->GetX()[0];
 
    // ----- Setting Styles  --------------------------------------------------------
    tstar::SetOneSigmaStyle( onesiggraph );
@@ -60,14 +61,21 @@ MakeLimitPlot()
    tstar::SetTheoryStyle( theorygraph );
 
    // Making object for plotting
-   TCanvas* c1     = plt::NewCanvas();
+   TCanvas* c1 = plt::NewCanvas();
+   gPad->SetLeftMargin( PLOT_X_MIN );
+   gPad->SetRightMargin( 1 - PLOT_X_MAX );
+   gPad->SetBottomMargin( PLOT_Y_MIN );
+   gPad->SetTopMargin( 1 - PLOT_Y_MAX );
+
    TMultiGraph* mg = new TMultiGraph();
 
    mg->Add( twosiggraph );
    mg->Add( onesiggraph );
    mg->Add( theorygraph );
    mg->Add( expgraph );
-   // mg->Add( obsgraph );
+   if( limnamer.HasOption( "drawdata" ) ){
+      mg->Add( obsgraph );
+   }
 
    mg->Draw( "AL3" );
    plt::SetAxis( mg );
@@ -82,48 +90,52 @@ MakeLimitPlot()
    const double legend_x_min = 0.55;
    const double legend_y_min = 0.65;
    TLegend* l                = plt::NewLegend( legend_x_min, legend_y_min );
-   // l->AddEntry( obsgraph,    "95%% CL Limit (Obs.)", "l" );
+   l->AddEntry( obsgraph,    "95%% CL Limit (Obs.)", "l" );
    l->AddEntry( expgraph,    "Expected limit",       "l" );
-   l->AddEntry( onesiggraph, "68%% expected",        "f" );
-   l->AddEntry( twosiggraph, "95%% expected",        "f" );
+   l->AddEntry( onesiggraph, "68% expected",         "f" );
+   l->AddEntry( twosiggraph, "95% expected",         "f" );
    l->AddEntry( theorygraph, "Theory",               "l" );
    l->Draw();
 
 
    // Additional titles settings
    plt::DrawCMSLabel();
-   if( boost::contains( limit_namer.GetChannel(), "2015" ) ){
+   if( boost::contains( limnamer.GetChannel(), "2015" ) ){
       plt::DrawLuminosity( cfg.GetStaticDouble( "Total Luminosity 2015" ) );
    } else {
       plt::DrawLuminosity( cfg.GetStaticDouble( "Total Luminosity 2016" ) );
    }
+
+   // Writing additional text
+   const string rootlabel = limnamer.GetChannelEXT( "Root Name" );
+   const string fitmethod = limnamer.GetExtName( "fitmethod", "Full Name" );
+   const string funcname  = limnamer.GetExtName( "fitfunc", "Full Name" );
+   boost::format explimfmt( "Expected Lim (95%% CL.) = %s GeV/c^{2}" );
+   boost::format obslimfmt( "Observed Lim (95%% CL.) = %s GeV/c^{2}" );
 
    TLatex tl;
    tl.SetNDC( kTRUE );
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_LEFT );
-   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, limit_namer.GetChannelEXT( "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, ( limit_namer.GetExtName( "fitmethod", "Full Name" )+", "+limit_namer.GetExtName( "fitfunc", "Full Name" ) ).c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.02, rootlabel.c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, fitmethod.c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.16, funcname.c_str() );
 
    Parameter explim = GetInterSect( theorygraph, twosiggraph );
    Parameter obslim = GetInterSect( theorygraph, obsgraph );
-   tl.SetTextAlign( TOP_LEFT );
-   char buffer[1024];
-   sprintf( buffer, "Expected Lim (95%% CL.) = %.1lf^{+%.1lf}_{-%.1lf} GeV/c^{2}",
-      explim.CentralValue(), explim.AbsUpperError(), explim.AbsLowerError() );
-   tl.DrawLatex( 0.42, legend_y_min - 0.02, buffer );
-   // sprintf( buffer, "Observed Lim (95%% CL.) = %.1lf GeV/c^{2}",
-   //    obslim.CentralValue() );
-   // tl.DrawLatex( 0.42, legend_y_min - 0.08, buffer );
-
+   tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min - 0.02, boost::str( explimfmt % FloatingPoint( explim, 1 ) ).c_str() );
+   if( limnamer.HasOption("drawdata") ){
+      tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min - 0.08, boost::str( obslimfmt % FloatingPoint( obslim.CentralValue() , 1 ) ).c_str() ) ;
+   }
 
 
    // ----- Saving and cleaning up  ------------------------------------------------
    c1->SetLogy( kTRUE );
 
-   plt::SaveToROOT( c1, limit_namer.PlotRootFile(), limit_namer.PlotFileName( "limit" ) );
-   plt::SaveToPDF( c1 , limit_namer.PlotFileName( "limit" ) );
+   plt::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit" ) );
+   plt::SaveToPDF( c1, limnamer.PlotFileName( "limit" ) );
    delete onesiggraph;
    delete twosiggraph;
    delete obsgraph;
@@ -141,7 +153,7 @@ MakeLimitPlot()
 map<double, double>
 GetXsectionMap()
 {
-   FILE* xsec_file = fopen( ( limit_namer.SubPackageDir()+"data/excitedtoppair13TeV.dat" ).c_str(), "r" );
+   FILE* xsec_file = fopen( ( limnamer.SubPackageDir()+"data/excitedtoppair13TeV.dat" ).c_str(), "r" );
    map<double, double> ans;
    char* line_buf = NULL;
    size_t line_len = 0;
@@ -205,7 +217,7 @@ MakeCalcGraph(
    for( const auto& sig : siglist ){
       const double mass     = GetInt( sig );
       const double expxsec  = xsec.at( mass );
-      const string filename = limit_namer.RootFileName( "combine", {sig} );
+      const string filename = limnamer.RootFileName( "combine", {sig} );
 
       // Geting contents of higgs combine output file
       TFile* file = TFile::Open( filename.c_str() );

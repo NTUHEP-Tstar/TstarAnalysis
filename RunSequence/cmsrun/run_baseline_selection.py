@@ -12,6 +12,7 @@ import FWCore.ParameterSet.Config as cms
 #   Setting up options parser
 #-------------------------------------------------------------------------
 import FWCore.ParameterSet.VarParsing as opts
+import TstarAnalysis.EventWeight.EventWeighter_cfi as weight
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -20,7 +21,7 @@ options = opts.VarParsing('analysis')
 
 options.register(
     'sample',
-    'file:///afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg_2.root',
+    'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg_2.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -48,14 +49,6 @@ options.register(
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Lepton mode to use'
-)
-
-options.register(
-    'HLT',
-    '',
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'High Level Trigger Input Tag to use'
 )
 
 options.setDefault('maxEvents', 1000)
@@ -88,30 +81,8 @@ process.source = cms.Source(
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
 #-------------------------------------------------------------------------
-#   Importing HLT Filter
-#-------------------------------------------------------------------------
-if options.HLT:
-    print "Defining HLT selection...."
-    from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-    requiredHLT = []
-
-    if options.Mode == "Muon":
-        requiredHLT = ['HLT_IsoMu27_v*']
-    elif options.Mode == "Electron":
-        requiredHLT = ['HLT_Ele27_WPTight_Gsf_v*']
-    else:
-        print "[ERROR!!] Unrecognized mode [", options.Mode, "]!!"
-        sys.exit(1)
-
-    process.hltfilter = hltHighLevel.clone(
-        TriggerResultsTag=options.HLT,
-        andOr=True, ## Running in or mode
-        HLTPaths=requiredHLT
-    )
-
-#-------------------------------------------------------------------------------
 #   Importing Electron VID maps
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 print "Loading electron ID processes..."
 switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 elecIDModules = [
@@ -135,10 +106,9 @@ else:
     print "[ERROR!!] Unrecognized option [", options.Mode, "]!"
     sys.exit(1)
 
-
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 #   Loading met filtering processes
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 print "Loading met filtering processes....."
 process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
 process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
@@ -160,15 +130,6 @@ process.seqMET = cms.Sequence(
 print "Loading producers...."
 process.load("TstarAnalysis.BaseLineSelector.Producer_cfi")
 
-if options.HLT:
-    if options.Mode == "Muon":
-        process.selectedMuons.runtrigger = cms.bool(True)
-    elif options.Mode == "Electron":
-        process.selectedElectrons.runtrigger = cms.bool(True)
-    else:
-        print "[ERROR!!] Unrecognized option [", options.Mode, "]!"
-        sys.exit(1)
-
 process.seqObjProduce = cms.Sequence(
     process.selectedMuons
     * process.skimmedPatMuons
@@ -187,10 +148,43 @@ process.load("TstarAnalysis.BaseLineSelector.Counter_cfi")
 
 #-------------------------------------------------------------------------
 #   Load event weighting
+#   explicitly removing
 #-------------------------------------------------------------------------
 print "Loading event weighers...."
-process.load("TstarAnalysis.EventWeight.EventWeighter_cfi")
 
+# Defining weight calculators
+process.ElectronWeight = weight.ElectronWeightNoTrigger
+process.MuonWeight = weight.MuonWeightNoTrigger
+process.PileupWeight = weight.PileupWeight
+process.PileupWeightBestFit = weight.PileupWeightBestFit
+process.PileupWeightXsecup = weight.PileupWeightXsecup
+process.PileupWeightXsecdown = weight.PileupWeightXsecdown
+process.SignWeight = weight.SignWeight
+process.TopPtWeight = weight.TopPtWeight
+
+# Defining weight summing calculators
+process.EventWeight = cms.EDProducer(
+    "WeightProdSum",
+    weightlist=cms.VInputTag(
+        cms.InputTag("ElectronWeight", "ElectronWeight"),
+        cms.InputTag("MuonWeight",     "MuonWeight"),
+        cms.InputTag("PileupWeight",   "PileupWeight"),
+        cms.InputTag("SignWeight",     "SignWeight")
+    )
+)
+
+process.EventWeightAll = cms.EDProducer(
+    "WeightProdSum",
+    weightlist=cms.VInputTag(
+        cms.InputTag("ElectronWeight", "ElectronWeight"),
+        cms.InputTag("MuonWeight", "MuonWeight"),
+        cms.InputTag("PileupWeight", "PileupWeight"),
+        cms.InputTag("TopPtWeight", "TopPtWeight"),
+        cms.InputTag("SignWeight", "SignWeight")
+    )
+)
+
+# Defninig sequence
 process.seqWeight = cms.Sequence(
     (
         process.ElectronWeight
@@ -199,58 +193,60 @@ process.seqWeight = cms.Sequence(
         + process.PileupWeightBestFit
         + process.PileupWeightXsecup
         + process.PileupWeightXsecdown
-        + process.BtagWeight
+        # Removing Btag since it is not used in selection
+        + process.SignWeight
+        + process.TopPtWeight
     )
     * process.EventWeight
-    * process.EventWeightSum
-    * process.TopPtWeight
-    * process.TopPtWeightSum
+    * process.EventWeightAll
 )
 
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 #   Defining process paths
-#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 print "Defining process path...."
-if options.HLT:
-    process.myfilterpath = cms.Path(
-        process.beforeAny
-        * process.hltfilter
-        * process.afterHLT
-        * process.seqMET
-        * process.seqObjProduce
-        * process.leptonSeparator
-        * process.seqWeight
-    )
-else:
-    process.myfilterpath = cms.Path(
-        process.beforeAny
-        * process.seqMET
-        * process.seqObjProduce
-        * process.leptonSeparator
-        * process.seqWeight
+process.myfilterpath = cms.Path(
+    process.beforeAny
+    * process.seqMET
+    * process.seqObjProduce
+    * process.leptonSeparator
+    * process.seqWeight
+)
+
+#-------------------------------------------------------------------------
+#   Defining objects to keep
+#-------------------------------------------------------------------------
+keepobjlist = [
+    "keep *_externalLHEProducer_*_*",
+    "keep *_generator_*_*",
+    "keep *_prunedGenParticles_*_*",
+    "keep *_TriggerResults_*_HLT*",
+    "keep *_fixedGridRhoFastjetAll_*_*",
+    "keep *_offlineSlimmedPrimaryVertices_*_*",
+    "keep *_slimmedMETs_*_*",
+    "keep *_skimmedPatMuons_*_*",
+    "keep *_skimmedPatElectrons_*_*",
+    "keep *_skimmedPatJets_*_*",
+    "keep *_slimmedAddPileupInfo_*_*",
+    "keep *_selectedPatTrigger_*_*",
+    "keep edmMergeableCounter_*_*_*",
+    "keep *_*Weight*_*_*",
+]
+if options.Mode == "Electron":
+    keepobjlist.append(
+        "keep *_reducedEgamma_*_*"  # Required for addtional electron selection
     )
 
 #-------------------------------------------------------------------------
 #   Defining output Module
 #-------------------------------------------------------------------------
+
 process.edmOut = cms.OutputModule(
     "PoolOutputModule",
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "drop *",
-        "keep *_externalLHEProducer_*_*",
-        "keep *_generator_*_*",
-        "keep *_prunedGenParticles_*_*",
-        "keep *_TriggerResults_*_HLT*",
-        "keep *_fixedGridRhoFastjetAll_*_*",
-        "keep *_offlineSlimmedPrimaryVertices_*_*",
-        "keep *_slimmedMETs_*_*",
-        "keep *_skimmedPatMuons_*_*",
-        "keep *_skimmedPatElectrons_*_*",
-        "keep *_skimmedPatJets_*_*",
-        "keep *_slimmedAddPileupInfo_*_*",
-        "keep edmMergeableCounter_*_*_*",
-        "keep *_*Weight*_*_*",
+        *keepobjlist
     ),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))
 )

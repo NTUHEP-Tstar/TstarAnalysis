@@ -4,8 +4,6 @@
 *  Description : Adding weighting according to electron status
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
-*  Main reference :
-*
 *******************************************************************************/
 
 // system include files
@@ -26,9 +24,9 @@
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 
 #include "TAxis.h"
+#include "TEfficiency.h"
 #include "TFile.h"
 #include "TH2D.h"
-#include "TEfficiency.h"
 
 
 /*******************************************************************************
@@ -49,14 +47,24 @@ private:
    edm::Handle<std::vector<pat::Electron> > _elechandle;
 
    // Vector representing weights
-   const TH2D* _gsfweight;
-   const TH2D* _cutweight;
-   const TEfficiency* _trgweight;
+   struct WeightObj
+   {
+      std::string    weightname;
+      std::string    objecttype;
+      const TObject* weightobj;
+   };
+   const std::vector<WeightObj> _weightobjlist;
 
+
+   std::vector<ElectronWeight::WeightObj> GetWeightList( const edm::ParameterSet&, const std::string& tag ) const;
+   std::string                            MakeWeightName( const ElectronWeight::WeightObj& ) const;
+   Parameter                              GetWeight( const ElectronWeight::WeightObj&, const double pt, const double eta ) const;
+
+   // raw functions for root object interaction
    double getweight( const TH2D*, double pt, double eta ) const;
    double getweighterr( const TH2D*, double pt, double eta ) const;
 
-   Parameter getweightParam( const TEfficiency*, double pt, double eta )const ;
+   Parameter getweightParam( const TEfficiency*, double pt, double eta ) const;
 };
 
 using namespace edm;
@@ -67,24 +75,22 @@ using namespace std;
 *******************************************************************************/
 ElectronWeight::ElectronWeight( const edm::ParameterSet & iConfig ) :
    _elecsrc( GETTOKEN( iConfig, std::vector<pat::Electron>, "elecsrc" ) ),
-   _gsfweight( (const TH2D*)GETFILEOBJ( iConfig, "gsffile", "gsfhist" ) ),
-   _cutweight( (const TH2D*)GETFILEOBJ( iConfig, "cutfile", "cuthist" ) ),
-   _trgweight( (const TEfficiency*)GETFILEOBJ( iConfig, "trgfile", "trghist" ) )
+   _weightobjlist( GetWeightList( iConfig, "weightlist" ) )
 {
    produces<double>( "ElectronWeight" );
-   produces<double>( "ElectronGsfWeight" );
-   produces<double>( "ElectronCutWeight" );
-   produces<double>( "ElectronTriggerWeight" );
-
    produces<double>( "ElectronWeightup" );
    produces<double>( "ElectronWeightdown" );
+
+   for( const auto& weightobj : _weightobjlist ){
+      produces<double>( MakeWeightName( weightobj ) );
+   }
 }
 
 ElectronWeight::~ElectronWeight()
 {
-   delete _gsfweight;
-   delete _cutweight;
-   delete _trgweight;
+   for( auto& weightobj : _weightobjlist ){
+      delete weightobj.weightobj;
+   }
 }
 
 /*******************************************************************************
@@ -97,43 +103,28 @@ ElectronWeight::produce( edm::Event& iEvent, const edm::EventSetup & iSetup )
 
    iEvent.getByToken( _elecsrc, _elechandle );
 
-   if( _elechandle->size() == 0 ){ return; }// Skipping over muon signal
 
-   auto_ptr<double> elecweightptr( new double(1) );
-   auto_ptr<double> gsfweightptr( new double(1) );
-   auto_ptr<double> cutweightptr( new double(1) );
-   auto_ptr<double> trgweightptr( new double(1) );
-   auto_ptr<double> weightupptr( new double(1) );
-   auto_ptr<double> weightdownptr( new double(1) );
+   Parameter totalweight = Parameter( 1, 0, 0 );
 
-   double& elecweight = *elecweightptr;
-   double& gsfweight  = *gsfweightptr;
-   double& cutweight  = *cutweightptr;
-   double& trgweight  = *trgweightptr;
-   double& weightup   = *weightupptr;
-   double& weightdown = *weightdownptr;
+   if( _elechandle->size() ){// Weight will remain 1.0 otherwise
+      const double pt  = _elechandle->at( 0 ).pt();
+      const double eta = _elechandle->at( 0 ).eta();
 
-   const double pt  = _elechandle->at( 0 ).pt();
-   const double eta = _elechandle->at( 0 ).eta();
-   gsfweight = getweight( _gsfweight, pt, eta );
-   cutweight = getweight( _cutweight, pt, eta );
-   const double gsferr = getweighterr( _gsfweight, pt, eta );
-   const double cuterr = getweighterr( _cutweight, pt, eta );
+      for( const auto& weightobj : _weightobjlist ){
+         const Parameter weightparm = GetWeight( weightobj, pt, eta );
 
-   const Parameter cutparm( cutweight, cuterr, cuterr );
-   const Parameter gsfparm( gsfweight, gsferr, gsferr );
-   const Parameter trgparm = getweightParam( _trgweight, pt, eta);
-   trgweight = trgparm.CentralValue();
-   const Parameter totalparam = cutparm * gsfparm * trgparm ;
+         totalweight *= weightparm;
 
-   elecweight = totalparam.CentralValue();
-   weightup   = totalparam.CentralValue() + totalparam.AbsUpperError();
-   weightdown = totalparam.CentralValue() - totalparam.AbsLowerError();
+         auto_ptr<double> ptr( new double( weightparm.CentralValue() ) );
+         iEvent.put( ptr, MakeWeightName( weightobj ) );
+      }
+   }
 
-   iEvent.put( elecweightptr, "ElectronWeight" );
-   iEvent.put( gsfweightptr,  "ElectronGsfWeight" );
-   iEvent.put( cutweightptr,  "ElectronCutWeight" );
-   iEvent.put( trgweightptr,  "ElectronTriggerWeight" );
+   auto_ptr<double> weightptr( new double( totalweight.CentralValue() ) );
+   auto_ptr<double> weightupptr( new double( totalweight.CentralValue()+totalweight.AbsUpperError() ) );
+   auto_ptr<double> weightdownptr( new double( totalweight.CentralValue()-totalweight.AbsLowerError() ) );
+
+   iEvent.put( weightptr,     "ElectronWeight" );
    iEvent.put( weightupptr,   "ElectronWeightup" );
    iEvent.put( weightdownptr, "ElectronWeightdown" );
 }
@@ -152,6 +143,8 @@ ElectronWeight::getweight( const TH2D* hist, double pt, double eta ) const
    return hist->GetBinContent( hist->FindFixBin( eta, pt ) );
 }
 
+/******************************************************************************/
+
 double
 ElectronWeight::getweighterr( const TH2D* hist, double pt, double eta ) const
 {
@@ -164,22 +157,74 @@ ElectronWeight::getweighterr( const TH2D* hist, double pt, double eta ) const
    return hist->GetBinError( hist->FindFixBin( eta, pt ) );
 }
 
-Parameter
-ElectronWeight::getweightParam( const TEfficiency* eff, double pt, double eta )const
-{
-   if( !eff ) { return Parameter(1,0,0); }
+/******************************************************************************/
 
-   eta = min( eta, _trgweight->GetTotalHistogram()->GetXaxis()->GetXmax() - 0.01 );
-   eta = max( eta, _trgweight->GetTotalHistogram()->GetXaxis()->GetXmin() + 0.01 );
-   pt  = min( pt,  _trgweight->GetTotalHistogram()->GetYaxis()->GetXmax() - 0.01 );
+Parameter
+ElectronWeight::getweightParam( const TEfficiency* eff, double pt, double eta ) const
+{
+   if( !eff ){ return Parameter( 1, 0, 0 ); }
+
+   eta = min( eta, eff->GetTotalHistogram()->GetXaxis()->GetXmax() - 0.01 );
+   eta = max( eta, eff->GetTotalHistogram()->GetXaxis()->GetXmin() + 0.01 );
+   pt  = min( pt,  eff->GetTotalHistogram()->GetYaxis()->GetXmax() - 0.01 );
 
    const int binidx = eff->FindFixBin( eta, pt );
 
    return Parameter(
       eff->GetEfficiency( binidx ),
-      eff->GetEfficiencyErrorUp(binidx ),
+      eff->GetEfficiencyErrorUp( binidx ),
       eff->GetEfficiencyErrorLow( binidx )
-   );
+      );
+}
+
+/*******************************************************************************
+*   Helper function for getting weight configuration from input parameters
+*******************************************************************************/
+vector<ElectronWeight::WeightObj>
+ElectronWeight::GetWeightList(
+   const edm::ParameterSet& iConfig,
+   const std::string&       tag ) const
+{
+   std::vector<ElectronWeight::WeightObj> ans;
+
+   for( const auto& pset : iConfig.getParameter<std::vector<edm::ParameterSet> >( tag ) ){
+      ElectronWeight::WeightObj obj;
+      obj.weightname = pset.getParameter<std::string>( "weightname" );
+      obj.objecttype = pset.getParameter<std::string>( "objecttype" );
+      obj.weightobj  = GETFILEOBJ( pset, "file", "fileobj" );
+      ans.push_back( obj );
+   }
+
+   return ans;
+}
+
+std::string
+ElectronWeight::MakeWeightName( const ElectronWeight::WeightObj& x ) const
+{
+   return "Electron" + x.weightname;
+}
+
+Parameter
+ElectronWeight::GetWeight(
+   const ElectronWeight::WeightObj& x,
+   const double                     pt,
+   const double                     eta
+   ) const
+{
+   if( x.objecttype == "TH2D" ){
+      return Parameter(
+         getweight( (const TH2D*)x.weightobj, pt, eta ),
+         getweighterr( (const TH2D*)x.weightobj, pt, eta ),
+         getweighterr( (const TH2D*)x.weightobj, pt, eta )
+         );
+   } else if( x.objecttype == "TEfficiency" ){
+      return getweightParam(
+         (const TEfficiency*)x.weightobj, pt, eta
+         );
+   } else {
+      throw std::invalid_argument( "Unknown type of weight object!" );
+      return Parameter( 0, 0, 0 );
+   }
 }
 
 

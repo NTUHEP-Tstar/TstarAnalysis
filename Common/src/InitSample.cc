@@ -6,13 +6,14 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/EDMUtils/interface/Counter.hpp"
+#include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
-
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
-#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
-#include "TstarAnalysis/Common/interface/InitSample.hpp"
+
+#include "DataFormats/Common/interface/MergeableCounter.h"
+#include "DataFormats/FWLite/interface/Handle.h"
 
 #include <boost/algorithm/string.hpp>
 #include <iostream>
@@ -33,14 +34,52 @@ InitSampleStatic( const TstarNamer& namer )
    mgr::SampleGroup::SetSampleCfgPrefix( namer.SettingsDir() );
 }
 
-/*******************************************************************************
-*   Function for caching weight sums - see ComputeSelectionEff.cc and GetEventWeight.cc for implementation
-*******************************************************************************/
+/******************************************************************************/
+
 void
-InitSample( mgr::SampleMgr& sample )
+InitSampleFromEDM( mgr::SampleMgr& sample )
 {
-   SetOriginalEventCount( sample );
-   SetSampleTopPtWeight( sample );
-   SetSelectedEventCount( sample );
-   ComputeSelectionEff( sample );
+   mgr::MultiFileRun myrun( sample.GlobbedFileList() );
+
+   // Calculation original number of events is the same for MC and Data
+   fwlite::Handle<edm::MergeableCounter> positivehandle;
+   fwlite::Handle<edm::MergeableCounter> negativehandle;
+   double origcount = 0;
+   double selccount = 0;
+   double topwcount = 0;
+
+   for( myrun.toBegin(); !myrun.atEnd(); ++myrun ){
+      const auto& run = myrun.Base();
+
+      positivehandle.getByLabel( run, "beforeAny", "positiveEvents" );
+      negativehandle.getByLabel( run, "beforeAny", "negativeEvents" );
+      origcount += positivehandle->value;
+      origcount -= negativehandle->value;
+   }
+
+   // Selected event counting is not the same for data and MC
+
+   if( sample.IsRealData() ){
+      // For data, the selected number of events is just the number of events
+      mgr::MultiFileEvent myevent( sample.GlobbedFileList() );
+      selccount = myevent.size();
+      topwcount = myevent.size();
+   } else {
+      fwlite::Handle<mgr::Counter> evtweighthandle;
+      fwlite::Handle<mgr::Counter> evtweightallhandle;
+
+      for( myrun.toBegin(); !myrun.atEnd() ; ++myrun ){
+         const auto& run = myrun.Base();
+
+         evtweighthandle.getByLabel( run, "EventWeight","WeightSum");
+         evtweightallhandle.getByLabel( run,"EventWeightAll","WeightSum");
+         selccount += evtweighthandle.ref().value ;
+         topwcount += evtweightallhandle.ref().value ;
+      }
+   }
+
+   // Adding to samplemgr
+   sample.SetOriginalEventCount( origcount );
+   sample.SetSelectedEventCount( selccount );
+   sample.AddCacheDouble( "TopPtWeightSum", topwcount );
 }

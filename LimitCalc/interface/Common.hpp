@@ -18,7 +18,7 @@
 /*******************************************************************************
 *   Common variables, defined in src/Common_Init.cc
 *******************************************************************************/
-extern TstarNamer limit_namer;
+extern TstarNamer limnamer;
 
 /*******************************************************************************
 *   Object initializing functions ( called after parsing user input )

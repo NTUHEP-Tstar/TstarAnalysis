@@ -9,9 +9,9 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Run.h"
 
+#include "ManagerUtils/EDMUtils/interface/Counter.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
-
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
+#include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 
 #include "TFile.h"
 #include <iostream>
@@ -33,7 +33,16 @@ static double GetWeightByTag(
 double
 GetEventWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "EventWeight", "EventWeight" );
+   return GetWeightByTag( ev, "EventWeight", "WeightProd" );
+}
+
+
+/******************************************************************************/
+
+double
+GetWeightSign( const fwlite::EventBase& ev )
+{
+   return GetWeightByTag( ev, "SignWeight", "SignWeight" );
 }
 
 /******************************************************************************/
@@ -103,7 +112,8 @@ GetElectronTrackWeight( const fwlite::EventBase& ev )
    return GetWeightByTag( ev, "ElectronWeight", "ElectronGsfWeight" );
 }
 
-double GetElectronTriggerWeight( const fwlite::EventBase& ev )
+double
+GetElectronTriggerWeight( const fwlite::EventBase& ev )
 {
    return GetWeightByTag( ev, "ElectronWeight", "ElectronTriggerWeight" );
 }
@@ -166,60 +176,14 @@ GetEventTopPtWeight( const fwlite::EventBase& ev )
    return GetWeightByTag( ev, "TopPtWeight", "TopPtWeight" );
 }
 
-double
-SetSampleTopPtWeight( mgr::SampleMgr& sample )
-{
-   // For data
-   if( sample.IsRealData() ) {
-      sample.AddCacheDouble( "TopPtWeightSum", sample.Event().size() );
-      return sample.Event().size();
-   }
-
-   // For MC
-   fwlite::Handle<double> count_handle;
-   double ans = 0;
-
-   try {
-      mgr::MultiFileRun myrun( sample.GlobbedFileList() );
-      for( myrun.toBegin(); !myrun.atEnd(); ++myrun ){
-         const auto& run = myrun.Base();
-         count_handle.getByLabel( run, "TopPtWeightSum" );
-         ans += *count_handle;
-      }
-      sample.AddCacheDouble( "TopPtWeightSum", ans );
-      return ans;
-   } catch( std::exception ){}
-
-   cerr << "TopPt weight sum not found in MC at run storage! Trying per event... (May take some time)" << endl;
-
-   try {
-      for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event() ){
-         const auto& ev = sample.Event().Base();
-         ans += GetEventTopPtWeight( ev );
-      }
-      sample.AddCacheDouble( "TopPtWeightSum", ans );
-      return ans;
-
-   } catch( std::exception ){}
-
-   cerr << "TopPT weight sum not found anywhere for MC sample! Using sum of events, potentially dangerous" << endl;
-
-   ans = sample.Event().size();// For data files
-   sample.AddCacheDouble( "TopPtWeightSum", ans );
-   return ans;
-}
-
-double
-GetSampleTopPtWeight( const mgr::SampleMgr& sample )
-{
-   return sample.GetCacheDouble( "TopPtWeightSum" );
-}
+/******************************************************************************/
 
 double
 GetSampleEventTopPtWeight( const mgr::SampleMgr& sample, const fwlite::EventBase& ev )
 {
-   const double sample_weightsum   = sample.Event().size();
-   const double sample_ptweightsum = GetSampleTopPtWeight( sample );
+   // Assumming sample is initialized with function in InitSample.cc
+   const double sample_weightsum   = sample.SelectedEventCount();
+   const double sample_ptweightsum = sample.GetCacheDouble("TopPtWeightSum");
    const double event_ptweight     = GetEventTopPtWeight( ev );
    return event_ptweight * sample_weightsum / sample_ptweightsum;
 }
@@ -232,22 +196,22 @@ GetWeightByTag(
    const fwlite::EventBase& ev,
    const string&            module,
    const string&            product )
-   {
-      fwlite::Handle<double> weighthandle;
-      static const double maxweight = 10.;
-      static const double minweight = -10.;
+{
+   fwlite::Handle<double> weighthandle;
+   static const double maxweight = 10.;
+   static const double minweight = -10.;
 
-      // Directly skipping over data events
-      if( ev.isRealData() ){ return 1.; }
+   // Directly skipping over data events
+   if( ev.isRealData() ){ return 1.; }
 
-      try {
-         weighthandle.getByLabel( ev, module.c_str(), product.c_str() );
-         if( *weighthandle < maxweight && *weighthandle > minweight ){
-            return *weighthandle;
-         } else {
-            return 1.;
-         }
-      } catch( std::exception e ){
+   try {
+      weighthandle.getByLabel( ev, module.c_str(), product.c_str() );
+      if( *weighthandle < maxweight && *weighthandle > minweight ){
+         return *weighthandle;
+      } else {
          return 1.;
       }
+   } catch( std::exception e ){
+      return 1.;
    }
+}

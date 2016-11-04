@@ -18,6 +18,8 @@
 
 extern double GetEventWeight( const fwlite::EventBase& );
 
+extern double GetWeightSign( const fwlite::EventBase& );
+
 extern double GetPileupWeight( const fwlite::EventBase& );
 extern double GetPileupWeightBestFit( const fwlite::EventBase& );
 extern double GetPileupWeightXsecup( const fwlite::EventBase& );
@@ -44,9 +46,7 @@ extern double GetMuonIsoWeight( const fwlite::EventBase& );
 // Getting the raw, unnormalized double associated with single event
 extern double GetEventTopPtWeight( const fwlite::EventBase& );
 
-// special function for getting sample top pt weight
-extern double SetSampleTopPtWeight( mgr::SampleMgr& );
-extern double GetSampleTopPtWeight( const mgr::SampleMgr& );
+// Getting normalized version
 extern double GetSampleEventTopPtWeight( const mgr::SampleMgr&, const fwlite::EventBase& );
 
 
@@ -92,6 +92,7 @@ extern double GetPdfWeightError(
    );
 
 /*******************************************************************************
+*
 *   Scale variation  - a variation of PDF uncertainty grouping
 *
 *   * GetScaleWeightError - Get the weight error due to scaleing

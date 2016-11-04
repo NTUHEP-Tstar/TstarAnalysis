@@ -29,38 +29,123 @@ PileupWeightXsecdown = cms.EDProducer(
 #-------------------------------------------------------------------------------
 #   Electron Weights
 #-------------------------------------------------------------------------------
-ElectronWeight = cms.EDProducer(
+ElectronWeightNoTrigger = cms.EDProducer(
     "ElectronWeight",
     elecsrc = cms.InputTag('skimmedPatElectrons'),
-    gsffile = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
-    gsfhist = cms.string("EGamma_SF2D"),
-    cutfile = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_tightcuteff.root"),
-    cuthist = cms.string("EGamma_SF2D"),
-    trgfile = cms.FileInPath("TstarAnalysis/EventWeight/data/electron_trigger.root"),
-    trghist = cms.string("total_clone"),
+    rhosrc  = cms.InputTag('fixedGridRhoFastjetAll'),
+    weightlist = cms.VPSet(
+        cms.PSet(
+            weightname = cms.string('GsfWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
+            fileobj    = cms.string("EGamma_SF2D"),
+        ),
+        cms.PSet(
+            weightname = cms.string('CutWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_tightcuteff.root"),
+            fileobj    = cms.string("EGamma_SF2D"),
+        ),
+    )
+)
+
+ElectronWeightAll = cms.EDProducer(
+    "ElectronWeight",
+    elecsrc = cms.InputTag('skimmedPatElectrons'),
+    rhosrc  = cms.InputTag('fixedGridRhoFastjetAll'),
+    weightlist = cms.VPSet(
+        cms.PSet(
+            weightname = cms.string('GsfWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
+            fileobj    = cms.string("EGamma_SF2D"),
+        ),
+        # cms.PSet(
+        #     weightname = cms.string('CutWeight'),
+        #     objecttype = cms.string('TH2D'),
+        #     file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_tightcuteff.root"),
+        #     fileobj    = cms.string("EGamma_SF2D"),
+        # ),
+        cms.PSet(
+            weightname = cms.string('CutWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_triggersafecut_eff.root"),
+            fileobj    = cms.string("EGamma_SF2D"),
+        ),
+        cms.PSet(
+            weightname = cms.string('TriggerWeight'),
+            objecttype = cms.string('TEfficiency'),
+            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/electron_trigger.root"),
+            fileobj    = cms.string("total_clone"),
+        ),
+    )
 )
 
 #-------------------------------------------------------------------------------
 #   Muon Weights
 #-------------------------------------------------------------------------------
-MuonWeight = cms.EDProducer(
+MuonWeightNoTrigger = cms.EDProducer(
     "MuonWeight",
     muonsrc = cms.InputTag( 'skimmedPatMuons' ),
-    idfile  = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonID_Z_RunBCD_prompt80X_7p65.root' ),
-    idhist  = cms.string('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio'),
-    isofile = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonIso_Z_RunBCD_prompt80X_7p65.root' ),
-    isohist = cms.string( 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio' ),
-    trgfile = cms.FileInPath( 'TstarAnalysis/EventWeight/data/muon_trigger.root' ),
-    trghist = cms.string('total_clone'),
+    weightlist = cms.VPSet(
+        cms.PSet(
+            weightname = cms.string('IDWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonID_Z_RunBCD_prompt80X_7p65.root' ),
+            fileobj    = cms.string('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio'),
+        ),
+        cms.PSet(
+            weightname = cms.string('IsoWeight'),
+            objecttype = cms.string('TH2D'),
+            file = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonIso_Z_RunBCD_prompt80X_7p65.root' ),
+            fileobj = cms.string( 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio' ),
+        ),
+
+    )
 )
+
+MuonWeightAll = cms.EDProducer(
+    "MuonWeight",
+    muonsrc = cms.InputTag( 'skimmedPatMuons' ),
+    weightlist = cms.VPSet(
+        cms.PSet(
+            weightname = cms.string('IDWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonID_Z_RunBCD_prompt80X_7p65.root' ),
+            fileobj    = cms.string('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio'),
+        ),
+        cms.PSet(
+            weightname = cms.string('IsoWeight'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonIso_Z_RunBCD_prompt80X_7p65.root' ),
+            fileobj    = cms.string( 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio' ),
+        ),
+        cms.PSet(
+            weightname = cms.string('TriggerWeight'),
+            objecttype = cms.string('TEfficiency'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/muon_trigger.root' ),
+            fileobj    = cms.string('total_clone'),
+        ),
+    )
+)
+
 
 #-------------------------------------------------------------------------------
 #   B tag weights
 #-------------------------------------------------------------------------------
 BtagWeight = cms.EDProducer(
     "BtagWeight",
+    checkjet = cms.int32(-1),
     jetsrc   = cms.InputTag('skimmedPatJets'),
     btagfile = cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
+
+#-------------------------------------------------------------------------------
+#   Negative weight treatment
+#-------------------------------------------------------------------------------
+SignWeight = cms.EDProducer(
+    "SignWeight",
+    lhesrc = cms.InputTag('externalLHEProducer')
 )
 
 #-------------------------------------------------------------------------------
@@ -73,27 +158,4 @@ TopPtWeight = cms.EDProducer(
     b = cms.double(-0.00141),
     minpt = cms.double(0),
     maxpt = cms.double(400)
-)
-
-TopPtWeightSum = cms.EDProducer(
-    "WeightSum",
-    weightsrc = cms.InputTag('TopPtWeight', 'TopPtWeight' )
-)
-
-
-#-------------------------------------------------------------------------------
-#   Total weight ( excluding TopPt weights )
-#-------------------------------------------------------------------------------
-EventWeight = cms.EDProducer(
-    "EventWeight",
-    lhesrc   = cms.InputTag( 'externalLHEProducer' ),
-    elecwsrc = cms.InputTag( 'ElectronWeight', 'ElectronWeight' ),
-    muonwsrc = cms.InputTag( 'MuonWeight' ,    'MuonWeight' ),
-    puwsrc   = cms.InputTag( 'PileupWeight',   'PileupWeight' ),
-    btagsrc  = cms.InputTag( 'BtagWeight',     'BtagWeight' ),
-)
-
-EventWeightSum = cms.EDProducer(
-    "WeightSum",
-    weightsrc = cms.InputTag( 'EventWeight', 'EventWeight' )
 )

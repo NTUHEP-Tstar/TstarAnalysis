@@ -2,39 +2,54 @@
     "channel": {
         "MuonBaseline": {
             "Latex Name": "\\Pgm baseline",
-            "Root Name": "#mu baseline",
+            "Root Name": "1#mu, #geq 4 jets",
             "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/tstarbaseline/Muon",
             "Data Tag": "Data_Muon"
         },
         "ElectronBaseline": {
             "Latex Name": "\\Pe baseline",
-            "Root Name": "e baseline",
+            "Root Name": "1e, #geq 4 jets",
             "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/tstarbaseline/Electron",
+            "Data Tag": "Data_Electron"
+        },
+        "MuonTopLike": {
+            "Latex Name": "\\Pgm toplike",
+            "Root Name": "1#mu, #geq 4 jets, 2 b jets",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/toplike/Muon",
+            "Data Tag": "Data_Muon"
+        },
+        "ElectronTopLike": {
+            "Latex Name": "\\Pe toplike",
+            "Root Name": "1e, #geq 4jets, 2 b jets",
+            "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/toplike/Electron",
             "Data Tag": "Data_Electron"
         },
         "MuonSignal": {
             "Latex Name": "\\Pgm signal channel",
-            "Root Name": "#mu channel",
+            "Root Name": "1#mu, #geq 6 jets, 2 b jets",
             "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonSignal",
             "Data Tag": "Data_Muon"
         },
         "ElectronSignal": {
             "Latex Name": "\\Pe signal channel",
-            "Root Name": "e channel",
+            "Root Name": "1e, #geq 6 jets, 2 b jets",
             "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronSignal",
             "Data Tag": "Data_Electron"
         },
         "MuonControl": {
-            "Latex Name": "\\Pgm signal channel",
-            "Root Name": "#mu channel",
+            "Latex Name": "\\Pgm control region",
+            "Root Name": "1#mu, #geq 6 jets, 0 b jets, 2 b-vetoed jets",
             "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonControl",
             "Data Tag": "Data_Muon"
         },
         "ElectronControl": {
             "Latex Name": "\\Pe signal channel",
-            "Root Name": "e channel",
+            "Root Name": "1e, #geq 6 jets, 0 b jets, 2 b-vetoed jets",
             "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronControl",
             "Data Tag": "Data_Electron"
+        },
+        "SignalMerge":{
+           "Root Name": "1 lep, #geq 6 jets, 2 b jets"
         }
     },
 

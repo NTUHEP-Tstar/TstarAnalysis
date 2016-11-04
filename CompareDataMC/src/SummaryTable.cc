@@ -6,8 +6,8 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include "TstarAnalysis/Common/interface/ComputeSelectionEff.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
@@ -28,22 +28,10 @@ using namespace mgr;
 *   Main control functions
 *******************************************************************************/
 void
-InitGroupForTable( mgr::SampleGroup& group )
-{
-   for( auto& sample : group.SampleList() ){
-      InitSample( sample );
-      InitSampleForTable( sample );
-   }
-
-   InitGroupString( group );
-}
-
-
-void
 SummaryComplete(
-   const vector<SampleGroup>& siglist,
-   const vector<SampleGroup>& bkglist,
-   const SampleGroup&         data )
+   const vector<SampleTableMgr>& siglist,
+   const vector<SampleTableMgr>& bkglist,
+   const SampleTableMgr&         data )
 {
    FILE* file = OpenSelecFile( "" );
 
@@ -54,12 +42,15 @@ SummaryComplete(
    PrintHline( file );
 
    Parameter expyield( 0, 0, 0 );
-   Parameter obsyield( data.EventsInFile(), 0, 0 );
+   Parameter obsyield( data.ExpectedYield(), 0, 0 );
 
    for( const auto& grp : bkglist ){
       for( const auto& smp : grp.SampleList() ){
          PrintSampleLine( file, smp );
-         expyield += smp.ExpectedYield() * GetWeightError( smp );
+         expyield += smp.ExpectedYield()// double
+                     * smp.CrossSection().NormParam()// 1+- rel error
+                     * smp.SelectionEfficiency().NormParam()
+                     * GetWeightError( smp );
       }
 
       PrintHline( file );
@@ -76,13 +67,13 @@ SummaryComplete(
 
 void
 SummaryBrief(
-   const vector<SampleGroup>& siglist,
-   const vector<SampleGroup>& bkglist,
-   const SampleGroup&         data )
+   const vector<SampleTableMgr>& siglist,
+   const vector<SampleTableMgr>& bkglist,
+   const SampleTableMgr&         data )
 {
-   FILE* file = OpenSimpleFile( "brief" );
-   Parameter expyield( 0, 0, 0 );
-   Parameter obsyield( data.EventsInFile(), 0, 0 );
+   FILE* file      = OpenSimpleFile( "brief" );
+   double expyield = 0;
+   double obsyield = 0;
 
    for( const auto& grp : siglist ){
       PrintSimpleLine( file, grp );
@@ -96,9 +87,9 @@ SummaryBrief(
    }
 
    PrintHline( file );
-   PrintSimpleCount( file, "Bkg. Total", expyield );
+   PrintSimpleCount( file, "Bkg. Total", Parameter( expyield, 0, 0 ) );
    PrintHline( file );
-   PrintSimpleCount( file, "Data", obsyield );
+   PrintSimpleCount( file, "Data", Parameter( obsyield, 0, 0 ) );
 
    CloseTableFile( file );
 }
@@ -107,8 +98,8 @@ SummaryBrief(
 
 void
 SummaryMCLumi(
-   const vector<SampleGroup>& siglist,
-   const vector<SampleGroup>& bkglist )
+   const vector<SampleTableMgr>& siglist,
+   const vector<SampleTableMgr>& bkglist )
 {
    FILE* file = OpenLumiFile( "lumi" );
 
@@ -232,12 +223,15 @@ OpenSimpleFile( const string& tag )
 /******************************************************************************/
 
 void
-PrintSimpleLine( FILE* file, const SampleGroup& x )
+PrintSimpleLine( FILE* file, const SampleTableMgr& x )
 {
    Parameter expyield( 0, 0, 0 );
 
    for( const auto& smp : x.SampleList() ){
-      expyield += smp.ExpectedYield() * GetWeightError( smp );
+      expyield += smp.ExpectedYield()
+                  * smp.CrossSection().NormParam()
+                  * smp.SelectionEfficiency().NormParam()
+                  * GetWeightError( smp );
    }
 
    fprintf( file, simpleline,
@@ -286,9 +280,7 @@ OpenLumiFile( const string& tag )
 void
 PrintLumiLine( FILE* file, const SampleMgr& x )
 {
-   double equiv = GetOriginalEventCount( x );
-   equiv /= x.ExpectedYield();
-   equiv /= x.KFactor().CentralValue();
+   double equiv = x.EffectiveLuminosity();
 
    const string namecol = x.LatexName();
    const string xsec    = x.Name().find( "Tstar" ) != string::npos ?
@@ -307,146 +299,6 @@ PrintLumiLine( FILE* file, const SampleMgr& x )
       lumicol.c_str(),
       gencol.c_str()
       );
-}
-
-/*******************************************************************************
-*   Helper functions for string parsing
-*******************************************************************************/
-void
-InitSampleForTable( mgr::SampleMgr& sample )
-{
-   double eventweightsum     = 0;
-   double eventweightupsum   = 0;
-   double eventweightdownsum = 0;
-
-   double btagweightsum   = 0;
-   double puweightsum     = 0;
-   double leptonweightsum = 0;
-   double topptweightsum  = 0;
-   double pdfweightsum    = 0;
-
-
-   const auto& pdfidgroup = GetPdfIdGrouping( sample );
-
-   fwlite::Handle<std::vector<pat::Jet> > jethandle;
-
-   // counter
-   unsigned evtcounter = 1;
-
-   for( sample.Event().toBegin(); !sample.Event().atEnd(); ++sample.Event(), ++evtcounter ){
-      const auto& ev = sample.Event().Base();
-      const double btagweight     = GetBtagWeight( ev );
-      const double btagweightup   = GetBtagWeightUp( ev );
-      const double btagweightdown = GetBtagWeightDown( ev  );
-
-      const double puweight     = GetPileupWeight( ev );
-      const double puweightup   = GetPileupWeightXsecup( ev );
-      const double puweightdown = GetPileupWeightXsecdown( ev);
-
-      const double leptonweight     = GetElectronWeight( ev ) * GetMuonWeight( ev );
-      const double leptonweightup   = GetElectronWeightUp( ev ) * GetMuonWeightUp( ev );
-      const double leptonweightdown = GetElectronWeightDown( ev ) * GetMuonWeightDown( ev );
-
-      const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
-      const double pdfweighterr   = GetPdfWeightError( ev, pdfidgroup );
-      const double scaleweighterr = GetScaleWeightError( ev, pdfidgroup );
-
-      printf(
-         "\rSample %s, Event %u/%u...(%lf)",
-         sample.Name().c_str(),
-         evtcounter,
-         sample.Event().size(),
-         ( leptonweight*btagweight*puweight/GetEventWeight( ev ) )
-         );
-      fflush( stdout );
-
-      const double sign            = GetEventWeight( ev ) > 0 ? 1 : -1;
-      const double eventweight     = GetEventWeight( ev ) * topptweight;
-      const double eventweightup   = btagweightup * puweightup * leptonweightup * topptweight * ( 1 + pdfweighterr ) * ( 1+scaleweighterr ) * sign;
-      const double eventweightdown = btagweightdown* puweightdown * leptonweightdown * topptweight * ( 1 - pdfweighterr ) * ( 1-scaleweighterr )* sign;
-
-      eventweightsum     += eventweight;
-      eventweightupsum   += eventweightup;
-      eventweightdownsum += eventweightdown;
-
-      btagweightsum   += btagweight;
-      puweightsum     += puweight;
-      leptonweightsum += leptonweight;
-      topptweightsum  += topptweight;
-      pdfweightsum    += 1 + pdfweighterr;
-   }
-
-   evtcounter--;
-   printf(
-      " Done! Saving to event cache! AVG weight: btag:%lf, pu:%lf, lepton:%lf , toppt:%lf,  pdf:%lf\n",
-      btagweightsum / evtcounter,
-      puweightsum / evtcounter,
-      leptonweightsum / evtcounter,
-      topptweightsum / evtcounter,
-      pdfweightsum / evtcounter
-      );
-   fflush( stdout );
-
-   sample.AddCacheDouble( "EventWeightSum",     eventweightsum );
-   sample.AddCacheDouble( "EventWeightUpSum",   eventweightupsum );
-   sample.AddCacheDouble( "EventWeightDownSum", eventweightdownsum );
-}
-
-/******************************************************************************/
-
-void
-InitGroupString( mgr::SampleGroup& grp  )
-{
-   using namespace std;
-   const mgr::ConfigReader grpcfg( compnamer.MasterConfigFile() );
-
-   if( !grpcfg.HasInstance( grp.Name() ) ){
-      // Not found in config file, assuming it is single sample in default
-      const string jsonfile = grpcfg.GetStaticString( "Default Json" );
-      const string fullpath = mgr::SampleGroup::SampleCfgPrefix() + jsonfile;
-      const mgr::ConfigReader samplecfg( fullpath );
-
-      InitSampleString( grp.Sample(), samplecfg );
-
-   } else if( grpcfg.HasTag( grp.Name(), "Sample List" ) ){
-      const string jsonfile
-         = grpcfg.HasTag( grp.Name(), "Subset Json" ) ?
-           grpcfg.GetString( grp.Name(), "Subset Json" ) :
-           grpcfg.GetStaticString( "Default Json" );
-      const string fullpath = mgr::SampleGroup::SampleCfgPrefix() + jsonfile;
-      const mgr::ConfigReader samplecfg( fullpath );
-
-      for( const auto& name : grpcfg.GetStringList( grp.Name(), "Sample List" ) ){
-         InitSampleString( grp.Sample( name ), samplecfg );
-      }
-   } else if( grpcfg.HasTag( grp.Name(), "File List" ) ){
-
-      for( const auto& json : grpcfg.GetStringList( grp.Name(), "File List" ) ){
-         const mgr::ConfigReader samplecfg( mgr::SampleGroup::SampleCfgPrefix() + json );
-
-         for( const auto& sampletag : samplecfg.GetInstanceList() ){
-            InitSampleString( grp.Sample( sampletag ), samplecfg );
-         }
-      }
-   } else if( grpcfg.HasTag( grp.Name(), "Single Sample" ) ){
-      const string jsonfile = grpcfg.GetString( grp.Name(), "Single Sample" );
-      const string fullpath = mgr::SampleGroup::SampleCfgPrefix() + jsonfile;
-      const mgr::ConfigReader samplecfg( fullpath );
-      InitSampleString( grp.Sample(), samplecfg );
-   }
-}
-
-/******************************************************************************/
-
-void
-InitSampleString( mgr::SampleMgr& sample, const mgr::ConfigReader& cfg )
-{
-   if( cfg.HasTag( sample.Name(), "Generator" ) ){
-      sample.AddCacheString( "Generator", cfg.GetString( sample.Name(), "Generator" ) );
-   }
-   if( cfg.HasTag( sample.Name(), "Cross Section Source" ) ){
-      sample.AddCacheString( "XsecSource", cfg.GetString( sample.Name(), "Cross Section Source" ) );
-   }
 }
 
 /******************************************************************************/

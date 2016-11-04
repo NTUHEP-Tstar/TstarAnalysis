@@ -13,6 +13,7 @@
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
+#include "TstarAnalysis/Common/interface/PlotStyle.hpp"
 
 #include <fstream>
 #include <string>
@@ -70,7 +71,7 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
 {
    const string bgpdfname = TemplatePdfName( datatag );
 
-   RooAbsPdf* bgpdf = bg->NewPdf( bgpdfname, limit_namer.GetInput( "fitfunc" ) );
+   RooAbsPdf* bgpdf = bg->NewPdf( bgpdfname, limnamer.GetInput( "fitfunc" ) );
 
    RooFitResult* ans = bgpdf->fitTo(
       *( bg->DataSet( datatag ) ),
@@ -122,8 +123,8 @@ MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMg
    const Parameter null( 0, 0, 0 );
    const Parameter lumi( 1, 0.062, 0.062 );
    const Parameter lepunc( 1, 0.03, 0.03 );
-   const Parameter sigstatunc = sig->Sample()->SelectionEfficiency();
-   const Parameter bkgstatunc = bg->ExpectedYield();// includes uncertaintly from cross section and selection effiency
+   const Parameter sigstatunc = sig->Sample().SelectionEfficiency();
+   const Parameter bkgstatunc(1,0.03,0.03);// includes uncertaintly from cross section and selection effiency
 
    const Parameter sigjecunc   = GetMCNormError( sig, "jecup",    "jecdown"    );
    const Parameter sigjerunc   = GetMCNormError( sig, "jetresup", "jetresdown" );
@@ -189,55 +190,62 @@ MakeTemplatePlot(
 
    TCanvas* c     = plt::NewCanvas();
    RooPlot* frame = SampleRooFitMgr::x().frame();
-   TGraph* pdf_plot;
-   TGraph* sig_plot;
-   TGraph* set_plot;
+   TGraph* pdfplot;
+   TGraph* sigplot;
+   TGraph* setplot;
 
    if( use_data ){
-      pdf_plot = PlotOn(
+      pdfplot = PlotOn(
          frame,
          mc->Pdf( StitchTemplatePdfName ),
          RooFit::Range( "FitRange" ),
          RooFit::Normalization( data->DataSet()->sumEntries(), RooAbsReal::NumEvent )
          );
-      set_plot = PlotOn( frame, data->DataSet() );
+      setplot = PlotOn(
+         frame,
+         data->DataSet(),
+         RooFit::DrawOption( PGS_DATA )
+      );
    } else {
-      pdf_plot = PlotOn(
+      pdfplot = PlotOn(
          frame, mc->Pdf( StitchTemplatePdfName ),
          RooFit::Range( "FitRange" ),
          RooFit::Normalization( mc->DataSet()->sumEntries(), RooAbsReal::NumEvent )
          );
-      set_plot = PlotOn( frame, mc->DataSet() );
+      setplot = PlotOn(
+         frame,
+         mc->DataSet(),
+         RooFit::DrawOption( PGS_DATA )
+      );
    }
 
-   sig_plot = PlotOn(
+   sigplot = PlotOn(
       frame, signal->Pdf( StitchKeyPdfName ),
-      RooFit::DrawOption( "LB" ),
-      RooFit::Normalization( signal->Sample()->ExpectedYield().CentralValue(), RooAbsReal::NumEvent )
+      RooFit::DrawOption( PGS_SIGNAL ),
+      RooFit::Normalization( signal->ExpectedYield(), RooAbsReal::NumEvent )
       );
 
    frame->Draw();
    frame->SetMinimum( 0.3 );
    SetFrame( frame );
-   frame->GetYaxis()->SetTitle( set_plot->GetYaxis()->GetTitle() );
-   sig_plot->SetFillStyle( 3004 );
-   sig_plot->SetLineColor( kRed );
-   sig_plot->SetFillColor( kRed );
+   frame->GetYaxis()->SetTitle( setplot->GetYaxis()->GetTitle() );
+
+   tstar::SetSignalStyle( sigplot );
 
    char sig_entry[1024];
-   sprintf( sig_entry, "%s (%.2lf pb)", signal->RootName().c_str(), signal->Sample()->CrossSection().CentralValue() );
+   sprintf( sig_entry, "%s (%.2lf pb)", signal->RootName().c_str(), signal->Sample().CrossSection().CentralValue() );
 
    const double legend_x_min = 0.45;
    const double legend_y_min = 0.70;
    TLegend* l                = plt::NewLegend( legend_x_min, legend_y_min );
    if( use_data ){
-      l->AddEntry( set_plot, "Data",                                     "lp" );
-      l->AddEntry( pdf_plot, "Background fit to MC(Normalized to Data)", "l" );
+      l->AddEntry( setplot, "Data",                                     "lp" );
+      l->AddEntry( pdfplot, "Background fit to MC(Normalized to Data)", "l" );
    } else {
-      l->AddEntry( set_plot, "MC Background",        "lp" );
-      l->AddEntry( pdf_plot, "Background fit to MC", "l"  );
+      l->AddEntry( setplot, "MC Background",        "lp" );
+      l->AddEntry( pdfplot, "Background fit to MC", "l"  );
    }
-   l->AddEntry( sig_plot, sig_entry, "fl" );
+   l->AddEntry( sigplot, sig_entry, "fl" );
    l->Draw();
 
    plt::DrawCMSLabel();
@@ -248,22 +256,22 @@ MakeTemplatePlot(
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, limit_namer.GetChannelEXT( "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.05, limnamer.GetChannelEXT( "Root Name" ).c_str() );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limit_namer.GetExtName( "fitfunc", "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
 
 
-   const string rootfile = limit_namer.PlotRootFile();
+   const string rootfile = limnamer.PlotRootFile();
    if( use_data ){
-      plt::SaveToPDF( c, limit_namer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
-      plt::SaveToROOT( c, rootfile, limit_namer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
+      plt::SaveToPDF( c, limnamer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
+      plt::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
       c->SetLogy();
-      plt::SaveToPDF( c, limit_namer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data_log"} ) );
+      plt::SaveToPDF( c, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data_log"} ) );
    } else {
-      plt::SaveToPDF( c, limit_namer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
-      plt::SaveToROOT( c, rootfile, limit_namer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
+      plt::SaveToPDF( c, limnamer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
+      plt::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
       c->SetLogy();
-      plt::SaveToPDF( c, limit_namer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc_log"} ) );
+      plt::SaveToPDF( c, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc_log"} ) );
    }
    delete frame;
    delete c;

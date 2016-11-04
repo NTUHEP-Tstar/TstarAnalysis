@@ -4,10 +4,11 @@
    #    Reference:
    -----------------------------------------------------------------------------""",
    "TstarM700": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=700\\GeVcc",
       "Root Name": "t*=700GeV/c^{2}",
       "Cross Section": [ 4.9228, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -15,10 +16,11 @@
       ]
    },
    "TstarM800": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=800\\GeVcc",
       "Root Name": "t*=800GeV/c^{2}",
       "Cross Section": [ 1.6752, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -26,10 +28,11 @@
       ]
    },
    "TstarM900": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=900\\GeVcc",
       "Root Name": "t*=900GeV/c^{2}",
       "Cross Section": [ 0.63571, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -37,10 +40,11 @@
       ]
    },
    "TstarM1000": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1000\\GeVcc",
       "Root Name": "t*=1000GeV/c^{2}",
       "Cross Section": [ 0.26231, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -48,10 +52,11 @@
       ]
    },
    "TstarM1100": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1100\\GeVcc",
       "Root Name": "t*=1100GeV/c^{2}",
       "Cross Section": [ 0.11561, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -59,10 +64,11 @@
       ]
    },
    "TstarM1200": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1200\\GeVcc",
       "Root Name": "t*=1200GeV/c^{2}",
       "Cross Section": [ 0.053722, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -70,10 +76,11 @@
       ]
    },
    "TstarM1300": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1300\\GeVcc",
       "Root Name": "t*=1300GeV/c^{2}",
       "Cross Section": [ 0.026058, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -81,10 +88,11 @@
       ]
    },
    "TstarM1400": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1400\\GeVcc",
       "Root Name": "t*=1400GeV/c^{2}",
       "Cross Section": [  0.0103092, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -92,10 +100,11 @@
       ]
    },
    "TstarM1500": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1500\\GeVcc",
       "Root Name": "t*=1500GeV/c^{2}",
       "Cross Section": [ 0.0067720, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
@@ -103,10 +112,11 @@
       ]
    },
    "TstarM1600": {
+      "Is Data": false,
       "Latex Name" : "\\tstarpair, M$_{\\tstar}$=1600\\GeVcc",
       "Root Name": "t*=1600GeV/c^{2}",
       "Cross Section": [ 0.0035883, 0, 0 ],
-      "K Factor": [1.0],
+      "K Factor": 1.0,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[

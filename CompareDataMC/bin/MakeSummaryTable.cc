@@ -6,12 +6,10 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
-#include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
-#include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
-
 #include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/SampleTableMgr.hpp"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -32,6 +30,7 @@ main( int argc, char* argv[] )
    opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
+      ( "refresh,r", "Whether to recompute the value from EDM files" )
    ;
 
    const int parse = compnamer.LoadOptions( desc, argc, argv );
@@ -46,31 +45,44 @@ main( int argc, char* argv[] )
    /******************************************************************************/
    cout << "Declaring sample groups...." << endl;
 
-   SampleGroup data( compnamer.GetChannelEXT( "Data Tag" ), master );
-   vector<SampleGroup> siglist;
-   vector<SampleGroup> bkglist;
+   vector<SampleTableMgr> siglist;
+   vector<SampleTableMgr> bkglist;
 
    for( const auto& tag : master.GetStaticStringList( "Signal List" ) ){
-      siglist.push_back( SampleGroup( tag, master ) );
+      siglist.emplace_back( tag, master );
    }
-
 
    for( const auto& tag : master.GetStaticStringList( "Background List" ) ){
-      bkglist.push_back( SampleGroup( tag, master ) );
+      bkglist.emplace_back( tag, master );
    }
+
+   SampleTableMgr data( compnamer.GetChannelEXT( "Data Tag" ), master );
 
 
    /******************************************************************************/
-   cout << "Re-computing the selection efficiencies and caching variables!" << endl;
+   if( compnamer.HasOption( "refresh" ) ){
+      cout << "Re-computing the selection efficiencies and caching variables!" << endl;
 
-   InitGroupForTable( data );
+      data.LoadFromEDM();
 
-   for( auto& group : bkglist ){
-      InitGroupForTable( group );
-   }
+      for( auto& group : bkglist ){
+         group.LoadFromEDM();
+      }
 
-   for( auto& group : siglist ){
-      InitGroupForTable( group );
+      for( auto& group : siglist ){
+         group.LoadFromEDM();
+      }
+   } else {
+      cout << "Loading variables from saved file" << endl;
+      data.LoadFromFile();
+
+      for( auto& group : bkglist ){
+         group.LoadFromFile();
+      }
+
+      for( auto& group : siglist ){
+         group.LoadFromFile();
+      }
    }
 
    /******************************************************************************/

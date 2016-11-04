@@ -25,14 +25,7 @@ ElectronProducer::IsSelectedElectron(
    if( fabs( el.eta() ) > 2.1 ){ return false; }
    if( fabs( el.eta() ) > 1.44 && fabs( el.eta() ) < 1.57 ){ return false; }
 
-   if( _runtriggermatch
-       && !HasTriggerMatch(
-          el,
-          *_trigobjHandle,
-          _reqtrigger,
-          _reqfilter,
-          ev.triggerNames( *_hltHandle )
-          ) ){ return false; }
+   // Trigger object selection moved to later selection and not baseline
 
    // Only caching for particles that have passed selection
    el.addUserInt( "passVeto",   ( *_vetoMapHandle   )[elPtr] );
@@ -78,17 +71,4 @@ ElectronProducer::AddElectronVariables(
       false
       );
    el.addUserFloat( "miniIso", miniIso );
-
-   if( ! _runtriggermatch ){ return; }// early exit if not required
-
-   TLorentzVector trigp4 = TriggerMatchP4(
-      el,
-      *_trigobjHandle,
-      _reqtrigger,
-      _reqfilter,
-      iEvent.triggerNames( *_hltHandle )
-      );
-
-   AddLorentzVector( el, trigp4, "TrigP4" );
-
 }

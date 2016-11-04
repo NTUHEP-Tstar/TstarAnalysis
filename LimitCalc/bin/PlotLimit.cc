@@ -24,16 +24,17 @@ main( int argc, char* argv[] )
       ( "fitmethod,m", opt::value<string>(), "Which fitting method to use" )
       ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
       ( "combine,x", opt::value<string>(), "Which method to run with combine" )
+      ( "drawdata,d", "Whether to plot the data limits or not")
    ;
 
-   const int run = limit_namer.LoadOptions( desc, argc, argv );
+   const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-   limit_namer.SetNamingOptions( {"fitmethod", "fitfunc"} );
+   limnamer.SetNamingOptions( {"fitmethod", "fitfunc"} );
 
-   if( limit_namer.GetMap().count( "combine" ) ){
+   if( limnamer.GetMap().count( "combine" ) ){
       cout << "Rerunning results higgs combine package with method ["
-           << limit_namer.GetInput( "combine" ) << "] !" << endl;
+           << limnamer.GetInput( "combine" ) << "] !" << endl;
       RunCombine();
    }
 

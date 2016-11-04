@@ -18,9 +18,14 @@
 extern void InitSampleStatic( const TstarNamer& );
 
 /*******************************************************************************
-*   InitSample - Loading variables that should be store by workflow
+*   InitSampleFromEDM -
+*   Caching variables that should exists in analysis workflow:
+*     * Original event count
+*     * Selected event count (with weight)
+*     * Sum of top pt weight
 *******************************************************************************/
-extern void InitSample( mgr::SampleMgr& );
+extern void InitSampleFromEDM( mgr::SampleMgr& );
+
 
 
 #endif/* end of include guard: TSTARANALYSIS_COMMON_INITSAMPLESTATIC_HPP */

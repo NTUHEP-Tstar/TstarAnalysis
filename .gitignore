@@ -23,6 +23,8 @@ log*
 *.eps
 *.png
 *.dat
+*.pdf
+
 
 # Specific file exclusion
 # [relative/path/to/file]

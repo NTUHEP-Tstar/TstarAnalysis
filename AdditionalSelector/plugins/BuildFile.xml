@@ -1,0 +1,12 @@
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/PatCandidates"/>
+
+<use name="ManagerUtils/EDMUtils"/>
+<use name="ManagerUtils/PhysUtils"/>
+<use name="TstarAnalysis/Common"/>
+
+<flags EDM_PLUGIN="1"/>

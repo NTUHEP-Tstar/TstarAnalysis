@@ -38,6 +38,8 @@ private:
    const edm::EDGetToken _jetsrc;
    edm::Handle<std::vector<pat::Jet> > _jethandle;
 
+   const unsigned _checkjet;
+
    BTagChecker _btagcheck;
 };
 using namespace edm;
@@ -47,7 +49,8 @@ using namespace std;
 *   Constructor
 *******************************************************************************/
 BtagWeight::BtagWeight( const edm::ParameterSet & iConfig ) :
-   _jetsrc( GETTOKEN( iConfig, vector<pat::Jet> , "jetsrc" ) ),
+   _jetsrc( GETTOKEN( iConfig, vector<pat::Jet>, "jetsrc" ) ),
+   _checkjet( iConfig.getParameter<int>( "checkjet" ) ),
    _btagcheck( "bcheck", GETFILEPATH( iConfig, "btagfile" ) )
 {
    produces<double>( "BtagWeight" );
@@ -67,13 +70,15 @@ BtagWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
    std::auto_ptr<double> btagweightptr( new double(1.) );
    std::auto_ptr<double> btagweightupptr( new double(1.) );
    std::auto_ptr<double> btagweightdownptr( new double(1.) );
-   double & btagweight     = *btagweightptr;
-   double & btagweightup   = *btagweightupptr;
-   double & btagweightdown = *btagweightdownptr;
+   double& btagweight     = *btagweightptr;
+   double& btagweightup   = *btagweightupptr;
+   double& btagweightdown = *btagweightdownptr;
 
    iEvent.getByToken( _jetsrc, _jethandle );
 
-   for( const auto &jet : *_jethandle ){
+   for( unsigned i = 0; i < _jethandle->size(); ++i ){
+      if( i >= _checkjet ){ break; }
+      const auto& jet = _jethandle->at( i );
       if( _btagcheck.PassMedium( jet ) ){
          btagweight     *= _btagcheck.GetMediumScaleFactor( jet );
          btagweightup   *= _btagcheck.GetMediumScaleFactorUp( jet );

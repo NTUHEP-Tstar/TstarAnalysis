@@ -4,10 +4,11 @@
       Reference: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO#Top_quark_pair_cross_sections_at
    ---------------------------------------------------------------------""",
    "TTJets": {
+      "Is Data": false,
       "Latex Name" : "\\ttbar+Jets",
       "Root Name": "t#bar{t} + jets",
-      "Cross Section": [ 831.76, 54.84, 64.24 ],
-      "K Factor":      [1.0],
+      "Cross Section": [ 831.76, 23.18, 22.45 ],
+      "K Factor": 1.0,
       "Generator": "\\POWHEG",
       "Cross Section Source": "NNLO",
       "EDM Files":[
@@ -20,10 +21,11 @@
    #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Single_top
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
+      "Is Data": false,
       "Latex Name" : "Single \\PQt, \\PQs Channel",
       "Root Name": "Single t (s)",
       "Cross Section": [ 3.36, 0.13, 0.12 ],
-      "K Factor":      [ 1.0 ],
+      "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -31,10 +33,11 @@
       ]
    },
    "SingleT_T_top": {
+      "Is Data": false,
       "Latex Name" : "Single \\PQt, \\PQt Channel",
       "Root Name": "Single t (t)",
       "Cross Section": [ 44.33, 2.94, 2.51 ],
-      "K Factor":      [ 1.0 ],
+      "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -42,10 +45,11 @@
       ]
    },
    "SingleT_T_antitop": {
+      "Is Data": false,
       "Latex Name" : "Single \\PAQt, \\PQt Channel",
       "Root Name": "Single #bar{t} (t)",
       "Cross Section": [ 28.38, 1.32, 1.18 ],
-      "K Factor":      [ 1.0 ],
+      "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -53,10 +57,11 @@
       ]
    },
    "SingleT_TW": {
+      "Is Data": false,
       "Latex Name" : "Single \\PQt, \\PQt\\PW Channel",
       "Root Name": "Single t (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
-      "K Factor":      [ 1.0 ],
+      "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[
@@ -64,10 +69,11 @@
       ]
    },
    "SingleTbar_TW": {
+      "Is Data": false,
       "Latex Name" : "Single \\PAQt, \\PQt\\PW Channel)",
       "Root Name": "Single #bar{t} (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
-      "K Factor":      [ 1.0 ],
+      "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
       "EDM Files":[

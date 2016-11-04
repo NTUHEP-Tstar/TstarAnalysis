@@ -24,7 +24,7 @@ main( int argc, char* argv[] )
    opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
-      ( "refill,r", "Whether to refill the histograms from sample groups")
+      ( "drawdata,d" , "option whether to draw data point" )
    ;
 
    const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
@@ -36,18 +36,28 @@ main( int argc, char* argv[] )
    const mgr::ConfigReader master( compnamer.MasterConfigFile() );
    const string datatag = compnamer.GetChannelEXT( "Data Tag" );
 
+   /*******************************************************************************
+   *   Defining samples
+   *******************************************************************************/
    // Defining out channels see data/Groups.json for sample settings
    vector<SampleHistMgr*> background;
+
    for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
-    background.push_back( new SampleHistMgr( bkggroup, master ) );
+      background.push_back( new SampleHistMgr( bkggroup, master ) );
+      background.back()->LoadFromFile();
    }
 
    // Defining data settings
    SampleHistMgr* data = new SampleHistMgr( datatag, master );
+   data->LoadFromFile();
 
    // Declaring sample sample
    SampleHistMgr* sigmgr = new SampleHistMgr( "TstarM800", master );
+   sigmgr->LoadFromFile();
 
+   /*******************************************************************************
+   *   Making comparison plots
+   *******************************************************************************/
    // Making combined stack plots
    MakeComparePlot( data, background, sigmgr );
 
@@ -59,7 +69,7 @@ main( int argc, char* argv[] )
 
    // Cleaning up
    for( auto& histmgr : background ){
-    delete histmgr;
+      delete histmgr;
    }
 
    delete data;

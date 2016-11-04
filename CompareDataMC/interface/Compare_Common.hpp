@@ -10,6 +10,30 @@
 
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 
-extern TstarNamer compnamer;// see src/Compare_Common.cc
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
+#include <vector>
+#include <string>
+
+/*******************************************************************************
+*   Common external objects
+*******************************************************************************/
+extern TstarNamer compnamer;// see src/PlotHist.cc
+
+/*******************************************************************************
+*   Common plotting functions
+*******************************************************************************/
+extern void
+MakePlot(
+   THStack*                        stack,
+   TH1D*                           bkgerror,
+   TH1D*                           datahist,
+   TH1D*                           sighist,
+   TH1D*                           bkgrel,
+   TH1D*                           datarel,
+   TLegend*                        legend,
+   const std::string               filenametag,
+   const std::vector<std::string>& taglist
+);
+
 
 #endif/* end of include guard: TSTARANALYSIS_COMPAREDATAMC_COMPARECOMMON_HPP */

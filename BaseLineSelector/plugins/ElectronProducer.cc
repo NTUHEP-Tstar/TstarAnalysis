@@ -16,12 +16,7 @@ ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
    _looseMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "looseMap" ) ),
    _mediumMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "mediumMap" ) ),
    _tightMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "tightMap" ) ),
-   _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) ),
-   _hltsrc( GETTOKEN( iconf, TriggerResults, "hltsrc" ) ),
-   _triggerobjsrc( GETTOKEN( iconf, TriggerObjList, "trgobjsrc" ) ),
-   _reqtrigger( iconf.getParameter<std::string>( "reqtrigger" ) ),
-   _reqfilter( iconf.getParameter<std::string>( "reqfilter" ) ),
-   _runtriggermatch( iconf.getParameter<bool>( "runtrigger" ) )
+   _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) )
 {
    produces<ElectronList>();
 }
@@ -39,8 +34,6 @@ ElectronProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
    iEvent.getByToken( _mediumMapToken, _mediumMapHandle );
    iEvent.getByToken( _tightMapToken,  _tightMapHandle  );
    iEvent.getByToken( _packedsrc,      _packedHandle    );
-   iEvent.getByToken( _hltsrc,         _hltHandle       );
-   iEvent.getByToken( _triggerobjsrc,  _trigobjHandle   );
 
    std::auto_ptr<ElectronList> selectedElectrons( new ElectronList );
 
@@ -71,16 +64,12 @@ ElectronProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 
-
-// ------------------------------------------------------------------------------
-//   EDM Plugin requirements
-// ------------------------------------------------------------------------------
-
+/*******************************************************************************
+*   Plugins requirements
+*******************************************************************************/
 void
 ElectronProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
-   // The following says we do not know what parameters are allowed so do no validation
-   // Please change this to state exactly what you do use, even if it is no parameters
    edm::ParameterSetDescription desc;
    desc.setUnknown();
    descriptions.addDefault( desc );

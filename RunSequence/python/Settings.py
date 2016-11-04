@@ -26,7 +26,7 @@ crab_work_dir  = storage_dir + 'CrabWorkSpace/'
 crab_site         = 'T2_CH_CERN'
 crab_siteurl      = 'eoscms.cern.ch'
 crab_user_path    = '/store/user/yichen/'
-crab_default_path = crab_user_path + 'tstar_80X/'
+crab_default_path = crab_user_path + 'tstar_crab/'
 crab_default_lumi = setting_dir + 'lumi_mask_latest.json'
 
 #-------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ crab_default_lumi = setting_dir + 'lumi_mask_latest.json'
 #-------------------------------------------------------------------------------
 eos_mount_path = os.environ['HOME']+'/eos/'
 eos_path       = eos_mount_path + '/cms/'
-edmstorage_dir = crab_user_path + '/tstar_store/'
+edmstorage_dir = crab_user_path + 'tstar_store/'
 eos_remoteprefix = 'root://eoscms.cern.ch//'
 
 #-------------------------------------------------------------------------------

@@ -46,10 +46,10 @@ SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ) 
 
    for( auto& sample : SampleList() ){
       // Caching sample wide variable (weight sums.. etc), see Common/src/InitSample.cc
-      InitSample( *sample );
+      InitSampleFromEDM( sample );
 
       // Fitting the defined dataset, see LimitCalc/src/SampleRooFitMgr_FillSet.cc
-      fillsets( *sample );
+      fillsets( sample );
    }
 }
 
@@ -57,7 +57,7 @@ SampleRooFitMgr::~SampleRooFitMgr()
 {
    for( const auto& name : VarNameList() ){
       RooRealVar* var = Var( name );
-      printf( "%30s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
+      printf( "%-50s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
       fflush( stdout );
    }
 }

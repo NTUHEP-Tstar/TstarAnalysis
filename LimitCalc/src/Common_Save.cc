@@ -32,7 +32,7 @@ SaveRooWorkSpace(
    const vector<RooAbsPdf*>& sig_list
    )
 {
-   const string roofit_file = limit_namer.RootFileName( "roofitobj" );
+   const string roofit_file = limnamer.RootFileName( "roofitobj" );
    RooWorkspace ws( ws_name.c_str(), ws_name.c_str() );
 
    cout << "Saving RooFit objects to " << roofit_file << endl;
@@ -59,7 +59,7 @@ MakeCardCommon(
    const std::string& tag
    )
 {
-   FILE* card_file = fopen( limit_namer.TextFileName( "card", {tag} ).c_str(), "w" );
+   FILE* card_file = fopen( limnamer.TextFileName( "card", {tag} ).c_str(), "w" );
 
    fprintf( card_file, "imax 1\n" );
    fprintf( card_file, "jmax *\n" );
@@ -70,16 +70,16 @@ MakeCardCommon(
    fprintf(
       card_file, "shapes %10s %15s %30s %s:%s\n",
       "data_obs",
-      limit_namer.GetChannel().c_str(),
-      limit_namer.RootFileName( "roofitobj" ).c_str(),
+      limnamer.GetChannel().c_str(),
+      limnamer.RootFileName( "roofitobj" ).c_str(),
       ws_name.c_str(),
       data->GetName()
       );
    fprintf(
       card_file, "shapes %10s %15s %30s %s:%s\n",
       "bg",
-      limit_namer.GetChannel().c_str(),
-      limit_namer.RootFileName( "roofitobj" ).c_str(),
+      limnamer.GetChannel().c_str(),
+      limnamer.RootFileName( "roofitobj" ).c_str(),
       ws_name.c_str(),
       bg_pdf->GetName()
       );
@@ -87,28 +87,30 @@ MakeCardCommon(
    fprintf(
       card_file, "shapes %10s %15s %30s %s:%s\n",
       "sig",
-      limit_namer.GetChannel().c_str(),
-      limit_namer.RootFileName( "roofitobj" ).c_str(),
+      limnamer.GetChannel().c_str(),
+      limnamer.RootFileName( "roofitobj" ).c_str(),
       ws_name.c_str(),
       sig_pdf->GetName()
       );
    fprintf( card_file, "----------------------------------------\n" );
 
    // Printing data correspondence
-   fprintf( card_file, "%12s %s\n",  "bin",         limit_namer.GetChannel().c_str() );
+   fprintf( card_file, "%12s %s\n",  "bin",         limnamer.GetChannel().c_str() );
    fprintf( card_file, "%12s %lg\n", "observation", data->sumEntries() );
    fprintf( card_file, "----------------------------------------\n" );
 
    fprintf(
       card_file, "%12s %15s %15s\n", "bin",
-      limit_namer.GetChannel().c_str(),
-      limit_namer.GetChannel().c_str()
+      limnamer.GetChannel().c_str(),
+      limnamer.GetChannel().c_str()
       );
    fprintf( card_file, "%12s %15s %15s\n", "process", "sig", "bg" );
    fprintf( card_file, "%12s %15s %15s\n", "process", "-1",  "1" );
 
    return card_file;
 }
+
+/******************************************************************************/
 
 void
 PrintNuisanceFloats(
@@ -129,6 +131,8 @@ PrintNuisanceFloats(
       );
 }
 
+/******************************************************************************/
+
 void
 PrintFloatParam(
    FILE*             card_file,
@@ -144,6 +148,7 @@ PrintFloatParam(
       );
 }
 
+/******************************************************************************/
 
 void
 PrintFlatParam(
@@ -152,8 +157,10 @@ PrintFlatParam(
    )
 {
    fprintf(
-      cardfile, "%-45s %s\n",
+      cardfile, "%-45s %s %lf %lf\n",
       var->GetName(),
-      "flatParam"
+      "param",
+      var->getVal(),
+      var->getMax()
       );
 }
