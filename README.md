@@ -4,11 +4,12 @@ Main code for excited top quark analysis.
 
 # Deploy commands
 ```
-cmsrel CMSSW_8_0_12
-cd CMSSW_8_0_12
+cmsrel CMSSW_8_0_20_patch1
+cd CMSSW_8_0_20_patch1/src
 
 git cms-init
 git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
+git cms-merge-topic ikrav:egm_id_80X_v1
 
 git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git
 git clone https://github.com/NTUHEP-Tstar/ManagerUtils.git
@@ -47,21 +48,25 @@ Next go to your `TstarAnalysis` directory and alter the `Common/settings/higgs_c
 
 ### General structure (in alphabetical order)
 
-* [`BaseLineSelector`](BaseLineSelector): All EDM plugins and functions required to strip MINIAOD files to baseline requirements
+* [`AdditionalSelector`](AdditionalSelector) All EDM plugins required to further select events to dedicated signal/control regions.
+
+* [`BaseLineSelector`](BaseLineSelector): All EDM plugins and functions required to strip MINIAOD files to baseline requirements and basic variable caching
 
 * [`Common`](Common): Utility functions and classes that are specific for this analysis, but is used among multiple sub routines.
 
-* [`CompareDataMC`](CompareDataMC): Plotting classes for comparing quantities between data and monte-carlo
+* [`CompareDataMC`](CompareDataMC): Plotting classes for comparing quantities between data and Monte Carlo
 
-* [`LimitCalc`](LimitCalc): Preparing objects to pass to [Higgs Combine Package], and also plot results into graphs. Includes validation subprocess
+* [`EventWeight`](EventWeight): All EDM classes required for caching event weighting information to events.
+
+* [`LimitCalc`](LimitCalc): Preparing objects to pass to [Higgs Combine Package], and also plot results into graphs. Includes validation sub-processes
 
 * [`ModifiedHitFit`](ModifiedHitFit): Modified version of [`TopQuarkAnalysis/TopHitFit/`] (https://github.com/cms-sw/cmssw/tree/CMSSW_8_1_X/TopQuarkAnalysis/TopHitFit) package from the official CMSSW
 
 * [`RootFormat`](RootFormat): All classes with dictionaries for ROOT goes here.
 
-* [`RunSequence`](RunSequence): All instances where running over large numbers of datasets is placed here. Includes utility scripts for crab/lfn job submissions. EDM Files are also stored here (never tracked by git).
+* [`RunSequence`](RunSequence): All instances where running over large numbers of datasets is placed here. Includes utility scripts for crab/lfn job submissions.
 
-* [`TstarMassReco`](TstarMassReco): Algorithms for computing mass reconstruction. Includes interfaces for reconstructor classes and cmsRun
+* [`TstarMassReco`](TstarMassReco): Algorithms for computing mass reconstruction. Includes interfaces for reconstruction classes and cmsRun
 
 
 ### General guideline in subpackages

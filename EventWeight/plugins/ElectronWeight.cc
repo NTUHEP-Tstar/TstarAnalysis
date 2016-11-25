@@ -19,9 +19,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 #include "ManagerUtils/EDMUtils/interface/TFileUtils.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
+#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+
 
 #include "TAxis.h"
 #include "TEfficiency.h"
@@ -119,7 +122,7 @@ ElectronWeight::produce( edm::Event& iEvent, const edm::EventSetup & iSetup )
          iEvent.put( ptr, MakeWeightName( weightobj ) );
       }
    }
-
+   
    auto_ptr<double> weightptr( new double( totalweight.CentralValue() ) );
    auto_ptr<double> weightupptr( new double( totalweight.CentralValue()+totalweight.AbsUpperError() ) );
    auto_ptr<double> weightdownptr( new double( totalweight.CentralValue()-totalweight.AbsLowerError() ) );

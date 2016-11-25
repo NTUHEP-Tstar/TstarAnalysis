@@ -22,7 +22,7 @@
       "Is Data": false,
       "Latex Name" : "\\PW\\Z",
       "Root Name" : "WZ",
-      "Cross Section": [ 49.75, 38.3, 2.99 ],
+      "Cross Section": [ 49.75, 3.83, 2.99 ],
       "K Factor": 1.0,
       "Generator": "\\PYTHIA",
       "Cross Section Source": "NLO",

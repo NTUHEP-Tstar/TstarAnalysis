@@ -21,17 +21,21 @@
 void
 InitSampleStatic( const TstarNamer& namer )
 {
-   using namespace std;
-   const mgr::ConfigReader cfg( namer.MasterConfigFile() );
-   mgr::SampleMgr::InitStaticFromReader( cfg );
-   if( boost::contains( namer.GetChannel(), "2015" ) ){
-      cout << "Using 2015 Luminosity" << endl;
-      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble( "Total Luminosity 2015" ) );
-   } else {
-      mgr::SampleMgr::SetTotalLuminosity( cfg.GetStaticDouble( "Total Luminosity 2016" ) );
-   }
+   mgr::SampleMgr::InitStaticFromReader( namer.MasterConfig() );
    mgr::SampleMgr::SetFilePrefix( namer.GetChannelEDMPath() );
    mgr::SampleGroup::SetSampleCfgPrefix( namer.SettingsDir() );
+
+   // Luminosity settings
+   if( namer.HasOption( "era" ) ){
+      if( namer.GetChannel().find( "Electron" ) != std::string::npos ){
+         mgr::SampleMgr::SetTotalLuminosity( namer.GetExtDouble( "era", "EleLumi" ) );
+      } else {
+         mgr::SampleMgr::SetTotalLuminosity( namer.GetExtDouble( "era", "Lumi" ) );
+      }
+   } else {
+      std::cerr << "Warning!! Era of data taking not specified! Setting luminosity to 0!" << std::endl;
+      mgr::SampleMgr::SetTotalLuminosity( 0 );
+   }
 }
 
 /******************************************************************************/
@@ -42,8 +46,10 @@ InitSampleFromEDM( mgr::SampleMgr& sample )
    mgr::MultiFileRun myrun( sample.GlobbedFileList() );
 
    // Calculation original number of events is the same for MC and Data
-   fwlite::Handle<edm::MergeableCounter> positivehandle;
-   fwlite::Handle<edm::MergeableCounter> negativehandle;
+   fwlite::Handle<mgr::Counter> orighandle;
+   fwlite::Handle<mgr::Counter> evtweighthandle;
+   fwlite::Handle<mgr::Counter> evtweightallhandle;
+
    double origcount = 0;
    double selccount = 0;
    double topwcount = 0;
@@ -51,31 +57,13 @@ InitSampleFromEDM( mgr::SampleMgr& sample )
    for( myrun.toBegin(); !myrun.atEnd(); ++myrun ){
       const auto& run = myrun.Base();
 
-      positivehandle.getByLabel( run, "beforeAny", "positiveEvents" );
-      negativehandle.getByLabel( run, "beforeAny", "negativeEvents" );
-      origcount += positivehandle->value;
-      origcount -= negativehandle->value;
-   }
+      orighandle.getByLabel( run, "BeforeAll", "WeightSum" );
+      evtweighthandle.getByLabel( run, "EventWeight", "WeightSum" );
+      evtweightallhandle.getByLabel( run, "EventWeightAll", "WeightSum" );
 
-   // Selected event counting is not the same for data and MC
-
-   if( sample.IsRealData() ){
-      // For data, the selected number of events is just the number of events
-      mgr::MultiFileEvent myevent( sample.GlobbedFileList() );
-      selccount = myevent.size();
-      topwcount = myevent.size();
-   } else {
-      fwlite::Handle<mgr::Counter> evtweighthandle;
-      fwlite::Handle<mgr::Counter> evtweightallhandle;
-
-      for( myrun.toBegin(); !myrun.atEnd() ; ++myrun ){
-         const auto& run = myrun.Base();
-
-         evtweighthandle.getByLabel( run, "EventWeight","WeightSum");
-         evtweightallhandle.getByLabel( run,"EventWeightAll","WeightSum");
-         selccount += evtweighthandle.ref().value ;
-         topwcount += evtweightallhandle.ref().value ;
-      }
+      origcount += orighandle.ref().value;
+      selccount += evtweighthandle.ref().value;
+      topwcount += evtweightallhandle.ref().value;
    }
 
    // Adding to samplemgr

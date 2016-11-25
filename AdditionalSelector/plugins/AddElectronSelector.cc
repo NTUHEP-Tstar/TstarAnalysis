@@ -18,6 +18,7 @@
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 #include "ManagerUtils/PhysUtils/interface/TriggerMatching.hpp"
 #include "TstarAnalysis/BaseLineSelector/interface/TypeDef.hpp"
+#include "TstarAnalysis/Common/interface/IDCache.hpp"
 
 #include <memory>
 #include <vector>
@@ -48,8 +49,8 @@ private:
 
    std::vector<std::pair<std::string, std::string> > GetTriggerList( const edm::ParameterSet& iConfig, const std::string& tag ) const;
 
-   bool passtriggersafe( const pat::Electron&, const double ) const ;
-   bool passtrigger( const pat::Electron& , const edm::Event& ) const ;
+   bool passtriggersafe( const pat::Electron&, const double ) const;
+   bool passtrigger( const pat::Electron&, const edm::Event& ) const;
 };
 
 
@@ -70,16 +71,17 @@ AddElectronSelector::AddElectronSelector( const edm::ParameterSet& iConfig ) :
 bool
 AddElectronSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   iEvent.getByToken( _rhosrc,        _rhoHandle );
    iEvent.getByToken( _electronsrc,   _electronHandle   );
-   iEvent.getByToken( _hltsrc,        _hltHandle    );
-   iEvent.getByToken( _triggerobjsrc, _triggerObjectHandle );
 
    if( _electronHandle->size() != 1 ){
       // only parsing events that contain exactly one electron
       return true;
    }
+
    const auto& el = _electronHandle->at( 0 );
+   iEvent.getByToken( _rhosrc,        _rhoHandle );
+   iEvent.getByToken( _hltsrc,        _hltHandle    );
+   iEvent.getByToken( _triggerobjsrc, _triggerObjectHandle );
 
    return passtrigger( el, iEvent ) && passtriggersafe( el, *_rhoHandle );
 }
@@ -91,7 +93,7 @@ std::vector<std::pair<std::string, std::string> >
 AddElectronSelector::GetTriggerList(
    const edm::ParameterSet& iConfig,
    const std::string&       tag
-) const
+   ) const
 {
    std::vector<std::pair<std::string, std::string> > ans;
 
@@ -111,39 +113,46 @@ AddElectronSelector::GetTriggerList(
 bool
 AddElectronSelector::passtriggersafe( const pat::Electron& x, const double rho ) const
 {
-   const double pt  = x.pt();
-   const double eta = x.superCluster()->eta();
+   // Using cached results of VID
+   return PassHLTID( x );
 
-   const double ecalPFIso = x.ecalPFClusterIso();
-   const double hcalPFIso = x.hcalPFClusterIso();
-   const double trackIso  = x.trackIso();
-   const double detaseed  = x.deltaEtaSeedClusterTrackAtCalo();
-   const double dphiin    = x.deltaPhiSuperClusterTrackAtVtx();
-   const double chi2      = x.gsfTrack()->normalizedChi2();
+   // Legacy code from Arun
+   // const double pt  = x.pt();
+   // const double eta = x.superCluster()->eta();
 
-   if( fabs( eta ) <= 1.479 ){// barrel cuts
-      if( ( ecalPFIso - rho*0.165 )/pt > 0.160 ){ return false; }
-      if( ( hcalPFIso - rho*0.060 )/pt > 0.120 ){ return false; }
-      if( ( trackIso/pt )              > 0.08  ){ return false; }
-      if( fabs( detaseed )             > 0.004 ){ return false; }
-      if( fabs( dphiin )               > 0.020 ){ return false; }
-      return true;
-   } else if( fabs( eta ) < 2.5 ){// endcap cuts
-      if( ( ecalPFIso - rho*0.132 )/pt > 0.120 ){ return false; }
-      if( ( hcalPFIso - rho*0.131 )/pt > 0.120 ){ return false; }
-      if( ( trackIso/pt )              > 0.08  ){ return false; }
-      if( fabs( chi2 )                 > 3     ){ return false; }
-      return true;
-   } else {// bad eta region
-      return false;
-   }
+   // const double ecalPFIso = x.ecalPFClusterIso();
+   // const double hcalPFIso = x.hcalPFClusterIso();
+   // const double trackIso  = x.trackIso();
+   // const double detaseed  = x.deltaEtaSeedClusterTrackAtCalo();
+   // const double dphiin    = x.deltaPhiSuperClusterTrackAtVtx();
+   // const double chi2      = x.gsfTrack()->normalizedChi2();
+   // const int misshit      = x.gsfTrack()->hitPattern().numberOfHits( reco::HitPattern::MISSING_INNER_HITS );
+
+   // if( fabs( eta ) <= 1.479 ){// barrel cuts
+   //    if( ( ecalPFIso - rho*0.165 )/pt > 0.160 ){ return false; }
+   //    if( ( hcalPFIso - rho*0.060 )/pt > 0.120 ){ return false; }
+   //    if( ( trackIso/pt )              > 0.08  ){ return false; }
+   //    if( fabs( detaseed )             > 0.004 ){ return false; }
+   //    if( fabs( dphiin )               > 0.020 ){ return false; }
+   //    if( misshit                      > 0     ){ return false; }
+   //    return true;
+   // } else if( fabs( eta ) < 2.5 ){// endcap cuts
+   //    if( ( ecalPFIso - rho*0.132 )/pt > 0.120 ){ return false; }
+   //    if( ( hcalPFIso - rho*0.131 )/pt > 0.120 ){ return false; }
+   //    if( ( trackIso/pt )              > 0.08  ){ return false; }
+   //    if( fabs( chi2 )                 > 3     ){ return false; }
+   //    if( misshit                      > 0     ){ return false; }
+   //    return true;
+   // } else {// bad eta region
+   //    return false;
+   // }
 }
 
 
 /******************************************************************************/
 
 bool
-AddElectronSelector::passtrigger( const pat::Electron& el , const edm::Event& iEvent ) const
+AddElectronSelector::passtrigger( const pat::Electron& el, const edm::Event& iEvent ) const
 {
    if( _reqtriggerlist.size() == 0 ){
       // return true is no trigger is listed

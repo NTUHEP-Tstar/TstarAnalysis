@@ -34,10 +34,13 @@ selectedElectrons = cms.EDFilter(
     "ElectronProducer",
     electronsrc = cms.InputTag("slimmedElectrons"),
     packedsrc   = cms.InputTag("packedPFCandidates"),
-    vetoMap     = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto" ),
-    looseMap    = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose" ),
-    mediumMap   = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium" ),
-    tightMap    = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight" ),
+    vertexsrc   = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    vetoMap     = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto" ),
+    looseMap    = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose" ),
+    mediumMap   = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium" ),
+    tightMap    = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight" ),
+    heepMap     = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"),
+    hltMap      = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronHLTPreselection-Summer16-V1" ),
 )
 
 skimmedPatElectrons = cms.EDFilter(

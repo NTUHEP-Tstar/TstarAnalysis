@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
 
    InitSampleStatic( compnamer );
 
-   const mgr::ConfigReader master( compnamer.MasterConfigFile() );
+   const mgr::ConfigReader& master = compnamer.MasterConfig();
    const string datatag = compnamer.GetChannelEXT( "Data Tag" );
 
    /*******************************************************************************

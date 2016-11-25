@@ -44,7 +44,6 @@ private:
    std::vector<edm::EDGetToken> _weightsrclist;
    edm::Handle<double>          _weighthandle;
 
-   bool   _isdata;// required for per run production
    double _weightsum;
 
 };
@@ -79,8 +78,10 @@ WeightProdSum::beginRun( const edm::Run&, const edm::EventSetup& )
 void
 WeightProdSum::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   if( iEvent.isRealData() ){ _isdata = true; return; }// skipping if is data event
-   _isdata = false;
+   if( iEvent.isRealData() ){
+      _weightsum += 1; // Always ++ for data
+      return;          // Do not attempt to read weights
+   } // skipping if is data event
 
    auto_ptr<double> weight( new double(1.0) );
 
@@ -104,11 +105,10 @@ WeightProdSum::endRun( const edm::Run&, const edm::EventSetup& ){}
 void
 WeightProdSum::endRunProduce( edm::Run& iRun, const edm::EventSetup& )
 {
-   if( _isdata ){ return; }
+   // Weight sum should be number of events for data.
    auto_ptr<mgr::Counter> sumptr( new mgr::Counter( _weightsum ) );
    iRun.put( sumptr, "WeightSum" );
 }
-
 
 /******************************************************************************/
 

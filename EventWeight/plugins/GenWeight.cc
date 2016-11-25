@@ -1,6 +1,6 @@
 /*******************************************************************************
 *
-*  Filename    : SignWeight.cc
+*  Filename    : GenWeight.cc
 *  Description : Getting the sign of the central weight
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
@@ -24,12 +24,12 @@
 /*******************************************************************************
 *   Class definition
 *******************************************************************************/
-class SignWeight : public edm::EDProducer
+class GenWeight : public edm::EDProducer
 {
 public:
    explicit
-   SignWeight( const edm::ParameterSet& );
-   ~SignWeight();
+   GenWeight( const edm::ParameterSet& );
+   ~GenWeight();
 
 private:
    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
@@ -43,32 +43,31 @@ using namespace std;
 /*******************************************************************************
 *   Constructor
 *******************************************************************************/
-SignWeight::SignWeight( const edm::ParameterSet& iConfig ) :
+GenWeight::GenWeight( const edm::ParameterSet& iConfig ) :
    _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) )
 {
-   produces<double>( "SignWeight" );
+   produces<double>( "GenWeight" );
 }
 
-SignWeight::~SignWeight(){}
+GenWeight::~GenWeight(){}
 
 /*******************************************************************************
 *   Main control flow
 *******************************************************************************/
 void
-SignWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+GenWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    if( iEvent.isRealData() ){ return; }// Don't do anything for data
 
    auto_ptr<double> weightptr( new double(1.) );
    iEvent.getByToken( _lhesrc, _lheHandle );
-   if( _lheHandle.isValid() && _lheHandle->hepeup().XWGTUP <= 0 ){
-      *weightptr *= -1.;
+   if( _lheHandle.isValid() ){
+      *weightptr = _lheHandle->originalXWGTUP();
    }
 
-   // Will not be caching Scaled up event weight
-   iEvent.put( weightptr, "SignWeight" );
+   iEvent.put( weightptr, "GenWeight" );
 }
 
 /******************************************************************************/
 
-DEFINE_FWK_MODULE( SignWeight );
+DEFINE_FWK_MODULE( GenWeight );

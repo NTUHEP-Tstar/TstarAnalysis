@@ -26,11 +26,12 @@ main( int argc, char* argv[] )
    desc.add_options()
       ( "channel,c", opt::value<string>(), "which channel to run" )
       ( "fitfunc,f", opt::value<string>(), "which fit function to use" )
+      ( "era,e", opt::value<string>(), "Which data era to use" )
       ( "relmag,x", opt::value<double>(), "Relative magnitude of signal compared with prediction" )
       ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
    ;
 
-   limnamer.SetNamingOptions( {"fitfunc"} );
+   limnamer.SetNamingOptions( {"fitfunc","era"} );
    const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
@@ -45,7 +46,7 @@ main( int argc, char* argv[] )
 
    InitSampleStatic( limnamer );
 
-   mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
    PlotGenFit( cfg.GetStaticStringList( "Signal List" ) );
 
    return 0;

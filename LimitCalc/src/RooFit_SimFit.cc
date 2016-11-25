@@ -349,29 +349,30 @@ MakeSimFitPlot(
    const double sigexpstrength = sig->ExpectedYield();
 
 
-   TGraph* modelplot = PlotOn(
+   TGraph* dataplot = plt::PlotOn(
+      frame, dataset,
+      RooFit::DrawOption( PGS_DATA )
+   ); //Must plot data first to set y axis title
+
+   TGraph* modelplot = plt::PlotOn(
       frame, model,
       RooFit::Normalization( bgstrength + sigfitstrength, RooAbsReal::NumEvent )
       );
 
-   TGraph* bgplot = PlotOn(
+   TGraph* bgplot = plt::PlotOn(
       frame, bgpdf,
       RooFit::Normalization( bgstrength, RooAbsReal::NumEvent )
       );
 
-   TGraph* sigplot = PlotOn(
+   TGraph* sigplot = plt::PlotOn(
       frame, sigpdf,
       RooFit::Normalization( sigexpstrength, RooAbsReal::NumEvent ),
       RooFit::DrawOption( PGS_SIGNAL )
       );
-   TGraph* dataplot = PlotOn(
-      frame, dataset,
-      RooFit::DrawOption( PGS_DATA )
-      );
 
    frame->Draw();
    frame->SetMinimum( 0.3 );
-   SetFrame( frame );
+   plt::SetFrame( frame );
    // frame->GetYaxis()->SetTitle( dataplot->GetYaxis()->GetTitle() );
 
    modelplot->SetLineColor( kGreen );
@@ -440,8 +441,12 @@ MakeSimFitPlot(
       );
 
    // Unzoomed plot
+   const vector<const TGraph*> graphlist = {dataplot,modelplot,sigplot, bgplot};
+   const double ymax = plt::GetYmax( graphlist );
+   frame->SetMaximum( ymax * 1.5 );
    plt::SaveToPDF( c, mainname );
    c->SetLogy( kTRUE );
+   frame->SetMaximum( ymax * 300 );
    plt::SaveToPDF( c, logname.c_str() );
    c->SetLogy( kFALSE );
 

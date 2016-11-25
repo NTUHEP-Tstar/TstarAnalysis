@@ -30,9 +30,10 @@ main( int argc, char* argv[] )
       ( "channel,c", opt::value<string>(), "Which channel to run" )
       ( "fitmethod,m", opt::value<string>(), "Which fitting method to use" )
       ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
+      ( "era,e", opt::value<string>(), "Which data era to use" )
    ;
 
-   limnamer.SetNamingOptions( {"fitmethod", "fitfunc"} );
+   limnamer.SetNamingOptions( {"fitmethod", "fitfunc", "era"} );
    const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }

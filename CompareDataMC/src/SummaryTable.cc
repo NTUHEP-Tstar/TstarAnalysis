@@ -5,6 +5,7 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
+#include "ManagerUtils/Maths/interface/ParameterArithmetic.hpp"
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
@@ -47,10 +48,12 @@ SummaryComplete(
    for( const auto& grp : bkglist ){
       for( const auto& smp : grp.SampleList() ){
          PrintSampleLine( file, smp );
-         expyield += smp.ExpectedYield()// double
-                     * smp.CrossSection().NormParam()// 1+- rel error
-                     * smp.SelectionEfficiency().NormParam()
-                     * GetWeightError( smp );
+         const Parameter smpyield = smp.ExpectedYield()// double
+                                    * Prod( smp.CrossSection().NormParam()// 1+- rel error
+                                          , smp.SelectionEfficiency().NormParam()
+                                          , GetWeightError( smp )
+            );
+         expyield += smpyield;
       }
 
       PrintHline( file );
@@ -73,7 +76,7 @@ SummaryBrief(
 {
    FILE* file      = OpenSimpleFile( "brief" );
    double expyield = 0;
-   double obsyield = 0;
+   double obsyield = data.ExpectedYield();
 
    for( const auto& grp : siglist ){
       PrintSimpleLine( file, grp );
@@ -151,7 +154,7 @@ OpenSelecFile( const string& tag )
    PrintHline( file );
    fprintf( file, selecline,
       "Sample",
-      "Cross Section ($pb$)",
+      "Cross Section (pb)",
       "Selection Efficiency",
       "Weight Errors",
       "Expected Yield"
@@ -169,20 +172,29 @@ PrintSampleLine( FILE* file, const SampleMgr& x )
    const string namecol = x.LatexName();
    const string xseccol = x.Name().find( "Tstar" ) != string::npos ?
                           Scientific( x.CrossSection(), 2 ) :
-                          FloatingPoint( x.CrossSection(), -1 );
+                          XSecStr( x.CrossSection() );
    const string effcol = Scientific( x.SelectionEfficiency()*x.KFactor(), 2 );
-
    const Parameter err = GetWeightError( x );
-   const string errcol = "+" + FloatingPoint( err.RelUpperError(), 3 )+ "/-" + FloatingPoint( err.RelLowerError(), 3 );
+   const string errcol = "+" + FloatingPoint( err.RelUpperError(), 2 )+ "/-" + FloatingPoint( err.RelLowerError(), 2 );
 
-   const string expcol = FloatingPoint( x.ExpectedYield() * err, 0 );
+   const Parameter expyield = x.ExpectedYield()// double
+                              * Prod( x.CrossSection().NormParam()// 1+- rel error
+                                    , x.SelectionEfficiency().NormParam()
+                                    , GetWeightError( x )
+      );
+   string expcol;
+   if( expyield.CentralValue() > 100 ){
+      expcol = FloatingPoint( expyield.CentralValue(), 0 );
+   } else {
+      expcol = FloatingPoint( expyield.CentralValue(), 1 );
+   }
 
    fprintf( file, selecline,
       namecol.c_str(),
-      xseccol.c_str(),
-      effcol.c_str(),
+      AddMathBrace( xseccol ).c_str(),
+      AddMathBrace( effcol ).c_str(),
       errcol.c_str(),
-      expcol.c_str()
+      AddMathBrace( expcol ).c_str()
       );
 }
 
@@ -196,14 +208,14 @@ PrintCount( FILE* file, const string& tag, const Parameter& x )
       "",
       "",
       "",
-      FloatingPoint( x, 0 ).c_str()
+      AddMathBrace( FloatingPoint( x, 0 ) ).c_str()
       );
 }
 
 /*******************************************************************************
 *   Helper functions for simplified summary
 *******************************************************************************/
-static const char simpleline[] = "%-30s & %35s &%35s\\\\\n";
+static const char simpleline[] = "%-40s & %25s &%20s\\\\\n";
 
 FILE*
 OpenSimpleFile( const string& tag )
@@ -236,8 +248,8 @@ PrintSimpleLine( FILE* file, const SampleTableMgr& x )
 
    fprintf( file, simpleline,
       x.LatexName().c_str(),
-      Scientific( x.AvgSelectionEfficiency(), 2 ).c_str(),
-      FloatingPoint( expyield, 0 ).c_str()
+      AddMathBrace( Scientific( x.AvgSelectionEfficiency().CentralValue(), 2 ) ).c_str(),
+      AddMathBrace( FloatingPoint( expyield.CentralValue(), 0 ) ).c_str()
       );
 }
 
@@ -249,7 +261,7 @@ PrintSimpleCount( FILE* file, const string& tag, const Parameter& x )
    fprintf( file, simpleline,
       tag.c_str(),
       "",
-      FloatingPoint( x, 0 ).c_str()
+      AddMathBrace( FloatingPoint( x, 0 ) ).c_str()
       );
 }
 
@@ -285,18 +297,18 @@ PrintLumiLine( FILE* file, const SampleMgr& x )
    const string namecol = x.LatexName();
    const string xsec    = x.Name().find( "Tstar" ) != string::npos ?
                           Scientific( x.CrossSection(), 2 ) :
-                          FloatingPoint( x.CrossSection(), -1  );
+                          XSecStr( x.CrossSection() );
    const string kfaccol = FloatingPoint( x.KFactor(), -1 );
    const string xseccol = str( boost::format( "%s(%s)" )%xsec%x.GetCacheString( "XsecSource" ) );
-   const string lumicol = FloatingPoint( Parameter( equiv, 0, 0 ), 2 ).c_str();
+   const string lumicol = Scientific( Parameter( equiv, 0, 0 ), 2 ).c_str();
    const string gencol  = x.GetCacheString( "Generator" );
 
    fprintf(
       file, lumi_line,
       namecol.c_str(),
-      xseccol.c_str(),
+      AddMathBrace( xseccol ).c_str(),
       kfaccol.c_str(),
-      lumicol.c_str(),
+      AddMathBrace( lumicol ).c_str(),
       gencol.c_str()
       );
 }
@@ -315,4 +327,26 @@ GetWeightError( const mgr::SampleMgr& sample )
    err *= Parameter( 1, 0.046, 0.046 );
    err *= Parameter( 1, 0.03, 0.03 );
    return err;
+}
+
+/******************************************************************************/
+
+string
+AddMathBrace( const std::string& x )
+{
+   return "$" + x + "$";
+}
+
+/******************************************************************************/
+
+string
+XSecStr( const Parameter& x )
+{
+   if( x.CentralValue() > 100 ){
+      return FloatingPoint( x, 0 );
+   } else if( x.CentralValue() > 10 ){
+      return FloatingPoint( x, 1 );
+   } else {
+      return Scientific( x, 2 );
+   }
 }

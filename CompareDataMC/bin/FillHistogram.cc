@@ -27,6 +27,7 @@ main( int argc, char* argv[] )
       ( "channel,c", opt::value<string>(), "What channel to run" )
       ( "group,g",   opt::value<string>(), "What group to fill" )
       ( "type,t",    opt::value<string>(), "What type of histrogram to fill" )
+      ( "era,e",     opt::value<string>(), "What era of data to fill" )
    ;
 
    const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
@@ -35,10 +36,10 @@ main( int argc, char* argv[] )
 
    InitSampleStatic( compnamer );
 
-   const mgr::ConfigReader master( compnamer.MasterConfigFile() );
+   const mgr::ConfigReader master =  compnamer.MasterConfig();
 
    const string tag = ( compnamer.InputStr( "group" ) == "Data" ) ?
-                      compnamer.GetChannelEXT( "Data Tag" ) :
+                      compnamer.GetChannelEXT( "Data Prefix" )+ compnamer.GetExtName( "era", "Data Postfix") :
                       compnamer.InputStr( "group" );
 
    if( compnamer.InputStr( "type" ) == "Err" ){

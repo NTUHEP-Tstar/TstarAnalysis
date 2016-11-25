@@ -56,7 +56,7 @@ MakeFullComparePlot(
       }
 
       l->AddEntry( bkgerror, "Bkg. error (1#sigma)",                                                              "fl" );
-      l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
+      l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
       MakePlot(
          stack,
@@ -67,7 +67,7 @@ MakeFullComparePlot(
          datarel,
          l,
          "fullcomp",
-         {histname, label}
+         {histname, label,compnamer.InputStr("era")}
          );
       delete l;
       delete stack;
@@ -249,42 +249,29 @@ PlotErrCompare(
    TH1D* errup   = MakeSumHistogram( samplelist, histname + err.tag + "up" );
    TH1D* errdown = MakeSumHistogram( samplelist, histname + err.tag + "down" );
 
-   central->Draw( PS_HIST );
-   errup->Draw( PS_SAME PS_HIST );
-   errdown->Draw( PS_SAME PS_HIST );
 
-   // Styling
-   central->SetLineColor( kBlack );
-   errup->SetLineColor( kRed );
-   errdown->SetLineColor( kBlue );
-
-   TCanvas* c = plt::NewCanvas();
-
-   // Legend;
-   TLegend* tl        = plt::NewLegend( 0.6, 0.7 );
-   const string label = ( err.label != "" ) ? err.label : "1#sigma";
-   tl->AddEntry( central, "Central Value",                               "l" );
-   tl->AddEntry( errup,   ( err.rootname + "(+" + label + ")" ).c_str(), "l" );
-   tl->AddEntry( errdown, ( err.rootname + "(-" + label + ")" ).c_str(), "l" );
-
+   // Making duplicate objects
    TH1D* uprel   = (TH1D*)errup->Clone();
    TH1D* downrel = (TH1D*)errdown->Clone();
    uprel->Divide( central );
    downrel->Divide( central );
 
-   // plotting
+   const double xmin = central->GetXaxis()->GetXmin();
+   const double xmax = central->GetXaxis()->GetXmax();
+
+   // Plotting
+   TCanvas* c = plt::NewCanvas();
+
+   // TOPPAD
    TPad* pad1 = plt::NewTopPad();
    pad1->Draw();
    pad1->cd();
    central->Draw( "axis" );
-   errup->Draw( "LE SAME" );
-   errdown->Draw( "LE SAME" );
-   central->Draw( "SAMEHIST" );
-   tl->Draw( "same" );
+   errup->Draw( PS_HIST PS_SAME );
+   errdown->Draw( PS_HIST PS_SAME );
+   central->Draw( PS_HIST PS_SAME );
    c->cd();
 
-   const double xmin = central->GetXaxis()->GetXmin();
-   const double xmax = central->GetXaxis()->GetXmax();
 
    TPad* pad2      = plt::NewBottomPad();
    TLine* line     = new TLine( xmin, 1, xmax, 1 );
@@ -301,6 +288,25 @@ PlotErrCompare(
    line_bot->Draw( "SAME" );
    c->cd();
 
+
+   // Drawing legend
+   const double legxmin = 0.5;
+   const double legymin = 0.7 ;
+   TLegend* tl        = plt::NewLegend( legxmin, legymin );
+   const string label = ( err.label != "" ) ? err.label : "1#sigma";
+   tl->AddEntry( central, "Central Value",                               "l" );
+   tl->AddEntry( errup,   ( err.rootname + "(+" + label + ")" ).c_str(), "l" );
+   tl->AddEntry( errdown, ( err.rootname + "(-" + label + ")" ).c_str(), "l" );
+
+   tl->Draw( "same" );
+
+   // Common styling
+   central->SetLineColor( kBlack );
+   errup->SetLineColor( kRed );
+   errdown->SetLineColor( kBlue );
+   uprel->SetLineColor( kRed );
+   downrel->SetLineColor( kBlue );
+
    // accessory styling
    line->SetLineColor( kBlack );
    line->SetLineStyle( 1 );
@@ -315,13 +321,18 @@ PlotErrCompare(
 
    // Setting plot range
    const double ymax = plt::GetYmax( {central, errup, errdown} );
-   central->SetMaximum( ymax * 1.2 );
+   central->SetMaximum( ymax * 1.5 );
    uprel->SetMaximum( 2.2 );
    uprel->SetMinimum( -0.2 );
    uprel->GetYaxis()->SetTitle( "#frac{up,down}{Norm}" );
 
 
-   TPaveText* tb = plt::NewTextBox( 0.12, 0.88, 0.30, 0.94 );
+   TPaveText* tb = plt::NewTextBox(
+      PLOT_X_MIN + 0.05 ,
+      PLOT_Y_MAX - (TEXT_FONT_SIZE*2.0)/(DEFAULT_CANVAS_HEIGHT),
+      PLOT_X_MIN + 0.40,
+      PLOT_Y_MAX - 0.025
+   );
    tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
    tb->Draw();
 
@@ -331,19 +342,18 @@ PlotErrCompare(
    ltx.SetTextSize( AXIS_TITLE_FONT_SIZE );
    ltx.SetTextAlign( TOP_RIGHT );
    try {
-      ltx.DrawLatex( PLOT_X_MAX-0.02, 0.75, str( boost::format( "t* %dGeV" )%GetInt( listname ) ).c_str() );
+      ltx.DrawLatex( PLOT_X_MAX-0.04, legymin-0.08, str( boost::format( "t* %dGeV" )%GetInt( listname ) ).c_str() );
    } catch( std::exception ){
-      ltx.DrawLatex( PLOT_X_MAX-0.02, 0.75, listname.c_str() );
+      ltx.DrawLatex( PLOT_X_MAX-0.04, legymin-0.08, listname.c_str() );
    }
 
    // cleaning up
    if( listname.find( "Data" ) != string::npos ){
       plt::DrawCMSLabel( PRELIMINARY );
-      const mgr::ConfigReader cfg( compnamer.MasterConfigFile() );
-      plt::DrawLuminosity( cfg.GetStaticDouble( "Total Luminosity" ) );
    } else {
       plt::DrawCMSLabel( SIMULATION );
    }
+   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
    plt::SaveToPDF( c, compnamer.PlotFileName( "errcomp", {listname, histname, err.tag} ) );
    plt::SaveToROOT(

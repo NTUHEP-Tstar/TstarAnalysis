@@ -65,7 +65,7 @@ def main():
 
                 lumimask=""
                 if myname.IsData( dataset ) :
-                    lumimask=mypath.setting_dir + "/lumimask_ICHEP.json"
+                    lumimask=mypath.setting_dir + "/lumimask_B-G.json"
 
                 script_content = script_template.format(
                     mysetting.tstar_dir,

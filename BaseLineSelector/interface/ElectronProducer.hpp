@@ -35,18 +35,24 @@ private:
 
    // Data Members
    const edm::EDGetToken _electronsrc;
+   const edm::EDGetToken _vertexsrc;
    const edm::EDGetToken _vetoMapToken;
    const edm::EDGetToken _looseMapToken;
    const edm::EDGetToken _mediumMapToken;
    const edm::EDGetToken _tightMapToken;
+   const edm::EDGetToken _heepMapToken;
+   const edm::EDGetToken _hltMapToken;
    const edm::EDGetToken _packedsrc;
 
    edm::Handle<std::vector<pat::Electron>> _electronHandle;
-   edm::Handle<pat::PackedCandidateCollection> _packedHandle;
+   edm::Handle<reco::VertexCollection> _vertexHandle;
    edm::Handle<edm::ValueMap<bool> > _vetoMapHandle;
    edm::Handle<edm::ValueMap<bool> > _looseMapHandle;
    edm::Handle<edm::ValueMap<bool> > _mediumMapHandle;
    edm::Handle<edm::ValueMap<bool> > _tightMapHandle;
+   edm::Handle<edm::ValueMap<bool> > _heepMapHandle;
+   edm::Handle<edm::ValueMap<bool> > _hltMapHandle;
+   edm::Handle<pat::PackedCandidateCollection> _packedHandle;
 
    // Helper functions: see src/ElectronSelection.cc
    bool IsSelectedElectron(

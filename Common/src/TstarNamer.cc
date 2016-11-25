@@ -20,22 +20,13 @@ namespace opt = boost::program_options;
 *******************************************************************************/
 TstarNamer::TstarNamer( const string& sub_package ) :
    PackagePathMgr( "TstarAnalysis", sub_package ),
-   OptsNamer()
+   OptsNamer(),
+   _master_config( SettingsDir() + "master.json" )
 {
-
 }
 
 TstarNamer::~TstarNamer()
 {
-}
-
-/*******************************************************************************
-*   File paths functions
-*******************************************************************************/
-string
-TstarNamer::MasterConfigFile() const
-{
-   return SettingsDir() + "master.json";
 }
 
 /*******************************************************************************
@@ -71,11 +62,15 @@ TstarNamer::LoadOptions(
    return PARSE_SUCESS;
 }
 
+/******************************************************************************/
+
 void
 TstarNamer::SetChannel( const std::string& x )
 {
    _channel_tag = x;
 }
+
+/******************************************************************************/
 
 string
 TstarNamer::GetChannelEDMPath() const
@@ -83,11 +78,14 @@ TstarNamer::GetChannelEDMPath() const
    return GetChannelEXT( "EDM path" );
 }
 
+/******************************************************************************/
+
 string
 TstarNamer::GetChannelEXT( const string& x ) const
 {
    return query_tree( "channel", GetChannel(), x );
 }
+
 
 
 /*******************************************************************************

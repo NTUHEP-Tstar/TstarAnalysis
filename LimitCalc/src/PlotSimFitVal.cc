@@ -12,8 +12,8 @@
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 
+#include <algorithm>
 #include <boost/format.hpp>
-#include <cstdlib>
 
 #include "RooGaussian.h"
 #include "RooRealVar.h"
@@ -98,10 +98,10 @@ PlotSingleGenFit( const std::string& masstag )
 
       // Making pull distribution
 
-      double bkgpull = ( bkg_fit - bkg_real )/bkg_fiterr;
-      double sigpull = ( sig_fit - sig_real )/sig_fiterr;
-      double p1pull  = ( p1_fit - p1_real )/p1_fiterr;
-      double p2pull  = ( p2_fit - p2_real )/p2_fiterr;
+      double bkgpull = ( bkg_fit - bkg_real ) / bkg_fiterr;
+      double sigpull = ( sig_fit - sig_real ) / sig_fiterr;
+      double p1pull  = ( p1_fit  - p1_real  ) / p1_fiterr;
+      double p2pull  = ( p2_fit  - p2_real  ) / p2_fiterr;
       double signorm = ( sig_fit - sig_real ) / sig_real;
 
       if(
@@ -152,20 +152,24 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
       RooFit::Warnings( kFALSE )
       );
 
-   RooPlot* frame = p.frame();
-   PlotOn( frame, &set );
-   PlotOn( frame, &pullfit );
+   RooPlot* frame  = p.frame();
+   TGraph* setplot = plt::PlotOn( frame, &set );
+   TGraph* fitplot = plt::PlotOn( frame, &pullfit );
    frame->Draw();
 
+   const vector<const TGraph*> graphlist = {setplot, fitplot};
+   const double ymax                     = plt::GetYmax( graphlist );
+   frame->SetMaximum( ymax * 1.4 );
+
    // Styling plots
-   SetFrame( frame );
+   plt::SetFrame( frame );
    plt::DrawCMSLabel( SIMULATION );
    plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
    // Title Formats
-   boost::format xtitlefmt( "pull_{%1%}" );
-   boost::format signalfmt( "Sig. mass = %1% GeV" );
-   boost::format meanfmt( "#mu_{pull} = %.4f #pm %.4f " );
+   boost::format xtitlefmt( "pull_{%s}" );
+   boost::format signalfmt( "Sig. mass = %d GeV" );
+   boost::format meanfmt( "#mu_{pull} = %.4f #pm %.4f" );
    boost::format sigmafmt( "#sigma_{pull} = %.4f #pm %.4f" );
    boost::format injectfmt( "signal events %1% %2%" );
 
@@ -185,16 +189,16 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
    tl.SetNDC( kTRUE );
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_LEFT );
+   tl.DrawLatex( PLOT_X_MIN+0.04, PLOT_Y_MAX-0.04, limnamer.GetChannelEXT( "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_X_MIN+0.04, PLOT_Y_MAX-0.10, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_Y_MIN+0.04, PLOT_Y_MAX-0.24, signal_s.c_str() );
    tl.SetTextAlign( TOP_RIGHT );
+   tl.DrawLatex( PLOT_X_MAX-0.04, PLOT_Y_MAX-0.4,  inject_s.c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.04, PLOT_Y_MAX-0.10, mean_s.c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.04, PLOT_Y_MAX-0.16, sigma_s.c_str() );
 
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limnamer.GetChannelEXT( "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.20, signal_s.c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.26, inject_s.c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.32, mean_s.c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.38, sigma_s.c_str() );
-
-   c->SaveAs( limnamer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
+   plt::SaveToPDF( c, limnamer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
 
    delete frame;
    delete c;
@@ -214,11 +218,15 @@ MakePullComparePlot(
    )
 {
    TCanvas* c = plt::NewCanvas();
+   c->SetLeftMargin( PLOT_X_MIN );
+   c->SetRightMargin( 1 - PLOT_X_MAX );
+   c->SetBottomMargin( PLOT_Y_MIN );
+   c->SetTopMargin( 1 - PLOT_Y_MAX );
 
-   TGraphAsymmErrors* graph = new TGraphAsymmErrors( pullresultlist.size() );
+   TGraphAsymmErrors* graph   = new TGraphAsymmErrors( pullresultlist.size() );
    TGraphAsymmErrors* meanerr = new TGraphAsymmErrors( pullresultlist.size() );
-   TGraphAsymmErrors* uperr = new TGraphAsymmErrors( pullresultlist.size() );
-   TGraphAsymmErrors* lowerr = new TGraphAsymmErrors( pullresultlist.size() );
+   TGraphAsymmErrors* uperr   = new TGraphAsymmErrors( pullresultlist.size() );
+   TGraphAsymmErrors* lowerr  = new TGraphAsymmErrors( pullresultlist.size() );
 
    unsigned i = 0;
 
@@ -233,10 +241,10 @@ MakePullComparePlot(
       uperr->SetPoint( i, mass, fitmean.CentralValue() + fitsig.CentralValue() );
       lowerr->SetPoint( i, mass, fitmean.CentralValue() - fitsig.CentralValue() );
 
-      graph->SetPointError( i, 0, 0  , fitsig.CentralValue(), fitsig.CentralValue() );
-      meanerr->SetPointError( i, 0, 0, fabs(fitmean.AbsLowerError()), fabs(fitmean.AbsUpperError()) );
-      uperr->SetPointError( i, 0, 0  , fabs(fitsig.AbsLowerError()), fabs(fitsig.AbsUpperError()) );
-      lowerr->SetPointError( i, 0, 0 , fabs(fitsig.AbsUpperError()), fabs(fitsig.AbsLowerError()) );
+      graph->SetPointError( i, 0, 0, fitsig.CentralValue(), fitsig.CentralValue() );
+      meanerr->SetPointError( i, 0, 0, fabs( fitmean.AbsLowerError() ), fabs( fitmean.AbsUpperError() ) );
+      uperr->SetPointError( i, 0, 0, fabs( fitsig.AbsLowerError() ), fabs( fitsig.AbsUpperError() ) );
+      lowerr->SetPointError( i, 0, 0, fabs( fitsig.AbsUpperError() ), fabs( fitsig.AbsLowerError() ) );
       ++i;
    }
 
@@ -246,12 +254,13 @@ MakePullComparePlot(
    mg->Add( lowerr,  "A3" );
    mg->Add( graph,   "LP" );
 
-   mg->Draw("A");
+   mg->Draw( "A" );
    mg->SetTitle( "" );
    mg->GetXaxis()->SetTitle( "signal mass (GeV)" );
    mg->GetYaxis()->SetTitle( ( "pull_{"+tag+"}" ).c_str() );
-   mg->SetMaximum( 2.75 );
-   mg->SetMinimum( -2.75 );
+   mg->SetMaximum( 3.25 );
+   mg->SetMinimum( -1.75 );
+   plt::SetAxis( mg );
    plt::DrawCMSLabel( SIMULATION );
 
    // Styling graphs
@@ -294,12 +303,13 @@ MakePullComparePlot(
    tl.SetNDC( kTRUE );
    tl.SetTextFont( FONT_TYPE );
    tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
+   tl.SetTextAlign( TOP_LEFT );
+   tl.DrawLatex( PLOT_X_MIN+0.04, PLOT_Y_MAX-0.04, limnamer.GetChannelEXT( "Root Name" ).c_str() );
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.02, limnamer.GetChannelEXT( "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_X_MAX-0.02, PLOT_Y_MAX-0.08, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
-   tl.DrawLatex( PLOT_Y_MAX-0.02, PLOT_Y_MAX-0.20, inject_s.c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.04, PLOT_Y_MAX-0.04, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
+   tl.DrawLatex( PLOT_Y_MAX-0.04, PLOT_Y_MAX-0.22, inject_s.c_str() );
 
-   c->SaveAs( limnamer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
+   plt::SaveToPDF( c, limnamer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
 
    delete graph;
    delete meanerr;

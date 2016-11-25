@@ -55,7 +55,7 @@ MakeComparePlot(
       }
 
       l->AddEntry( bkgerror, "Bkg. stat. error",                                                                  "fl" );
-      l->AddEntry( sighist,  boost::str( boost::format( "%s (x%.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
+      l->AddEntry( sighist,  boost::str( boost::format( "%s (x%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
       MakePlot(
          stack,
@@ -66,7 +66,7 @@ MakeComparePlot(
          datarel,
          l,
          "quickcomp",
-         {histname, label}
+         {histname, label,compnamer.InputStr("era")}
          );
 
       delete stack;

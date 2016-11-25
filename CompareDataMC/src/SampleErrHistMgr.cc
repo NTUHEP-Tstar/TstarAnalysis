@@ -54,13 +54,13 @@ extern const vector<string> histnamelist = {
 };
 
 extern const vector<ErrorSource> histerrlist = {
-   { "jec",    "Jet energy correction",    ""              },
-   { "jer",    "Jet energy resolution",    ""              },
-   { "pu",     "Pileup #sigma_{mini}",     "4.6%"          },
-   { "btag",   "b-tag scale factor",       ""              },
-   { "lepton", "lepton scale factor",      ""              },
-   { "pdf",    "PDF uncertainty",          ""              },
-   { "scale",  "QCD scale variation",      ""              }
+   { "jec",    "Jet energy correction",    ""                       },
+   { "jer",    "Jet energy resolution",    ""                       },
+   { "pu",     "Pileup #sigma_{mini}",     "4.6%"                   },
+   { "btag",   "b-tag scale factor",       ""                       },
+   { "lepton", "lepton scale factor",      ""                       },
+   { "pdf",    "PDF uncertainty",          ""                       },
+   { "scale",  "QCD scale variation",      ""                       }
 };
 
 
@@ -97,18 +97,13 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
    fwlite::Handle<RecoResult> chisqHandle;
 
    const auto& pdfidgroup    = GetPdfIdGrouping( sample );
-   const double sampleweight = sample.ExpectedYield() / sample.SelectedEventCount();
-   double weightsum          = 0;
+   const double sampleweight = sample.IsRealData() ?
+                               1. : sample.CrossSection() / sample.OriginalEventCount();
 
-   unsigned i = 1;
+   double weightsum = 0;
+   unsigned i       = 1;
 
    boost::format processform( "\rSample [%s|%s] , Event[%u/%llu]..." );
-
-   cout << sample.GlobbedFileList().size() << endl;
-
-   for( const auto& file : sample.GlobbedFileList() ){
-      cout << file << endl;
-   }
 
    // Looping over events
    mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
@@ -182,9 +177,6 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
    }
 
    cout << boost::format( "Done!" ) << endl;
-
-   cout << "Sum of weights:" << weightsum << "| number of selected events: " << sample.SelectedEventCount() << endl;
-
 }
 
 
@@ -295,13 +287,9 @@ SampleErrHistMgr::LoadFromFile()
 {
    for( auto& sample : SampleList() ){
       mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ) );
-      cout << FloatingPoint( sample.ExpectedYield(), 3 ) << endl;
    }
 
-   cout << FloatingPoint( ExpectedYield(), 3 ) << endl;
-
    HistMgr::LoadFromFile( compnamer.RootFileName( "fullhistcache" ) );
-   cout << Hist( "Jet1Pt" )->Integral() << endl;
 }
 
 

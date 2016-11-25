@@ -8,9 +8,11 @@
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/Common/interface/NameParse.hpp"
+#include "TstarAnalysis/Common/interface/PlotStyle.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
 
 #include <boost/format.hpp>
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -32,22 +34,27 @@ Color_t Color_Sequence[5] = {
 void
 ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list  )
 {
+   static const double legend_xmin = 0.45;
+   static const double legend_ymin = 0.70;
 
    for( const auto& histname : method_list.front()->AvailableHistList() ){
 
       TCanvas* c = plt::NewCanvas();
-      TLegend* l = plt::NewLegend( 0.45, 0.70 );
+      TLegend* l = plt::NewLegend( legend_xmin, legend_ymin );
+
+      c->SetLeftMargin( PLOT_X_MIN );
+      c->SetRightMargin( 1 - PLOT_X_MAX );
+      c->SetBottomMargin( PLOT_Y_MIN );
+      c->SetTopMargin( 1 - PLOT_Y_MAX );
 
       double max = 0;
 
       for( const auto& method : method_list ){
-         if( method->Hist( histname )->GetMaximum() > max ){
-            max = method->Hist( histname )->GetMaximum();
-         }
+         max = std::max( max, method->Hist(histname)->GetMaximum() );
       }
 
       for( const auto& method : method_list ){
-         method->Hist( histname )->SetMaximum( floor( max*1.2 ) );
+         method->Hist( histname )->SetMaximum( floor( max*1.5 ) );
          method->Hist( histname )->SetTitle( "" );
       }
 
@@ -56,7 +63,7 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
       for( const auto& method : method_list ){
          method->SetLineColor( Color_Sequence[i] );
          plt::SetAxis( method->Hist( histname ) );
-         method->Hist( histname )->Draw( "HIST SAME" );
+         method->Hist( histname )->Draw( PS_HIST PS_SAME );
          l->AddEntry( method->Hist( histname ), method->LatexName().c_str(), "l" );
          ++i;
       }
@@ -68,8 +75,8 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
       ltx.SetNDC( kTRUE );
       ltx.SetTextFont( FONT_TYPE );
       ltx.SetTextSize( AXIS_TITLE_FONT_SIZE );
-      ltx.SetTextAlign( TOP_LEFT );
-      ltx.DrawLatex( 0.45, 0.70, str( boost::format( "M_{t*} = %dGeV/c^{2}" )%GetInt( reconamer.InputStr( "mass" ) ) ).c_str() );
+      ltx.SetTextAlign( TOP_RIGHT );
+      ltx.DrawLatex( PLOT_X_MAX - 0.04 , legend_ymin , str( boost::format( "M_{t*}=%dGeV/c^{2}" )%GetInt( reconamer.InputStr( "mass" ) ) ).c_str() );
 
       const string rootfile = reconamer.PlotRootFile();
       const string filename = reconamer.PlotFileName(comp_name,{histname});
@@ -80,20 +87,21 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
    }
 }
 
-// ------------------------------------------------------------------------------
-//   Single channel comparison plot
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Monte-Carlo truth matching algorithm
+*******************************************************************************/
 void
 MatchPlot( CompareHistMgr* mgr )
 {
-   TCanvas* c = new TCanvas( "c", "c", 700, 700 );
-   TPad* pad  = new TPad( "p", "p", 0.05, 0.01, 0.95, 1.0 );
+   TCanvas* c = new TCanvas( "c", "c", 750, 700 );
+
+   c->SetLeftMargin( 0.2 );
+   c->SetRightMargin( 0.15 );
+   c->SetBottomMargin( PLOT_Y_MIN );
+   c->SetTopMargin( 1 - PLOT_Y_MAX );
 
    TH2D* plot = mgr->MatchMap();
-
-   pad->Draw();
-   pad->cd();
-   plot->Draw( "COLZ TEXT" );
+   plot->Draw( "COLZTEXT" );
    c->cd();
 
    plt::SetAxis( plot );
@@ -122,12 +130,11 @@ MatchPlot( CompareHistMgr* mgr )
    plot->GetYaxis()->SetBinLabel( 5, "Had g" );
    plot->GetYaxis()->SetBinLabel( 6, "unknown" );
 
-   pad->SetLogz( 1 );
+   c->SetLogz( 1 );
 
    const string filename  = reconamer.PlotFileName( "jetmatchmap", {mgr->Name()} );
    plt::SaveToPDF( c , filename );
    plt::SaveToROOT( c, reconamer.PlotRootFile(), Basename(filename) );
 
-   delete pad;
    delete c;
 }

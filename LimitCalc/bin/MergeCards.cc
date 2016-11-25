@@ -28,14 +28,15 @@ main( int argc, char* argv[] )
       ( "fitmethod,m", opt::value<string>(), "Which fitting method to use" )
       ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
       ( "channellist,c", opt::value<vector<string> >()->multitoken(), "Which channels to merge" )
+      ( "era,e", opt::value<string>(), "Which data era to use" )
    ;
 
-   limnamer.SetNamingOptions( {"fitmethod", "fitfunc"} );
+   limnamer.SetNamingOptions( {"fitmethod", "fitfunc", "era"} );
    const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
 
-   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   const mgr::ConfigReader&  cfg = limnamer.MasterConfig();
    const mgr::ConfigReader higgscfg( limnamer.SettingsDir() + "higgs_combine_settings.json" );
    const vector<string> masspointlist = cfg.GetStaticStringList( "Signal List" );
    const vector<string> channellist = limnamer.GetMap()["channellist"].as<vector<string> >() ;

@@ -21,10 +21,10 @@ masspointlist=[
     "TstarM1600",
 ]
 
-functionlist=["Exo","Lognorm"]
+functionlist=["Lognorm","Exo"]
 
-runnum   = 3000
-injlist  = [0,30,300]
+runnum   = 5000
+injlist  = [0,300]
 
 header="""
 #!/bin/bash

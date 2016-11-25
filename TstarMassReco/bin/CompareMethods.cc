@@ -62,6 +62,7 @@ main( int argc, char* argv[] )
          mgr->AddEvent( event );
       }
    }
+   cout << "Done" << endl;
 
    // Making plots
    for( const auto& mgr : complist ){

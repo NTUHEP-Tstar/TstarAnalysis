@@ -35,7 +35,7 @@ using namespace std;
 void
 MakeLimitPlot()
 {
-   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
 
    const vector<string> siglist   = cfg.GetStaticStringList( "Signal List" );
    const map<double, double> xsec = GetXsectionMap();
@@ -100,11 +100,7 @@ MakeLimitPlot()
 
    // Additional titles settings
    plt::DrawCMSLabel();
-   if( boost::contains( limnamer.GetChannel(), "2015" ) ){
-      plt::DrawLuminosity( cfg.GetStaticDouble( "Total Luminosity 2015" ) );
-   } else {
-      plt::DrawLuminosity( cfg.GetStaticDouble( "Total Luminosity 2016" ) );
-   }
+   plt::DrawLuminosity( limnamer.GetExtDouble("era","Lumi") );
 
    // Writing additional text
    const string rootlabel = limnamer.GetChannelEXT( "Root Name" );

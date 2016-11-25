@@ -41,6 +41,14 @@ options.register(
     'Lumi Mask to apply'
 )
 
+options.register(
+    'reportEvery',
+    10000,
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.int,
+    'How often to print messages'
+)
+
 options.setDefault('maxEvents', 1000)
 
 options.parseArguments()
@@ -51,7 +59,7 @@ options.parseArguments()
 process = cms.Process("TopLike")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(options.maxEvents)
 )

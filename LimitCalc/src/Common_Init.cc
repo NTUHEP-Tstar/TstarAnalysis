@@ -23,7 +23,7 @@ TstarNamer limnamer( "LimitCalc" );
 void
 InitSingle( SampleRooFitMgr*& mgr, const string& tag )
 {
-   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
    mgr = new SampleRooFitMgr( tag, cfg );
 }
 
@@ -32,9 +32,9 @@ InitSingle( SampleRooFitMgr*& mgr, const string& tag )
 void
 InitRooFitSettings( const TstarNamer& x )
 {
-   const mgr::ConfigReader cfg( x.MasterConfigFile() );
-   const double mass_min = cfg.GetStaticDouble( "Mass Min" );
-   const double mass_max = cfg.GetStaticDouble( "Mass Max" );
+   const mgr::ConfigReader& cfg = x.MasterConfig();
+   const double mass_min        = cfg.GetStaticDouble( "Mass Min" );
+   const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
    SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
    SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
 }
@@ -42,13 +42,15 @@ InitRooFitSettings( const TstarNamer& x )
 /******************************************************************************/
 
 void
-InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& sig_list )
+InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
 {
-   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
-   data = new SampleRooFitMgr( limnamer.GetChannelEXT( "Data Tag" ), cfg );
+   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
+   const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
+                                  + limnamer.GetExtName( "era", "Data Postfix" );
+   data = new SampleRooFitMgr( datatag, cfg );
 
-   for( const auto& signal_tag : cfg.GetStaticStringList( "Signal List" ) ){
-      sig_list.push_back( new SampleRooFitMgr( signal_tag, cfg ) );
+   for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){
+      siglist.push_back( new SampleRooFitMgr( signaltag, cfg ) );
    }
 }
 
@@ -57,6 +59,6 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& sig_list )
 void
 InitMC( SampleRooFitMgr*& mc )
 {
-   const mgr::ConfigReader cfg( limnamer.MasterConfigFile() );
+   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
    mc = new SampleRooFitMgr( "Background", cfg );
 }

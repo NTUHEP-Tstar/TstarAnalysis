@@ -54,12 +54,6 @@ extern FitParticle MakeResultMuon( const pat::Muon* );
 extern FitParticle MakeResultElectron( const pat::Electron* );
 
 /*******************************************************************************
-*   Decay chain crawling functions
-*******************************************************************************/
-const reco::Candidate* GetDirectMother( const reco::Candidate*, int );
-const reco::Candidate* GetDaughter( const reco::Candidate*, int );
-
-/*******************************************************************************
 *   Decay chain crawling function for hihg level control flow
 *******************************************************************************/
 extern bool FromLeptonicTop( const reco::Candidate* );

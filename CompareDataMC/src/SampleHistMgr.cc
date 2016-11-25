@@ -36,53 +36,63 @@ void
 SampleHistMgr::define_hist()
 {
    //       Short tag            , X axis name                                       , X axis unit,bin, min  , max
-   AddHist( "LepPt",             "Lepton p_{T}",                                      "GeV/c",     48,  20,    500 );
-   AddHist( "LepEta",            "Lepton #eta",                                       "",          75,   -2.5, 5.0 );
-   AddHist( "MET",               "Missing transverse energy",                         "GeV",       50,   0,    500 );
-   AddHist( "METPhi",            "Missing transverse energy #phi",                    "",          96,   -3.2, 6.4 );
-   AddHist( "JetNum",            "Number of Jets",                                    "",          11,   4,     15 );
-   AddHist( "JetPt",             "Jet p_{T}",                                         "GeV/c",     60,   0,   1000 );
-   AddHist( "Jet1Pt",            "First Leading Jet p_{T}",                           "GeV/c",     60,   0,   1000 );
-   AddHist( "Jet2Pt",            "Second Leading Jet p_{T}",                          "GeV/c",     60,   0,   1000 );
-   AddHist( "Jet3Pt",            "Third Jet p_{T}",                                   "GeV/c",     60,   0,    700 );
-   AddHist( "Jet4Pt",            "Fourth Jet p_{T}",                                  "GeV/c",     60,   0,    600 );
-   AddHist( "JetEta",            "Jet #eta",                                          "",          75,   -2.5, 5.0 );
-   AddHist( "Jet1Eta",           "First Leading Jet #eta",                            "",          75,   -2.5, 5.0 );
-   AddHist( "Jet2Eta",           "Second Leading Jet #eta",                           "",          75,   -2.5, 5.0 );
+   AddHist( "LepPt",             "Lepton p_{T}",                                        "GeV/c",     48,  20,    500 );
+   AddHist( "LepEta",            "Lepton #eta",                                         "",          75,   -2.5, 5.0 );
+   AddHist( "MET",               "Missing transverse energy",                           "GeV",       50,   0,    500 );
+   AddHist( "METPhi",            "Missing transverse energy #phi",                      "",          96,   -3.2, 6.4 );
+   AddHist( "JetNum",            "Number of Jets",                                      "",          11,   4,     15 );
+   AddHist( "JetPt",             "Jet p_{T}",                                           "GeV/c",     60,   0,   1000 );
+   AddHist( "Jet1Pt",            "First Leading Jet p_{T}",                             "GeV/c",     60,   0,   1000 );
+   AddHist( "Jet2Pt",            "Second Leading Jet p_{T}",                            "GeV/c",     60,   0,   1000 );
+   AddHist( "Jet3Pt",            "Third Jet p_{T}",                                     "GeV/c",     60,   0,    700 );
+   AddHist( "Jet4Pt",            "Fourth Jet p_{T}",                                    "GeV/c",     60,   0,    600 );
+   AddHist( "JetEta",            "Jet #eta",                                            "",          75,   -2.5, 5.0 );
+   AddHist( "Jet1Eta",           "First Leading Jet #eta",                              "",          75,   -2.5, 5.0 );
+   AddHist( "Jet2Eta",           "Second Leading Jet #eta",                             "",          75,   -2.5, 5.0 );
 
    // Tstar Variables
-   AddHist( "TstarMass",         "M_{t+g}",                                           "GeV/c^{2}", 50,   0,   2000 );
-   AddHist( "TstarZoom",         "M_{t+g}",                                           "GeV/c^{2}", 50, 350,   2500 );
-   AddHist( "ChiSq",             "#chi^{2}",                                          "",          50,   0,  10000 );
-   AddHist( "LepGluonPt",        "Leptonic Gluon Jet p_{T}",                          "GeV/c",     60,  30,  1000. );
-   AddHist( "HadGluonPt",        "Hadronic Gluon Jet p_{T}",                          "GeV/c",     60,  30,  1000. );
+   AddHist( "TstarMass",         "M_{t+g}",                                             "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "TstarZoom",         "M_{t+g}",                                             "GeV/c^{2}", 50, 350,   2500 );
+   AddHist( "ChiSq",             "#chi^{2}",                                            "",          50,   0,  10000 );
+   AddHist( "LepGluonPt",        "Leptonic Gluon Jet p_{T}",                            "GeV/c",     60,  30,  1000. );
+   AddHist( "HadGluonPt",        "Hadronic Gluon Jet p_{T}",                            "GeV/c",     60,  30,  1000. );
 
    // Primary vertexts
-   AddHist( "VtxNum",            "Number of primary vertex",                          "",          50,   0,     50 );
-   AddHist( "VtxNumBestFit",     "Number of primary vertex (#sigma_{min}=62mb)",      "",          50,   0,     50 );
-   AddHist( "VtxNumUp",          "Number of primary vertex (#sigma_{min}+4.6%)",      "",          50,   0,     50 );
-   AddHist( "VtxNumDown",        "Number of primary vertex (#sigma_{min}-4.6%)",      "",          50,   0,     50 );
-   AddHist( "VtxNumNW",          "Number of primary vertex (no PU weight)",           "",          50,   0,     50 );
+   AddHist( "VtxNum",            "Number of primary vertex",                            "",          50,   0,     50 );
+   AddHist( "VtxNumBestFit",     "Number of primary vertex (#sigma_{min}=62mb)",        "",          50,   0,     50 );
+   AddHist( "VtxNumUp",          "Number of primary vertex (#sigma_{min}+4.6%)",        "",          50,   0,     50 );
+   AddHist( "VtxNumDown",        "Number of primary vertex (#sigma_{min}-4.6%)",        "",          50,   0,     50 );
+   AddHist( "VtxNumNW",          "Number of primary vertex (no PU weight)",             "",          50,   0,     50 );
 
    // Pile up effects
-   AddHist( "Jet1Pt_PuUp",       "First Leading Jet p_{T} (#sigma_{min}+4.6%)",       "GeV/c",     60,  30,   1000 );
-   AddHist( "Jet1Pt_PuDown",     "First Leading Jet p_{T} (#sigma_{min}-4.6%)",       "GeV/c",     60,  30,   1000 );
-   AddHist( "JetNum_PuUp",       "Number of Jets (#sigma_{min}+4.6%)",                "GeV/c^{2}", 11,   4,     15 );
-   AddHist( "JetNum_PuDown",     "Number of Jets (#sigma_{min}-4.6%)",                "GeV/c^{2}", 11,   4,     15 );
-   AddHist( "TstarMass_PuUp",    "M_{t+g} (#sigma_{min}+4.6%)",                       "GeV/c^{2}", 50,   0,   2000 );
-   AddHist( "TstarMass_PuDown",  "M_{t+g} (#sigma_{min}-4.6%)",                       "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "Jet1Pt_PuUp",       "First Leading Jet p_{T} (#sigma_{min}+4.6%)",         "GeV/c",     60,  30,   1000 );
+   AddHist( "Jet1Pt_PuDown",     "First Leading Jet p_{T} (#sigma_{min}-4.6%)",         "GeV/c",     60,  30,   1000 );
+   AddHist( "JetNum_PuUp",       "Number of Jets (#sigma_{min}+4.6%)",                  "GeV/c^{2}", 11,   4,     15 );
+   AddHist( "JetNum_PuDown",     "Number of Jets (#sigma_{min}-4.6%)",                  "GeV/c^{2}", 11,   4,     15 );
+   AddHist( "TstarMass_PuUp",    "M_{t+g} (#sigma_{min}+4.6%)",                         "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "TstarMass_PuDown",  "M_{t+g} (#sigma_{min}-4.6%)",                         "GeV/c^{2}", 50,   0,   2000 );
 
    // Effects of TopPtWeight
-   AddHist( "MET_NoTopPt",       "Missing transverse energy (w/o top p_{T} weights)", "GeV",       50,   0,    500 );
-   AddHist( "JetNum_NoTopPt",    "Number of jets (w/o top p_{T} weights)",            "",          11,   4,     15 );
-   AddHist( "Jet1Pt_NoTopPt",    "Leading Jet p_{T} (w/o top p_{T} weights)",         "GeV/c",     60,  30,   1000 );
-   AddHist( "TstarMass_NoTopPt", "M_{t+g} (w/o top p_{T} weights)",                   "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "MET_NoTopPt",       "Missing transverse momentum (w/o top p_{T} weights)", "GeV",       50,   0,    500 );
+   AddHist( "JetNum_NoTopPt",    "Number of jets (w/o top p_{T} weights)",              "",          11,   4,     15 );
+   AddHist( "Jet1Pt_NoTopPt",    "Leading Jet p_{T} (w/o top p_{T} weights)",           "GeV/c",     60,  30,   1000 );
+   AddHist( "TstarMass_NoTopPt", "M_{t+g} (w/o top p_{T} weights)",                     "GeV/c^{2}", 50,   0,   2000 );
 
    // Effects of Tighter electron selection
-   AddHist( "LepNonePt",         "selection lepton p_{T} (w/o lepton weights)",       "GeV/c",     48,  20,    500 );
-   AddHist( "LepNoneEta",        "selection lepton #eta (w/o lepton weight)",         "",          75,   -2.5, 5.0 );
-   AddHist( "Jet1Pt_NoLep",      "Leading Jet p_{T} (w/o lepton weight)",             "GeV/c",     60,  30,   1000 );
-   AddHist( "TstarMass_NoLep",   "M_{t+g} (w/o lepton weight)",                       "GeV/c^{2}", 50,   0,   2000 );
+   AddHist( "LepNonePt",         "selection lepton p_{T} (w/o lepton weights)",         "GeV/c",     48,  20,    500 );
+   AddHist( "LepNoneEta",        "selection lepton #eta (w/o lepton weight)",           "",          75,   -2.5, 5.0 );
+   AddHist( "LepPtGsf",          "Lepton p_{T} (RECO weight only)",                     "GeV/c",     48,  20,    500 );
+   AddHist( "LepEtaGsf",         "Lepton #eta (RECO weight only)",                      "",          75,   -2.5, 5.0 );
+   AddHist( "LepPtGT",           "Lepton p_{T} (RECO+Trigger weight only)",             "GeV/c",     48,  20,    500 );
+   AddHist( "LepEtaGT",          "Lepton #eta (RECO+Trigger weight only)",              "",          75,   -2.5, 5.0 );
+   AddHist( "LepPtGC",           "Lepton p_{T} (RECO+CUT weight only)",                 "GeV/c",     48,  20,    500 );
+   AddHist( "LepEtaGC",          "Lepton #eta (RECO+CUT weight only)",                  "",          75,   -2.5, 5.0 );
+   AddHist( "LepPtAll",          "Lepton p_{T} (RECO+CUT+Trigger weight)",              "GeV/c",     48,  20,    500 );
+   AddHist( "LepEtaAll",         "Lepton #eta (RECO+CUT+Trigger weight)",               "",          75,   -2.5, 5.0 );
+
+
+   AddHist( "Jet1Pt_NoLep",      "Leading Jet p_{T} (w/o lepton weight)",               "GeV/c",     60,  30,   1000 );
+   AddHist( "TstarMass_NoLep",   "M_{t+g} (w/o lepton weight)",                         "GeV/c^{2}", 50,   0,   2000 );
 }
 
 /******************************************************************************/
@@ -97,7 +107,8 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
    fwlite::Handle<vector<pat::Electron> > electronHandle;
    fwlite::Handle<RecoResult> chisqHandle;
 
-   const double sampleweight = sample.ExpectedYield() / sample.SelectedEventCount();
+   const double sampleweight = sample.IsRealData() ?
+                               1. : sample.CrossSection() / sample.OriginalEventCount();
 
    unsigned i = 1;
    boost::format processform( "\rSample [%s|%s] , Event[%u/%llu]..." );
@@ -116,7 +127,10 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
       const double pileup_weight_bf = GetPileupWeightBestFit( ev );
       const double puweight_up      = GetPileupWeightXsecup( ev );
       const double puweight_down    = GetPileupWeightXsecdown( ev );
-      const double elecweight       = GetElectronCutWeight( ev );
+      const double elecweight       = GetElectronWeight( ev );
+      const double elecrecoweight   = GetElectronTrackWeight( ev );
+      const double electrgweight    = GetElectronTriggerWeight( ev );
+      const double eleccutweight    = GetElectronCutWeight( ev );
       const double muonweight       = GetMuonWeight( ev );
       const double topptweight      = GetSampleEventTopPtWeight( sample, ev );
 
@@ -161,11 +175,23 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
       }
 
       for( const auto& el : *electronHandle ){
-         Hist( "LepPt"      )->Fill( el.pt(), total_weight );
+         Hist( "LepPt"      )->Fill( el.pt(),  total_weight );
          Hist( "LepEta"     )->Fill( el.eta(), total_weight );
-         Hist( "LepNonePt"  )->Fill( el.pt(), total_weight / elecweight );
+         Hist( "LepNonePt"  )->Fill( el.pt(),  total_weight / elecweight );
          Hist( "LepNoneEta" )->Fill( el.eta(), total_weight / elecweight );
+         Hist( "LepPtGsf"   )->Fill( el.pt(),  total_weight / elecweight * elecrecoweight );
+         Hist( "LepEtaGsf"  )->Fill( el.eta(), total_weight / elecweight * elecrecoweight );
+         Hist( "LepPtGT"    )->Fill( el.pt(),  total_weight / elecweight * elecrecoweight * electrgweight );
+         Hist( "LepEtaGT"   )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * electrgweight );
+         Hist( "LepPtGC"    )->Fill( el.pt(),  total_weight / elecweight * elecrecoweight * eleccutweight );
+         Hist( "LepEtaGC"   )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * eleccutweight );
+         Hist( "LepPtAll"   )->Fill( el.pt(),  total_weight / elecweight * elecrecoweight * eleccutweight * electrgweight );
+         Hist( "LepEtaAll"  )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * eleccutweight* electrgweight );
       }
+
+      cout << elecweight / ( elecrecoweight * eleccutweight * electrgweight )
+           << " " << elecweight << " " << elecrecoweight << " " << eleccutweight << " " << electrgweight
+           << flush;
 
       Hist( "MET" )->Fill( metHandle->front().pt(), total_weight );
       Hist( "METPhi" )->Fill( metHandle->front().phi(), total_weight );
@@ -231,7 +257,7 @@ void
 SampleHistMgr::LoadFromFile()
 {
    for( auto& sample : SampleList() ){
-      mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ));
+      mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ) );
    }
 
    // calling from histmgr function

@@ -43,7 +43,7 @@ SampleTableMgr::~SampleTableMgr()
 void
 SampleTableMgr::LoadExtraString()
 {
-   const mgr::ConfigReader cfg( compnamer.MasterConfigFile() );
+   const mgr::ConfigReader& cfg =  compnamer.MasterConfig();
 
    auto type = GetType( cfg );
    if( type == Undef ){

@@ -57,6 +57,8 @@ extern void SummaryMCLumi(
 *
 *******************************************************************************/
 extern Parameter GetWeightError( const mgr::SampleMgr& );
+extern std::string  AddMathBrace( const std::string& );
+extern std::string  XSecStr( const Parameter& );
 
 /*******************************************************************************
 *   Common Helper function

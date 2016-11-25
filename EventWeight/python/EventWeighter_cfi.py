@@ -124,7 +124,7 @@ MuonWeightAll = cms.EDProducer(
             weightname = cms.string('TriggerWeight'),
             objecttype = cms.string('TEfficiency'),
             file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/muon_trigger.root' ),
-            fileobj    = cms.string('total_clone'),
+            fileobj    = cms.string('total_era_bcd_clone'),
         ),
     )
 )
@@ -143,8 +143,8 @@ BtagWeight = cms.EDProducer(
 #-------------------------------------------------------------------------------
 #   Negative weight treatment
 #-------------------------------------------------------------------------------
-SignWeight = cms.EDProducer(
-    "SignWeight",
+GenWeight = cms.EDProducer(
+    "GenWeight",
     lhesrc = cms.InputTag('externalLHEProducer')
 )
 

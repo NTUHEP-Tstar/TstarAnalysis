@@ -153,9 +153,9 @@ ChiSquareSolver::BestResult() const
    }
 }
 
-// ------------------------------------------------------------------------------
-//   Setting functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Setting functions
+*******************************************************************************/
 void
 ChiSquareSolver::SetMET( const pat::MET* x )
 {
@@ -200,9 +200,9 @@ ChiSquareSolver::ClearAll()
 }
 
 
-// ------------------------------------------------------------------------------
-//   Helper Private member functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Helper private functions
+*******************************************************************************/
 void
 ChiSquareSolver::solveNeutrino()
 {
@@ -286,19 +286,23 @@ ChiSquareSolver::CheckPermutation() const
 }
 
 
-
-// ------------------------------------------------------------------------------
-//   Object sequence functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Jet Four momentum objects
+*******************************************************************************/
 TLorentzVector
 ChiSquareSolver::had_b()  const { return GetLorentzVector( *_jetlist[0], "ResP4" ); }
+
 TLorentzVector
 ChiSquareSolver::lep_b()  const { return GetLorentzVector( *_jetlist[1], "ResP4" ); }
+
 TLorentzVector
 ChiSquareSolver::had_g()  const { return GetLorentzVector( *_jetlist[2], "ResP4" ); }
+
 TLorentzVector
 ChiSquareSolver::had_q1() const { return GetLorentzVector( *_jetlist[3], "ResP4" ); }
+
 TLorentzVector
 ChiSquareSolver::had_q2() const { return GetLorentzVector( *_jetlist[4], "ResP4" ); }
+
 TLorentzVector
 ChiSquareSolver::lep_g()  const { return GetLorentzVector( *_jetlist[5], "ResP4" ); }

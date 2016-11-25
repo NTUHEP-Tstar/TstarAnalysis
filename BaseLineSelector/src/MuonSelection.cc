@@ -9,6 +9,7 @@
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 #include "ManagerUtils/PhysUtils/interface/TriggerMatching.hpp"
 #include "TstarAnalysis/BaseLineSelector/interface/MuonProducer.hpp"
+#include "TstarAnalysis/Common/interface/IDCache.hpp"
 
 /*******************************************************************************
 *   Object selection criteria
@@ -61,17 +62,14 @@ void
 MuonProducer::AddMuonVariables( pat::Muon& mu,  const edm::Event& iEvent ) const
 {
    // Additional ID values
-   const bool isSoftMuon   = mu.isSoftMuon( _primary_vertex );
-   const bool isLooseMuon  = mu.isLooseMuon();
-   const bool isMediumMuon = mu.isMediumMuon();
-   const bool isTightMuon  = mu.isTightMuon( _primary_vertex );
-   const bool isHighPtMuon = mu.isHighPtMuon( _primary_vertex );
+   int state = 0 ;
+   if(  mu.isSoftMuon( _primary_vertex ) ) { state |= MUSOFTFLAG ; }
+   if(  mu.isLooseMuon() ) { state |= MULOOSEFLAG ; }
+   if(  mu.isMediumMuon() ) { state |= MUMEDIUMFLAG ; }
+   if(  mu.isTightMuon( _primary_vertex ) ) { state |= MUTIGHTFLAG ; }
+   if(  mu.isHighPtMuon( _primary_vertex ) ) { state |= MUHIGHTPTFLAG ; }
 
-   mu.addUserInt( "isSoftMuon",   isSoftMuon   );
-   mu.addUserInt( "isLooseMuon",  isLooseMuon  );
-   mu.addUserInt( "isMediumMuon", isMediumMuon );
-   mu.addUserInt( "isTightMuon",  isTightMuon  );
-   mu.addUserInt( "isHighPtMuon", isHighPtMuon );
+   mu.addUserInt( MUIDVAR,   state   );
 
    // See https://github.com/cmsb2g/B2GAnaFW/blob/master/src/MuonUserData.cc
    const double miniIso = PFMiniIsolation(

@@ -3,7 +3,7 @@
    #    Data sector
    -----------------------------------------------------------------------------""",
 
-   "Run2016B_PromptReco2":{
+   "Run2016B":{
       "Is Data": true,
       "Latex Name": "Run 2016 B Prompt Reco v2",
       "Root Name": "Run 2016 B Prompt Reco v2",
@@ -11,7 +11,8 @@
          "SingleElectron_Run2016B-PromptReco-v2_*.root"
       ]
    },
-   "Run2016C_PromptReco2":{
+
+   "Run2016C":{
       "Is Data": true,
       "Latex Name": "Run 2016 C Prompt Reco v2",
       "Root Name": "Run 2016 C Prompt Reco v2",
@@ -19,7 +20,7 @@
          "SingleElectron_Run2016C-PromptReco-v2_*.root"
       ]
    },
-   "Run2016D_PromptReco2":{
+   "Run2016D":{
       "Is Data": true,
       "Latex Name": "Run 2016 D Prompt Reco v2",
       "Root Name": "Run 2016 D Prompt Reco v2",
@@ -27,12 +28,28 @@
          "SingleElectron_Run2016D-PromptReco-v2_*.root"
       ]
    },
-   "___Run2016E_PromptReco2":{
+   "Run2016E":{
       "Is Data": true,
       "Latex Name": "Run 2016 E Prompt Reco v2",
       "Root Name": "Run 2016 E Prompt Reco v2",
       "EDM Files":[
          "SingleElectron_Run2016E-PromptReco-v2_*.root"
+      ]
+   },
+   "Run2016F":{
+      "Is Data": true,
+      "Latex Name": "Run 2016 F Prompt Reco v2",
+      "Root Name": "Run 2016 F Prompt Reco v2",
+      "EDM Files":[
+         "SingleElectron_Run2016F-PromptReco-v1_*.root"
+      ]
+   },
+   "Run2016G":{
+      "Is Data": true,
+      "Latex Name": "Run 2016 G Prompt Reco v2",
+      "Root Name": "Run 2016 G Prompt Reco v2",
+      "EDM Files":[
+         "SingleElectron_Run2016G-PromptReco-v1_*.root"
       ]
    }
 

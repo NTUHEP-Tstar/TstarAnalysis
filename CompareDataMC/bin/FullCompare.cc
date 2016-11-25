@@ -25,6 +25,7 @@ main( int argc, char* argv[] )
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
       ( "drawdata,d", "options to add if you wish to add data into plotting")
+      ( "era,e", opt::value<string>(), "What data era to compare to" )
    ;
 
    const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
@@ -33,8 +34,9 @@ main( int argc, char* argv[] )
 
    InitSampleStatic( compnamer );
 
-   const mgr::ConfigReader master( compnamer.MasterConfigFile() );
-   const string datatag = compnamer.GetChannelEXT( "Data Tag" );
+   const mgr::ConfigReader& master = compnamer.MasterConfig();
+
+   const string datatag = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExtName( "era", "Data Postfix" ) ;
 
    /*******************************************************************************
    *   Histogram manager initialization
@@ -46,6 +48,7 @@ main( int argc, char* argv[] )
    for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
       background.push_back( new SampleErrHistMgr( bkggroup, master ) );
       background.back()->LoadFromFile();
+      background.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
    }
 
    // Declaring sample sample
@@ -53,6 +56,7 @@ main( int argc, char* argv[] )
    for( const auto& signame : master.GetStaticStringList( "Signal List" ) ){
       siglist.push_back( new SampleErrHistMgr( signame, master ) );
       siglist.back()->LoadFromFile();
+      siglist.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
    }
 
    // Defining data settings
@@ -75,7 +79,7 @@ main( int argc, char* argv[] )
 
    /*******************************************************************************
    *   Making full comparison Plots
-   *   Data plotting is handled by the plotting functions 
+   *   Data plotting is handled by the plotting functions
    *******************************************************************************/
    MakeFullComparePlot( data, background, siglist[1] );
    Normalize( data, background );

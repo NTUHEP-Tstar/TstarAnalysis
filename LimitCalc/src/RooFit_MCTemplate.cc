@@ -195,31 +195,31 @@ MakeTemplatePlot(
    TGraph* setplot;
 
    if( use_data ){
-      pdfplot = PlotOn(
+      setplot = plt::PlotOn(
+         frame,
+         data->DataSet(),
+         RooFit::DrawOption( PGS_DATA )
+      );
+      pdfplot = plt::PlotOn(
          frame,
          mc->Pdf( StitchTemplatePdfName ),
          RooFit::Range( "FitRange" ),
          RooFit::Normalization( data->DataSet()->sumEntries(), RooAbsReal::NumEvent )
          );
-      setplot = PlotOn(
-         frame,
-         data->DataSet(),
-         RooFit::DrawOption( PGS_DATA )
-      );
    } else {
-      pdfplot = PlotOn(
-         frame, mc->Pdf( StitchTemplatePdfName ),
-         RooFit::Range( "FitRange" ),
-         RooFit::Normalization( mc->DataSet()->sumEntries(), RooAbsReal::NumEvent )
-         );
-      setplot = PlotOn(
+      setplot = plt::PlotOn(
          frame,
          mc->DataSet(),
          RooFit::DrawOption( PGS_DATA )
       );
+      pdfplot = plt::PlotOn(
+         frame, mc->Pdf( StitchTemplatePdfName ),
+         RooFit::Range( "FitRange" ),
+         RooFit::Normalization( mc->DataSet()->sumEntries(), RooAbsReal::NumEvent )
+         );
    }
 
-   sigplot = PlotOn(
+   sigplot = plt::PlotOn(
       frame, signal->Pdf( StitchKeyPdfName ),
       RooFit::DrawOption( PGS_SIGNAL ),
       RooFit::Normalization( signal->ExpectedYield(), RooAbsReal::NumEvent )
@@ -227,7 +227,7 @@ MakeTemplatePlot(
 
    frame->Draw();
    frame->SetMinimum( 0.3 );
-   SetFrame( frame );
+   plt::SetFrame( frame );
    frame->GetYaxis()->SetTitle( setplot->GetYaxis()->GetTitle() );
 
    tstar::SetSignalStyle( sigplot );
@@ -260,16 +260,21 @@ MakeTemplatePlot(
    tl.SetTextAlign( TOP_RIGHT );
    tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min-0.12, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
 
+   const vector<const TGraph*> graphlist = {pdfplot,setplot,sigplot};
+   const double ymax = plt::GetYmax( graphlist );
+   frame->SetMaximum( ymax * 1.5 );
 
    const string rootfile = limnamer.PlotRootFile();
    if( use_data ){
       plt::SaveToPDF( c, limnamer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
       plt::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
+      frame->SetMaximum( ymax * 300 );
       c->SetLogy();
       plt::SaveToPDF( c, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data_log"} ) );
    } else {
       plt::SaveToPDF( c, limnamer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
       plt::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
+      frame->SetMaximum( ymax * 300 );
       c->SetLogy();
       plt::SaveToPDF( c, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc_log"} ) );
    }

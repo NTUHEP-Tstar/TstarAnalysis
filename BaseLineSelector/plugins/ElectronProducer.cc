@@ -12,10 +12,13 @@
 using namespace tstar;
 ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
    _electronsrc( GETTOKEN( iconf, ElectronList, "electronsrc" ) ),
+   _vertexsrc( GETTOKEN( iconf, VertexList, "vertexsrc" ) ),
    _vetoMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "vetoMap" ) ),
    _looseMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "looseMap" ) ),
    _mediumMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "mediumMap" ) ),
    _tightMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "tightMap" ) ),
+   _heepMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "heepMap" ) ),
+   _hltMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "hltMap" ) ),
    _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) )
 {
    produces<ElectronList>();
@@ -29,10 +32,13 @@ bool
 ElectronProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    iEvent.getByToken( _electronsrc,    _electronHandle  );
+   iEvent.getByToken( _vertexsrc,      _vertexHandle    );
    iEvent.getByToken( _vetoMapToken,   _vetoMapHandle   );
    iEvent.getByToken( _looseMapToken,  _looseMapHandle  );
    iEvent.getByToken( _mediumMapToken, _mediumMapHandle );
    iEvent.getByToken( _tightMapToken,  _tightMapHandle  );
+   iEvent.getByToken( _heepMapToken,   _heepMapHandle   );
+   iEvent.getByToken( _hltMapToken,    _hltMapHandle    );
    iEvent.getByToken( _packedsrc,      _packedHandle    );
 
    std::auto_ptr<ElectronList> selectedElectrons( new ElectronList );

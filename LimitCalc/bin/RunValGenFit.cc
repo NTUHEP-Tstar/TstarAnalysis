@@ -32,11 +32,12 @@ main( int argc, char* argv[] )
       ( "fitfunc,f", opt::value<string>(), "which fit function to use" )
       ( "num,n", opt::value<int>(), "Run <num> times of gen-pseudo data + fit" )
       ( "mass,m", opt::value<string>(), "Dataset tag for mass point" )
+      ( "era,e", opt::value<string>(), "Which data era to use" )
       ( "relmag,x", opt::value<double>(), "Relative magnitude of signal compared with prediction" )
       ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
    ;
 
-   limnamer.SetNamingOptions( {"fitfunc", "mass"} );
+   limnamer.SetNamingOptions( {"fitfunc", "era", "mass"} );
    const int run = limnamer.LoadOptions( desc, argc, argv );
    if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
    if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }

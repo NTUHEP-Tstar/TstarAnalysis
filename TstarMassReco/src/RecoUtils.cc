@@ -9,6 +9,7 @@
 #include "TstarAnalysis/RootFormat/interface/FitParticle.hpp"
 #include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
+#include "ManagerUtils/PhysUtils/interface/MCHelper.hpp"
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
@@ -92,6 +93,8 @@ MakeResultJet( const pat::Jet* jet, int x )
    return ans;
 }
 
+/******************************************************************************/
+
 FitParticle
 MakeResultMET(
    const pat::MET*       met,
@@ -117,6 +120,8 @@ MakeResultMET(
    return ans;
 }
 
+/******************************************************************************/
+
 FitParticle
 MakeResultMuon( const pat::Muon* lepton )
 {
@@ -138,6 +143,8 @@ MakeResultMuon( const pat::Muon* lepton )
 
    return ans;
 }
+
+/******************************************************************************/
 
 FitParticle
 MakeResultElectron( const pat::Electron* lepton )
@@ -164,35 +171,18 @@ MakeResultElectron( const pat::Electron* lepton )
 /*******************************************************************************
 *   Topology Tracing functions
 *******************************************************************************/
-#define BOTTOM_ID    5
-#define TOP_QUARK_ID 6
-#define ELEC_ID      11
-#define MUON_ID      13
-#define GLUON_ID     21
-#define W_BOSON_ID   24
 #define TSTAR_ID     9000005
 
 tstar::Particle_Label
 GetJetType( const reco::GenParticle* x )
 {
    using namespace tstar;
-   if( FromLeptonicTop( x ) ){
-      if( abs( x->pdgId() ) == BOTTOM_ID ){
-         return lepb_label;
-      } else {
-         return unknown_label;
-      }
-   } else if( FromHadronicW( x ) ){
+
+   if( FromHadronicW( x ) ){
       return hadw1_label;
    } else if( FromHadronicTop( x ) ){
-      if( abs( x->pdgId() ) == BOTTOM_ID ){
+      if( abs( x->pdgId() ) == BOTTOM_QUARK_ID ){
          return hadb_label;
-      } else {
-         return unknown_label;
-      }
-   } else if( FromLeptonicTstar( x ) ){
-      if( abs( x->pdgId() ) == GLUON_ID ){
-         return lepg_label;
       } else {
          return unknown_label;
       }
@@ -202,11 +192,25 @@ GetJetType( const reco::GenParticle* x )
       } else {
          return unknown_label;
       }
+   } else if( FromLeptonicTop( x ) ){
+      if( abs( x->pdgId() ) == BOTTOM_QUARK_ID ){
+         return lepb_label;
+      } else {
+         return unknown_label;
+      }
+   } else if( FromLeptonicTstar( x ) ){
+      if( abs( x->pdgId() ) == GLUON_ID ){
+         return lepg_label;
+      } else {
+         return unknown_label;
+      }
    } else {
       return unknown_label;
    }
    return unknown_label;
 }
+
+/******************************************************************************/
 
 tstar::Particle_Label
 GetLeptonType( const reco::GenParticle* x )
@@ -225,63 +229,7 @@ GetLeptonType( const reco::GenParticle* x )
    }
 }
 
-/*******************************************************************************
-*   Decay Crawling Algorithms
-*******************************************************************************/
-// Using BFS to search mother and children
-#include <queue>
-using namespace std;
-
-const reco::Candidate*
-GetDirectMother( const reco::Candidate* x, int target_ID )
-{
-   queue<const reco::Candidate*> bfs_queue;
-   bfs_queue.push( x );
-
-   while( !bfs_queue.empty() ){
-      const reco::Candidate* temp = bfs_queue.front();
-      bfs_queue.pop();
-      if( abs( temp->pdgId() ) == abs( target_ID ) ){
-         return temp;
-      }
-
-      for( unsigned i = 0; i < temp->numberOfMothers(); ++i ){
-         if( temp->mother( i )->pdgId() == temp->pdgId() ){
-            bfs_queue.push( temp->mother( i ) );
-         } else if( abs( temp->mother( i )->pdgId() ) == abs( target_ID ) ){
-            return temp->mother( i );
-         }
-      }
-   }
-
-   return NULL;
-}
-
-const reco::Candidate*
-GetDaughter( const reco::Candidate* x, int target_ID )
-{
-   queue<const reco::Candidate*> bfs_queue;
-   bfs_queue.push( x );
-
-   while( !bfs_queue.empty() ){
-      const reco::Candidate* temp = bfs_queue.front();
-      bfs_queue.pop();
-      if( abs( temp->pdgId() ) == abs( target_ID ) ){
-         // Moving to bottom of single decay chain
-         while( temp->numberOfDaughters() == 1 ){
-            temp = temp->daughter( 0 );
-         }
-
-         return temp;
-      }
-
-      for( unsigned i = 0; i < temp->numberOfDaughters(); ++i ){
-         bfs_queue.push( temp->daughter( i ) );
-      }
-   }
-
-   return NULL;
-}
+/******************************************************************************/
 
 bool
 IsLeptonicW( const reco::Candidate* x )
@@ -295,6 +243,8 @@ IsLeptonicW( const reco::Candidate* x )
    return false;
 }
 
+/******************************************************************************/
+
 bool
 IsHadronicW( const reco::Candidate* x )
 {
@@ -307,6 +257,8 @@ IsHadronicW( const reco::Candidate* x )
    return false;
 }
 
+/******************************************************************************/
+
 bool
 FromLeptonicTop( const reco::Candidate* x )
 {
@@ -317,6 +269,8 @@ FromLeptonicTop( const reco::Candidate* x )
    if( IsLeptonicW( decay_w ) ){ return true; }
    return false;
 }
+
+/******************************************************************************/
 
 bool
 FromHadronicTop( const reco::Candidate* x )
@@ -329,6 +283,8 @@ FromHadronicTop( const reco::Candidate* x )
    return false;
 }
 
+/******************************************************************************/
+
 bool
 FromLeptonicW( const reco::Candidate* x )
 {
@@ -338,6 +294,8 @@ FromLeptonicW( const reco::Candidate* x )
    return false;
 }
 
+/******************************************************************************/
+
 bool
 FromHadronicW( const reco::Candidate* x )
 {
@@ -346,6 +304,8 @@ FromHadronicW( const reco::Candidate* x )
    if( IsHadronicW( mother_w ) ){ return true; }
    return false;
 }
+
+/******************************************************************************/
 
 bool
 FromLeptonicTstar( const reco::Candidate* x )
@@ -357,6 +317,8 @@ FromLeptonicTstar( const reco::Candidate* x )
    if( IsLeptonicW( decay_w ) ){ return true; }
    return false;
 }
+
+/******************************************************************************/
 
 bool
 FromHadronicTstar( const reco::Candidate* x )

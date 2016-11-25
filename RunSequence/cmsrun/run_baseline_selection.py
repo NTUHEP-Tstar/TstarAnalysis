@@ -21,7 +21,10 @@ options = opts.VarParsing('analysis')
 
 options.register(
     'sample',
-    'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg_2.root',
+    # '/store/data/Run2016E/SingleMuon/MINIAOD/23Sep2016-v1/50000/0230DB91-868D-E611-A532-0025904A96BC.root',
+    # '/store/mc/RunIISpring16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/premix_withHLT_80X_mcRun2_asymptotic_v14-v1/00000/0446C8BC-A197-E611-8481-6CC2173BC120.root',
+    # 'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg_2.root',
+    'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TTJets.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -86,7 +89,9 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 print "Loading electron ID processes..."
 switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 elecIDModules = [
-    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'
+    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
+    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
+    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff'
 ]
 
 for mod in elecIDModules:
@@ -141,26 +146,20 @@ process.seqObjProduce = cms.Sequence(
 )
 
 #-------------------------------------------------------------------------
-#   Load counters
-#-------------------------------------------------------------------------
-print "Loading counters...."
-process.load("TstarAnalysis.BaseLineSelector.Counter_cfi")
-
-#-------------------------------------------------------------------------
 #   Load event weighting
 #   explicitly removing
 #-------------------------------------------------------------------------
 print "Loading event weighers...."
 
 # Defining weight calculators
-process.ElectronWeight = weight.ElectronWeightNoTrigger
-process.MuonWeight = weight.MuonWeightNoTrigger
-process.PileupWeight = weight.PileupWeight
-process.PileupWeightBestFit = weight.PileupWeightBestFit
-process.PileupWeightXsecup = weight.PileupWeightXsecup
+process.ElectronWeight       = weight.ElectronWeightNoTrigger
+process.MuonWeight           = weight.MuonWeightNoTrigger
+process.PileupWeight         = weight.PileupWeight
+process.PileupWeightBestFit  = weight.PileupWeightBestFit
+process.PileupWeightXsecup   = weight.PileupWeightXsecup
 process.PileupWeightXsecdown = weight.PileupWeightXsecdown
-process.SignWeight = weight.SignWeight
-process.TopPtWeight = weight.TopPtWeight
+process.GenWeight            = weight.GenWeight
+process.TopPtWeight          = weight.TopPtWeight
 
 # Defining weight summing calculators
 process.EventWeight = cms.EDProducer(
@@ -169,7 +168,7 @@ process.EventWeight = cms.EDProducer(
         cms.InputTag("ElectronWeight", "ElectronWeight"),
         cms.InputTag("MuonWeight",     "MuonWeight"),
         cms.InputTag("PileupWeight",   "PileupWeight"),
-        cms.InputTag("SignWeight",     "SignWeight")
+        cms.InputTag("GenWeight",     "GenWeight")
     )
 )
 
@@ -180,22 +179,37 @@ process.EventWeightAll = cms.EDProducer(
         cms.InputTag("MuonWeight", "MuonWeight"),
         cms.InputTag("PileupWeight", "PileupWeight"),
         cms.InputTag("TopPtWeight", "TopPtWeight"),
-        cms.InputTag("SignWeight", "SignWeight")
+        cms.InputTag("GenWeight", "GenWeight")
     )
 )
 
-# Defninig sequence
-process.seqWeight = cms.Sequence(
+# Counting effective number of events before any selection is done
+process.BeforeAll = cms.EDProducer(
+    "WeightProdSum",
+    weightlist = cms.VInputTag(
+        cms.InputTag("PileupWeight","PileupWeight"),
+        cms.InputTag("GenWeight","GenWeight")
+    )
+)
+
+## Weights that should be calculated in total weight
+process.noSelWeights = cms.Sequence(
     (
-        process.ElectronWeight
-        + process.MuonWeight
-        + process.PileupWeight
+        process.PileupWeight
         + process.PileupWeightBestFit
         + process.PileupWeightXsecup
         + process.PileupWeightXsecdown
-        # Removing Btag since it is not used in selection
-        + process.SignWeight
+        + process.GenWeight
         + process.TopPtWeight
+    )
+    * process.BeforeAll
+)
+
+# Defninig sequence
+process.selWeights = cms.Sequence(
+    (
+        process.ElectronWeight
+        + process.MuonWeight
     )
     * process.EventWeight
     * process.EventWeightAll
@@ -206,36 +220,13 @@ process.seqWeight = cms.Sequence(
 #-------------------------------------------------------------------------
 print "Defining process path...."
 process.myfilterpath = cms.Path(
-    process.beforeAny
+    process.noSelWeights
     * process.seqMET
     * process.seqObjProduce
     * process.leptonSeparator
-    * process.seqWeight
+    * process.selWeights
 )
 
-#-------------------------------------------------------------------------
-#   Defining objects to keep
-#-------------------------------------------------------------------------
-keepobjlist = [
-    "keep *_externalLHEProducer_*_*",
-    "keep *_generator_*_*",
-    "keep *_prunedGenParticles_*_*",
-    "keep *_TriggerResults_*_HLT*",
-    "keep *_fixedGridRhoFastjetAll_*_*",
-    "keep *_offlineSlimmedPrimaryVertices_*_*",
-    "keep *_slimmedMETs_*_*",
-    "keep *_skimmedPatMuons_*_*",
-    "keep *_skimmedPatElectrons_*_*",
-    "keep *_skimmedPatJets_*_*",
-    "keep *_slimmedAddPileupInfo_*_*",
-    "keep *_selectedPatTrigger_*_*",
-    "keep edmMergeableCounter_*_*_*",
-    "keep *_*Weight*_*_*",
-]
-if options.Mode == "Electron":
-    keepobjlist.append(
-        "keep *_reducedEgamma_*_*"  # Required for addtional electron selection
-    )
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -245,8 +236,20 @@ process.edmOut = cms.OutputModule(
     "PoolOutputModule",
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
-        "drop *",
-        *keepobjlist
+        "keep *",
+        "drop *_slimmedElectrons_*_*",
+        "drop *_slimmedJets*_*_*",
+        "drop *_slimmedMETsNoHF_*_*",
+        "drop *_slimmedJETsPuppi_*_*",
+        "drop *_slimmedPhotons_*_*",
+        "drop *_slimmedTaus*_*_*",
+        "drop *_selectedMuons_*_*",
+        "drop *_selectedElectrons_*_*",
+        "drop *_selectedJets_*_*",
+        "drop *_egmGsfElectronIDs_*_*",
+        "drop *_electronMVAValueMapProducer_*_*",
+        "drop *_TriggerResults_*_tstarbaseline",
+        "drop *_BeforeAll_WeightProd_*"
     ),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))
 )

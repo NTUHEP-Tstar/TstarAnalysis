@@ -22,7 +22,7 @@ static string AdditionalOptions( const string& method );
 void
 RunCombine( const string& hc_opt )
 {
-   const ConfigReader cfg( limnamer.MasterConfigFile() );
+   const ConfigReader& cfg = limnamer.MasterConfig();
    const HiggsCombineSubmitter sub( limnamer.SettingsDir() + "higgs_combine_settings.json" );
    vector<CombineRequest> submit_list;
 

@@ -37,8 +37,6 @@ MakePlot(
    const std::vector<std::string>& taglist
    )
 {
-   if( datahist->Integral() == 0 ){ return; }
-
    TCanvas* c = plt::NewCanvas();
 
    const double xmin = datahist->GetXaxis()->GetXmin();

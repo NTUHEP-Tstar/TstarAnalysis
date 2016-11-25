@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
 
    InitSampleStatic( compnamer );
 
-   const ConfigReader master( compnamer.MasterConfigFile() );
+   const ConfigReader& master =  compnamer.MasterConfig();
 
 
    /******************************************************************************/

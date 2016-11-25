@@ -13,12 +13,20 @@ scriptinput = """
 #!/bin/bash
 cd {}/src/TstarAnalysis/TstarMassReco/
 eval `scramv1 runtime -sh`
-cmsRun {}/src/TstarAnalysis/TstarMassReco/python/HitFitCompare.py sample={} output={} maxEvents=-1 &> /dev/null
+cmsRun {}/src/TstarAnalysis/TstarMassReco/python/HitFitCompare.py sample={} output={} Mode={} maxEvents=-1
 """
 
+storebase = os.environ["HOME"] + '/eos/cms/store/user/yichen/tstar_store/tstarbaseline/'
+
 for channel in channellist:
-    filelist = glob.glob( "sample_input/" + channel + "/Tstar*.root");
+    prechannel=channel[:-6] ; # Removing "signal postfix"
+    filelist = glob.glob( storebase + prechannel + "/Tstar*.root")
+    print filelist
     for inputfile in filelist:
+
+        inputfile=inputfile[len(os.environ['HOME']):] # removing "${HOME}" prefix
+        inputfile=inputfile[len('/eos/cms'):] # removing eosmount  prefix
+
         mass = re.findall(r'\d+', inputfile )[0]
         outputfile = 'results/' + channel + '/TstarM' + str(mass) + ".root"
 
@@ -27,8 +35,9 @@ for channel in channellist:
         scriptfile.write( scriptinput.format(
             os.environ["CMSSW_BASE"],
             os.environ["CMSSW_BASE"],
-            'file://' + inputfile,
-            outputfile
+            inputfile,
+            outputfile,
+            channel
         ))
         scriptfile.close()
         os.system("chmod +x "+ scriptfilename)
