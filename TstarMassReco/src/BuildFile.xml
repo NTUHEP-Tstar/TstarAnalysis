@@ -1,20 +1,10 @@
 <use name="root"/>
 <use name="roofit"/>
-<use name="boost"/>
-
-<use name="DataFormats/FWLite"/>
 <use name="DataFormats/PatCandidates"/>
-
-<use name="ManagerUtils/BaseClass"/>
-<use name="ManagerUtils/RootMgr"/>
-<use name="ManagerUtils/SysUtils"/>
-<use name="ManagerUtils/PlotUtils"/>
-
 <use name="TstarAnalysis/Common"/>
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/ModifiedHitFit"/>
 <use name="TstarAnalysis/BaseLineSelector"/>
-
 
 <flags CXXFLAGS="-g"/>
 

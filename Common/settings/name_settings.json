@@ -56,8 +56,8 @@
     "era": {
         "ICHEP": {
             "Data Postfix": "ICHEP",
-            "Lumi": 12878.525,
-            "EleLumi": 11855.939
+            "Lumi": 12572.168,
+            "EleLumi": 11389.405
         },
         "Rereco": {
             "Data Postfix": "All",
@@ -68,6 +68,11 @@
             "Data Postfix": "PostHIP",
             "Lumi": 7554.454,
             "EleLumi": 6953.9
+        },
+        "Early":{
+           "Data Postfix": "Early",
+           "Lumi": 6083.780,
+           "EleLumi": 6084.264
         }
     },
 

@@ -19,6 +19,8 @@ using namespace mgr;
 static string AdditionalOptions( const string& method );
 
 
+/******************************************************************************/
+
 void
 RunCombine( const string& hc_opt )
 {

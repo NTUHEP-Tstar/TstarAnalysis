@@ -5,39 +5,39 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#ifndef __COMPAREHISTMGR_HH__
-#define __COMPAREHISTMGR_HH__
+#ifndef TSTARANALYSIS_MASSRECOCOMPARE_HPP
+#define TSTARANALYSIS_MASSRECOCOMPARE_HPP
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
+#include "ManagerUtils/RootMgr/interface/Hist2DMgr.hpp"
 
 #include <string>
 #include <vector>
 
-#include "TH1D.h"
-#include "TH2D.h"
-
-class CompareHistMgr : public mgr::HistMgr
+class CompareHistMgr :
+   public mgr::HistMgr,
+   public mgr::Hist2DMgr
 {
 public:
    CompareHistMgr( const std::string&, const std::string& );
-   virtual ~CompareHistMgr();
+   virtual
+   ~CompareHistMgr();
 
    void AddEvent( const fwlite::Event& );
-   TH2D* MatchMap(){ return _match_map; };
-   const TH2D* MatchMap() const { return _match_map; };
+   std::string ModuleName() const ;
 
-   int EventCount() const;
+   // Static member functions for histogram binning
+   static int GetBinPosition( tstar::Particle_Label x );
 
 private:
-   fwlite::Handle<RecoResult> _result_handle;
-   TH2D* _match_map;
+   fwlite::Handle<RecoResult>  _resulthandle;
 
    virtual void define_hist();// From HistMgr
 
 };
 
-#endif/* end of include guard: __COMPAREHISTMGR_HH__ */
+#endif/* end of include guard */

@@ -22,9 +22,9 @@ options = opts.VarParsing('analysis')
 options.register(
     'sample',
     # '/store/data/Run2016E/SingleMuon/MINIAOD/23Sep2016-v1/50000/0230DB91-868D-E611-A532-0025904A96BC.root',
-    # '/store/mc/RunIISpring16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/premix_withHLT_80X_mcRun2_asymptotic_v14-v1/00000/0446C8BC-A197-E611-8481-6CC2173BC120.root',
+     '/store/mc/RunIISpring16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/premix_withHLT_80X_mcRun2_asymptotic_v14-v1/00000/0446C8BC-A197-E611-8481-6CC2173BC120.root',
     # 'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TT_powheg_2.root',
-    'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TTJets.root',
+    # 'file:/afs/cern.ch/work/y/yichen/MiniAOD/MC_80X_reHLT/TTJets.root',
     opts.VarParsing.multiplicity.list,
     opts.VarParsing.varType.string,
     'EDM Filter to process'
@@ -187,7 +187,6 @@ process.EventWeightAll = cms.EDProducer(
 process.BeforeAll = cms.EDProducer(
     "WeightProdSum",
     weightlist = cms.VInputTag(
-        cms.InputTag("PileupWeight","PileupWeight"),
         cms.InputTag("GenWeight","GenWeight")
     )
 )
@@ -249,7 +248,8 @@ process.edmOut = cms.OutputModule(
         "drop *_egmGsfElectronIDs_*_*",
         "drop *_electronMVAValueMapProducer_*_*",
         "drop *_TriggerResults_*_tstarbaseline",
-        "drop *_BeforeAll_WeightProd_*"
+        "drop *_BeforeAll_WeightProd_*",
+        "keep mgrCounter_*_*_*"
     ),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))
 )

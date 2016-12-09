@@ -27,7 +27,6 @@ crab_site         = 'T2_CH_CERN'
 crab_siteurl      = 'eoscms.cern.ch'
 crab_user_path    = '/store/user/yichen/'
 crab_default_path = crab_user_path + 'tstar_crab/'
-crab_default_lumi = setting_dir + 'lumi_mask_latest.json'
 
 #-------------------------------------------------------------------------------
 #   EOS loading path
@@ -40,5 +39,5 @@ eos_remoteprefix = 'root://eoscms.cern.ch//'
 #-------------------------------------------------------------------------------
 #   CMSRUN settings
 #-------------------------------------------------------------------------------
-data_global_tag = "80X_dataRun2_Prompt_ICHEP16JEC_v0"
+data_global_tag = "80X_dataRun2_2016SeptRepro_v4"
 mc_global_tag   = "80X_mcRun2_asymptotic_2016_miniAODv2_v1"

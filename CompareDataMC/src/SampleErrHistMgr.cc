@@ -273,11 +273,12 @@ SampleErrHistMgr::FillFromSample()
 {
    for( auto& sample : SampleList() ){
       InitSampleFromEDM( sample );
-      mgr::SaveCacheToFile( sample, compnamer.TextFileName( sample.Name() ) );
+      mgr::SaveCacheToFile( sample, SampleCacheFile(sample) );
       FillFromSample( sample );
    }
 
-   SaveToFile( compnamer.RootFileName( "fullhistcache" ) );
+   const string histfile = compnamer.CustomFileName( "root" , {"fullhistcache" });
+   SaveToFile( histfile );
 }
 
 /******************************************************************************/
@@ -286,10 +287,10 @@ void
 SampleErrHistMgr::LoadFromFile()
 {
    for( auto& sample : SampleList() ){
-      mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ) );
+      mgr::LoadCacheFromFile( sample, SampleCacheFile(sample) );
    }
 
-   HistMgr::LoadFromFile( compnamer.RootFileName( "fullhistcache" ) );
+   HistMgr::LoadFromFile( compnamer.CustomFileName( "root" , {"fullhistcache"} ) );
 }
 
 

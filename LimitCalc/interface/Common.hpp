@@ -10,15 +10,22 @@
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 
+#include "RooAbsData.h"
+#include "RooAbsPdf.h"
+#include "RooAbsReal.h"
 #include "RooAddPdf.h"
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <utility>
 
 /*******************************************************************************
 *   Common variables, defined in src/Common_Init.cc
 *******************************************************************************/
 extern TstarNamer limnamer;
+
+extern const std::vector<std::string> uncsource;
+
 
 /*******************************************************************************
 *   Object initializing functions ( called after parsing user input )
@@ -45,20 +52,61 @@ extern void InitDataAndSignal( SampleRooFitMgr*&, std::vector<SampleRooFitMgr*>&
 extern void InitMC( SampleRooFitMgr*& );
 
 
-
 /*******************************************************************************
-*   PDF stitching functions
-*   Gets all of the corresponding PDFs in list and stitches them into a
-*   RooAddPdf object with the alias name of <stitchname>, note the for n legal
-*   pdfs names given, it will generate n-1 coefficients.
-*   - see src/Common_PdfStitch.cc
+*   PDF stitching functions:
+*
+*   Given a central PDF and a single PDF pairs, it will attempt to create an
+*   Linear interpolation of in the form of :
+*
+*   f_tot = f_cen * ( 1 - abs(x) ) +[ x * (x>0) * f_1 *  ]   + [x*(x<0)*f_2]
+*
+*   where x is a floating value in the range [-1,1].
+*
+*   The input will be a simple all public struct with the name of the resulting
+*   joined PDF, the name of the central pdf and the names of the two additional
+*   pdfs.
+*
+*   In the case that multiple pdf pairs are wished to join to a central pdf with
+*   a similar fashion. The input format should be:
+*     * the name of the final pdf output
+*     * the name of the central pdf
+*     * a list of pdf names in pairs
+*
 *******************************************************************************/
-extern RooAddPdf* MakeStichPdf(
-   SampleRooFitMgr*                sample,
-   const std::string&              stitchname,
-   const std::vector<std::string>& pdfnamelist
+struct JoinRequest
+{
+   std::string joinname;
+   std::string centralpdfname;
+   std::string uppdfname;
+   std::string downpdfname;
+
+   static std::string JoinCoeffName( const std::string& joinname );
+   std::string        JoinCoeffName() const;
+};
+
+extern RooAbsPdf* MakeJoinPdf(
+   SampleRooFitMgr*   sample,
+   const JoinRequest& x
    );
 
+
+extern RooAbsPdf* MakeMultiJoinPdf(
+   SampleRooFitMgr* sample,
+   const std::string& stitchname,
+   const std::string& central,
+   const std::vector<std::pair<std::string, std::string> >& joinlist
+   );
+
+/*******************************************************************************
+*   Make simple stitching
+*   Simple Stitching that works without any pairing. Linear interpolation between
+*   all given PDF functions
+*******************************************************************************/
+extern RooAbsPdf* MakeSimpleStitchPdf(
+   SampleRooFitMgr* sample,
+   const std::string& stitchname,
+   const std::vector<std::string>& pdfnamelist
+);
 
 
 /*******************************************************************************
@@ -88,13 +136,13 @@ extern RooAddPdf* MakeStichPdf(
 *
 *******************************************************************************/
 extern void SaveRooWorkSpace(
-   RooDataSet*                    data,
-   const std::vector<RooAbsPdf*>& bkg_pdf_list,
-   const std::vector<RooAbsPdf*>& sig_pdf_list
+   RooAbsData*                     data,
+   const std::vector<RooAbsPdf*>&  pdflist,
+   const std::vector<RooAbsReal*>& funclist
    );
 
 extern FILE* MakeCardCommon(
-   RooDataSet*        data,
+   RooAbsData*        data,
    RooAbsPdf*         bkg,
    RooAbsPdf*         sig,
    const std::string& card_tag
@@ -118,10 +166,7 @@ extern void PrintFlatParam(
    const RooRealVar*
    );
 
-// ------------------------------------------------------------------------------
-//   Limit calculation main control flow and helper functions
-// ------------------------------------------------------------------------------
-
+// Legacy functions
 // in src/RooFit_Bias.cc
 extern void MakeBias(
    SampleRooFitMgr*,

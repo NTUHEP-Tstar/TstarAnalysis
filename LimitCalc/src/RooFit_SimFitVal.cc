@@ -21,13 +21,14 @@
 #include <vector>
 #include <ctime>
 
+#include "RooDataSet.h"
 #include "RooRandom.h"
 
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Helper structures and functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Helper functions
+*******************************************************************************/
 void
 RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
@@ -79,7 +80,7 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
       data->AddDataSet( psuedoset );
       data->SetConstant( kFALSE );
 
-      SimFitSingle( data, sigmgr, pseudosetname, bgconstrain );
+      auto fitres = SimFitSingle( data, sigmgr, pseudosetname, bgconstrain );
 
       // Getting results
       const string pseudobgname   = SimFitBGPdfName( pseudosetname, sigmgr->Name() );
@@ -99,15 +100,15 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 
       // Saving plots for special cases
       if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
-         MakeSimFitPlot( data, sigmgr, pseudosetname, "bkgexcess" );
+         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "bkgexcess" );
       } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
-         MakeSimFitPlot( data, sigmgr, pseudosetname, "bkgdifficient" );
+         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "bkgdifficient" );
       } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
-         MakeSimFitPlot( data, sigmgr, pseudosetname, "sigexcess" );
+         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "sigexcess" );
       } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
-         MakeSimFitPlot( data, sigmgr, pseudosetname, "sigdifficient" );
+         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "sigdifficient" );
       } else if( i%100 == 0 ){
-         MakeSimFitPlot( data, sigmgr, pseudosetname );
+         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname );
       }
 
       // Deleting to avoid taking up to much memory
@@ -116,6 +117,8 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 
    fclose( result );
 }
+
+/******************************************************************************/
 
 string
 SigStrengthTag()

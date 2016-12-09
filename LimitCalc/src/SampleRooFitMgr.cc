@@ -5,26 +5,37 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
+#include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include <iostream>
+
+#include "RooDataSet.h"
 
 using namespace std;
 using namespace mgr;
-// ------------------------------------------------------------------------------
-//   Static member function delcarations
-// ------------------------------------------------------------------------------
+
+/*******************************************************************************
+*   Static member function
+*******************************************************************************/
 RooRealVar&
 SampleRooFitMgr::x(){ return *StaticVar( "x" ); }
+
+/******************************************************************************/
 
 RooRealVar&
 SampleRooFitMgr::w(){ return *StaticVar( "w" ); }
 
+/******************************************************************************/
+
 double
 SampleRooFitMgr::MinMass(){ return x().getMin(); }
 
+/******************************************************************************/
+
 double
 SampleRooFitMgr::MaxMass(){ return x().getMax(); }
+
+/******************************************************************************/
 
 void
 SampleRooFitMgr::InitStaticVars( const double min, const double max )
@@ -33,10 +44,9 @@ SampleRooFitMgr::InitStaticVars( const double min, const double max )
    StaticNewVar( "w", "event_weight", "",          -1000, 1000 );
 }
 
-
-// ------------------------------------------------------------------------------
-//   Constructor and destructor
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Constructor and destructor
+*******************************************************************************/
 SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ) :
    Named( name ),
    SampleGroup( name, cfg ),
@@ -53,6 +63,8 @@ SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ) 
    }
 }
 
+/******************************************************************************/
+
 SampleRooFitMgr::~SampleRooFitMgr()
 {
    for( const auto& name : VarNameList() ){
@@ -60,19 +72,24 @@ SampleRooFitMgr::~SampleRooFitMgr()
       printf( "%-50s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
       fflush( stdout );
    }
+   for( const auto& name : FuncNameList() ){
+      RooAbsReal* func = Func( name );
+      printf("%50s %8.1lf\n" , func->GetName() , func->getVal() );
+      fflush( stdout );
+   }
 }
 
 
-// ------------------------------------------------------------------------------
-//   Dataset argument options
-// ------------------------------------------------------------------------------
-RooDataSet*
+/*******************************************************************************
+*   RooAbsData argument options
+*******************************************************************************/
+RooAbsData*
 SampleRooFitMgr::NewDataSet( const std::string& name )
 {
    if( DataSet( name ) ){
       return DataSet( name );
    } else {
-      RooDataSet* set = new RooDataSet(
+      RooDataSet* set = new RooDataSet(// Using unbinned RooDataSet object
          name.c_str(), "",
          RooArgSet( x(), w() ),
          RooFit::WeightVar( w() )
@@ -82,7 +99,9 @@ SampleRooFitMgr::NewDataSet( const std::string& name )
    }
 }
 
-RooDataSet*
+/******************************************************************************/
+
+RooAbsData*
 SampleRooFitMgr::DataSet( const std::string& name )
 {
    return RooFitMgr::DataSet( name );

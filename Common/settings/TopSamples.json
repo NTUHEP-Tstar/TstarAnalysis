@@ -12,7 +12,7 @@
       "Generator": "\\POWHEG",
       "Cross Section Source": "NNLO",
       "EDM Files":[
-         "TT_TuneCUETP8M1_13TeV-powheg-pythia8_*.root"
+         "TT_Tune*.root"
       ]
    },
 
@@ -22,7 +22,7 @@
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
       "Is Data": false,
-      "Latex Name" : "Single \\PQt, \\PQs Channel",
+      "Latex Name" : "Single \\PQt, s-channel",
       "Root Name": "Single t (s)",
       "Cross Section": [ 3.36, 0.13, 0.12 ],
       "K Factor":      1.0,
@@ -34,7 +34,7 @@
    },
    "SingleT_T_top": {
       "Is Data": false,
-      "Latex Name" : "Single \\PQt, \\PQt Channel",
+      "Latex Name" : "Single \\PQt, t-channel",
       "Root Name": "Single t (t)",
       "Cross Section": [ 44.33, 2.94, 2.51 ],
       "K Factor":      1.0,

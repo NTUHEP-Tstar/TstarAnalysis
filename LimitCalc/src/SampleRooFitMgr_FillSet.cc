@@ -6,6 +6,7 @@
 *
 *******************************************************************************/
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
@@ -14,8 +15,14 @@
 
 #include "DataFormats/FWLite/interface/Handle.h"
 
+#include "RooDataSet.h"
 #include <cstdio>
+#include <iostream>
 #include <string>
+
+using namespace std;
+
+/******************************************************************************/
 
 void
 SampleRooFitMgr::definesets()
@@ -24,35 +31,29 @@ SampleRooFitMgr::definesets()
 
    // Additional shapes unique to Monte Carlo data set
    if( Name().find( "Data" ) == std::string::npos ){
-      NewDataSet( "jecup" );
-      NewDataSet( "jecdown" );
-      NewDataSet( "jetresup" );
-      NewDataSet( "jetresdown" );
-      NewDataSet( "btagup" );
-      NewDataSet( "btagdown" );
-      NewDataSet( "puup" );
-      NewDataSet( "pudown" );
-      NewDataSet( "lepup" );
-      NewDataSet( "lepdown" );
-      NewDataSet( "pdfup" );
-      NewDataSet( "pdfdown" );
-      NewDataSet( "scaleup" );
-      NewDataSet( "scaledown" );
+      for( const auto& source : uncsource ){
+         NewDataSet( source + "Up" );
+         NewDataSet( source + "Down" );
+      }
    }
 }
+
+/******************************************************************************/
 
 void
 SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
    fwlite::Handle<RecoResult> chiHandle;
 
-   const double sampleweight = sample.ExpectedYield() / sample.SelectedEventCount();
-   const auto& pdfidgroup = GetPdfIdGrouping( sample );
+   const double sampleweight = sample.IsRealData()?
+      1:mgr::SampleMgr::TotalLuminosity() * sample.CrossSection() / sample.OriginalEventCount();
+   const auto& pdfidgroup    = GetPdfIdGrouping( sample );
 
    unsigned i = 1;
 
    mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
-   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ) {
+
+   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
       const auto& ev = myevt.Base();
 
       printf( "\rSample [%s|%s], Event[%6u/%6u]...",
@@ -68,7 +69,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
            * GetSampleEventTopPtWeight( sample, ev );
 
       // Getting event weight
-      chiHandle.getByLabel( ev , "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+      chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
       if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
 
       // Points to insert for all mass data types
@@ -81,10 +82,10 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
          const double tstarmass_jecdown = chiHandle->ComputeFromPaticleList( tstar::corr_down );
          const double tstarmass_jerup   = chiHandle->ComputeFromPaticleList( tstar::res_up );
          const double tstarmass_jerdown = chiHandle->ComputeFromPaticleList( tstar::res_down );
-         AddToDataSet( "jetresup",   tstarmass_jerup,   weight );
-         AddToDataSet( "jetresdown", tstarmass_jerdown, weight );
-         AddToDataSet( "jecup",      tstarmass_jecup,   weight );
-         AddToDataSet( "jecdown",    tstarmass_jecdown, weight );
+         AddToDataSet( "jetresUp",   tstarmass_jerup,   weight );
+         AddToDataSet( "jetresDown", tstarmass_jerdown, weight );
+         AddToDataSet( "jecUp",      tstarmass_jecup,   weight );
+         AddToDataSet( "jecDown",    tstarmass_jecdown, weight );
 
          const double btagweight      = GetBtagWeight( ev );
          const double btagweightup    = GetBtagWeightUp( ev );
@@ -103,16 +104,16 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
          const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
          const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
 
-         AddToDataSet( "btagup",    tstarmass, weight * btagweightup   / btagweight );
-         AddToDataSet( "btagdown",  tstarmass, weight * btagweightdown / btagweight );
-         AddToDataSet( "puup",      tstarmass, weight * puweightup / puweight );
-         AddToDataSet( "pudown",    tstarmass, weight * puweightdown / puweight );
-         AddToDataSet( "lepup",     tstarmass, weight * ( elecweightup/elecweight )   * ( muonweightup/muonweight ) );
-         AddToDataSet( "lepdown",   tstarmass, weight * ( elecweightdown/elecweight ) * ( muonweightdown/muonweight ) );
-         AddToDataSet( "pdfup",     tstarmass, weight * pdfweightup );
-         AddToDataSet( "pdfdown",   tstarmass, weight * pdfweightdown );
-         AddToDataSet( "scaleup",   tstarmass, weight * scaleweightup );
-         AddToDataSet( "scaledown", tstarmass, weight * scaleweightdown );
+         AddToDataSet( "btagUp",    tstarmass, weight * btagweightup   / btagweight );
+         AddToDataSet( "btagDown",  tstarmass, weight * btagweightdown / btagweight );
+         AddToDataSet( "puUp",      tstarmass, weight * puweightup / puweight );
+         AddToDataSet( "puDown",    tstarmass, weight * puweightdown / puweight );
+         AddToDataSet( "lepUp",     tstarmass, weight * ( elecweightup/elecweight )   * ( muonweightup/muonweight ) );
+         AddToDataSet( "lepDown",   tstarmass, weight * ( elecweightdown/elecweight ) * ( muonweightdown/muonweight ) );
+         AddToDataSet( "pdfUp",     tstarmass, weight * pdfweightup );
+         AddToDataSet( "pdfDown",   tstarmass, weight * pdfweightdown );
+         AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
+         AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
       }
    }
 
@@ -123,6 +124,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
    fflush( stdout );
 }
 
+/******************************************************************************/
 
 void
 SampleRooFitMgr::AddToDataSet( const std::string& datasetname, const double mass, const double weight )

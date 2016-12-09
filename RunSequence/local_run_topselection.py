@@ -19,8 +19,8 @@ script_template = """
 #!/bin/bash
 cd  {0}/RunSequence/
 eval `scramv1 runtime -sh`
-cmsRun {0}/RunSequence/cmsrun/run_topselection.py maxEvents=-1 sample={1} output={2} lumimask="{3}"
-xrdcp -f {2} root://{4}//{5}
+cmsRun {0}/RunSequence/cmsrun/run_topselection.py maxEvents=-1 sample={1} output={2}
+xrdcp -f {2} root://{3}//{4}
 rm {2}
 """
 
@@ -63,15 +63,10 @@ def main():
                 storeoutput    = myname.GetEDMStoreFile( 'toplike', dataset, opt.mode, index )
                 scriptfilename = myname.GetScriptFile( 'toplike', dataset, opt.mode, index )
 
-                lumimask=""
-                if myname.IsData( dataset ) :
-                    lumimask=mypath.setting_dir + "/lumimask_B-G.json"
-
                 script_content = script_template.format(
                     mysetting.tstar_dir,
                     sample_input,
                     tempoutput,
-                    lumimask,
                     mysetting.crab_siteurl,
                     storeoutput,
                 )
@@ -82,8 +77,6 @@ def main():
                 os.system("chmod +x " + scriptfilename)
 
                 print "Writting into file ", scriptfilename
-
-
 
 if __name__ == "__main__":
     main()

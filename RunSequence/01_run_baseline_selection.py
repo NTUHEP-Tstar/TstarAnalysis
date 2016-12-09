@@ -8,6 +8,7 @@
 #*******************************************************************************
 import TstarAnalysis.RunSequence.Naming      as myname
 import TstarAnalysis.RunSequence.Settings    as mysetting
+import TstarAnalysis.RunSequence.PathVars    as mypath
 import sys, os
 import optparse
 #-------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ config.General.transferLogs = False
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '{2}'
-config.JobType.maxMemoryMB = 2500 ## Requesting 2.5G of memory!
+config.JobType.maxMemoryMB = 2500
 
 ## Input parameters
 config.JobType.pyCfgParams = [
@@ -32,14 +33,15 @@ config.JobType.pyCfgParams = [
     'GlobalTag={4}',
 ]
 
-config.Data.inputDataset = '{5}'
+{5}
+config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
-config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 25 ## Very fine job splitting
-config.Data.outLFNDirBase = '{6}'
+config.Data.splitting = '{7}'
+config.Data.unitsPerJob = {8}
+config.Data.outLFNDirBase = '{9}'
 config.Data.publication = False
 
-config.Site.storageSite = '{7}'
+config.Site.storageSite = '{10}'
 """
 
 
@@ -54,15 +56,26 @@ def MakeCrabFile( dataset, opt ):
     run_file   = mysetting.cmsrun_dir + 'run_baseline_selection.py'
     mode       = opt.mode
     global_tag = ""
+    splittype  = ""
+    lumimask   = ""
+    splitunit  = 0
     hlt        = myname.GetHLT(dataset)
     lfn_dir    = mysetting.crab_default_path
     site       = mysetting.crab_site
-    lumi_file  = mysetting.crab_default_lumi
 
     if myname.IsData( dataset ):
         global_tag = mysetting.data_global_tag
+        splittype  = 'LumiBased'
+        splitunit  = 480 * 2 * 60           # target time in seconds
+        splitunit  = splitunit / 0.07   # real time per event
+        splitunit  = splitunit / 4068   # average number of events in lumi
+        lumimask   = 'config.Data.lumiMask = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"'
     else:
         global_tag = mysetting.mc_global_tag
+        splittype  = 'LumiBased'
+        splitunit  = 480 * 4* 60  # target time in seconds
+        splitunit  = splitunit / 0.07   # real time per event
+        splitunit  = splitunit / 200 #    average number of events in lumi
 
     file_content  = config_file_default.format(
         task_name  , #{0}
@@ -70,9 +83,12 @@ def MakeCrabFile( dataset, opt ):
         run_file   , #{2}
         mode       , #{3}
         global_tag , #{4}
-        dataset    , #{5}
-        lfn_dir    , #{6}
-        site       , #{7}
+        lumimask   , #{5}
+        dataset    , #{6}
+        splittype  , #{7}
+        int(splitunit)  , #{8}
+        lfn_dir    , #{9}
+        site       , #{10}
     )
 
     ## Writing to Crab file

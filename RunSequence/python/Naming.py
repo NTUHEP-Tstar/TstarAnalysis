@@ -87,7 +87,6 @@ def GetCrabOutputFileList(tag, dataset, mode):
     timeddirlist = myeos.listremote(siteurl, query)
     timestamp = max([os.path.basename(x) for x in timeddirlist])
     querylist = myeos.listremote(siteurl, query + '/' + timestamp)
-    print querylist
     ans = []
     for query in querylist:
         filelist = myeos.listremote(siteurl, query)

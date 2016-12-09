@@ -24,10 +24,11 @@ main( int argc, char* argv[] )
    opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
-      ( "drawdata,d", "options to add if you wish to add data into plotting")
+      ( "drawdata,d", "options to add if you wish to add data into plotting" )
       ( "era,e", opt::value<string>(), "What data era to compare to" )
    ;
 
+   compnamer.SetNamingOptions( {"era"} );
    const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
    if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
    if( parse == mgr::OptsNamer::PARSE_HELP ){ return 0; }
@@ -36,32 +37,43 @@ main( int argc, char* argv[] )
 
    const mgr::ConfigReader& master = compnamer.MasterConfig();
 
-   const string datatag = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExtName( "era", "Data Postfix" ) ;
+   const string datatag = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExtName( "era", "Data Postfix" );
 
    /*******************************************************************************
    *   Histogram manager initialization
    *   Whether to initialize from EDM files or existing root file is handle
    *   by the SampleErrHistMgr constructor.
    *******************************************************************************/
+   // Defining data settings
+   SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
+   data->LoadFromFile();
+   cout << data->ExpectedYield() << endl;
+
+
    // Defining out channels see data/Groups.json for sample settings
    vector<SampleErrHistMgr*> background;
+
    for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
       background.push_back( new SampleErrHistMgr( bkggroup, master ) );
       background.back()->LoadFromFile();
       background.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
+      const string firstname = background.back()->AvailableHistList().front();
+      cout
+         << background.back()->ExpectedYield()  << "|"
+         << background.back()->Hist( firstname )->Integral() << endl;
+
    }
+
 
    // Declaring sample sample
    vector<SampleErrHistMgr*> siglist;
+
    for( const auto& signame : master.GetStaticStringList( "Signal List" ) ){
       siglist.push_back( new SampleErrHistMgr( signame, master ) );
       siglist.back()->LoadFromFile();
       siglist.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
    }
 
-   // Defining data settings
-   SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
-   data->LoadFromFile();
 
    /*******************************************************************************
    *   Plotting error comparison histograms

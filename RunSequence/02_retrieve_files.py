@@ -14,6 +14,14 @@ import TstarAnalysis.RunSequence.PathVars  as mypath
 import TstarAnalysis.RunSequence.Naming    as myname
 import TstarAnalysis.RunSequence.Settings  as myset
 
+script_template = """
+#!/bin/bash
+cd  {0}/RunSequence/
+eval `scramv1 runtime -sh`
+edmCopyPickMerge inputFiles={1} outputFile={2}
+xrdcp -f {2} root://{3}//{4}
+"""
+
 def main():
     parser = optparse.OptionParser()
     parser.add_option('-i', '--inputlist', dest='input', help='list of data sets to generate', default=None, type='string')
@@ -33,11 +41,29 @@ def main():
 
             print dataset
             crabfilelist = myname.GetCrabOutputFileList('tstar',dataset,opt.mode)
+            crabfilechunk =  [crabfilelist[i:i + 8]
+                           for i in range(0, len(crabfilelist), 8)]
 
-            for index,outfile in enumerate(crabfilelist):
+            for index,crabfileset in enumerate(crabfilechunk):
+                script    = myname.GetScriptFile( 'retrieve', dataset, opt.mode, index)
                 storefile = myname.GetEDMStoreFile( 'tstarbaseline', dataset, opt.mode, index )
+                tmpfile   = "/tmp/"+os.path.basename(storefile)
                 ## Will automatically create directory is doesn't exists
-                os.system( 'xrdcp -f root://{0}//{1} root://{0}//{2}'.format( myset.crab_siteurl, outfile, storefile ) )
+                # os.system( 'xrdcp -f root://{0}//{1} root://{0}//{2}'.format( myset.crab_siteurl, outfile, storefile ) )
+                script_content = script_template.format(
+                    myset.tstar_dir,
+                    ",".join(crabfileset),
+                    tmpfile,
+                    myset.crab_siteurl,
+                    storefile
+                )
+
+                script_file = open( script , 'w' )
+                script_file.write( script_content )
+                script_file.close()
+
+                os.system( 'chmod +x ' + script )
+                print "Written scripts to ", script
 
 if __name__ == "__main__":
     main()

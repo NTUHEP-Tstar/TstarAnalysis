@@ -22,7 +22,7 @@ filter_modes = [
     "ElectronSignal"
 ]
 
-lumi_file      = setting_dir + 'lumi_mask_latest.json'
+lumi_file      = setting_dir + 'lumimask_latest.json'
 run_cfg_file   = cmsrun_dir  + 'run_baseline_selection.py'
 crab_cfg_dir   = storage_dir + 'CrabConfig/'
 crab_work_dir  = storage_dir + 'CrabWorkSpace/'

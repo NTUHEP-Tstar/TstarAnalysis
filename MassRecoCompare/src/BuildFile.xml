@@ -1,0 +1,9 @@
+<use name="ROOT"/>
+<use name="ManagerUtils/PlotUtils"/>
+<use name="ManagerUtils/RootMgr"/>
+<use name="TstarAnalysis/Common"/>
+<use name="TstarAnalysis/RootFormat"/>
+
+<flags CXXFLAGS="-g"/>
+
+<export><lib   name="1"/></export>

@@ -11,16 +11,23 @@
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
+
 #include <vector>
 #include <string>
 
 /*******************************************************************************
 *   Common external objects
 *******************************************************************************/
-extern TstarNamer compnamer;// see src/PlotHist.cc
+extern TstarNamer compnamer;// see src/Common.cc
 
 /*******************************************************************************
-*   Common plotting functions
+*   Cachefile name settings
+*******************************************************************************/
+const std::string SampleCacheFile( const mgr::SampleMgr& );
+
+/*******************************************************************************
+*   Common plotting functions; see src/PlotHist.cc
 *******************************************************************************/
 extern void
 MakePlot(

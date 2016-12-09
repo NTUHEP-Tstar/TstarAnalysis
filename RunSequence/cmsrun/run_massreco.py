@@ -33,19 +33,19 @@ options.register(
 )
 
 options.register(
-    'lumimask',
-    '',
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'Lumi Mask to apply'
-)
-
-options.register(
     'Mode',
     '',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Mode of for tstar reconstruction (Control and Signal)'
+)
+
+options.register(
+    'HLT',
+    False,
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.bool ,
+    'Whether for not to use run HLT selection'
 )
 
 options.setDefault('maxEvents', 1000)
@@ -69,13 +69,6 @@ process.source = cms.Source(
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
-#-------------------------------------------------------------------------------
-#   Adding lumi masking
-#-------------------------------------------------------------------------------
-if options.lumimask:
-    import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(
-        filename=options.lumimask).getVLuminosityBlockRange()
 
 #-------------------------------------------------------------------------------
 #   Jet selection and options b-tag weighting
@@ -102,7 +95,7 @@ import TstarAnalysis.AdditionalSelector.AddLeptonSelector_cfi as mylepsel
 process.electronsel = mylepsel.ElectronSelector
 process.muonsel     = mylepsel.MuonSelector
 
-if options.lumimask == "" :
+if not options.HLT :
     # disable trigger selection for non-data samples
     process.electronsel.reqtrigger = cms.VPSet()
     process.muonsel.reqtrigger = cms.VPSet()
@@ -111,7 +104,6 @@ if options.lumimask == "" :
 #-------------------------------------------------------------------------
 #   Reloading weight summing and lepton weight factors
 #-------------------------------------------------------------------------
-
 process.ElectronWeight = myweight.ElectronWeightAll
 process.MuonWeight     = myweight.MuonWeightAll
 
@@ -122,7 +114,7 @@ if "Signal" in options.Mode:
             cms.InputTag("ElectronWeight", "ElectronWeight","TstarMassReco"),
             cms.InputTag("MuonWeight", "MuonWeight","TstarMassReco"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
             cms.InputTag('BtagWeight','BtagWeight')
         )
     )
@@ -132,7 +124,7 @@ if "Signal" in options.Mode:
             cms.InputTag("ElectronWeight", "ElectronWeight","TstarMassReco"),
             cms.InputTag("MuonWeight", "MuonWeight","TstarMassReco"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
             cms.InputTag('BtagWeight','BtagWeight'),
             cms.InputTag("TopPtWeight", "TopPtWeight")
         )
@@ -144,7 +136,7 @@ elif "Control" in options.Mode :
             cms.InputTag("ElectronWeight", "ElectronWeight","TstarMassReco"),
             cms.InputTag("MuonWeight", "MuonWeight","TstarMassReco"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
         )
     )
     process.EventWeightAll = cms.EDProducer(
@@ -153,7 +145,7 @@ elif "Control" in options.Mode :
             cms.InputTag("ElectronWeight", "ElectronWeight"),
             cms.InputTag("MuonWeight", "MuonWeight"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
             cms.InputTag("TopPtWeight", "TopPtWeight")
         )
     )
@@ -180,6 +172,7 @@ process.edmOut = cms.OutputModule(
         "keep *_*MuonWeight*_*_TstarMassReco",
         "keep *_*_WeightProd_TstarMassReco",
         "keep *_*_WeightSum_TstarMassReco",
+        "keep *_BeforeAll_*_*",
     ),
     SelectEvents=cms.untracked.PSet(
         SelectEvents=cms.vstring('path')

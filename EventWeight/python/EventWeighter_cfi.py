@@ -154,8 +154,8 @@ GenWeight = cms.EDProducer(
 TopPtWeight = cms.EDProducer(
     "TopPtWeight",
     gensrc = cms.InputTag( 'prunedGenParticles' ),
-    a = cms.double(0.159),
-    b = cms.double(-0.00141),
+    a = cms.double(0.0615),
+    b = cms.double(-0.0005),
     minpt = cms.double(0),
-    maxpt = cms.double(400)
+    maxpt = cms.double(10000)
 )

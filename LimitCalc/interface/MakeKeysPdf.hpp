@@ -23,7 +23,11 @@
 *   ** StitchKeyPdfName - name of stitched Keys pdf
 *******************************************************************************/
 extern std::string KeyPdfName( const std::string& dataset );
+extern std::string KeyNormName( const std::string& dataset );
+extern std::string JoinPdfName( const std::string& err );
+extern std::string JoinNormName( const std::string& err );
 extern const std::string StitchKeyPdfName;
+extern const std::string StitchKeyNormName;
 
 
 /*******************************************************************************
@@ -36,7 +40,7 @@ extern RooKeysPdf* MakeSingleKeysPdf(
    );
 
 // Stitching all RooKeysPdf together
-extern RooAddPdf* MakeFullKeysPdf( SampleRooFitMgr* sample );
+extern RooAbsPdf* MakeFullKeysPdf( SampleRooFitMgr* sample );
 
 
 #endif/* end of include guard: TSTARANALYSIS_LIMITCALC_MAKEKEYSPDF_HPP */

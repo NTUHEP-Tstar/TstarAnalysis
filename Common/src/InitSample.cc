@@ -18,12 +18,17 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
+using std::cout ;
+using std::endl ;
+
 void
 InitSampleStatic( const TstarNamer& namer )
 {
    mgr::SampleMgr::InitStaticFromReader( namer.MasterConfig() );
    mgr::SampleMgr::SetFilePrefix( namer.GetChannelEDMPath() );
+   std::cout << "Setting SampleMgr file prefix to be:" << mgr::SampleMgr::FilePrefix() << std::endl;
    mgr::SampleGroup::SetSampleCfgPrefix( namer.SettingsDir() );
+   std::cout << "Setting SampleGroup configuration file prefix to be:" << mgr::SampleGroup::SampleCfgPrefix() << std::endl;
 
    // Luminosity settings
    if( namer.HasOption( "era" ) ){
@@ -43,7 +48,6 @@ InitSampleStatic( const TstarNamer& namer )
 void
 InitSampleFromEDM( mgr::SampleMgr& sample )
 {
-   mgr::MultiFileRun myrun( sample.GlobbedFileList() );
 
    // Calculation original number of events is the same for MC and Data
    fwlite::Handle<mgr::Counter> orighandle;
@@ -54,8 +58,25 @@ InitSampleFromEDM( mgr::SampleMgr& sample )
    double selccount = 0;
    double topwcount = 0;
 
-   for( myrun.toBegin(); !myrun.atEnd(); ++myrun ){
+   unsigned i = 1 ;
+
+   cout << ">>>> Sample Regexs: " << sample.FileList().size () << endl;
+   for( const auto& file : sample.FileList() ){
+      cout << ">>>>>>> " << file << endl;
+   }
+
+   cout << ">>>> Sample Globbed:" << sample.GlobbedFileList().size() << endl;
+   for( const auto& file : sample.GlobbedFileList() ){
+      cout << ">>>>>> " << file << endl;
+   }
+
+
+   mgr::MultiFileRun myrun( sample.GlobbedFileList() );
+
+   for( myrun.toBegin(); !myrun.atEnd(); ++myrun , ++i ){
       const auto& run = myrun.Base();
+
+      std::cout << "\rRun [" << i << "|" << myrun.size() << "] : " << myrun.CurrentFile() << std::flush ;
 
       orighandle.getByLabel( run, "BeforeAll", "WeightSum" );
       evtweighthandle.getByLabel( run, "EventWeight", "WeightSum" );
@@ -65,6 +86,7 @@ InitSampleFromEDM( mgr::SampleMgr& sample )
       selccount += evtweighthandle.ref().value;
       topwcount += evtweightallhandle.ref().value;
    }
+   std::cout << "Done logging Run Level caches for " << sample.Name() << std::endl;
 
    // Adding to samplemgr
    sample.SetOriginalEventCount( origcount );

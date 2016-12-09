@@ -91,7 +91,7 @@ if "Signal" in options.Mode:
             cms.InputTag("ElectronWeight", "ElectronWeight", "HitFitCompare"),
             cms.InputTag("MuonWeight", "MuonWeight", "HitFitCompare"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
             cms.InputTag('BtagWeight', 'BtagWeight')
         )
     )
@@ -101,11 +101,12 @@ if "Signal" in options.Mode:
             cms.InputTag("ElectronWeight", "ElectronWeight", "HitFitCompare"),
             cms.InputTag("MuonWeight", "MuonWeight", "HitFitCompare"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
             cms.InputTag('BtagWeight', 'BtagWeight'),
             cms.InputTag("TopPtWeight", "TopPtWeight")
         )
     )
+
 elif "Control" in options.Mode:
     process.EventWeight = cms.EDProducer(
         "WeightProdSum",
@@ -113,7 +114,7 @@ elif "Control" in options.Mode:
             cms.InputTag("ElectronWeight", "ElectronWeight", "HitFitCompare"),
             cms.InputTag("MuonWeight", "MuonWeight", "HitFitCompare"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
         )
     )
     process.EventWeightAll = cms.EDProducer(
@@ -122,7 +123,7 @@ elif "Control" in options.Mode:
             cms.InputTag("ElectronWeight", "ElectronWeight"),
             cms.InputTag("MuonWeight", "MuonWeight"),
             cms.InputTag("PileupWeight", "PileupWeight"),
-            cms.InputTag("SignWeight", "SignWeight"),
+            cms.InputTag("GenWeight", "GenWeight"),
             cms.InputTag("TopPtWeight", "TopPtWeight")
         )
     )
@@ -294,10 +295,11 @@ process.edmOut = cms.OutputModule(
         "drop *_*MuonWeight*_*_*",
         "drop *_*_WeightProd_*",
         "drop *_*_WeightSum_*",
-        "keep *_*ElectronWeight*_*_TstarMassReco",
-        "keep *_*MuonWeight*_*_TstarMassReco",
-        "keep *_*_WeightProd_TstarMassReco",
-        "keep *_*_WeightSum_TstarMassReco",
+        "keep *_*ElectronWeight*_*_HitFitCompare",
+        "keep *_*MuonWeight*_*_HitFitCompare",
+        "keep *_*_WeightProd_HitFitCompare",
+        "keep *_*_WeightSum_HitFitCompare",
+        "keep *_BeforeAll_*_*"
     ),
     SelectEvents=cms.untracked.PSet(
         SelectEvents=cms.vstring('path')

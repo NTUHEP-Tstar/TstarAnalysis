@@ -17,6 +17,7 @@
 
 #include "RooGaussian.h"
 #include "RooRealVar.h"
+#include "RooDataSet.h"
 #include "TGraphAsymmErrors.h"
 #include "TMultiGraph.h"
 

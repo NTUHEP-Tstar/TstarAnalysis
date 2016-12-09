@@ -32,10 +32,10 @@ public:
    static void InitStaticVars( const double, const double );
 
    // Speicalization for creating new datasets
-   RooDataSet* NewDataSet( const std::string& );
+   RooAbsData* NewDataSet( const std::string& );
 
    // Specialized function for called default dataset
-   RooDataSet* DataSet( const std::string& name = "" );
+   RooAbsData* DataSet( const std::string& name = "" );
 
    // Speicalized functions for inserting datapoint (defined in fill set)
    void AddToDataSet( const std::string& name , const double mass, const double weight );

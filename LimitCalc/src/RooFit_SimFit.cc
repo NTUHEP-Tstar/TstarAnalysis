@@ -60,29 +60,31 @@ MakeSimFit(
    vector<SampleRooFitMgr*>& signal_list
    )
 {
-   vector<RooAbsPdf*> bgpdf_list;
-   vector<RooAbsPdf*> sigpdf_list;
+   vector<RooAbsPdf*> pdflist;
+   vector<RooAbsReal*> funclist;
 
    // Getting fit result from default MC dataset ;
    RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
 
    for( auto& sig : signal_list ){
       MakeFullKeysPdf( sig );
-      MakeFullSimFit( data, sig, bgconstrain );
+      auto fiterr = SimFitSingle( data, sig, "", bgconstrain );
       MakeSimFitCardFile( data, sig );
 
       for( const auto& name : data->SetNameList() ){
-         MakeSimFitPlot( data, sig, name );
+         MakeSimFitPlot( data, sig, fiterr, name );
       }
 
-      bgpdf_list.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
-      sigpdf_list.push_back( sig->Pdf( StitchKeyPdfName ) );
+      pdflist.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
+      pdflist.push_back( sig->Pdf( StitchKeyPdfName ) );
+      funclist.push_back( sig->Func( StitchKeyNormName ) );
+
    }
 
    SaveRooWorkSpace(
       data->DataSet( "" ),
-      bgpdf_list,
-      sigpdf_list
+      pdflist,
+      {}
       );
 }
 
@@ -101,18 +103,16 @@ SimFitSingle(
    const string combfuncname = SimFitCombinePdfName( datasetname, sig->Name() );
    const string fitfunc      = limnamer.GetInput( "fitfunc" );
 
-   RooDataSet* fitdataset = data->DataSet( datasetname );
+   RooAbsData* fitdataset = data->DataSet( datasetname );
    RooAbsPdf* bgpdf       = data->NewPdf( bgfuncname, fitfunc );
-   RooAbsPdf* sigpdf      = MakeFullKeysPdf( sig );          // attempting simfit will default signal regardless
+   RooAbsPdf* sigpdf      = sig->Pdf( KeyPdfName( "" ) );  // attempting simfit will default signal regardless
 
    vector<RooRealVar*> bgfitvarlist = data->VarContains( bgfuncname );
 
    const double numdata = fitdataset->sumEntries();
 
-   RooRealVar* nb =
-      data->NewVar( combfuncname+"nb", numdata, -1000000, 1000000 );
-   RooRealVar* ns =
-      data->NewVar( combfuncname+"ns", 0, -1000000, 1000000 );
+   RooRealVar* nb = data->NewVar( combfuncname+"nb", numdata, -1000000, 1000000 );
+   RooRealVar* ns = data->NewVar( combfuncname+"ns", 0, -1000000, 1000000 );
 
    RooArgSet fitconstraints;
 
@@ -152,33 +152,10 @@ SimFitSingle(
       RooFit::Warnings( kFALSE )
       );
 
+   cout << "Finish running simultaneous fit for " << sig->Name() << endl;
    data->AddPdf( model );
    return err;
 }
-
-/******************************************************************************/
-
-RooAddPdf*
-MakeFullSimFit(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   RooFitResult*    bgconstrain
-   )
-{
-   vector<string> bgpdfnamelist;
-
-   for( const auto& datasetname : data->SetNameList() ){
-      SimFitSingle( data, sig, datasetname, bgconstrain );
-      bgpdfnamelist.push_back( SimFitBGPdfName( datasetname, sig->Name() ) );
-   }
-
-   return MakeStichPdf(
-      data,
-      StitchSimFitBgPdfname( sig->Name() ),
-      bgpdfnamelist
-      );
-}
-
 
 /*******************************************************************************
 *   Making Data cards
@@ -191,7 +168,7 @@ MakeSimFitCardFile(
 {
    const string centralpdfname  = SimFitCombinePdfName( "", sig->Name() );
    const string stitchbgpdfname = StitchSimFitBgPdfname( sig->Name() );
-   RooDataSet* dataset          = data->DataSet();
+   RooAbsData* dataset          = data->DataSet();
    RooAbsPdf* bgpdf             = data->Pdf( stitchbgpdfname );
    RooAbsPdf* sigpdf            = sig->Pdf( StitchKeyPdfName );
    const Parameter bgunc        = GetBgNormError( data, "", "", sig->Name() );
@@ -199,7 +176,9 @@ MakeSimFitCardFile(
    // Writting the common parts
    FILE* cardfile = MakeCardCommon( dataset, bgpdf, sigpdf, sig->Name() );
    fprintf(
-      cardfile, "%12s %15lf %15lf\n", "rate",
+      cardfile,
+      "%12s %15lf %15lf\n",
+      "rate",
       sig->DataSet()->sumEntries(),
       bgunc.CentralValue()
       );
@@ -208,27 +187,19 @@ MakeSimFitCardFile(
    const Parameter lumi( 1, 0.062, 0.062 );
    const Parameter lepunc = data->Name().find( "Muon" ) == string::npos ?
                             Parameter( 1, 0.03, 0.03 ) : Parameter( 1, 0.03, 0.03 );
-   const Parameter sigunc        = sig->Sample().SelectionEfficiency();
-   const Parameter sigjecunc     = GetMCNormError( sig, "jecup",    "jecdown" );
-   const Parameter sigjetresunc  = GetMCNormError( sig, "jetresup", "jetresdown" );
-   const Parameter sigbjetunc    = GetMCNormError( sig, "btagup",   "btagdown" );
-   const Parameter sigpuunc      = GetMCNormError( sig, "puup",     "pudown" );
-   const Parameter siglepstatunc = GetMCNormError( sig, "lepup",    "lepdown" );
-   const Parameter sigpdfunc     = GetMCNormError( sig, "pdfup",    "pdfdown" );
-   const Parameter sigscaleunc   = GetMCNormError( sig, "scaleup", "scaledown" );
+   // const Parameter sigunc        = sig->Sample().SelectionEfficiency();
    const Parameter null( 0, 0, 0 );
    fprintf( cardfile, "----------------------------------------\n" );
-   PrintNuisanceFloats( cardfile, "Lumi",     "lnN", lumi,          lumi  );
-   PrintNuisanceFloats( cardfile, "sigunc",   "lnN", sigunc,        null  );
-   PrintNuisanceFloats( cardfile, "bgunc",    "lnN", null,          bgunc );
-   PrintNuisanceFloats( cardfile, "jec",      "lnN", sigjecunc,     null  );
-   PrintNuisanceFloats( cardfile, "jer",      "lnN", sigjetresunc,  null  );
-   PrintNuisanceFloats( cardfile, "btag",     "lnN", sigbjetunc,    null  );
-   PrintNuisanceFloats( cardfile, "pileup",   "lnN", sigpuunc,      null  );
-   PrintNuisanceFloats( cardfile, "lepstat",  "lnN", siglepstatunc, null  );
-   PrintNuisanceFloats( cardfile, "lepsys",   "lnN", lepunc,        null  );
-   PrintNuisanceFloats( cardfile, "pdf",      "lnN", sigpdfunc,     null  );
-   PrintNuisanceFloats( cardfile, "qcdscale", "lnN", sigpdfunc,     null  );
+   PrintNuisanceFloats( cardfile, "lumi", "lnN", lumi, lumi  );
+
+   // PrintNuisanceFloats( cardfile, "sigunc",   "lnN", sigunc,        null  );
+   for( const auto& source : uncsource ){
+      const Parameter unc = GetMCNormError( sig, source + "Up", source + "Down" );
+      PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
+   }
+
+   PrintNuisanceFloats( cardfile, "lepsys", "lnN", lepunc, null  );
+   PrintNuisanceFloats( cardfile, "bgunc",  "lnN", null,   bgunc );
 
    // Getting a list of fitting parameters to permutate.
    for( const auto& datasetname : data->SetNameList() ){
@@ -236,7 +207,8 @@ MakeSimFitCardFile(
 
       for( auto var : data->VarContains( bgfuncname ) ){
          const string varname = var->GetName();
-         if( varname.find( "coeff" ) == string::npos ){// We shouldn't push the joint coefficient inside
+         if( varname.find( "coeff" ) == string::npos ){
+            // We shouldn't push the joint coefficient inside
             PrintFloatParam( cardfile, var );
          }
       }
@@ -326,6 +298,7 @@ void
 MakeSimFitPlot(
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
+   RooFitResult*    fitres,
    const string&    datasetname,
    const string&    exttag
    )
@@ -336,7 +309,7 @@ MakeSimFitPlot(
    const string combpdfname = SimFitCombinePdfName( datasetname, sig->Name() );
    const string bgpdfname   = SimFitBGPdfName( datasetname, sig->Name() );
 
-   RooDataSet* dataset = data->DataSet( datasetname );
+   RooAbsData* dataset = data->DataSet( datasetname );
    RooAddPdf* model    = (RooAddPdf*)data->Pdf( combpdfname );
    RooAbsPdf* bgpdf    = data->Pdf( bgpdfname );
    RooAbsPdf* sigpdf   = sig->Pdf( StitchKeyPdfName );
@@ -352,17 +325,30 @@ MakeSimFitPlot(
    TGraph* dataplot = plt::PlotOn(
       frame, dataset,
       RooFit::DrawOption( PGS_DATA )
-   ); //Must plot data first to set y axis title
+      );// Must plot data first to set y axis title
+
+   TGraph* bgerrplot = plt::PlotOn(
+      frame, model,
+      RooFit::Components( RooArgList(*bgpdf) ),
+      RooFit::VisualizeError( *fitres, 1, kFALSE)
+      );
+
+   dataplot = plt::PlotOn( // REPLOT to overlay against error fill region
+      frame, dataset,
+      RooFit::DrawOption( PGS_DATA )
+      );// Must plot data first to set y axis title
 
    TGraph* modelplot = plt::PlotOn(
       frame, model,
       RooFit::Normalization( bgstrength + sigfitstrength, RooAbsReal::NumEvent )
       );
 
+
    TGraph* bgplot = plt::PlotOn(
       frame, bgpdf,
       RooFit::Normalization( bgstrength, RooAbsReal::NumEvent )
       );
+
 
    TGraph* sigplot = plt::PlotOn(
       frame, sigpdf,
@@ -373,10 +359,10 @@ MakeSimFitPlot(
    frame->Draw();
    frame->SetMinimum( 0.3 );
    plt::SetFrame( frame );
-   // frame->GetYaxis()->SetTitle( dataplot->GetYaxis()->GetTitle() );
 
-   modelplot->SetLineColor( kGreen );
-   bgplot->SetFillColor( kCyan );
+   tstar::SetFitCombStyle( modelplot ) ;
+   tstar::SetFitBGStyle( bgplot ) ;
+   tstar::SetFitBGStyle( bgerrplot ) ;
    tstar::SetSignalStyle( sigplot );
 
    const double legend_x_min = 0.57;
@@ -395,7 +381,7 @@ MakeSimFitPlot(
    } else {
       leg->AddEntry( dataplot, "Data", "lp" );
    }
-   leg->AddEntry( bgplot,    "Fitted Background", "l"  );
+   leg->AddEntry( bgplot,    "Fitted Background (#pm 1#sigma)", "lf"  );
    leg->AddEntry( modelplot, "Fitted Combine",    "l"  );
    leg->AddEntry( sigplot,   sig_entry,           "lf" );
    leg->Draw();
@@ -441,8 +427,8 @@ MakeSimFitPlot(
       );
 
    // Unzoomed plot
-   const vector<const TGraph*> graphlist = {dataplot,modelplot,sigplot, bgplot};
-   const double ymax = plt::GetYmax( graphlist );
+   const vector<const TGraph*> graphlist = {dataplot, modelplot, sigplot, bgplot};
+   const double ymax                     = plt::GetYmax( graphlist );
    frame->SetMaximum( ymax * 1.5 );
    plt::SaveToPDF( c, mainname );
    c->SetLogy( kTRUE );

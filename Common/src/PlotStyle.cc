@@ -8,7 +8,30 @@
 #include "TGraph.h"
 
 namespace tstar {
+/*******************************************************************************
+*   RooFit results styling
+*******************************************************************************/
+void
+SetFitBGStyle( TGraph* x )
+{
+   x->SetFillColor( kCyan );
+   x->SetLineColor( kBlue );
+   x->SetFillStyle( 3004 );
+}
 
+/******************************************************************************/
+
+void
+SetFitCombStyle( TGraph* x )
+{
+   x->SetFillColor( kGreen );
+   x->SetLineColor( kGreen );
+   x->SetFillStyle( 1001 );
+}
+
+/*******************************************************************************
+*   Limit plots stylings
+*******************************************************************************/
 void
 SetOneSigmaStyle( TGraph* x )
 {
@@ -17,6 +40,8 @@ SetOneSigmaStyle( TGraph* x )
    x->SetLineWidth( 0 );
    x->SetFillStyle( 1001 );
 }
+
+/******************************************************************************/
 
 void
 SetTwoSigmaStyle( TGraph* x )
@@ -27,6 +52,8 @@ SetTwoSigmaStyle( TGraph* x )
    x->SetFillStyle( 3001 );
 }
 
+/******************************************************************************/
+
 void
 SetTheoryStyle( TGraph* x )
 {
@@ -36,6 +63,8 @@ SetTheoryStyle( TGraph* x )
 
 }
 
+/******************************************************************************/
+
 void
 SetExpLimitStyle( TGraph* x )
 {
@@ -43,6 +72,8 @@ SetExpLimitStyle( TGraph* x )
    x->SetLineWidth( 2 );
    x->SetLineStyle( 2 );
 }
+
+/******************************************************************************/
 
 void
 SetObsLimitStyle( TGraph* x )

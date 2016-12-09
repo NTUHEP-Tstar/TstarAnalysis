@@ -15,6 +15,7 @@
 
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
+#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
@@ -40,7 +41,8 @@ SampleHistMgr::define_hist()
    AddHist( "LepEta",            "Lepton #eta",                                         "",          75,   -2.5, 5.0 );
    AddHist( "MET",               "Missing transverse energy",                           "GeV",       50,   0,    500 );
    AddHist( "METPhi",            "Missing transverse energy #phi",                      "",          96,   -3.2, 6.4 );
-   AddHist( "JetNum",            "Number of Jets",                                      "",          11,   4,     15 );
+   AddHist( "BJetNum",           "Number of b tagged jets",                             "",          11,   4,     15 );
+   AddHist( "JetNum",            "Number of jets",                                      "",          15,   0,     14 );
    AddHist( "JetPt",             "Jet p_{T}",                                           "GeV/c",     60,   0,   1000 );
    AddHist( "Jet1Pt",            "First Leading Jet p_{T}",                             "GeV/c",     60,   0,   1000 );
    AddHist( "Jet2Pt",            "Second Leading Jet p_{T}",                            "GeV/c",     60,   0,   1000 );
@@ -132,6 +134,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
       const double electrgweight    = GetElectronTriggerWeight( ev );
       const double eleccutweight    = GetElectronCutWeight( ev );
       const double muonweight       = GetMuonWeight( ev );
+      const double btagweight       = GetBtagWeight( ev );
       const double topptweight      = GetSampleEventTopPtWeight( sample, ev );
 
       const double total_weight = GetEventWeight( ev ) * sampleweight * topptweight;
@@ -162,10 +165,17 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
 
       Hist( "Jet1Pt_NoLep"  )->Fill( jetHandle->at( 0 ).pt(), total_weight / elecweight / muonweight );
 
+      int bjetnum = 0;
+
       for( const auto& jet : jetHandle.ref() ){
          Hist( "JetPt"  )->Fill( jet.pt(), total_weight );
          Hist( "JetEta" )->Fill( jet.eta(), total_weight );
+         if( jet.bDiscriminator( BTagChecker::DISCRIMTAG ) > BTagChecker::MEDIUMWP_VAL ){
+            bjetnum++;
+         }
       }
+
+      Hist( "BJetNum" )->Fill( bjetnum, total_weight );
 
       for( const auto& mu : *muonHandle ){
          Hist( "LepPt"      )->Fill( mu.pt(), total_weight );
@@ -189,8 +199,12 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
          Hist( "LepEtaAll"  )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * eleccutweight* electrgweight );
       }
 
-      cout << elecweight / ( elecrecoweight * eleccutweight * electrgweight )
-           << " " << elecweight << " " << elecrecoweight << " " << eleccutweight << " " << electrgweight
+      cout << pileup_weight << " "
+           << elecweight << " "
+           << muonweight << " "
+           << topptweight << " "
+           << electrgweight << " "
+           << btagweight
            << flush;
 
       Hist( "MET" )->Fill( metHandle->front().pt(), total_weight );
@@ -244,11 +258,11 @@ SampleHistMgr::FillFromSample()
 {
    for( auto& sample : SampleList() ){
       InitSampleFromEDM( sample );
-      mgr::SaveCacheToFile( sample, compnamer.TextFileName( sample.Name() ) );
+      mgr::SaveCacheToFile( sample, SampleCacheFile( sample ) );
       FillFromSample( sample );
    }
 
-   SaveToFile( compnamer.RootFileName( "histcache" ) );
+   SaveToFile( compnamer.CustomFileName( "root", {"histcache"} ) );
 }
 
 /******************************************************************************/
@@ -257,11 +271,11 @@ void
 SampleHistMgr::LoadFromFile()
 {
    for( auto& sample : SampleList() ){
-      mgr::LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ) );
+      mgr::LoadCacheFromFile( sample, SampleCacheFile( sample ) );
    }
 
    // calling from histmgr function
-   HistMgr::LoadFromFile( compnamer.RootFileName( "histcache" ) );
+   HistMgr::LoadFromFile( compnamer.CustomFileName( "root", {"histcache"} ) );
 }
 
 SampleHistMgr::~SampleHistMgr(){}

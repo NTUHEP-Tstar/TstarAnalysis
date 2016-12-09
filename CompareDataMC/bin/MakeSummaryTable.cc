@@ -30,16 +30,17 @@ main( int argc, char* argv[] )
    opt::options_description desc( "Options for KinematicCompare" );
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
-      ( "refresh,r", "Whether to recompute the value from EDM files" )
+      ( "era,e", opt::value<string>(), "which era to normalize to" )
    ;
-
+   compnamer.SetNamingOptions( {"era"} );
    const int parse = compnamer.LoadOptions( desc, argc, argv );
    if( parse == OptsNamer::PARSE_ERROR ){ return 1; }
    if( parse == OptsNamer::PARSE_HELP ){ return 0; }
 
    InitSampleStatic( compnamer );
 
-   const ConfigReader& master =  compnamer.MasterConfig();
+   const ConfigReader& master = compnamer.MasterConfig();
+   const string datatag       = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExtName( "era", "Data Postfix" );
 
 
    /******************************************************************************/
@@ -56,33 +57,19 @@ main( int argc, char* argv[] )
       bkglist.emplace_back( tag, master );
    }
 
-   SampleTableMgr data( compnamer.GetChannelEXT( "Data Tag" ), master );
+   SampleTableMgr data( datatag, master );
 
 
    /******************************************************************************/
-   if( compnamer.HasOption( "refresh" ) ){
-      cout << "Re-computing the selection efficiencies and caching variables!" << endl;
+   cout << "Loading variables from saved file" << endl;
+   data.LoadFromFile();
 
-      data.LoadFromEDM();
+   for( auto& group : bkglist ){
+      group.LoadFromFile();
+   }
 
-      for( auto& group : bkglist ){
-         group.LoadFromEDM();
-      }
-
-      for( auto& group : siglist ){
-         group.LoadFromEDM();
-      }
-   } else {
-      cout << "Loading variables from saved file" << endl;
-      data.LoadFromFile();
-
-      for( auto& group : bkglist ){
-         group.LoadFromFile();
-      }
-
-      for( auto& group : siglist ){
-         group.LoadFromFile();
-      }
+   for( auto& group : siglist ){
+      group.LoadFromFile();
    }
 
    /******************************************************************************/

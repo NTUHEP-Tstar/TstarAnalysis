@@ -81,6 +81,8 @@ MakeComparePlot(
 }
 
 
+/******************************************************************************/
+
 void
 Normalize( SampleHistMgr* data, vector<SampleHistMgr*>& bgstack )
 {

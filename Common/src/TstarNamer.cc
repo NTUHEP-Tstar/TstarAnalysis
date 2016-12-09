@@ -109,9 +109,7 @@ TstarNamer::CustomFileName(
    return ans;
 }
 
-
 /******************************************************************************/
-
 
 string
 TstarNamer::MakeFileName(

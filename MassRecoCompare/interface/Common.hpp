@@ -12,20 +12,16 @@
 #include "TstarAnalysis/MassRecoCompare/interface/CompareHistMgr.hpp"
 
 
-// ------------------------------------------------------------------------------
-//   Declaring global variables, see ComparePlot.cc
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Global variables
+*******************************************************************************/
 extern TstarNamer reconamer;
 
-// ------------------------------------------------------------------------------
-//   Plotting functions, see ComparePlot.cc
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Plotting functions
+*******************************************************************************/
 extern void ComparePlot( const std::string&, const std::vector<CompareHistMgr*> );
 extern void MatchPlot( CompareHistMgr* );
 
-// ------------------------------------------------------------------------------
-//   Plotting functions for comparing effects of scale ;
-// ------------------------------------------------------------------------------
-extern void ScalePlot( ScaleHistMgr* );
 
 #endif/* end of include guard: TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP */

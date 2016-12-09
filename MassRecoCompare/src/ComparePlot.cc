@@ -6,22 +6,24 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
-#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/Common/interface/NameParse.hpp"
 #include "TstarAnalysis/Common/interface/PlotStyle.hpp"
-#include "TstarAnalysis/TstarMassReco/interface/CompareHistMgr.hpp"
+#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "TstarAnalysis/MassRecoCompare/interface/CompareHistMgr.hpp"
 
-#include <boost/format.hpp>
 #include <algorithm>
+#include <boost/format.hpp>
 #include <string>
 #include <vector>
 
+#include "TEfficiency.h"
+
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Declaring global objects
-// ------------------------------------------------------------------------------
-TstarNamer reconamer( "TstarMassReco" );
+/*******************************************************************************
+*   Declaring global objects
+*******************************************************************************/
+TstarNamer reconamer( "MassRecoCompare" );
 
 Color_t Color_Sequence[5] = {
    kBlue,
@@ -30,6 +32,8 @@ Color_t Color_Sequence[5] = {
    kBlack,
    kCyan
 };
+
+/******************************************************************************/
 
 void
 ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list  )
@@ -49,12 +53,18 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
 
       double max = 0;
 
+      // Normalizing all histograms to 1
       for( const auto& method : method_list ){
-         max = std::max( max, method->Hist(histname)->GetMaximum() );
+         const double integral = method->Hist( histname )->Integral();
+         method->Hist( histname )->Scale( 1. / integral );
       }
 
       for( const auto& method : method_list ){
-         method->Hist( histname )->SetMaximum( floor( max*1.5 ) );
+         max = std::max( max, method->Hist( histname )->GetMaximum() );
+      }
+
+      for( const auto& method : method_list ){
+         method->Hist( histname )->SetMaximum( max*1.5 );
          method->Hist( histname )->SetTitle( "" );
       }
 
@@ -76,12 +86,12 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
       ltx.SetTextFont( FONT_TYPE );
       ltx.SetTextSize( AXIS_TITLE_FONT_SIZE );
       ltx.SetTextAlign( TOP_RIGHT );
-      ltx.DrawLatex( PLOT_X_MAX - 0.04 , legend_ymin , str( boost::format( "M_{t*}=%dGeV/c^{2}" )%GetInt( reconamer.InputStr( "mass" ) ) ).c_str() );
+      ltx.DrawLatex( PLOT_X_MAX - 0.04, legend_ymin, str( boost::format( "M_{t*}=%dGeV/c^{2}" )%GetInt( reconamer.InputStr( "mass" ) ) ).c_str() );
 
       const string rootfile = reconamer.PlotRootFile();
-      const string filename = reconamer.PlotFileName(comp_name,{histname});
+      const string filename = reconamer.PlotFileName( comp_name, {histname} );
       plt::SaveToPDF( c, filename );
-      plt::SaveToROOT( c, rootfile, Basename(filename) );
+      plt::SaveToROOT( c, rootfile, Basename( filename ) );
       delete c;
       delete l;
    }
@@ -100,13 +110,19 @@ MatchPlot( CompareHistMgr* mgr )
    c->SetBottomMargin( PLOT_Y_MIN );
    c->SetTopMargin( 1 - PLOT_Y_MAX );
 
-   TH2D* plot = mgr->MatchMap();
+   TH2D* plot = (TH2D*)mgr->Hist2D("JetMatchTotal")->Clone();
+   for( int i = 1 ; i < plot->GetNcells() ; ++i ){
+      const double pass = mgr->Hist2D("JetMatchPass")->GetBinContent(i);
+      const double total = mgr->Hist2D("JetMatchTotal")->GetBinContent(i);
+      plot->SetBinContent( i, pass/total );
+   }
+
+
    plot->Draw( "COLZTEXT" );
    c->cd();
 
    plt::SetAxis( plot );
 
-   plot->Scale( 1./mgr->EventCount() );
    plot->SetMaximum( 1. );
    plot->SetMinimum( 0.01 );
    plot->SetStats( 0 );
@@ -132,9 +148,9 @@ MatchPlot( CompareHistMgr* mgr )
 
    c->SetLogz( 1 );
 
-   const string filename  = reconamer.PlotFileName( "jetmatchmap", {mgr->Name()} );
-   plt::SaveToPDF( c , filename );
-   plt::SaveToROOT( c, reconamer.PlotRootFile(), Basename(filename) );
+   const string filename = reconamer.PlotFileName( "jetmatchmap", {mgr->Name()} );
+   plt::SaveToPDF( c, filename );
+   plt::SaveToROOT( c, reconamer.PlotRootFile(), Basename( filename ) );
 
    delete c;
 }

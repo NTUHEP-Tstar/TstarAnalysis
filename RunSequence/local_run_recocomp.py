@@ -1,30 +1,29 @@
 #!/bin/env python
-#*************************************************************************
-#
-#  Filename    : 03_run_massreco.py
-#  Description : Running mass reconstruction with standard methods
-#  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
-#
-#*************************************************************************
+#*******************************************************************************
+ #
+ #  Filename    : runHistCompare.py
+ #  Description : Generating scripts for running hist compare
+ #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+ #
+#*******************************************************************************
 import optparse
 import os
 import re
 import subprocess
+channellist= ["ElectronSignal", "MuonSignal"]
 
 import TstarAnalysis.RunSequence.Naming   as myname
 import TstarAnalysis.RunSequence.Settings as mysetting
 import TstarAnalysis.RunSequence.PathVars as mypath
 
-
 script_template = """
 #!/bin/bash
-cd  {0}/RunSequence/
+cd {0}
 eval `scramv1 runtime -sh`
-cmsRun {0}/RunSequence/cmsrun/run_massreco.py Mode={1} maxEvents=-1 sample={2} output={3}
-xrdcp -f {3} root://{4}//{5}
+cmsRun {0}/RunSequence/cmsrun/run_reco_compare.py Mode={1} sample={2} output={3} maxEvents=-1
+xrdcp -f {3} root://{4}/{5}
 rm {3}
 """
-
 
 def main():
     parser = optparse.OptionParser()
@@ -43,6 +42,9 @@ def main():
         dataset_list = f.readlines()
         for dataset in dataset_list:
             dataset = dataset.strip()
+            if "Tstar" not in dataset : ## Must be a tstar signal MC
+                print "Skipping dataset ", dataset
+                continue
 
             filequery = ""
 
@@ -67,9 +69,9 @@ def main():
             for index, file_list in enumerate(file_chunks):
                 sample_input = ','.join(file_list)
 
-                tempoutput       = myname.GetTempOutput( 'massreco',dataset, opt.mode,index  )
-                storeoutput      = myname.GetEDMStoreFile( 'massreco', dataset, opt.mode, index )
-                script_file_name = myname.GetScriptFile( 'massreco', dataset, opt.mode, index )
+                tempoutput       = myname.GetTempOutput( 'recocomp',dataset, opt.mode,index  )
+                storeoutput      = myname.GetEDMStoreFile( 'recocomp', dataset, opt.mode, index )
+                script_file_name = myname.GetScriptFile( 'recocomp', dataset, opt.mode, index )
 
                 script_content = script_template.format(
                     mysetting.tstar_dir,

@@ -16,28 +16,25 @@
 
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Function for defining pdf functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Functions for defining various PDF functions
+*******************************************************************************/
 static RooAbsPdf* MakeFermi( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeExo( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeLognorm( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeLandau( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeTrial( SampleRooFitMgr*, const std::string& tag );
 
-// ------------------------------------------------------------------------------
-//   SampleRooFitMgr Generic MakePDF function for
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   SampeRootFirMgr Generic MakePDf interface function
+*******************************************************************************/
 RooAbsPdf*
 SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
 {
    static const string def = "Exo";
 
    if( Pdf( name ) ){// Do not reproduce if already exists
-      fprintf(
-         stderr,
-         "Warning! Duplicate name detected, not regenerating!\n"
-         );
+      cerr << "Warning! Duplicate name detected, not regenerating!" << endl;
       return Pdf( name );
    }
 
@@ -61,9 +58,9 @@ SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
    }
 }
 
-// ------------------------------------------------------------------------------
-//   Fermi function f(m) = 1/(1+exp((m-a)/b))
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Fermi function f(m) = 1/(1+exp((m-a)/b))
+*******************************************************************************/
 RooAbsPdf*
 MakeFermi( SampleRooFitMgr* sample, const string& name = "fermi" )
 {
@@ -83,9 +80,9 @@ MakeFermi( SampleRooFitMgr* sample, const string& name = "fermi" )
    return pdf;
 }
 
-// ------------------------------------------------------------------------------
-//   EXO function f(m) = (1-x)^a / x^b ; x = m/sqrt(s)
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   EXO function f(m) = (1-x)^a / x^b ; x = m/sqrt(s)
+*******************************************************************************/
 RooAbsPdf*
 MakeExo( SampleRooFitMgr* sample, const string& name = "exo" )
 {
@@ -109,9 +106,9 @@ MakeExo( SampleRooFitMgr* sample, const string& name = "exo" )
    return pdf;
 }
 
-// ------------------------------------------------------------------------------
-//   Lognormal distribution effective f(m) = 1/x * exp( -b ln^2(x/a))
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Lognormal distribution effective f(m) = 1/x * exp( -b ln^2(x/a))
+*******************************************************************************/
 RooAbsPdf*
 MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
 {
@@ -125,9 +122,9 @@ MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
    return pdf;
 }
 
-// ------------------------------------------------------------------------------
-//   Landau distribution
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Landau distribution
+*******************************************************************************/
 RooAbsPdf*
 MakeLandau( SampleRooFitMgr* sample, const string& name = "landau" )
 {
@@ -141,9 +138,9 @@ MakeLandau( SampleRooFitMgr* sample, const string& name = "landau" )
    return pdf;
 }
 
-// ------------------------------------------------------------------------------
-//   Edit this function for testing purposes
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Generic testing functions
+*******************************************************************************/
 RooAbsPdf*
 MakeTrial( SampleRooFitMgr* sample,  const string& name = "trial" )
 {

@@ -18,41 +18,29 @@
 #define PS_DATA    "LPE"
 #define PS_HIST    "HIST"
 #define PS_ERROR   "E2"
-#define PGS_DATA   "PZ" // P for point, Z for no end of error bar tick
+#define PGS_DATA   "PZ"// P for point, Z for no end of error bar tick
 #define PGS_SIGNAL "LB"
 
 namespace tstar
 {
 
 /*******************************************************************************
-*   Template functions for fitting Common styling options
+*   Template functions for fitting Common styling options, see src/PlotStyle.ipp
 *******************************************************************************/
 template<class T>
-void
-SetDataStyle( T* x )
-{
-   x->SetMarkerStyle( 20 );
-   x->SetMarkerSize( 0.7 );
-   x->SetLineColor( kBlack );
-}
+void SetDataStyle( T* x );
 
 template<class T>
-void
-SetErrorStyle( T* x )
-{
-   x->SetFillColor( kBlack );
-   x->SetLineColor( kBlack );
-   x->SetFillStyle( 3004 );
-}
+void SetErrorStyle( T* x );
 
 template<class T>
-void
-SetSignalStyle( T* x )
-{
-   x->SetLineColor( kRed );
-   x->SetFillColor( kRed );
-   x->SetFillStyle( 3005 );
-}
+void SetSignalStyle( T* x );
+
+/*******************************************************************************
+*   RooFit results styling options, see src/PlotStyle.cc 
+*******************************************************************************/
+void SetFitBGStyle( TGraph* );
+void SetFitCombStyle( TGraph* );
 
 /*******************************************************************************
 *   Limit Graph styling, Using TGraph ( see src/PlotStyle.cc for definitions)
@@ -65,5 +53,7 @@ void SetTheoryStyle( TGraph* x );
 
 
 };
+
+#include "TstarAnalysis/Common/src/PlotStyle.ipp"
 
 #endif/* end of include guard: TSTARANALYSIS_COMMON_PLOTSTYLE_HPP */

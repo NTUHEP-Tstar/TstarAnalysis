@@ -20,16 +20,16 @@
 
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Save results
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Save results
+*******************************************************************************/
 static const string ws_name = "wspace";
 
 void
 SaveRooWorkSpace(
-   RooDataSet*               data,
-   const vector<RooAbsPdf*>& bg_list,
-   const vector<RooAbsPdf*>& sig_list
+   RooAbsData*               data,
+   const vector<RooAbsPdf*>& pdflist,
+   const vector<RooAbsReal*>& funclist
    )
 {
    const string roofit_file = limnamer.RootFileName( "roofitobj" );
@@ -38,22 +38,23 @@ SaveRooWorkSpace(
    cout << "Saving RooFit objects to " << roofit_file << endl;
    ws.import( *data );
 
-   for( auto& bg  : bg_list ){
-      ws.import( *bg  );
+   for( auto& pdf  : pdflist ){
+      ws.import( *pdf  );
    }
 
-   for( auto& sig : sig_list ){
-      ws.import( *sig );
+   for( auto& func : funclist ){
+      ws.import( *func );
    }
 
    ws.writeToFile( roofit_file.c_str() );
 
 }
 
+/******************************************************************************/
 
 FILE*
 MakeCardCommon(
-   RooDataSet*        data,
+   RooAbsData*        data,
    RooAbsPdf*         bg_pdf,
    RooAbsPdf*         sig_pdf,
    const std::string& tag

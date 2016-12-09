@@ -16,13 +16,15 @@ main( int argc, char const* argv[] )
 {
    mgr::SampleMgr test( "test" );
 
-   test.SetFileList( {"test.root"} );
+   test.SetFileList( {argv[1]} );
 
    InitSampleFromEDM( test );
 
    cout << test.OriginalEventCount()  << endl;
 
    cout << test.SelectedEventCount() << endl;
+
+   cout << test.SelectionEfficiency()  << endl;
 
    cout << test.GetCacheDouble( "TopPtWeightSum" ) << endl;
 

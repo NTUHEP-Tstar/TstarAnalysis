@@ -7,6 +7,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/Common/interface/PlotStyle.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
@@ -16,14 +17,8 @@
 #include <string>
 
 using namespace std;
-/*******************************************************************************
-*   Declaring external objects
-*******************************************************************************/
-TstarNamer compnamer( "CompareDataMC" );
 
-
-/******************************************************************************/
-
+// Common function for drawing standard ratio plot
 void
 MakePlot(
    THStack*                        stack,

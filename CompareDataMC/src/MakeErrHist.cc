@@ -39,6 +39,8 @@ MakeFullComparePlot(
       TH1D* datarel  = MakeDataRelHist( datahist, bkgerror );
       TH1D* sighist  = (TH1D*)signalmgr->Hist( histname )->Clone();
 
+      cout << bkgerror->Integral() << " " << datahist->Integral() << endl;
+
       // Scaling signal plot for clarity
       const unsigned datanum = datahist->Integral();
       const double signum    = sighist->Integral();
@@ -67,7 +69,7 @@ MakeFullComparePlot(
          datarel,
          l,
          "fullcomp",
-         {histname, label,compnamer.InputStr("era")}
+         {histname, label}
          );
       delete l;
       delete stack;

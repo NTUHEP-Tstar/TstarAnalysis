@@ -17,6 +17,16 @@ using namespace std;
 *******************************************************************************/
 TstarNamer limnamer( "LimitCalc" );
 
+extern const std::vector<std::string> uncsource = {
+   "jec",
+   "jetres",
+   "btag",
+   "pu",
+   "lep",
+   "pdf",
+   "scale"
+};
+
 /*******************************************************************************
 *   Initialization functions
 *******************************************************************************/
@@ -47,6 +57,8 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
    const mgr::ConfigReader& cfg = limnamer.MasterConfig();
    const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
                                   + limnamer.GetExtName( "era", "Data Postfix" );
+
+   cout << "Created RooFitMgr for data: " << datatag << endl;
    data = new SampleRooFitMgr( datatag, cfg );
 
    for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){

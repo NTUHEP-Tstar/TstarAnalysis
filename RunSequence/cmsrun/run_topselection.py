@@ -34,20 +34,13 @@ options.register(
 )
 
 options.register(
-    'lumimask',
-    '',
+    'HLT',
+    False,
     opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'Lumi Mask to apply'
+    opts.VarParsing.varType.bool,
+    'Whether or not to run HLT selection'
 )
 
-options.register(
-    'reportEvery',
-    10000,
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.int,
-    'How often to print messages'
-)
 
 options.setDefault('maxEvents', 1000)
 
@@ -59,7 +52,7 @@ options.parseArguments()
 process = cms.Process("TopLike")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(options.maxEvents)
 )
@@ -69,15 +62,6 @@ process.source = cms.Source(
 )
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
-
-#-------------------------------------------------------------------------------
-#   Loading lumi masking for data events
-#-------------------------------------------------------------------------------
-if options.lumimask:
-    import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(
-        filename=options.lumimask).getVLuminosityBlockRange()
-    # since we are using a single object trigger, it should be OK
 
 #-------------------------------------------------------------------------------
 #   Setting up jet selection criteria
@@ -92,7 +76,7 @@ import TstarAnalysis.AdditionalSelector.AddLeptonSelector_cfi as mylepsel
 process.electronsel = mylepsel.ElectronSelector
 process.muonsel     = mylepsel.MuonSelector
 
-if options.lumimask == "" :
+if not options.HLT :
     # disable trigger selection for non-data samples
     process.electronsel.reqtrigger = cms.VPSet()
     process.muonsel.reqtrigger = cms.VPSet()
@@ -113,7 +97,7 @@ process.EventWeight = cms.EDProducer(
         cms.InputTag("ElectronWeight", "ElectronWeight","TopLike"),
         cms.InputTag("MuonWeight",     "MuonWeight","TopLike"),
         cms.InputTag("PileupWeight",   "PileupWeight"),
-        cms.InputTag("SignWeight", "SignWeight"),
+        cms.InputTag("GenWeight", "GenWeight"),
         cms.InputTag('BtagWeight','BtagWeight')
     )
 )
@@ -123,7 +107,7 @@ process.EventWeightAll = cms.EDProducer(
         cms.InputTag("ElectronWeight", "ElectronWeight","TopLike"),
         cms.InputTag("MuonWeight",     "MuonWeight","TopLike"),
         cms.InputTag("PileupWeight",   "PileupWeight"),
-        cms.InputTag("SignWeight",     "SignWeight"),
+        cms.InputTag("GenWeight",     "GenWeight"),
         cms.InputTag('BtagWeight',     'BtagWeight'),
         cms.InputTag("TopPtWeight",    "TopPtWeight")
     )
@@ -145,6 +129,7 @@ process.edmOut = cms.OutputModule(
         "keep *_*MuonWeight*_*_TopLike",
         "keep *_*_WeightProd_TopLike",
         "keep *_*_WeightSum_TopLike",
+        "keep *_BeforeAll_*_*"
     ),
     SelectEvents=cms.untracked.PSet(
         SelectEvents=cms.vstring('path')

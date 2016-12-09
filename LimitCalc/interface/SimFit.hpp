@@ -36,21 +36,12 @@ StitchSimFitBgPdfname( const std::string& signalname );
 *                     signal->DataSet("") constructed PDF object will always
 *                     be used for the fitting
 *
-*   ** MakeFullSimFit - Run the SimFitSingle function on all available DataSet
-*                       objects stored in the data object.
-*
 *******************************************************************************/
 extern RooFitResult* SimFitSingle (
    SampleRooFitMgr*    data,
    SampleRooFitMgr*    sig,
    const std::string&  setname,
    RooFitResult*    bgconstrain
-);
-
-extern RooAddPdf* MakeFullSimFit (
-   SampleRooFitMgr*   data,
-   SampleRooFitMgr*   sig,
-   RooFitResult*      bgconstrain
 );
 
 /*******************************************************************************
@@ -79,6 +70,7 @@ extern void MakeSimFit(
 extern void MakeSimFitPlot(
    SampleRooFitMgr* data,
    SampleRooFitMgr* sig,
+   RooFitResult*    fitres,
    const std::string& datasetname = "",
    const std::string& exttag = ""
 );

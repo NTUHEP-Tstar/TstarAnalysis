@@ -20,9 +20,9 @@
 
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Object naming conventions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Object naming convention
+*******************************************************************************/
 string
 TemplatePdfName( const std::string& datasetname )
 {
@@ -31,9 +31,9 @@ TemplatePdfName( const std::string& datasetname )
 
 extern const string StitchTemplatePdfName = "templatemaster";
 
-// ------------------------------------------------------------------------------
-//   Main control flow, to be called by main function
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Main control flow to be caleed by main function
+*******************************************************************************/
 void
 MakeTemplate(
    SampleRooFitMgr*          data,
@@ -41,20 +41,23 @@ MakeTemplate(
    vector<SampleRooFitMgr*>& signal_list
    )
 {
-   vector<RooAbsPdf*> sigpdf_list;
+   vector<RooAbsPdf*> pdflist;
+   vector<RooAbsReal*> funclist;
 
    for( auto& sig : signal_list ){
-      sigpdf_list.push_back( MakeFullKeysPdf( sig ) );
+      pdflist.push_back( MakeFullKeysPdf( sig ) );
+      funclist.push_back( sig->Func(StitchKeyNormName));
    }
 
    MakeFullTemplate( bg );
    MakeTemplatePlot( data, bg, signal_list.front(), true );
    MakeTemplatePlot( data, bg, signal_list.front(), false );
+   pdflist.push_back( bg->Pdf( StitchTemplatePdfName) );
 
    SaveRooWorkSpace(
       data->DataSet( "" ),
-      {bg->Pdf( StitchTemplatePdfName )},
-      sigpdf_list
+      pdflist,
+      funclist
       );
 
    for( auto& signal : signal_list ){
@@ -63,9 +66,9 @@ MakeTemplate(
 }
 
 
-// ------------------------------------------------------------------------------
-//  Fitting function implementations
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Fitting function implementations
+*******************************************************************************/
 RooFitResult*
 FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
 {
@@ -90,7 +93,9 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
    return ans;
 }
 
-RooAddPdf*
+/******************************************************************************/
+
+RooAbsPdf*
 MakeFullTemplate( SampleRooFitMgr* bg )
 {
    vector<string> bgpdflist;
@@ -100,13 +105,15 @@ MakeFullTemplate( SampleRooFitMgr* bg )
       bgpdflist.push_back( TemplatePdfName( datasetname ) );
    }
 
-   return MakeStichPdf( bg, StitchTemplatePdfName, bgpdflist );
+   return MakeSimpleStitchPdf( bg, StitchTemplatePdfName, bgpdflist );
 }
+
+/******************************************************************************/
 
 void
 MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* sig )
 {
-   RooDataSet* dataobs = data->DataSet( "" );
+   RooAbsData* dataobs = data->DataSet( "" );
    RooAbsPdf* bgpdf    = bg->Pdf( StitchTemplatePdfName );
    RooAbsPdf* sigpdf   = sig->Pdf( StitchKeyPdfName );
 

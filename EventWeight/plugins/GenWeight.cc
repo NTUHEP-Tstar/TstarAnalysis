@@ -61,8 +61,8 @@ GenWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 
    auto_ptr<double> weightptr( new double(1.) );
    iEvent.getByToken( _lhesrc, _lheHandle );
-   if( _lheHandle.isValid() ){
-      *weightptr = _lheHandle->originalXWGTUP();
+   if( _lheHandle.isValid()  && _lheHandle->originalXWGTUP() < 0 ){
+      *weightptr = -1;
    }
 
    iEvent.put( weightptr, "GenWeight" );

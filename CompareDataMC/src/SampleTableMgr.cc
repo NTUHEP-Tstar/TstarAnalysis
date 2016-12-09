@@ -90,7 +90,7 @@ SampleTableMgr::LoadFromEDM()
    for( auto& sample : SampleList() ){
       InitSampleFromEDM( sample );// common varaibles, see Common/InitSample.cc
       LoadFromEDM( sample );// Self defined numbers, see below
-      SaveCacheToFile( sample, compnamer.TextFileName( sample.Name() ) );
+      SaveCacheToFile( sample, SampleCacheFile(sample) );
    }
 }
 
@@ -98,11 +98,9 @@ void
 SampleTableMgr::LoadFromFile()
 {
    for( auto& sample : SampleList() ){
-      LoadCacheFromFile( sample, compnamer.TextFileName( sample.Name() ) );
+      LoadCacheFromFile( sample, SampleCacheFile(sample) );
    }
 }
-
-
 
 
 /*******************************************************************************

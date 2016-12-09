@@ -1,7 +1,9 @@
 {
-    "___Comment___": """-----------------------------------------------------------#
+    "___Comment___": ""
+    "-----------------------------------------------------------#
     Static Settings
-    -----------------------------------------------------------------------------""",
+    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- - ""
+    ",
 
     "Total Luminosity": 12900,
     "Total Luminosity 2015": 2180,
@@ -10,9 +12,11 @@
     "Mass Min": 400,
     "Mass Max": 2500,
 
-    "___Comment___": """-----------------------------------------------------------
+    "___Comment___": ""
+    "-----------------------------------------------------------
     Defining Groups:
-    -----------------------------------------------------------------------------""",
+        -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- - ""
+    ",
 
     "Default Json": "Signal.json",
 
@@ -20,38 +24,51 @@
         "Latex Name": "Data",
         "Root Name": "Data (ICHEP)",
         "Subset Json": "Data_Muon.json",
-        "Sample List": [ "Run2016B", "Run2016C", "Run2016D" ]
+        "Sample List": ["Run2016B", "Run2016C", "Run2016D"]
     },
 
     "DataElectronICHEP": {
         "Latex Name": "Data",
         "Root Name": "Data (ICHEP)",
         "Subset Json": "Data_Electron.json",
-        "Sample List": [ "Run2016B", "Run2016C", "Run2016D" ]
+        "Sample List": ["Run2016B", "Run2016C", "Run2016D"]
     },
 
     "DataMuonPostHIP": {
         "Latex Name": "Data",
         "Root Name": "Data (Run2016G)",
         "Subset Json": "Data_Muon.json",
-        "Sample List": [ "Run2016G" ]
+        "Sample List": ["Run2016G"]
     },
     "DataElectronPostHIP": {
         "Latex Name": "Data",
         "Root Name": "Data (Run2016G)",
         "Subset Json": "Data_Electron.json",
-        "Sample List": [ "Run2016G" ]
+        "Sample List": ["Run2016G"]
+    },
+
+    "DataMuonEarly": {
+        "Latex Name": "Data",
+        "Root Name": "Data (Run2016B)",
+        "Subset Json": "Data_Muon.json",
+        "Sample List": ["Run2016B"]
+    },
+    "DataElectronEarly": {
+        "Latex Name": "Data",
+        "Root Name": "Data (Run2016B)",
+        "Subset Json": "Data_Electron.json",
+        "Sample List": ["Run2016B"]
     },
 
     "DataMuonAll": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016B-G)",
+        "Root Name": "Data (Run2016B-H)",
         "File List": ["Data_Muon.json"]
     },
 
     "DataElectronAll": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016B-G)",
+        "Root Name": "Data (Run2016B-H)",
         "File List": ["Data_Electron.json"]
     },
 
@@ -59,7 +76,7 @@
         "Latex Name": "Top pair",
         "Root Name": "t#bar{t} + jets",
         "Subset Json": "TopSamples.json",
-        "Sample List": [ "TTJets" ]
+        "Sample List": ["TTJets"]
     },
 
     "SingleTop": {
@@ -78,19 +95,19 @@
     "TTBoson": {
         "Latex Name": "Top pair + boson",
         "Root Name": "t#bar{t} + V",
-        "File List": [ "TTPlusBoson.json" ]
+        "File List": ["TTPlusBoson.json"]
     },
 
     "SingleBoson": {
         "Latex Name": "Single Boson",
         "Root Name": "V + jets",
-        "File List": [ "SingleBoson.json" ]
+        "File List": ["SingleBoson.json"]
     },
 
     "DiBoson": {
         "Latex Name": "Di boson",
         "Root Name": "VV",
-        "File List": [ "DiBoson.json" ]
+        "File List": ["DiBoson.json"]
     },
 
     "Background": {

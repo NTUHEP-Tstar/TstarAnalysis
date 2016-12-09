@@ -1,0 +1,149 @@
+/*******************************************************************************
+*
+*  Filename    : CompareHistMgr.cc
+*  Description : Implementation of comparison manager
+*  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+*
+*******************************************************************************/
+#include "ManagerUtils/PlotUtils/interface/Common.hpp"
+#include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
+#include "TstarAnalysis/MassRecoCompare/interface/CompareHistMgr.hpp"
+
+#include <boost/algorithm/string.hpp>
+#include <iostream>
+
+using namespace std;
+using namespace tstar;
+using fwlite::Event;
+using fwlite::Handle;
+
+/*******************************************************************************
+*   Main control flows
+*******************************************************************************/
+void
+CompareHistMgr::define_hist()
+{
+   AddHist( "TstarMass",  "Reco. t* Mass",                            "GeV/c^{2}",  60,    0, 3000 );
+   AddHist( "ChiSq",      "Reco. #chi^{2} of Method",                 "",           60,    0,  100 );
+   AddHist( "LepTopMass", "Reco. Leptonic Top Mass",                  "GeV/c^{2}", 100,    0,  500 );
+   AddHist( "HadTopMass", "Reco. Hadronic Top Mass",                  "GeV/c^{2}", 100,    0,  500 );
+   AddHist( "HadWMass",   "Reco. Hadronic W Boson Mass",              "GeV/c^{2}",  40,    0,  200 );
+
+   AddHist2D(
+      "JetMatchTotal",
+      "Flavour from fit",
+      "Flavour from MC Truth",
+      5, 0, 5,// Xaxis  fitted result
+      6, 0, 6// Yaxis  mc truth particle (must include unknown)
+      );
+   AddHist2D(
+      "JetMatchPass",
+      "Flavour from fit",
+      "Flavour from MC Truth",
+      5, 0, 5,// Xaxis  fitted result
+      6, 0, 6// Yaxis  mc truth particle (must include unknown)
+      );
+
+   AddHist( "CorrPerm",   "Number of correctly identified jets", "" , 7, 0, 7);
+
+}
+
+/******************************************************************************/
+
+void
+CompareHistMgr::AddEvent( const fwlite::Event& ev )
+{
+   static const string process = "HitFitCompare";
+   const double eventweight = GetEventWeight( ev );
+
+   _resulthandle.getByLabel( ev, Name().c_str(), ModuleName().c_str(), process.c_str() );
+
+   if( !_resulthandle.isValid() ) { return ; }
+
+   if( _resulthandle.ref().ChiSquare() < 0 ){ return; }// Early exit for unphysical results
+
+   // Filling in basic histograms
+   Hist( "TstarMass"  )->Fill( _resulthandle.ref().TstarMass(), eventweight );
+   Hist( "ChiSq"      )->Fill( _resulthandle.ref().ChiSquare(), eventweight );
+   Hist( "LepTopMass" )->Fill( _resulthandle.ref().LeptonicTop().M(), eventweight );
+   Hist( "HadTopMass" )->Fill( _resulthandle.ref().HadronicTop().M(), eventweight );
+   Hist( "HadWMass"   )->Fill( _resulthandle.ref().HadronicW().M(), eventweight );
+
+   // Filling 2d histogram for truth correctness
+   vector<Particle_Label> fitlabellist = {
+      lepb_label ,
+      lepg_label ,
+      hadw1_label ,
+      hadw2_label ,
+      hadb_label ,
+      hadg_label
+   };
+   vector<Particle_Label> truthlabellist = fitlabellist;
+   truthlabellist.push_back( unknown_label );
+   unsigned corr = 0;
+
+   for( const auto x : fitlabellist ){
+      const int xval = GetBinPosition( x );
+
+      for( const auto y :truthlabellist ){
+         const int yval = GetBinPosition( y );
+         Hist2D("JetMatchTotal")->Fill( xval , yval , eventweight ); // Master fills all the bin according to weight
+      }
+
+      const int yval  = GetBinPosition( _resulthandle.ref().GetParticle(x).TypeFromTruth() );
+      Hist2D("JetMatchPass")->Fill( xval , yval, eventweight );
+      if( yval == xval ){
+         corr++;
+      }
+   }
+
+   Hist("CorrPerm")->Fill( corr, eventweight );
+}
+
+/******************************************************************************/
+
+int
+CompareHistMgr::GetBinPosition( Particle_Label x )
+{
+   if( x == lepb_label ){
+      return 0;
+   } else if( x == lepg_label ){
+      return 1;
+   } else if( x == hadw1_label || x == hadw2_label ){
+      return 2;
+   } else if( x == hadb_label ){
+      return 3;
+   } else if( x == hadg_label ){
+      return 4;
+   } else {
+      return 5;
+   }
+}
+
+/******************************************************************************/
+
+string
+CompareHistMgr::ModuleName() const
+{
+   return boost::starts_with( Name(), "ChiSq" ) ?
+      "ChiSquareResult" : "HitFitResult";
+}
+
+/*******************************************************************************
+*   Constructor and destructor
+*******************************************************************************/
+CompareHistMgr::CompareHistMgr( const string& name, const string& latex_name ) :
+   Named( name ),
+   HistMgr( name ),
+   Hist2DMgr( name )
+{
+   SetLatexName( latex_name );
+   SetFillStyle( 0 );
+   define_hist();
+}
+
+/******************************************************************************/
+
+CompareHistMgr::~CompareHistMgr()
+{
+}
