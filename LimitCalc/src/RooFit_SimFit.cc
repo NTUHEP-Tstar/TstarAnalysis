@@ -68,14 +68,16 @@ MakeSimFit(
 
    for( auto& sig : signal_list ){
       MakeFullKeysPdf( sig );
+
       auto fiterr = SimFitSingle( data, sig, "", bgconstrain );
-      MakeSimFitCardFile( data, sig );
 
       for( const auto& name : data->SetNameList() ){
          MakeSimFitPlot( data, sig, fiterr, name );
       }
 
-      pdflist.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
+      MakeSimFitCardFile( data, sig );
+
+      pdflist.push_back( data->Pdf( SimFitBGPdfName( "", sig->Name() ) ) );
       pdflist.push_back( sig->Pdf( StitchKeyPdfName ) );
       funclist.push_back( sig->Func( StitchKeyNormName ) );
 
@@ -166,12 +168,12 @@ MakeSimFitCardFile(
    SampleRooFitMgr* sig
    )
 {
-   const string centralpdfname  = SimFitCombinePdfName( "", sig->Name() );
-   const string stitchbgpdfname = StitchSimFitBgPdfname( sig->Name() );
-   RooAbsData* dataset          = data->DataSet();
-   RooAbsPdf* bgpdf             = data->Pdf( stitchbgpdfname );
-   RooAbsPdf* sigpdf            = sig->Pdf( StitchKeyPdfName );
-   const Parameter bgunc        = GetBgNormError( data, "", "", sig->Name() );
+   const string sigpdfname = StitchKeyPdfName;
+   const string bgpdfname  = SimFitBGPdfName( "", sig->Name() );
+   RooAbsData* dataset     = data->DataSet();
+   RooAbsPdf* bgpdf        = data->Pdf( bgpdfname );
+   RooAbsPdf* sigpdf       = sig->Pdf( sigpdfname );
+   const Parameter bgunc   = GetBgNormError( data, "", "", sig->Name() );
 
    // Writting the common parts
    FILE* cardfile = MakeCardCommon( dataset, bgpdf, sigpdf, sig->Name() );
@@ -187,10 +189,9 @@ MakeSimFitCardFile(
    const Parameter lumi( 1, 0.062, 0.062 );
    const Parameter lepunc = data->Name().find( "Muon" ) == string::npos ?
                             Parameter( 1, 0.03, 0.03 ) : Parameter( 1, 0.03, 0.03 );
-   // const Parameter sigunc        = sig->Sample().SelectionEfficiency();
+   const Parameter sigunc = sig->Sample().SelectionEfficiency();
    const Parameter null( 0, 0, 0 );
    fprintf( cardfile, "----------------------------------------\n" );
-   PrintNuisanceFloats( cardfile, "lumi", "lnN", lumi, lumi  );
 
    // PrintNuisanceFloats( cardfile, "sigunc",   "lnN", sigunc,        null  );
    for( const auto& source : uncsource ){
@@ -198,8 +199,10 @@ MakeSimFitCardFile(
       PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
    }
 
-   PrintNuisanceFloats( cardfile, "lepsys", "lnN", lepunc, null  );
-   PrintNuisanceFloats( cardfile, "bgunc",  "lnN", null,   bgunc );
+   PrintNuisanceFloats( cardfile, "lumi",    "lnN", lumi,   lumi  );
+   PrintNuisanceFloats( cardfile, "statunc", "lnN", sigunc, null );
+   PrintNuisanceFloats( cardfile, "lepsys",  "lnN", lepunc, null  );
+   PrintNuisanceFloats( cardfile, "bgunc",   "lnN", null,   bgunc );
 
    // Getting a list of fitting parameters to permutate.
    for( const auto& datasetname : data->SetNameList() ){
@@ -284,6 +287,9 @@ GetMCNormError(
    const double uperroryield    = sig->DataSet( uperrorset )->sumEntries();
    const double downerroryield  = sig->DataSet( downerrorset )->sumEntries();
 
+   cout << sig->Name() << " | " << uperrorset << " | ";
+   cout << centralsetyield << " " << uperroryield << " " << downerroryield << endl;
+
    return Parameter(
       centralsetyield,
       uperroryield - centralsetyield,
@@ -329,11 +335,11 @@ MakeSimFitPlot(
 
    TGraph* bgerrplot = plt::PlotOn(
       frame, model,
-      RooFit::Components( RooArgList(*bgpdf) ),
-      RooFit::VisualizeError( *fitres, 1, kFALSE)
+      RooFit::Components( RooArgList( *bgpdf ) ),
+      RooFit::VisualizeError( *fitres, 1, kFALSE )
       );
 
-   dataplot = plt::PlotOn( // REPLOT to overlay against error fill region
+   dataplot = plt::PlotOn(// REPLOT to overlay against error fill region
       frame, dataset,
       RooFit::DrawOption( PGS_DATA )
       );// Must plot data first to set y axis title
@@ -360,9 +366,9 @@ MakeSimFitPlot(
    frame->SetMinimum( 0.3 );
    plt::SetFrame( frame );
 
-   tstar::SetFitCombStyle( modelplot ) ;
-   tstar::SetFitBGStyle( bgplot ) ;
-   tstar::SetFitBGStyle( bgerrplot ) ;
+   tstar::SetFitCombStyle( modelplot );
+   tstar::SetFitBGStyle( bgplot );
+   tstar::SetFitBGStyle( bgerrplot );
    tstar::SetSignalStyle( sigplot );
 
    const double legend_x_min = 0.57;
@@ -382,8 +388,8 @@ MakeSimFitPlot(
       leg->AddEntry( dataplot, "Data", "lp" );
    }
    leg->AddEntry( bgplot,    "Fitted Background (#pm 1#sigma)", "lf"  );
-   leg->AddEntry( modelplot, "Fitted Combine",    "l"  );
-   leg->AddEntry( sigplot,   sig_entry,           "lf" );
+   leg->AddEntry( modelplot, "Fitted Combine",                  "l"  );
+   leg->AddEntry( sigplot,   sig_entry,                         "lf" );
    leg->Draw();
 
    plt::DrawCMSLabel();

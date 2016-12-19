@@ -1,11 +1,10 @@
 {
    "Process Tags": [
-      "*RunIISpring16MiniAODv2*"
+      "*RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6*"
    ],
    "Primary Tags" : [
       "TstarTstarToTgluonTgluon*",
-      "TTJets*amcatnlo*",
-      "TT_TuneCUETP8M1_13TeV-powheg-pythia8",
+      "TT_TuneCUETP8M2T4_13TeV-powheg-pythia8",
       "ST_*-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1",
       "ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1",
       "ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1",

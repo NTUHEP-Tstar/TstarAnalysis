@@ -58,12 +58,13 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
    const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
                                   + limnamer.GetExtName( "era", "Data Postfix" );
 
-   cout << "Created RooFitMgr for data: " << datatag << endl;
-   data = new SampleRooFitMgr( datatag, cfg );
-
    for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){
       siglist.push_back( new SampleRooFitMgr( signaltag, cfg ) );
    }
+
+   cout << "Created RooFitMgr for data: " << datatag << endl;
+   data = new SampleRooFitMgr( datatag, cfg );
+
 }
 
 /******************************************************************************/

@@ -37,7 +37,7 @@ template<class T>
 void SetSignalStyle( T* x );
 
 /*******************************************************************************
-*   RooFit results styling options, see src/PlotStyle.cc 
+*   RooFit results styling options, see src/PlotStyle.cc
 *******************************************************************************/
 void SetFitBGStyle( TGraph* );
 void SetFitCombStyle( TGraph* );

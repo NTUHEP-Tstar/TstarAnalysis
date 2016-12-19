@@ -25,8 +25,10 @@ main( int argc, char* argv[] )
    desc.add_options()
       ( "channel,c", opt::value<string>(), "What channel to run" )
       ( "drawdata,d" , "option whether to draw data point" )
+      ( "era,e", opt::value<string>(), "What data era to compare to" )
    ;
 
+   compnamer.SetNamingOptions( {"era"} );
    const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
    if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
    if( parse == mgr::OptsNamer::PARSE_HELP ){ return 0; }
@@ -34,7 +36,7 @@ main( int argc, char* argv[] )
    InitSampleStatic( compnamer );
 
    const mgr::ConfigReader& master = compnamer.MasterConfig();
-   const string datatag = compnamer.GetChannelEXT( "Data Tag" );
+   const string datatag = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExtName( "era", "Data Postfix" );
 
    /*******************************************************************************
    *   Defining samples
@@ -45,6 +47,7 @@ main( int argc, char* argv[] )
    for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
       background.push_back( new SampleHistMgr( bkggroup, master ) );
       background.back()->LoadFromFile();
+      background.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
    }
 
    // Defining data settings
@@ -54,6 +57,7 @@ main( int argc, char* argv[] )
    // Declaring sample sample
    SampleHistMgr* sigmgr = new SampleHistMgr( "TstarM800", master );
    sigmgr->LoadFromFile();
+   sigmgr->Scale( mgr::SampleMgr::TotalLuminosity() );
 
    /*******************************************************************************
    *   Making comparison plots

@@ -1,7 +1,6 @@
 {
    "___Comment___":"""-----------------------------------------------------------
    #    Single Boson production
-   #       Note: K Factor set at K Factor
    #    Reference https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#W_jets
    -----------------------------------------------------------------------------""",
    "WJets_100_200": {
@@ -52,7 +51,7 @@
          "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    },
-   "WJets_800_1200": {
+   "___WJets_800_1200": {
       "Is Data": false,
       "Latex Name" : "\\PW+Jets, \\HT\\in [800,1200)\\GeVc ",
       "Root Name": "W+jets ( 800 #leq H_{T} #leq 1200)",
@@ -124,7 +123,7 @@
          "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    },
-   "ZJets_600_Inf": {
+   "___ZJets_600_Inf": {
       "Is Data": false,
       "Latex Name" : "\\Z+Jets, \\HT\\in [600,\\infty)\\GeVc",
       "Root Name": "Z+jets ( 600 #leq H_{T} #leq #infty)",

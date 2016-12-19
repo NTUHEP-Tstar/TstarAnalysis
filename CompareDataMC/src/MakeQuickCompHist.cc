@@ -66,7 +66,7 @@ MakeComparePlot(
          datarel,
          l,
          "quickcomp",
-         {histname, label,compnamer.InputStr("era")}
+         {histname, label }
          );
 
       delete stack;

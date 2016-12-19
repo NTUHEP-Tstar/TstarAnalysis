@@ -104,6 +104,8 @@ MakeFullKeysPdf( SampleRooFitMgr* sample )
    }
 
    vector<std::pair<std::string, std::string> > stitchlist;
+   vector<string> simplelist;
+   simplelist.push_back( KeyPdfName("") );
 
    for( const auto& source : uncsource ){
       stitchlist.push_back(
@@ -112,63 +114,24 @@ MakeFullKeysPdf( SampleRooFitMgr* sample )
             KeyPdfName( source + "Down" )
             )
          );
+      simplelist.push_back( KeyPdfName( source + "Up" ) );
+      simplelist.push_back( KeyPdfName( source + "Down" ) );
    }
 
+
    // Making pdf stitching.
+   return MakeSimpleStitchPdf(
+      sample,
+      StitchKeyPdfName,
+      simplelist
+      );
+
+   // Complex version doesn't work for now
    return MakeMultiJoinPdf(
       sample,
       StitchKeyPdfName,
-      KeyPdfName( "" ),
+      KeyPdfName(""),
       stitchlist
-      );
+   );
 
-   /* Joining via Better PDF definitions is still not working
-
-      // Joining function together
-      RooAbsPdf* currentpdf   = sample->Pdf( KeyPdfName( "" ) );// Getting central value pdf
-      RooAbsReal* currentnorm = sample->Func( KeyNormName( "" ) );
-
-      for( const auto& source : uncsource ){
-      RooAbsPdf* uppdf     = sample->Pdf( KeyPdfName( source+"Up" ) );
-      RooAbsPdf* downpdf   = sample->Pdf( KeyPdfName( source+"Down" ) );
-      RooAbsReal* upnorm   = sample->Func( KeyNormName( source + "Up" ) );
-      RooAbsReal* downnorm = sample->Func( KeyNormName( source + "Down" ) );
-
-      // Typing required for binFunction
-      RooAbsReal* intvar = sample->NewVar( source+"coeff", 0, -1, 1 );
-
-      // Creating pdf object for shape
-
-      const RooArgList pdflist = RooArgList( *intvar, *currentpdf, *uppdf, *downpdf );
-
-      RooAbsPdf* joinpdf = new RooGenericPdf(
-         JoinPdfName( source ).c_str(),
-         JoinPdfName( source ).c_str(),
-         "@1 * ( 1 - TMath::Abs(@0))  + @2 * @0 * ( @0 > 1 ) + @3 * @0 * (@0 < 1)",
-         pdflist
-         );
-      sample->AddPdf( joinpdf );
-
-      // Making requirements for coefficients
-      const RooArgList normlist = RooArgList( *intvar, *currentnorm, *upnorm, *downnorm );
-
-      // Creating RooRealVar for normalization
-      RooAbsReal* joinnorm = new RooFormulaVar(
-         JoinNormName( source ).c_str(),
-         JoinNormName( source ).c_str(),
-         "@1 * ( 1 - TMath::Abs(@0))  + @2 * @0 * ( @0 > 1 ) + @3 * @0 * (@0 < 1)",
-         normlist
-         );
-      sample->AddFunc( joinnorm );
-
-      // Setting interval to constant for fixing central value
-      ( (RooRealVar*)( intvar ) )->setConstant( kTRUE );
-
-      // Shifting for next
-      currentpdf  = joinpdf;
-      currentnorm = joinnorm;
-      }
-
-      return currentpdf;
-    */
 }

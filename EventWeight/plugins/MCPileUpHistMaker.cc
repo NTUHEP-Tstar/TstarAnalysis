@@ -57,9 +57,10 @@ MCPileUpHistMaker::MCPileUpHistMaker( const edm::ParameterSet& iConfig ) :
    _pusrc( GETTOKEN( iConfig, std::vector<PileupSummaryInfo>, "pusrc" ) )
 {
    edm::Service<TFileService> _fs;
-   _pileuphist = _fs->make<TH1D>( "pu", "pu", 50, 0, 50 );
+   _pileuphist = _fs->make<TH1D>( "pu", "pu", 100, 0, 100 );
 }
 
+/******************************************************************************/
 
 MCPileUpHistMaker::~MCPileUpHistMaker()
 {

@@ -22,6 +22,8 @@ extern TstarNamer reconamer;
 *******************************************************************************/
 extern void ComparePlot( const std::string&, const std::vector<CompareHistMgr*> );
 extern void MatchPlot( CompareHistMgr* );
-
+extern void MatchPlot1D( CompareHistMgr* );
+extern void MatchPlot2D( CompareHistMgr* );
+extern void MatchMassPlot( CompareHistMgr* );
 
 #endif/* end of include guard: TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP */

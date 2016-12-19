@@ -15,7 +15,7 @@
          "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0.root"
       ]
    },
-   "TTW_Quark": {
+   "___TTW_Quark": {
       "Is Data": false,
       "Latex Name" : "\\ttbar+(\\PW\\rightarrow\\PQq\\PAQq)",
       "Root Name": "t#bar{t} + W#rightarrow q#bar{q}",

@@ -1,28 +1,27 @@
 {
-    "___Comment___": """-----------------------------------------------------------
-    #   Data sector
-    -------------------------------------------------------------------------------""",
+   "___Comment___": """-----------------------------------------------------------
+   # Data sector
+   ------------------------------------------------------------------------------""",
 
+   "Run2015D": {
+      "Is Data": true,
+      "Latex Name": "Run2015D",
+      "Root Name": "Run2015D",
+      "Cross Section": [0, 0, 0],
+      "K Factor": [1.0],
+      "EDM Files": [
+         "SingleElectron_Run2015D-16Dec2015-v1_*.root"
+      ]
+   },
 
-    "Run2015D": {
-        "Is Data": true,
-        "Latex Name": "Run2015D",
-        "Root Name": "Run2015D",
-        "Cross Section": [0, 0, 0],
-        "K Factor": [1.0],
-        "EDM Files": [
-            "SingleElectron_Run2015D-16Dec2015-v1_*.root"
-        ]
-    },
-
-    "Run2015C": {
-        "Is Data": true, 
-        "Latex Name": "Run2015C",
-        "Root Name": "Run2015C",
-        "Cross Section": [0, 0, 0],
-        "K Factor": [1.0],
-        "EDM Files": [
-            "SingleElectron_Run2015C_25ns-16Dec2015-v1_*.root"
-        ]
-    }
+   "Run2015C": {
+      "Is Data": true,
+      "Latex Name": "Run2015C",
+      "Root Name": "Run2015C",
+      "Cross Section": [0, 0, 0],
+      "K Factor": [1.0],
+      "EDM Files": [
+         "SingleElectron_Run2015C_25ns-16Dec2015-v1_*.root"
+      ]
+   }
 }

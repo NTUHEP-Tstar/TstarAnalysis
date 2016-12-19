@@ -15,7 +15,7 @@
 
 #include "DataFormats/FWLite/interface/Handle.h"
 
-#include "RooDataSet.h"
+#include <boost/format.hpp>
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -46,27 +46,33 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
    fwlite::Handle<RecoResult> chiHandle;
 
    const double sampleweight = sample.IsRealData()?
-      1:mgr::SampleMgr::TotalLuminosity() * sample.CrossSection() / sample.OriginalEventCount();
+      1.0 : mgr::SampleMgr::TotalLuminosity() * sample.CrossSection().CentralValue() / sample.OriginalEventCount();
    const auto& pdfidgroup    = GetPdfIdGrouping( sample );
 
    unsigned i = 1;
 
    mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
 
+   boost::format statusline("\rSample [%s|%s], Event[%6u/%6u] (%lf %lf %lf)...");
+
    for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
       const auto& ev = myevt.Base();
 
-      printf( "\rSample [%s|%s], Event[%6u/%6u]...",
-         Name().c_str(),
-         sample.Name().c_str(),
-         i,
-         myevt.size() );
-      fflush( stdout );
 
       const double weight
          = GetEventWeight( ev )
            * sampleweight
            * GetSampleEventTopPtWeight( sample, ev );
+
+      cout << statusline
+         % Name()
+         % sample.Name()
+         % i
+         % myevt.size()
+         % GetEventWeight(ev)
+         % sampleweight
+         % GetSampleEventTopPtWeight(sample,ev)
+         << flush;
 
       // Getting event weight
       chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
@@ -120,8 +126,12 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
    // Recalculating selection efficiency based on number of events pushed to central dataset
    sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
 
-   printf( "Done!\n" );
-   fflush( stdout );
+   cout << "Done!" << endl;
+
+   for( const auto& setname : SetNameList() ){
+      cout << "DataSet " << setname << ":" << DataSet(setname)->sumEntries() << endl;
+   }
+
 }
 
 /******************************************************************************/

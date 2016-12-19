@@ -61,6 +61,7 @@ MakeJoinPdf(
       RooArgList( *coeff, *central, *up, *down )
       );
 
+   coeff->setConstant(kTRUE);
    sample->AddPdf( joinpdf );
    return joinpdf;
 }

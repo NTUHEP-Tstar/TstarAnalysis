@@ -53,8 +53,8 @@ def main():
             out, err = p.communicate()
             masterfilelist = [ os.path.dirname(filequery)+'/'+x for x in  out.split()]
 
-            filechunks = [masterfilelist[i:i + 8]
-                           for i in range(0, len(masterfilelist), 8)]
+            filechunks = [masterfilelist[i:i + 3]
+                           for i in range(0, len(masterfilelist), 3)]
 
             for index, file_list in enumerate(filechunks):
                 sample_input = ','.join(file_list)

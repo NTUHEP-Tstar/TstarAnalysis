@@ -54,13 +54,13 @@ extern const vector<string> histnamelist = {
 };
 
 extern const vector<ErrorSource> histerrlist = {
-   { "jec",    "Jet energy correction",    ""                       },
-   { "jer",    "Jet energy resolution",    ""                       },
-   { "pu",     "Pileup #sigma_{mini}",     "4.6%"                   },
-   { "btag",   "b-tag scale factor",       ""                       },
-   { "lepton", "lepton scale factor",      ""                       },
-   { "pdf",    "PDF uncertainty",          ""                       },
-   { "scale",  "QCD scale variation",      ""                       }
+   { "jec",    "Jet energy correction",    ""                                },
+   { "jer",    "Jet energy resolution",    ""                                },
+   { "pu",     "Pileup #sigma_{mini}",     "4.6%"                            },
+   { "btag",   "b-tag scale factor",       ""                                },
+   { "lepton", "lepton scale factor",      ""                                },
+   { "pdf",    "PDF uncertainty",          ""                                },
+   { "scale",  "QCD scale variation",      ""                                }
 };
 
 
@@ -98,7 +98,7 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
 
    const auto& pdfidgroup    = GetPdfIdGrouping( sample );
    const double sampleweight = sample.IsRealData() ?
-                               1. : sample.CrossSection() / sample.OriginalEventCount();
+                               1. : sample.CrossSection().CentralValue() / sample.OriginalEventCount();
 
    double weightsum = 0;
    unsigned i       = 1;
@@ -273,12 +273,12 @@ SampleErrHistMgr::FillFromSample()
 {
    for( auto& sample : SampleList() ){
       InitSampleFromEDM( sample );
-      mgr::SaveCacheToFile( sample, SampleCacheFile(sample) );
+      mgr::SaveCacheToFile( sample, SampleCacheFile( sample ) );
       FillFromSample( sample );
    }
 
-   const string histfile = compnamer.CustomFileName( "root" , {"fullhistcache" });
-   SaveToFile( histfile );
+   const string histfile = compnamer.CustomFileName( "root", {"fullhistcache"} );
+   HistMgr::SaveToFile( histfile );
 }
 
 /******************************************************************************/
@@ -287,10 +287,12 @@ void
 SampleErrHistMgr::LoadFromFile()
 {
    for( auto& sample : SampleList() ){
-      mgr::LoadCacheFromFile( sample, SampleCacheFile(sample) );
+      mgr::LoadCacheFromFile( sample, SampleCacheFile( sample ) );
    }
 
-   HistMgr::LoadFromFile( compnamer.CustomFileName( "root" , {"fullhistcache"} ) );
+   const string histfile = compnamer.CustomFileName( "root" , {"fullhistcache"});
+   cout << "Loadind histograms for histogram manager" << Name() << " from file " << histfile << endl;
+   HistMgr::LoadFromFile( histfile );
 }
 
 
@@ -298,5 +300,4 @@ SampleErrHistMgr::LoadFromFile()
 
 SampleErrHistMgr::~SampleErrHistMgr()
 {
-
 }

@@ -52,7 +52,7 @@ options.parseArguments()
 process = cms.Process("TopLike")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(options.maxEvents)
 )

@@ -8,6 +8,8 @@
 #include "TstarAnalysis/CompareDataMC/interface/MakeErrHist.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleErrHistMgr.hpp"
 
+#include "ManagerUtils/Maths/interface/ParameterArithmetic.hpp"
+#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "TstarAnalysis/Common/interface/NameParse.hpp"
 #include "TstarAnalysis/Common/interface/PlotStyle.hpp"
@@ -57,7 +59,7 @@ MakeFullComparePlot(
          l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
       }
 
-      l->AddEntry( bkgerror, "Bkg. error (1#sigma)",                                                              "fl" );
+      l->AddEntry( bkgerror, "Bkg. error (1#sigma)",                                                                    "fl" );
       l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
       MakePlot(
@@ -200,10 +202,25 @@ MakeBkgError(
       expyield.RelLowerError()
       );
 
+
+   if( histname == "MET" ){
+
+      for( int i = 1; i <= central->GetSize(); ++i ){
+         cout << i << " " << central->GetBinContent( i ) << " " << central->GetBinError( i ) << endl;
+
+         for( const auto pair : errorhistlist ){
+            cout << "\t" <<  pair.first->GetBinContent( i ) << " " << pair.second->GetBinContent( i ) << endl;
+         }
+      }
+   }
+
    for( int i = 1; i <= central->GetSize(); ++i ){
       const double bincont = central->GetBinContent( i );
       const double binerr  = central->GetBinError( i );
-      Parameter binerror(
+
+      vector<Parameter> errlist;
+
+      errlist.emplace_back(
          1,
          binerr / bincont,
          binerr / bincont
@@ -214,18 +231,22 @@ MakeBkgError(
          const double downbincont = pair.second->GetBinContent( i );
          const double upabserr    = std::max( 0.0, upbincont-bincont );
          const double downabserr  = std::max( 0.0, bincont-downbincont );
-         const Parameter errorparm( 1, upabserr/bincont, downabserr/bincont );
-         binerror *= errorparm;
+         errlist.emplace_back( 1, upabserr/bincont, downabserr/bincont );
       }
 
       // Additional errors
-      binerror *= normerr;// cross section and selection eff
-      binerror *= Parameter( 1, 0.046, 0.046 );// lumierror
-      binerror *= Parameter( 1, 0.03, 0.03 );// leptonic errors
+      errlist.push_back( normerr );// cross section and selection eff
+      errlist.emplace_back( 1, 0.046, 0.046 );// lumierror
+      errlist.emplace_back( 1, 0.03,  0.03 );// leptonic errors
+
+      const Parameter binerror = Prod( errlist );
 
       if( bincont != 0 ){
          central->SetBinError( i, bincont * binerror.RelAvgError() );
+      } else {
+         central->SetBinError( i, 0 );
       }
+
    }
 
 
@@ -293,9 +314,9 @@ PlotErrCompare(
 
    // Drawing legend
    const double legxmin = 0.5;
-   const double legymin = 0.7 ;
-   TLegend* tl        = plt::NewLegend( legxmin, legymin );
-   const string label = ( err.label != "" ) ? err.label : "1#sigma";
+   const double legymin = 0.7;
+   TLegend* tl          = plt::NewLegend( legxmin, legymin );
+   const string label   = ( err.label != "" ) ? err.label : "1#sigma";
    tl->AddEntry( central, "Central Value",                               "l" );
    tl->AddEntry( errup,   ( err.rootname + "(+" + label + ")" ).c_str(), "l" );
    tl->AddEntry( errdown, ( err.rootname + "(-" + label + ")" ).c_str(), "l" );
@@ -330,11 +351,11 @@ PlotErrCompare(
 
 
    TPaveText* tb = plt::NewTextBox(
-      PLOT_X_MIN + 0.05 ,
-      PLOT_Y_MAX - (TEXT_FONT_SIZE*2.0)/(DEFAULT_CANVAS_HEIGHT),
+      PLOT_X_MIN + 0.05,
+      PLOT_Y_MAX - ( TEXT_FONT_SIZE*2.0 )/( DEFAULT_CANVAS_HEIGHT ),
       PLOT_X_MIN + 0.40,
       PLOT_Y_MAX - 0.025
-   );
+      );
    tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
    tb->Draw();
 

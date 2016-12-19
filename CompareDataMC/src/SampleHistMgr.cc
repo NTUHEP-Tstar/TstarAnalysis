@@ -92,7 +92,6 @@ SampleHistMgr::define_hist()
    AddHist( "LepPtAll",          "Lepton p_{T} (RECO+CUT+Trigger weight)",              "GeV/c",     48,  20,    500 );
    AddHist( "LepEtaAll",         "Lepton #eta (RECO+CUT+Trigger weight)",               "",          75,   -2.5, 5.0 );
 
-
    AddHist( "Jet1Pt_NoLep",      "Leading Jet p_{T} (w/o lepton weight)",               "GeV/c",     60,  30,   1000 );
    AddHist( "TstarMass_NoLep",   "M_{t+g} (w/o lepton weight)",                         "GeV/c^{2}", 50,   0,   2000 );
 }
@@ -110,7 +109,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
    fwlite::Handle<RecoResult> chisqHandle;
 
    const double sampleweight = sample.IsRealData() ?
-                               1. : sample.CrossSection() / sample.OriginalEventCount();
+                               1. : sample.CrossSection().CentralValue() / sample.OriginalEventCount();
 
    unsigned i = 1;
    boost::format processform( "\rSample [%s|%s] , Event[%u/%llu]..." );

@@ -40,4 +40,4 @@ eos_remoteprefix = 'root://eoscms.cern.ch//'
 #   CMSRUN settings
 #-------------------------------------------------------------------------------
 data_global_tag = "80X_dataRun2_2016SeptRepro_v4"
-mc_global_tag   = "80X_mcRun2_asymptotic_2016_miniAODv2_v1"
+mc_global_tag   = "80X_mcRun2_asymptotic_2016_TrancheIV_v6"

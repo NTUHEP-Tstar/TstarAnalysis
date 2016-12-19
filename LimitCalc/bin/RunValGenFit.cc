@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
 
    InitSampleStatic( limnamer );
    InitRooFitSettings( limnamer );
-   InitSingle( data,   limnamer.GetChannelEXT( "Data Tag" ) );
+   InitSingle( data,   limnamer.GetChannelEXT( "Data Prefix" ) + limnamer.GetExtName("era", "Data Postfix") );
    InitSingle( sigmgr, limnamer.GetInput( "mass" ) );
    InitMC( mc );
 

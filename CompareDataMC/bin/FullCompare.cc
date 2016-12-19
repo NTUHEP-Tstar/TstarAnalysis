@@ -47,7 +47,9 @@ main( int argc, char* argv[] )
    // Defining data settings
    SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
    data->LoadFromFile();
-   cout << data->ExpectedYield() << endl;
+   cout << data->ExpectedYield() << "|"
+        << data->Hist("MET")->GetName() << " "
+        << data->Hist("MET")->Integral() << endl;
 
 
    // Defining out channels see data/Groups.json for sample settings
@@ -57,10 +59,10 @@ main( int argc, char* argv[] )
       background.push_back( new SampleErrHistMgr( bkggroup, master ) );
       background.back()->LoadFromFile();
       background.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
-      const string firstname = background.back()->AvailableHistList().front();
       cout
          << background.back()->ExpectedYield()  << "|"
-         << background.back()->Hist( firstname )->Integral() << endl;
+         << background.back()->Hist( "MET" )->GetName() << " "
+         << background.back()->Hist( "MET" )->Integral() << endl;
 
    }
 

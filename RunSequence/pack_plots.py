@@ -8,7 +8,7 @@
 #*******************************************************************************
 import os, glob, sys
 
-dirlist=["CompareDataMC","TstarMassReco", "LimitCalc" ]
+dirlist=["CompareDataMC","MassRecoCompare", "LimitCalc" ]
 
 tstardir=os.environ["CMSSW_BASE"] + '/src/TstarAnalysis/'
 

@@ -20,13 +20,13 @@ xseclist="69200 72383 66016 62000"
 
 for xsec in $xseclist ; do
    pileupCalc.py \
-     -i data/lumi_mask_latest.json           \
+     -i data/lumimask_latest.json            \
      --inputLumiJSON data/pileup_latest.txt  \
      --calcMode true                         \
      --minBiasXsec ${xsec}                   \
-     --maxPileupBin  50                      \
-     --numPileupBins 50                      \
+     --maxPileupBin  100                     \
+     --numPileupBins 100                     \
      results/pileuphist_${xsec}.root
 
-   ./MakePileupWeights $xsec
+   # ./MakePileupWeights $xsec
 done

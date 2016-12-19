@@ -18,8 +18,8 @@ script_template = """
 #!/bin/bash
 cd  {0}/RunSequence/
 eval `scramv1 runtime -sh`
-edmCopyPickMerge inputFiles={1} outputFile={2}
-xrdcp -f {2} root://{3}//{4}
+edmCopyPickMerge inputFiles={1} outputFile={2} &> /dev/null
+xrdcp -f {2} root://{3}//{4} &> /dev/null
 """
 
 def main():
@@ -38,11 +38,16 @@ def main():
         dataset_list = f.readlines()
         for dataset in dataset_list :
             dataset  = dataset.strip() ## Removing redundant characeter like '\n'
-
+            splitting= 0
+            if myname.IsData( dataset ):
+                splitting = 32
+            else:
+                splitting = 8
             print dataset
             crabfilelist = myname.GetCrabOutputFileList('tstar',dataset,opt.mode)
-            crabfilechunk =  [crabfilelist[i:i + 8]
-                           for i in range(0, len(crabfilelist), 8)]
+            crabfilechunk =  [crabfilelist[i:i + splitting]
+                           for i in range(0, len(crabfilelist), splitting)]
+
 
             for index,crabfileset in enumerate(crabfilechunk):
                 script    = myname.GetScriptFile( 'retrieve', dataset, opt.mode, index)

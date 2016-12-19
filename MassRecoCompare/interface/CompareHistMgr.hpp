@@ -33,10 +33,24 @@ public:
    // Static member functions for histogram binning
    static int GetBinPosition( tstar::Particle_Label x );
 
+   static std::string CorrPermMassHistName(
+      const std::string& name,
+      const int     corr
+   );
+
 private:
    fwlite::Handle<RecoResult>  _resulthandle;
 
    virtual void define_hist();// From HistMgr
+
+   void AddCorrPermMassHist(
+      const std::string& name,
+      const std::string& xtitle,
+      const std::string& unit,
+      const unsigned bincount,
+      const double   xmin,
+      const double   xmax
+   );
 
 };
 

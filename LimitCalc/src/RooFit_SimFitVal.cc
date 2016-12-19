@@ -76,6 +76,8 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
       psuedoset->append( *sigset );
       delete sigset;
 
+      MakeFullKeysPdf( sigmgr );
+
       // Passes ownership to data
       data->AddDataSet( psuedoset );
       data->SetConstant( kFALSE );
