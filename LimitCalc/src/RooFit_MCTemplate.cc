@@ -46,7 +46,7 @@ MakeTemplate(
 
    for( auto& sig : signal_list ){
       pdflist.push_back( MakeFullKeysPdf( sig ) );
-      funclist.push_back( sig->Func(StitchKeyNormName));
+      // funclist.push_back( sig->Func(StitchKeyNormName));
    }
 
    MakeFullTemplate( bg );
@@ -133,21 +133,21 @@ MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMg
    const Parameter sigstatunc = sig->Sample().SelectionEfficiency();
    const Parameter bkgstatunc(1,0.03,0.03);// includes uncertaintly from cross section and selection effiency
 
-   const Parameter sigjecunc   = GetMCNormError( sig, "jecup",    "jecdown"    );
-   const Parameter sigjerunc   = GetMCNormError( sig, "jetresup", "jetresdown" );
-   const Parameter siglepunc   = GetMCNormError( sig, "lepup",    "lepdown"    );
-   const Parameter sigbtagunc  = GetMCNormError( sig, "btagup",   "btagdown"   );
-   const Parameter sigpuunc    = GetMCNormError( sig, "puup",     "pudown"     );
-   const Parameter sigpdfunc   = GetMCNormError( sig, "pdfup",    "pdfdown"    );
-   const Parameter sigscaleunc = GetMCNormError( sig, "scaleup",  "scaledown"  );
+   const Parameter sigjecunc   = GetMCNormError( sig, "jecUp",    "jecDown"    );
+   const Parameter sigjerunc   = GetMCNormError( sig, "jetresUp", "jetresDown" );
+   const Parameter siglepunc   = GetMCNormError( sig, "lepUp",    "lepDown"    );
+   const Parameter sigbtagunc  = GetMCNormError( sig, "btagUp",   "btagDown"   );
+   const Parameter sigpuunc    = GetMCNormError( sig, "puUp",     "puDown"     );
+   const Parameter sigpdfunc   = GetMCNormError( sig, "pdfUp",    "pdfDown"    );
+   const Parameter sigscaleunc = GetMCNormError( sig, "scaleUp",  "scaleDown"  );
 
-   const Parameter bkgjecunc   = GetMCNormError( bg, "jecup",    "jecdown"    );
-   const Parameter bkgjerunc   = GetMCNormError( bg, "jetresup", "jetresdown" );
-   const Parameter bkglepunc   = GetMCNormError( bg, "lepup",    "lepdown"    );
-   const Parameter bkgbtagunc  = GetMCNormError( bg, "btagup",   "btagdown"   );
-   const Parameter bkgpuunc    = GetMCNormError( bg, "puup",     "pudown"     );
-   const Parameter bkgpdfunc   = GetMCNormError( bg, "pdfup",    "pdfdown"    );
-   const Parameter bkgscaleunc = GetMCNormError( bg, "scaleup",  "scaledown"  );
+   const Parameter bkgjecunc   = GetMCNormError( bg, "jecUp",    "jecDown"    );
+   const Parameter bkgjerunc   = GetMCNormError( bg, "jetresUp", "jetresDown" );
+   const Parameter bkglepunc   = GetMCNormError( bg, "lepUp",    "lepDown"    );
+   const Parameter bkgbtagunc  = GetMCNormError( bg, "btagUp",   "btagDown"   );
+   const Parameter bkgpuunc    = GetMCNormError( bg, "puUp",     "puDown"     );
+   const Parameter bkgpdfunc   = GetMCNormError( bg, "pdfUp",    "pdfDown"    );
+   const Parameter bkgscaleunc = GetMCNormError( bg, "scaleUp",  "scaleDown"  );
 
    PrintNuisanceFloats( cardfile, "Lumi",    "lnN", lumi,        lumi        );
    PrintNuisanceFloats( cardfile, "lepsys",  "lnN", lepunc,      lepunc      );
@@ -182,9 +182,9 @@ MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMg
 }
 
 
-// ------------------------------------------------------------------------------
-//   Plotting fitting results
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Plotting fit results
+*******************************************************************************/
 void
 MakeTemplatePlot(
    SampleRooFitMgr* data,

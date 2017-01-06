@@ -13,6 +13,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
 
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 #include "TstarAnalysis/Common/interface/BTagChecker.hpp"
@@ -91,6 +92,9 @@ SampleHistMgr::define_hist()
    AddHist( "LepEtaGC",          "Lepton #eta (RECO+CUT weight only)",                  "",          75,   -2.5, 5.0 );
    AddHist( "LepPtAll",          "Lepton p_{T} (RECO+CUT+Trigger weight)",              "GeV/c",     48,  20,    500 );
    AddHist( "LepEtaAll",         "Lepton #eta (RECO+CUT+Trigger weight)",               "",          75,   -2.5, 5.0 );
+
+   // Muon Isolation factor
+   AddHist( "MuPfIso",           "Muon P.F. Isolation",                                 "",         100,   0,    1.5 );
 
    AddHist( "Jet1Pt_NoLep",      "Leading Jet p_{T} (w/o lepton weight)",               "GeV/c",     60,  30,   1000 );
    AddHist( "TstarMass_NoLep",   "M_{t+g} (w/o lepton weight)",                         "GeV/c^{2}", 50,   0,   2000 );
@@ -179,6 +183,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
       for( const auto& mu : *muonHandle ){
          Hist( "LepPt"      )->Fill( mu.pt(), total_weight );
          Hist( "LepEta"     )->Fill( mu.eta(), total_weight );
+         Hist( "MuPfIso"    )->Fill( MuPfIso(mu), total_weight );
          Hist( "LepNonePt"  )->Fill( mu.pt(), total_weight / muonweight );
          Hist( "LepNoneEta" )->Fill( mu.eta(), total_weight / muonweight );
       }
@@ -195,7 +200,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
          Hist( "LepPtGC"    )->Fill( el.pt(),  total_weight / elecweight * elecrecoweight * eleccutweight );
          Hist( "LepEtaGC"   )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * eleccutweight );
          Hist( "LepPtAll"   )->Fill( el.pt(),  total_weight / elecweight * elecrecoweight * eleccutweight * electrgweight );
-         Hist( "LepEtaAll"  )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * eleccutweight* electrgweight );
+         Hist( "LepEtaAll"  )->Fill( el.eta(), total_weight / elecweight * elecrecoweight * eleccutweight * electrgweight );
       }
 
       cout << pileup_weight << " "

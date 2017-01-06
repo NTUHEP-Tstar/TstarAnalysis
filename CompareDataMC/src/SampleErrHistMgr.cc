@@ -15,6 +15,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
@@ -54,13 +55,13 @@ extern const vector<string> histnamelist = {
 };
 
 extern const vector<ErrorSource> histerrlist = {
-   { "jec",    "Jet energy correction",    ""                                },
-   { "jer",    "Jet energy resolution",    ""                                },
-   { "pu",     "Pileup #sigma_{mini}",     "4.6%"                            },
-   { "btag",   "b-tag scale factor",       ""                                },
-   { "lepton", "lepton scale factor",      ""                                },
-   { "pdf",    "PDF uncertainty",          ""                                },
-   { "scale",  "QCD scale variation",      ""                                }
+   { "jec",    "Jet energy correction",    ""                                                           },
+   { "jer",    "Jet energy resolution",    ""                                                           },
+   { "pu",     "Pileup #sigma_{mini}",     "4.6%"                                                       },
+   { "btag",   "b-tag scale factor",       ""                                                           },
+   { "lepton", "lepton scale factor",      ""                                                           },
+   { "pdf",    "PDF uncertainty",          ""                                                           },
+   { "scale",  "QCD scale variation",      ""                                                           }
 };
 
 
@@ -81,6 +82,7 @@ SampleErrHistMgr::define_hist()
    AddErrHists( "Jet2Eta",   "Second Leading Jet #eta",   "",           75,  -2.5, 5.0 );
    AddErrHists( "MET",       "Missing transverse energy", "GeV",        50,  0,    500 );
    AddErrHists( "TstarMass", "M_{t+g}",                   "GeV/c^{2}", 100,  0,   3000 );
+   AddErrHists( "MuPfIso",   "Muon PF Isolation",         "",          100,  0,   0.15 );
 }
 
 /******************************************************************************/
@@ -131,8 +133,9 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
       }
 
       for( const auto& mu : muonHandle.ref() ){
-         FillWeightErrHists( "LepPt",  mu.pt(),  sampleweight, sample, ev, pdfidgroup, true );
-         FillWeightErrHists( "LepEta", mu.eta(), sampleweight, sample, ev, pdfidgroup, true );
+         FillWeightErrHists( "LepPt",   mu.pt(),       sampleweight, sample, ev, pdfidgroup, true );
+         FillWeightErrHists( "LepEta",  mu.eta(),      sampleweight, sample, ev, pdfidgroup, true );
+         FillWeightErrHists( "MuPfIso", MuPfIso( mu ), sampleweight, sample, ev, pdfidgroup, true );
       }
 
       FillWeightErrHists( "MET",     metHandle->front().pt(),  sampleweight, sample, ev, pdfidgroup, true );
@@ -290,7 +293,7 @@ SampleErrHistMgr::LoadFromFile()
       mgr::LoadCacheFromFile( sample, SampleCacheFile( sample ) );
    }
 
-   const string histfile = compnamer.CustomFileName( "root" , {"fullhistcache"});
+   const string histfile = compnamer.CustomFileName( "root", {"fullhistcache"} );
    cout << "Loadind histograms for histogram manager" << Name() << " from file " << histfile << endl;
    HistMgr::LoadFromFile( histfile );
 }

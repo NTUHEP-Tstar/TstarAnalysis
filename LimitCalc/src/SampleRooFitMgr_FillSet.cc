@@ -12,7 +12,9 @@
 
 #include "ManagerUtils/Maths/interface/Efficiency.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
+#include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
 #include <boost/format.hpp>
@@ -44,6 +46,7 @@ void
 SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
    fwlite::Handle<RecoResult> chiHandle;
+   fwlite::Handle<vector<pat::Muon>> muonHandle;
 
    const double sampleweight = sample.IsRealData()?
       1.0 : mgr::SampleMgr::TotalLuminosity() * sample.CrossSection().CentralValue() / sample.OriginalEventCount();
@@ -77,6 +80,12 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       // Getting event weight
       chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
       if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
+
+      // Cut by Muon PF Iso
+      muonHandle.getByLabel( ev, "skimmedPatMuons" );
+      if( muonHandle->size() == 1 && MuPfIso( muonHandle->back() ) > 0.20 ){
+         continue;
+      }
 
       // Points to insert for all mass data types
       const double tstarmass = chiHandle->TstarMass();

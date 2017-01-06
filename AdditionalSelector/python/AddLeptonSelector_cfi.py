@@ -8,8 +8,8 @@ ElectronSelector = cms.EDFilter(
     trgobjsrc   = cms.InputTag("selectedPatTrigger"),
     reqtrigger  = cms.VPSet(
         cms.PSet(
-            hltname    = cms.string('HLT_Ele27_WPTight_Gsf_v*'),
-            filtername = cms.string('hltEle27WPTightGsfTrackIsoFilter'),
+            hltname    = cms.string('HLT_Ele32_eta2p1_WPTight_Gsf_v*'),
+            filtername = cms.string('hltEle32WPTightGsfTrackIsoFilter'),
         )
     )
 )

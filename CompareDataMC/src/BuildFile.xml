@@ -11,6 +11,7 @@
 <use name="ManagerUtils/SampleMgr"/>
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PlotUtils"/>
+<use name="ManagerUtils/PhysUtils"/>
 
 <use name="TstarAnalysis/RootFormat"/>
 <use name="TstarAnalysis/Common"/>

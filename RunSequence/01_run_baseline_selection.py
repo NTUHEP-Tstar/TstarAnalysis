@@ -73,7 +73,7 @@ def MakeCrabFile( dataset, opt ):
     else:
         global_tag = mysetting.mc_global_tag
         splittype  = 'LumiBased'
-        splitunit  = 480 * 6 * 60  # target time in seconds
+        splitunit  = 480 * 4 * 60  # target time in seconds
         splitunit  = splitunit / 0.07   # real time per event
         splitunit  = splitunit / 200 #    average number of events in lumi
 
