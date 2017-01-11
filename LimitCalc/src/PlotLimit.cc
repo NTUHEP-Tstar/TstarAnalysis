@@ -118,13 +118,21 @@ MakeLimitPlot()
    tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.09, fitmethod.c_str() );
    tl.DrawLatex( PLOT_X_MIN+0.02, PLOT_Y_MAX-0.16, funcname.c_str() );
 
-   Parameter explim = GetInterSect( theorygraph, twosiggraph );
-   Parameter obslim = GetInterSect( theorygraph, obsgraph );
+   const Parameter explim_err = GetInterSect( theorygraph, twosiggraph );
+   const Parameter obslim_err = GetInterSect( theorygraph, obsgraph );
+   const string explim_str = FloatingPoint( explim_err, 1 );
+   const string obslim_str = FloatingPoint( obslim_err.CentralValue(), 1 );
+
+
    tl.SetTextAlign( TOP_RIGHT );
-   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min - 0.02, boost::str( explimfmt % FloatingPoint( explim, 1 ) ).c_str() );
+   tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min - 0.02, boost::str( explimfmt % explim_str ).c_str() );
    if( limnamer.HasOption("drawdata") ){
-      tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min - 0.08, boost::str( obslimfmt % FloatingPoint( obslim.CentralValue() , 1 ) ).c_str() ) ;
+      tl.DrawLatex( PLOT_X_MAX-0.02, legend_y_min - 0.08, boost::str( obslimfmt % obslim_str ).c_str() ) ;
    }
+
+   //Debug output
+   cout <<  explim_err.CentralValue() << " " << explim_err.AbsUpperError() << " " << explim_str << endl;
+   cout <<  obslim_err.CentralValue() << " " << obslim_err.AbsUpperError() << " " << obslim_str << endl;
 
 
    // ----- Saving and cleaning up  ------------------------------------------------

@@ -38,37 +38,43 @@ def main():
         dataset_list = f.readlines()
         for dataset in dataset_list :
             dataset  = dataset.strip() ## Removing redundant characeter like '\n'
-            splitting= 0
-            if myname.IsData( dataset ):
-                splitting = 32
-            else:
-                splitting = 8
-            print dataset
             crabfilelist = myname.GetCrabOutputFileList('tstar',dataset,opt.mode)
-            crabfilechunk =  [crabfilelist[i:i + splitting]
-                           for i in range(0, len(crabfilelist), splitting)]
 
-
-            for index,crabfileset in enumerate(crabfilechunk):
-                script    = myname.GetScriptFile( 'retrieve', dataset, opt.mode, index)
+            for index,crabfile in enumerate(crabfilelist):
                 storefile = myname.GetEDMStoreFile( 'tstarbaseline', dataset, opt.mode, index )
-                tmpfile   = "/tmp/"+os.path.basename(storefile)
-                ## Will automatically create directory is doesn't exists
-                # os.system( 'xrdcp -f root://{0}//{1} root://{0}//{2}'.format( myset.crab_siteurl, outfile, storefile ) )
-                script_content = script_template.format(
-                    myset.tstar_dir,
-                    ",".join(crabfileset),
-                    tmpfile,
-                    myset.crab_siteurl,
-                    storefile
-                )
+                cmd  = 'xrdcp -f root://{0}//{1} root://{0}//{2}'.format(myset.crab_siteurl,crabfile,storefile)
+                # print cmd
+                os.system(cmd)
 
-                script_file = open( script , 'w' )
-                script_file.write( script_content )
-                script_file.close()
+            # splitting= 0
+            # if myname.IsData( dataset ):
+            #     splitting = 32
+            # else:
+            #     splitting = 8
+            # print dataset
+            #crabfilechunk =  [crabfilelist[i:i + splitting]
+            #               for i in range(0, len(crabfilelist), splitting)]
 
-                os.system( 'chmod +x ' + script )
-                print "Written scripts to ", script
+            #for index,crabfileset in enumerate(crabfilechunk):
+            #    script    = myname.GetScriptFile( 'retrieve', dataset, opt.mode, index)
+            #    storefile = myname.GetEDMStoreFile( 'tstarbaseline', dataset, opt.mode, index )
+            #    tmpfile   = "/tmp/"+os.path.basename(storefile)
+            #    ## Will automatically create directory is doesn't exists
+            #    # os.system( 'xrdcp -f root://{0}//{1} root://{0}//{2}'.format( myset.crab_siteurl, outfile, storefile ) )
+            #    script_content = script_template.format(
+            #        myset.tstar_dir,
+            #        ",".join(crabfileset),
+            #        tmpfile,
+            #        myset.crab_siteurl,
+            #        storefile
+            #    )
+
+            #    script_file = open( script , 'w' )
+            #    script_file.write( script_content )
+            #    script_file.close()
+
+            #    os.system( 'chmod +x ' + script )
+            #    print "Written scripts to ", script
 
 if __name__ == "__main__":
     main()

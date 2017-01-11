@@ -81,13 +81,16 @@ PlotSingleGenFit( const std::string& masstag )
    double sig_fit, sig_fiterr;
    double p1_fit, p1_fiterr;
    double p2_fit, p2_fiterr;
+   unsigned fileline = 0;
 
    PullResult ans;
 
    // Begin reading files
+   cout << "Reading file " << filename << endl;
    fscanf( result, "%lf %lf %lf %lf", &bkg_real, &sig_real, &p1_real, &p2_real );
 
    while( 1 ){
+      fileline++;
       int scan = fscanf(
          result, "%lf %lf %lf %lf %lf %lf %lf %lf",
          &bkg_fit, &bkg_fiterr,
@@ -96,6 +99,10 @@ PlotSingleGenFit( const std::string& masstag )
          &p2_fit, &p2_fiterr
          );
       if( scan == EOF ){break; }
+
+      if( masstag == "TstarM1000" ){
+         cout << boost::format("\rReading results %d from file %s: %.2lf %.2lf" ) % fileline % filename % bkg_fit % sig_fit ;
+      }
 
       // Making pull distribution
 
@@ -203,9 +210,6 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
 
    delete frame;
    delete c;
-
-   cout << mean.getErrorHi() << " " << mean.getErrorLo() << endl;
-   cout << sigma.getErrorHi() << " " << sigma.getErrorLo() << endl;
 
    return pair<Parameter, Parameter>( mean, sigma );
 }

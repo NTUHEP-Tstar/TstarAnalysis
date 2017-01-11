@@ -16,10 +16,10 @@
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <ctime>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <ctime>
 
 #include "RooDataSet.h"
 #include "RooRandom.h"
@@ -46,18 +46,21 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
    RooAbsPdf* sigfunc = MakeSingleKeysPdf( sigmgr, "" );
 
    const string strgthtag = SigStrengthTag();
+   const string filename  = limnamer.TextFileName( "valsimfit", {strgthtag} );
    FILE* result;
-   if ( !boost::filesystem::exists( limnamer.TextFileName("valsimfit",{strgthtag}) ) ){
+   if( !boost::filesystem::exists( filename)  ){
       // If doesn't already exists create new file and print first fitting value.
-      result = fopen( limnamer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "w" );
+      result = fopen( filename.c_str(), "w" );
+      cout << "Writting central value to file " << filename << endl;
       fprintf( result, "%lf %lf %lf %lf\n", bkgnum, signum, param1, param2 );
    } else {
       // Else open in append mode.
-      result = fopen( limnamer.TextFileName( "valsimfit", {strgthtag} ).c_str(), "a" );
+      cout << "Appending fit to file " << filename << endl;
+      result = fopen( filename.c_str() , "a" );
    }
 
    // Setting random seed to present time to allow multiple reruns
-   RooRandom::randomGenerator()->SetSeed(time(NULL));
+   RooRandom::randomGenerator()->SetSeed( time( NULL ) );
 
    for( int i = 0; i < limnamer.InputInt( "num" ); ++i ){
       const string pseudosetname = "pseudo";
@@ -67,12 +70,12 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
          bkgnum,
          RooFit::Extended(),
          RooFit::Name( pseudosetname.c_str() )
-      );
+         );
       RooDataSet* sigset = sigfunc->generate(
          SampleRooFitMgr::x(),
          signum,
          RooFit::Extended()
-      );
+         );
       psuedoset->append( *sigset );
       delete sigset;
 
@@ -98,7 +101,7 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
          sigfit->getVal(), sigfit->getError(),
          p1fit->getVal(), p1fit->getError(),
          p2fit->getVal(), p2fit->getError()
-      );
+         );
 
       // Saving plots for special cases
       if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
@@ -127,6 +130,6 @@ SigStrengthTag()
 {
    static boost::format secfmt( "%1%%2%" );
    return limnamer.HasOption( "relmag" ) ?
-   str( secfmt % "rel" % limnamer.InputDou( "relmag" ) ) :
-   str( secfmt % "abs" % limnamer.InputDou( "absmag" ) );
+          str( secfmt % "rel" % limnamer.InputDou( "relmag" ) ) :
+          str( secfmt % "abs" % limnamer.InputDou( "absmag" ) );
 }

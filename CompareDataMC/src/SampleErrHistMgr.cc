@@ -51,7 +51,8 @@ extern const vector<string> histnamelist = {
    "Jet2Pt",
    "Jet2Eta",
    "MET",
-   "TstarMass"
+   "TstarMass",
+   "MuPfIso"
 };
 
 extern const vector<ErrorSource> histerrlist = {

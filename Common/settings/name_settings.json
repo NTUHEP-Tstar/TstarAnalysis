@@ -98,7 +98,7 @@
          "Root Name": "N #left(  1+ exp#left( #frac{m-a}{b} #right) #right)"
       },
       "Exo": {
-         "Full Name": "EXO Group function",
+         "Full Name": "Di-jet function",
          "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
          "Root Name": "N #left( (1-x)^{p_{1}} / x^{p_{2}} #right)"
       },
