@@ -32,13 +32,13 @@ MakePlot(
    const std::vector<std::string>& taglist
    )
 {
-   TCanvas* c = plt::NewCanvas();
+   TCanvas* c = mgr::NewCanvas();
 
    const double xmin = datahist->GetXaxis()->GetXmin();
    const double xmax = datahist->GetXaxis()->GetXmax();
 
    // Drawing top canvas
-   TPad* pad1 = plt::NewTopPad();
+   TPad* pad1 = mgr::NewTopPad();
    pad1->Draw();
    pad1->cd();
    stack->Draw( PS_HIST ); // Defined plot style in Common/interface/PlotStyle.hpp
@@ -50,7 +50,7 @@ MakePlot(
    c->cd();
 
    // Drawing bottom canvas
-   TPad* pad2      = plt::NewBottomPad();
+   TPad* pad2      = mgr::NewBottomPad();
    TLine* line     = new TLine( xmin, 1, xmax, 1 );
    TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
    TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
@@ -74,10 +74,10 @@ MakePlot(
    tstar::SetSignalStyle( sighist  );
 
    // Font and title settings
-   plt::SetTopPlotAxis( stack );
+   mgr::SetTopPlotAxis( stack );
    stack->GetYaxis()->SetTitle( datahist->GetYaxis()->GetTitle() );
 
-   plt::SetBottomPlotAxis( datarel );
+   mgr::SetBottomPlotAxis( datarel );
    datarel->GetXaxis()->SetTitle( sighist->GetXaxis()->GetTitle() );
    datarel->GetYaxis()->SetTitle( "Data/MC" );
    datarel->SetMaximum( 1.6 );
@@ -91,9 +91,9 @@ MakePlot(
 
    // Writing captions
    legend->Draw();
-   plt::DrawCMSLabel();
-   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
-   TPaveText* tb = plt::NewTextBox(
+   mgr::DrawCMSLabel();
+   mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+   TPaveText* tb = mgr::NewTextBox(
       PLOT_X_MIN + 0.05 ,
       PLOT_Y_MAX - (TEXT_FONT_SIZE*2.0)/(DEFAULT_CANVAS_HEIGHT),
       PLOT_X_MIN + 0.40,
@@ -103,7 +103,7 @@ MakePlot(
    tb->Draw();
 
    // setting ranges and saving plots
-   const double ymax = plt::GetYmax( {bkgerror, datahist, sighist} );
+   const double ymax = mgr::GetYmax( {bkgerror, datahist, sighist} );
    const unsigned exponent = mgr::HistMgr::GetExponent( ymax * 1.2 );
    const string   xunit    = mgr::HistMgr::GetXUnit( datahist );
    const double   binsize  = (xmax-xmin)/(datahist->GetNbinsX());
@@ -111,8 +111,8 @@ MakePlot(
    stack->GetYaxis()->SetTitle( newytitle.c_str() ); // fancy y title
    stack->SetMaximum( ymax * 1.2 );
 
-   plt::SaveToPDF( c, compnamer.PlotFileName( filenametag, taglist ) );
-   plt::SaveToROOT( c,
+   mgr::SaveToPDF( c, compnamer.PlotFileName( filenametag, taglist ) );
+   mgr::SaveToROOT( c,
       compnamer.PlotRootFile(),
       compnamer.MakeFileName( "", filenametag, taglist )
       );
@@ -124,7 +124,7 @@ MakePlot(
    stack->SetMaximum( ymax * 30 );
    stack->SetMinimum( 0.3 );
    stack->GetYaxis()->SetTitle( datahist->GetYaxis()->GetTitle() ); // resetting y axis title
-   plt::SaveToPDF( c, compnamer.PlotFileName( filenametag, newtaglist ) );
+   mgr::SaveToPDF( c, compnamer.PlotFileName( filenametag, newtaglist ) );
 
    delete pad1;
    delete pad2;

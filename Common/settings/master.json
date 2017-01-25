@@ -12,11 +12,9 @@
     "Mass Min": 400,
     "Mass Max": 2500,
 
-    "___Comment___": ""
-    "-----------------------------------------------------------
-    Defining Groups:
-        -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- - ""
-    ",
+    "___Comment___": """-----------------------------------------------------------
+    # Defining Groups:
+    -----------------------------------------------------------------------------""",
 
     "Default Json": "Signal.json",
 
@@ -116,8 +114,7 @@
         "File List": [
             "TopSamples.json",
             "TTPlusBoson.json",
-            "SingleBoson.json",
-            "DiBoson.json"
+            "SingleBoson.json"
         ]
     },
 
@@ -125,8 +122,7 @@
         "TTJets",
         "SingleTop",
         "TTBoson",
-        "SingleBoson",
-        "DiBoson"
+        "SingleBoson"
     ],
 
     "Signal List": [

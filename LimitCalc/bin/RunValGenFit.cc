@@ -21,51 +21,51 @@ int
 main( int argc, char* argv[] )
 {
 
-   SampleRooFitMgr* data   = NULL;
-   SampleRooFitMgr* mc     = NULL;
-   SampleRooFitMgr* sigmgr = NULL;
+  SampleRooFitMgr* data   = NULL;
+  SampleRooFitMgr* mc     = NULL;
+  SampleRooFitMgr* sigmgr = NULL;
 
-   opt::options_description desc( "Options for RunValGenFit" );
+  opt::options_description desc( "Options for RunValGenFit" );
 
-   desc.add_options()
-      ( "channel,c", opt::value<string>(), "which channel to run" )
-      ( "fitfunc,f", opt::value<string>(), "which fit function to use" )
-      ( "num,n", opt::value<int>(), "Run <num> times of gen-pseudo data + fit" )
-      ( "mass,m", opt::value<string>(), "Dataset tag for mass point" )
-      ( "era,e", opt::value<string>(), "Which data era to use" )
-      ( "relmag,x", opt::value<double>(), "Relative magnitude of signal compared with prediction" )
-      ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
-   ;
+  desc.add_options()
+    ( "channel,c", opt::value<string>(), "which channel to run" )
+    ( "fitfunc,f", opt::value<string>(), "which fit function to use" )
+    ( "num,n", opt::value<int>(), "Run <num> times of gen-pseudo data + fit" )
+    ( "mass,m", opt::value<string>(), "Dataset tag for mass point" )
+    ( "era,e", opt::value<string>(), "Which data era to use" )
+    ( "relmag,x", opt::value<double>(), "Relative magnitude of signal compared with prediction" )
+    ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
+  ;
 
-   limnamer.SetNamingOptions( {"fitfunc", "era", "mass"} );
-   const int run = limnamer.LoadOptions( desc, argc, argv );
-   if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-   if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
+  limnamer.SetNamingOptions( {"fitfunc", "era", "mass"} );
+  const int run = limnamer.LoadOptions( desc, argc, argv );
+  if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
+  if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
 
-   // Parsing options
-   if( limnamer.HasOption( "relmag" ) && limnamer.HasOption( "absmag" ) ){
-      cerr << "Cannot set both relative and absolute magnitued" << endl;
-      return 1;
-   } else if( !limnamer.HasOption( "relmag" ) && !limnamer.HasOption( "absmag" ) ){
-      cerr << "Must set either relative of absolute magnitude" << endl;
-      return 1;
-   }
-   if( !limnamer.HasOption( "num" ) ){
-      cerr << "Must specify number of runs!" << endl;
-      return 1;
-   }
+  // Parsing options
+  if( limnamer.HasOption( "relmag" ) && limnamer.HasOption( "absmag" ) ){
+    cerr << "Cannot set both relative and absolute magnitued" << endl;
+    return 1;
+  } else if( !limnamer.HasOption( "relmag" ) && !limnamer.HasOption( "absmag" ) ){
+    cerr << "Must set either relative of absolute magnitude" << endl;
+    return 1;
+  }
+  if( !limnamer.HasOption( "num" ) ){
+    cerr << "Must specify number of runs!" << endl;
+    return 1;
+  }
 
-   InitSampleStatic( limnamer );
-   InitRooFitSettings( limnamer );
-   InitSingle( data,   limnamer.GetChannelEXT( "Data Prefix" ) + limnamer.GetExtName("era", "Data Postfix") );
-   InitSingle( sigmgr, limnamer.GetInput( "mass" ) );
-   InitMC( mc );
+  InitSampleStatic( limnamer );
+  InitRooFitSettings( limnamer );
+  InitSingle( data,   limnamer.GetChannelEXT( "Data Prefix" ) + limnamer.GetExtName( "era", "Data Postfix" ) );
+  InitSingle( sigmgr, limnamer.GetInput( "mass" ) );
+  InitMC( mc );
 
-   RunGenFit( data, mc, sigmgr );
+  RunGenFit( data, mc, sigmgr );
 
-   delete data;
-   delete mc;
-   delete sigmgr;
+  delete data;
+  delete mc;
+  delete sigmgr;
 
-   return 0;
+  return 0;
 }

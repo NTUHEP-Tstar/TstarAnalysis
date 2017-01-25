@@ -8,7 +8,7 @@
 #ifndef TSTARANALYSIS_NAMEFORMAT_TAGTREE_HPP
 #define TSTARANALYSIS_NAMEFORMAT_TAGTREE_HPP
 
-#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/Common/interface/ConfigReader.hpp"
 #include "ManagerUtils/SysUtils/interface/OptsNamer.hpp"
 #include "ManagerUtils/SysUtils/interface/PackagePathMgr.hpp"
 #include <boost/property_tree/ptree.hpp>

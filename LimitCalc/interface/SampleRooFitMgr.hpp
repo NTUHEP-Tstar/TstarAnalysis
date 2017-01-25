@@ -8,7 +8,7 @@
 #ifndef TSTARANALYSIS_LIMITCALC_SAMPLEROOFITMGR_HPP
 #define TSTARANALYSIS_LIMITCALC_SAMPLEROOFITMGR_HPP
 
-#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/Common/interface/ConfigReader.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/RootMgr/interface/RooFitMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"

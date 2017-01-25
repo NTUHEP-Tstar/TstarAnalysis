@@ -5,7 +5,7 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 
@@ -15,10 +15,13 @@
 #include "RooWorkspace.h"
 #include "TFile.h"
 
+#include <boost/format.hpp>
+#include <fstream>
 #include <string>
 #include <vector>
 
 using namespace std;
+using namespace mgr;
 
 /*******************************************************************************
 *   Save results
@@ -27,141 +30,134 @@ static const string ws_name = "wspace";
 
 void
 SaveRooWorkSpace(
-   RooAbsData*               data,
-   const vector<RooAbsPdf*>& pdflist,
-   const vector<RooAbsReal*>& funclist
-   )
+  RooAbsData*                data,
+  const vector<RooAbsPdf*>&  pdflist,
+  const vector<RooAbsReal*>& funclist
+  )
 {
-   const string roofit_file = limnamer.RootFileName( "roofitobj" );
-   RooWorkspace ws( ws_name.c_str(), ws_name.c_str() );
+  const string roofit_file = limnamer.RootFileName( "roofitobj" );
+  RooWorkspace ws( ws_name.c_str(), ws_name.c_str() );
 
-   cout << "Saving RooFit objects to " << roofit_file << endl;
-   ws.import( *data );
+  cout << "Saving RooFit objects to " << roofit_file << endl;
+  ws.import( *data );
 
-   for( auto& pdf  : pdflist ){
-      ws.import( *pdf  );
-   }
+  for( auto& pdf  : pdflist ){
+    ws.import( *pdf  );
+  }
 
-   for( auto& func : funclist ){
-      ws.import( *func );
-   }
+  for( auto& func : funclist ){
+    ws.import( *func );
+  }
 
-   ws.writeToFile( roofit_file.c_str() );
+  ws.writeToFile( roofit_file.c_str() );
 
 }
 
 /******************************************************************************/
 
-FILE*
+void
 MakeCardCommon(
-   RooAbsData*        data,
-   RooAbsPdf*         bg_pdf,
-   RooAbsPdf*         sig_pdf,
-   const std::string& tag
-   )
+  ofstream&   cardfile,
+  RooAbsData* data,
+  RooAbsPdf*  bg_pdf,
+  RooAbsPdf*  sig_pdf
+  )
 {
-   FILE* card_file = fopen( limnamer.TextFileName( "card", {tag} ).c_str(), "w" );
+  cardfile << "imax 1" << endl;
+  cardfile << "jmax *" << endl;
+  cardfile << "kmax *" << endl;
+  cardfile << "----------------------------------------" << endl;
 
-   fprintf( card_file, "imax 1\n" );
-   fprintf( card_file, "jmax *\n" );
-   fprintf( card_file, "kmax *\n" );
-   fprintf( card_file, "----------------------------------------\n" );
+  // Printing Objects
+  cardfile << boost::format( "shapes %10s %15s %30s %s:%s" )
+    %  "data_obs"
+    %  limnamer.GetChannel()
+    %  limnamer.RootFileName( "roofitobj" )
+    %  ws_name
+    %  data->GetName()
+           << endl;
 
-   // Printing Objects
-   fprintf(
-      card_file, "shapes %10s %15s %30s %s:%s\n",
-      "data_obs",
-      limnamer.GetChannel().c_str(),
-      limnamer.RootFileName( "roofitobj" ).c_str(),
-      ws_name.c_str(),
-      data->GetName()
-      );
-   fprintf(
-      card_file, "shapes %10s %15s %30s %s:%s\n",
-      "bg",
-      limnamer.GetChannel().c_str(),
-      limnamer.RootFileName( "roofitobj" ).c_str(),
-      ws_name.c_str(),
-      bg_pdf->GetName()
-      );
+  cardfile << boost::format( "shapes %10s %15s %30s %s:%s" )
+    % "bg"
+    % limnamer.GetChannel()
+    % limnamer.RootFileName( "roofitobj" )
+    % ws_name
+    % bg_pdf->GetName()
+           << endl;
 
-   fprintf(
-      card_file, "shapes %10s %15s %30s %s:%s\n",
-      "sig",
-      limnamer.GetChannel().c_str(),
-      limnamer.RootFileName( "roofitobj" ).c_str(),
-      ws_name.c_str(),
-      sig_pdf->GetName()
-      );
-   fprintf( card_file, "----------------------------------------\n" );
+  cardfile << boost::format( "shapes %10s %15s %30s %s:%s" )
+    % "sig"
+    % limnamer.GetChannel()
+    % limnamer.RootFileName( "roofitobj" )
+    % ws_name
+    % sig_pdf->GetName()
+           << endl;
+  cardfile << "----------------------------------------"  << endl;
 
-   // Printing data correspondence
-   fprintf( card_file, "%12s %s\n",  "bin",         limnamer.GetChannel().c_str() );
-   fprintf( card_file, "%12s %lg\n", "observation", data->sumEntries() );
-   fprintf( card_file, "----------------------------------------\n" );
+  // Printing data correspondence
+  cardfile <<  boost::format( "%12s %s" ) % "bin" % limnamer.GetChannel() << endl;
+  cardfile <<  boost::format( "%12s %lg" )% "observation" % data->sumEntries() << endl;
+  cardfile <<  "----------------------------------------" << endl;
 
-   fprintf(
-      card_file, "%12s %15s %15s\n", "bin",
-      limnamer.GetChannel().c_str(),
-      limnamer.GetChannel().c_str()
-      );
-   fprintf( card_file, "%12s %15s %15s\n", "process", "sig", "bg" );
-   fprintf( card_file, "%12s %15s %15s\n", "process", "-1",  "1" );
+  cardfile << boost::format( "%12s %15s %15s" )
+    % "bin"
+    % limnamer.GetChannel()
+    % limnamer.GetChannel()
+           << endl;
 
-   return card_file;
+  cardfile << boost::format( "%12s %15s %15s" ) % "process"% "sig" % "bg" << endl;
+  cardfile << boost::format( "%12s %15s %15s" ) % "process"% "-1" %  "1" << endl;
+
 }
 
 /******************************************************************************/
 
 void
 PrintNuisanceFloats(
-   FILE*            card_file,
-   const string&    nuisance_name,
-   const string&    nuisance_type,
-   const Parameter& sig_nuisance,
-   const Parameter& bkg_nuisance
-   )
+  ofstream&        cardfile,
+  const string&    nuisance_name,
+  const string&    nuisance_type,
+  const Parameter& sig_nuisance,
+  const Parameter& bkg_nuisance
+  )
 {
 
-   fprintf(
-      card_file, "%-20s %3s %15s %15s\n",
-      nuisance_name.c_str(),
-      nuisance_type.c_str(),
-      HiggsDataCard( sig_nuisance ).c_str(),
-      HiggsDataCard( bkg_nuisance ).c_str()
-      );
+  cardfile << boost::format( "%-20s %3s %15s %15s" )
+    % nuisance_name
+    % nuisance_type
+    % HiggsDataCard( sig_nuisance )
+    % HiggsDataCard( bkg_nuisance )
+           << endl;
 }
 
 /******************************************************************************/
 
 void
 PrintFloatParam(
-   FILE*             card_file,
-   const RooRealVar* var
-   )
+  ofstream&         cardfile,
+  const RooRealVar* var
+  )
 {
-   fprintf(
-      card_file, "%-45s %-10s %lf %lf\n",
-      var->GetName(),
-      "param",
-      var->getVal(),
-      var->getError()
-      );
+  cardfile << boost::format( "%-45s %-10s %lf %lf" )
+    % var->GetName()
+    % "param"
+    % var->getVal()
+    % var->getError()
+           << endl;
 }
 
 /******************************************************************************/
 
 void
 PrintFlatParam(
-   FILE*             cardfile,
-   const RooRealVar* var
-   )
+  ofstream&         cardfile,
+  const RooRealVar* var
+  )
 {
-   fprintf(
-      cardfile, "%-45s %s %lf %lf\n",
-      var->GetName(),
-      "param",
-      var->getVal(),
-      var->getMax()
-      );
+  cardfile << boost::format( "%-45s %s %lf %lf" )
+    % var->GetName()
+    % "param"
+    % var->getVal()
+    % var->getMax()
+           << endl;
 }

@@ -17,8 +17,8 @@
 #include <vector>
 
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
+#include "ManagerUtils/PhysUtils/interface/BTagChecker.hpp"
 #include "TstarAnalysis/BaseLineSelector/interface/TypeDef.hpp"
-#include "TstarAnalysis/Common/interface/BTagChecker.hpp"
 
 /*******************************************************************************
 *   Class definitions
@@ -38,7 +38,7 @@ private:
    const edm::EDGetToken       _jetsrc;
    edm::Handle<tstar::JetList> _jetHandle;
 
-   const BTagChecker _checker ;
+   const mgr::BTagChecker _checker ;
 
    // Control flags for jet counting
    const unsigned _maxjet;

@@ -9,7 +9,7 @@
 <use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="DataFormats/PatCandidates"/>
 
+<use name="ManagerUtils/PhysUtils"/>
 <use name="ManagerUtils/EDMUtils"/>
-<use name="TstarAnalysis/Common"/>
 
 <flags EDM_PLUGIN="1"/>

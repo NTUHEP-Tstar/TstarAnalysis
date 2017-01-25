@@ -1,4 +1,5 @@
 <use name="ROOT"/>
+<use name="boost"/>
 <use name="ManagerUtils/PlotUtils"/>
 <use name="ManagerUtils/RootMgr"/>
 <use name="TstarAnalysis/Common"/>

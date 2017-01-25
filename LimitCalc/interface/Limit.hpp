@@ -51,15 +51,15 @@ extern const int twosig_down;
 extern const int skip;
 
 extern TGraph* MakeCalcGraph(
-   const std::vector<std::string>& masslist,
-   const std::map<double, double>& xsec,
-   const int centralentry,
-   const int uperrorentry,
-   const int downerrorentry
-   );
+  const std::vector<std::string>& masslist,
+  const std::map<double, double>& xsec,
+  const int centralentry,
+  const int uperrorentry,
+  const int downerrorentry
+  );
 
 
-extern Parameter GetInterSect( const TGraph* graph, const TGraph* errorgraph );
+extern mgr::Parameter GetInterSect( const TGraph* graph, const TGraph* errorgraph );
 
 
 #endif/* end of include guard: TSTARANALYSIS_LIMITCALC_LIMIT_HPP */

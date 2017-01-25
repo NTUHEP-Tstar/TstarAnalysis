@@ -36,7 +36,7 @@ extern void Normalize(
 /*******************************************************************************
 *   Helper functions
 *******************************************************************************/
-extern Parameter ExpectedYield(
+extern mgr::Parameter ExpectedYield(
    const std::vector<SampleErrHistMgr*>& samplelist );
 
 extern TH1D* MakeSumHistogram(

@@ -23,17 +23,18 @@ masspointlist=[
 
 functionlist=["Lognorm","Exo"]
 
-runnum   = 5000
+runnum   = 1000
 injlist  = [0,0.1,1]
 
 header="""
 #!/bin/bash
+source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd {}/src/TstarAnalysis/LimitCalc/
 eval `scramv1 runtime -sh`
 """.format( os.environ['CMSSW_BASE'] )
 
 cmd = """
-./RunValGenFit -c {0} -f {1} -n {2} -m {3} -e Rereco {4} {5} &> /dev/null
+RunValGenFit -c {0} -f {1} -n {2} -m {3} -e Rereco {4} {5}
 """
 
 plotcmd = "./PlotValGenFit -c {0} -f {1} -x {2} -e Rereco"

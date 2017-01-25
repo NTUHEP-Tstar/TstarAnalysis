@@ -15,6 +15,7 @@
 #include <string>
 
 using namespace std;
+using namespace mgr;
 
 /*******************************************************************************
 *   Functions for defining various PDF functions
@@ -31,31 +32,31 @@ static RooAbsPdf* MakeTrial( SampleRooFitMgr*, const std::string& tag );
 RooAbsPdf*
 SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
 {
-   static const string def = "Exo";
+  static const string def = "Exo";
 
-   if( Pdf( name ) ){// Do not reproduce if already exists
-      cerr << "Warning! Duplicate name detected, not regenerating!" << endl;
-      return Pdf( name );
-   }
+  if( Pdf( name ) ){ // Do not reproduce if already exists
+    cerr << "Warning! Duplicate name detected, not regenerating!" << endl;
+    return Pdf( name );
+  }
 
-   if( fitfunc == "Exo"     ){
-      return MakeExo( this, name );
-   } else if( fitfunc == "Fermi"   ){
-      return MakeFermi( this, name );
-   } else if( fitfunc == "Lognorm" ){
-      return MakeLognorm( this, name );
-   } else if( fitfunc == "Landau"  ){
-      return MakeLandau( this, name );
-   } else if( fitfunc == "Trial"   ){
-      return MakeTrial( this, name );
-   } else {
-      fprintf(
-         stderr, "Warning! %s function not found, using %s\n",
-         fitfunc.c_str(),
-         def.c_str()
-         );
-      return NewPdf( def, name );
-   }
+  if( fitfunc == "Exo"     ){
+    return MakeExo( this, name );
+  } else if( fitfunc == "Fermi"   ){
+    return MakeFermi( this, name );
+  } else if( fitfunc == "Lognorm" ){
+    return MakeLognorm( this, name );
+  } else if( fitfunc == "Landau"  ){
+    return MakeLandau( this, name );
+  } else if( fitfunc == "Trial"   ){
+    return MakeTrial( this, name );
+  } else {
+    fprintf(
+      stderr, "Warning! %s function not found, using %s\n",
+      fitfunc.c_str(),
+      def.c_str()
+      );
+    return NewPdf( def, name );
+  }
 }
 
 /*******************************************************************************
@@ -64,20 +65,20 @@ SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
 RooAbsPdf*
 MakeFermi( SampleRooFitMgr* sample, const string& name = "fermi" )
 {
-   static char formula[1024];
-   RooRealVar* a = sample->NewVar( name+"a", 100, -1000, 1000 );
-   RooRealVar* b = sample->NewVar( name+"b", 100, -1000, 1000 );
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( name+"a", 100, -1000, 1000 );
+  RooRealVar* b = sample->NewVar( name+"b", 100, -1000, 1000 );
 
-   sprintf( formula, "1/(1+exp((x-%s)/%s))", a->GetName(), b->GetName() );
+  sprintf( formula, "1/(1+exp((x-%s)/%s))", a->GetName(), b->GetName() );
 
-   RooGenericPdf* pdf = new RooGenericPdf(
-      name.c_str(), name.c_str(),
-      formula,
-      RooArgSet( SampleRooFitMgr::x(), *a, *b )
-      );
+  RooGenericPdf* pdf = new RooGenericPdf(
+    name.c_str(), name.c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b )
+    );
 
-   sample->AddPdf( pdf );
-   return pdf;
+  sample->AddPdf( pdf );
+  return pdf;
 }
 
 /*******************************************************************************
@@ -86,24 +87,24 @@ MakeFermi( SampleRooFitMgr* sample, const string& name = "fermi" )
 RooAbsPdf*
 MakeExo( SampleRooFitMgr* sample, const string& name = "exo" )
 {
-   static char formula[1024];
-   RooRealVar* a = sample->NewVar( name+"a", 61.7, 0, 100 );
-   RooRealVar* b = sample->NewVar( name+"b", 0.18, 0, 100 );
-   sprintf(
-      formula, "(TMath::Power((1-(x/13000.)),(%s)))/(TMath::Power((x/13000.),(%s)))",
-      a->GetName(),
-      b->GetName()
-      );
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( name+"a", 61.7, 0, 100 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.18, 0, 100 );
+  sprintf(
+    formula, "(TMath::Power((1-(x/13000.)),(%s)))/(TMath::Power((x/13000.),(%s)))",
+    a->GetName(),
+    b->GetName()
+    );
 
-   RooGenericPdf* pdf = new RooGenericPdf(
-      name.c_str(), name.c_str(),
-      formula,
-      RooArgSet( SampleRooFitMgr::x(), *a, *b )
-      );
+  RooGenericPdf* pdf = new RooGenericPdf(
+    name.c_str(), name.c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b )
+    );
 
-   sample->AddPdf( pdf );
+  sample->AddPdf( pdf );
 
-   return pdf;
+  return pdf;
 }
 
 /*******************************************************************************
@@ -112,14 +113,14 @@ MakeExo( SampleRooFitMgr* sample, const string& name = "exo" )
 RooAbsPdf*
 MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
 {
-   RooRealVar* a     = sample->NewVar( name+"a", 300, 0, 1000 );
-   RooRealVar* b     = sample->NewVar( name+"b", 1.6, 0.00001, 100 );// could not be negative
-   RooLognormal* pdf = new RooLognormal(
-      name.c_str(), name.c_str(),
-      SampleRooFitMgr::x(),  *a, *b
-      );
-   sample->AddPdf( pdf );
-   return pdf;
+  RooRealVar* a     = sample->NewVar( name+"a", 300, 0, 1000 );
+  RooRealVar* b     = sample->NewVar( name+"b", 1.6, 0.00001, 100 ); // could not be negative
+  RooLognormal* pdf = new RooLognormal(
+    name.c_str(), name.c_str(),
+    SampleRooFitMgr::x(),  *a, *b
+    );
+  sample->AddPdf( pdf );
+  return pdf;
 }
 
 /*******************************************************************************
@@ -128,14 +129,14 @@ MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
 RooAbsPdf*
 MakeLandau( SampleRooFitMgr* sample, const string& name = "landau" )
 {
-   RooRealVar* a  = sample->NewVar( name+"a", 200, -10000, 10000 );
-   RooRealVar* b  = sample->NewVar( name+"b", 200, 0, 10000 ); // could not be negative
-   RooLandau* pdf = new RooLandau(
-      name.c_str(), name.c_str(),
-      SampleRooFitMgr::x(),  *a, *b
-      );
-   sample->AddPdf( pdf );
-   return pdf;
+  RooRealVar* a  = sample->NewVar( name+"a", 200, -10000, 10000 );
+  RooRealVar* b  = sample->NewVar( name+"b", 200, 0, 10000 );  // could not be negative
+  RooLandau* pdf = new RooLandau(
+    name.c_str(), name.c_str(),
+    SampleRooFitMgr::x(),  *a, *b
+    );
+  sample->AddPdf( pdf );
+  return pdf;
 }
 
 /*******************************************************************************
@@ -144,21 +145,21 @@ MakeLandau( SampleRooFitMgr* sample, const string& name = "landau" )
 RooAbsPdf*
 MakeTrial( SampleRooFitMgr* sample,  const string& name = "trial" )
 {
-   static char formula[1024];
-   RooRealVar* a = sample->NewVar( "a" + name, 200,     0, +2000 );
-   RooRealVar* b = sample->NewVar( "b" + name,  0.01, -2000, +2000  );
-   sprintf( formula,
-      "exp( -(x)/( (%s) + (%s)*x ) )",
-      a->GetName(),
-      b->GetName()
-      );
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( "a" + name, 200,     0, +2000 );
+  RooRealVar* b = sample->NewVar( "b" + name,  0.01, -2000, +2000  );
+  sprintf( formula,
+    "exp( -(x)/( (%s) + (%s)*x ) )",
+    a->GetName(),
+    b->GetName()
+    );
 
-   RooGenericPdf* pdf = new RooGenericPdf(
-      name.c_str(), name.c_str(),
-      formula,
-      RooArgSet( SampleRooFitMgr::x(), *a, *b )
-      );
+  RooGenericPdf* pdf = new RooGenericPdf(
+    name.c_str(), name.c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b )
+    );
 
-   sample->AddPdf( pdf );
-   return pdf;
+  sample->AddPdf( pdf );
+  return pdf;
 }

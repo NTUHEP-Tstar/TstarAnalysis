@@ -9,25 +9,32 @@
 #include <iostream>
 using namespace std;
 using namespace tstar;
-// ------------------------------------------------------------------------------
-//   Constructor and Destructor
-// ------------------------------------------------------------------------------
+
+/*******************************************************************************
+*   Constructor and Destructor
+*******************************************************************************/
 FitParticle::FitParticle() :
    _fit_label( unknown_label ),
    _truth_label( unknown_label ),
    _b_tag( false ),
    _flavour( 0 )
 {}
+
+
+/******************************************************************************/
+
 FitParticle::~FitParticle(){}
 
-// ------------------------------------------------------------------------------
-//   Four momentum access functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Four momentum access function
+*******************************************************************************/
 TLorentzVector&
 FitParticle::P4( Momentum_Label x )
 {
    return _p4map[x];
 }
+
+/******************************************************************************/
 
 const TLorentzVector&
 FitParticle::P4( Momentum_Label x ) const
@@ -52,28 +59,31 @@ FitParticle::P4( Momentum_Label x ) const
    }
 }
 
-// ------------------------------------------------------------------------------
-//   Direct Access Members
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Data Member Access
+*******************************************************************************/
 Particle_Label&
 FitParticle::TypeFromFit(){ return _fit_label; }
+
 Particle_Label&
 FitParticle::TypeFromTruth(){ return _truth_label; }
 
 const Particle_Label&
 FitParticle::TypeFromFit()   const { return _fit_label; }
+
 const Particle_Label&
 FitParticle::TypeFromTruth() const { return _truth_label; }
 
 bool&
 FitParticle::IsBTagged(){ return _b_tag; }
+
 unsigned&
 FitParticle::TruthFlavour(){ return _flavour; }
 
 
-// ------------------------------------------------------------------------------
-//   Computation functions
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Computation functions
+*******************************************************************************/
 bool
 FitParticle::FitMatchTruth() const
 {

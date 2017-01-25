@@ -29,23 +29,23 @@
 class TopPtWeight : public edm::EDProducer
 {
 public:
-   explicit
-   TopPtWeight( const edm::ParameterSet& );
-   ~TopPtWeight();
+  explicit
+  TopPtWeight( const edm::ParameterSet& );
+  ~TopPtWeight();
 
 private:
-   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
-   // Getting objects from vector of sums
-   const edm::EDGetToken _gensrc;
-   edm::Handle<std::vector<reco::GenParticle> > _genhandle;
+  // Getting objects from vector of sums
+  const edm::EDGetToken _gensrc;
+  edm::Handle<std::vector<reco::GenParticle> > _genhandle;
 
-   const double _a;
-   const double _b;
-   const double _minpt;
-   const double _maxpt;
+  const double _a;
+  const double _b;
+  const double _minpt;
+  const double _maxpt;
 
-   double gettopweight( double pt ) const;
+  double gettopweight( double pt ) const;
 };
 
 using namespace edm;
@@ -55,13 +55,13 @@ using namespace std;
 *   Constructor and destructor
 *******************************************************************************/
 TopPtWeight::TopPtWeight( const edm::ParameterSet& iConfig ) :
-   _gensrc( GETTOKEN( iConfig, std::vector<reco::GenParticle>, "gensrc" ) ),
-   _a( iConfig.getParameter<double>( "a" ) ),
-   _b( iConfig.getParameter<double>( "b" ) ),
-   _minpt( iConfig.getParameter<double>("minpt") ),
-   _maxpt( iConfig.getParameter<double>("maxpt") )
+  _gensrc( GETTOKEN( iConfig, std::vector<reco::GenParticle>, "gensrc" ) ),
+  _a( iConfig.getParameter<double>( "a" ) ),
+  _b( iConfig.getParameter<double>( "b" ) ),
+  _minpt( iConfig.getParameter<double>( "minpt" ) ),
+  _maxpt( iConfig.getParameter<double>( "maxpt" ) )
 {
-   produces<double>( "TopPtWeight" );
+  produces<double>( "TopPtWeight" );
 }
 
 TopPtWeight::~TopPtWeight(){}
@@ -72,32 +72,32 @@ TopPtWeight::~TopPtWeight(){}
 void
 TopPtWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   if( iEvent.isRealData() ){ return; }// skipping if is data event
+  if( iEvent.isRealData() ){ return; } // skipping if is data event
 
-   std::auto_ptr<double> weight( new double(1.) );
-   double topweight     = 1;
-   double antitopweight = 1;
+  std::auto_ptr<double> weight( new double(1.) );
+  double topweight     = 1;
+  double antitopweight = 1;
 
-   unsigned i = 0;
-   iEvent.getByToken( _gensrc, _genhandle );
+  unsigned i = 0;
+  iEvent.getByToken( _gensrc, _genhandle );
 
-   for( const auto& gen : *_genhandle ){
-      if( i > 20 ){ break; }// should be in first 20 entries
+  for( const auto& gen : *_genhandle ){
+    if( i > 20 ){ break; }  // should be in first 20 entries
 
-      if( gen.pdgId() == 6 && gen.numberOfMothers() >= 2 && topweight == 1 ){
-         topweight = gettopweight( gen.pt() );
-      } else if( gen.pdgId() == -6 && gen.numberOfMothers() >= 2 && antitopweight == 1 ){
-         antitopweight = gettopweight( gen.pt() );
-      }
+    if( gen.pdgId() == 6 && gen.numberOfMothers() >= 2 && topweight == 1 ){
+      topweight = gettopweight( gen.pt() );
+    } else if( gen.pdgId() == -6 && gen.numberOfMothers() >= 2 && antitopweight == 1 ){
+      antitopweight = gettopweight( gen.pt() );
+    }
 
-      if( topweight != 1 && antitopweight != 1 ){
-         *weight = sqrt( topweight * antitopweight );
-         break;
-      }
-      ++i;
-   }
+    if( topweight != 1 && antitopweight != 1 ){
+      *weight = sqrt( topweight * antitopweight );
+      break;
+    }
+    ++i;
+  }
 
-   iEvent.put( weight, "TopPtWeight" );
+  iEvent.put( weight, "TopPtWeight" );
 }
 
 
@@ -106,9 +106,9 @@ TopPtWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 double
 TopPtWeight::gettopweight( double pt ) const
 {
-   pt = std::max( _minpt, pt );
-   pt = std::min( _maxpt, pt );
-   return exp( _a + _b * pt );
+  pt = std::max( _minpt, pt );
+  pt = std::min( _maxpt, pt );
+  return exp( _a + _b * pt );
 }
 
 /******************************************************************************/

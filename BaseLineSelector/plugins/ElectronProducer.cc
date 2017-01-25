@@ -10,6 +10,10 @@
 #include "TstarAnalysis/BaseLineSelector/interface/TypeDef.hpp"
 
 using namespace tstar;
+
+
+/******************************************************************************/
+
 ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
    _electronsrc( GETTOKEN( iconf, ElectronList, "electronsrc" ) ),
    _vertexsrc( GETTOKEN( iconf, VertexList, "vertexsrc" ) ),
@@ -24,9 +28,14 @@ ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
    produces<ElectronList>();
 }
 
+/******************************************************************************/
+
 ElectronProducer::~ElectronProducer()
 {
+
 }
+
+/******************************************************************************/
 
 bool
 ElectronProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )

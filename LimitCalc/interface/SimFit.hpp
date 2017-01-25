@@ -1,10 +1,10 @@
 /*******************************************************************************
- *
- *  Filename    : SimFit.hpp
- *  Description : Forward declaration of all functions related with the SimFit
+*
+*  Filename    : SimFit.hpp
+*  Description : Forward declaration of all functions related with the SimFit
                   Method
- *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
- *
+*  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+*
 *******************************************************************************/
 #ifndef TSTARANALYSIS_LIMITCALC_SIMFIT
 #define TSTARANALYSIS_LIMITCALC_SIMFIT
@@ -18,14 +18,11 @@
 /*******************************************************************************
 *   Object naming conventions
 *******************************************************************************/
-extern std::string
-SimFitBGPdfName( const std::string& datasetname, const std::string& signalname );
+extern std::string SimFitBGPdfName( const std::string& datasetname, const std::string& signalname );
 
-extern std::string
-SimFitCombinePdfName ( const std::string& datasetname, const std::string& signalname );
+extern std::string SimFitCombinePdfName( const std::string& datasetname, const std::string& signalname );
 
-extern std::string
-StitchSimFitBgPdfname( const std::string& signalname );
+extern std::string StitchSimFitBgPdfname( const std::string& signalname );
 
 
 /*******************************************************************************
@@ -37,21 +34,21 @@ StitchSimFitBgPdfname( const std::string& signalname );
 *                     be used for the fitting
 *
 *******************************************************************************/
-extern RooFitResult* SimFitSingle (
-   SampleRooFitMgr*    data,
-   SampleRooFitMgr*    sig,
-   const std::string&  setname,
-   RooFitResult*    bgconstrain
-);
+extern RooFitResult* SimFitSingle(
+  SampleRooFitMgr*   data,
+  SampleRooFitMgr*   sig,
+  const std::string& setname,
+  RooFitResult*      bgconstrain
+  );
 
 /*******************************************************************************
 *   Main Control flow to be called be binary main functions
 *******************************************************************************/
 extern void MakeSimFit(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* mc,
-   std::vector<SampleRooFitMgr*>& sig_list
-);
+  SampleRooFitMgr*               data,
+  SampleRooFitMgr*               mc,
+  std::vector<SampleRooFitMgr*>& sig_list
+  );
 
 /*******************************************************************************
 *
@@ -68,30 +65,30 @@ extern void MakeSimFit(
 *
 *******************************************************************************/
 extern void MakeSimFitPlot(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig,
-   RooFitResult*    fitres,
-   const std::string& datasetname = "",
-   const std::string& exttag = ""
-);
+  SampleRooFitMgr*   data,
+  SampleRooFitMgr*   sig,
+  RooFitResult*      fitres,
+  const std::string& datasetname = "",
+  const std::string& exttag = ""
+  );
 
 extern void MakeSimFitCardFile(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* sig
-);
+  SampleRooFitMgr* data,
+  SampleRooFitMgr* sig
+  );
 
-extern Parameter GetBgNormError(
-   SampleRooFitMgr* data,
-   const std::string& uperrorpdf,
-   const std::string& downerrorpdf,
-   const std::string& signalname
-);
+extern mgr::Parameter GetBgNormError(
+  SampleRooFitMgr*   data,
+  const std::string& uperrorpdf,
+  const std::string& downerrorpdf,
+  const std::string& signalname
+  );
 
-extern Parameter GetMCNormError(
-   SampleRooFitMgr* sig,
-   const std::string& uperrorset,
-   const std::string& downerrorset
-);
+extern mgr::Parameter GetMCNormError(
+  SampleRooFitMgr*   sig,
+  const std::string& uperrorset,
+  const std::string& downerrorset
+  );
 
 
-#endif /* end of include guard: TSTARANALYSIS_LIMITCALC_SIMFIT */
+#endif/* end of include guard: TSTARANALYSIS_LIMITCALC_SIMFIT */

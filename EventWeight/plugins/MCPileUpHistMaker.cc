@@ -26,45 +26,44 @@
 *   Class definitions
 *******************************************************************************/
 class MCPileUpHistMaker :
-   public edm::one::EDAnalyzer<edm::one::SharedResources>
+  public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
 public:
-   explicit
-   MCPileUpHistMaker( const edm::ParameterSet& );
-   ~MCPileUpHistMaker();
+  explicit
+  MCPileUpHistMaker( const edm::ParameterSet& );
+  ~MCPileUpHistMaker();
 
-   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
 private:
-   virtual void beginJob() override;
-   virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-   virtual void endJob() override;
+  virtual void beginJob() override;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  virtual void endJob() override;
 
-   // ----------member data ---------------------------
-   const edm::EDGetToken _lhesrc;
-   const edm::EDGetToken _pusrc;
-   edm::Handle<LHEEventProduct> _lhehandle;
-   edm::Handle<std::vector<PileupSummaryInfo> > _puhandle;
+  const edm::EDGetToken _lhesrc;
+  const edm::EDGetToken _pusrc;
+  edm::Handle<LHEEventProduct> _lhehandle;
+  edm::Handle<std::vector<PileupSummaryInfo> > _puhandle;
 
-   TH1D* _pileuphist;
+  TH1D* _pileuphist;
 };
 
 /*******************************************************************************
 *   Constructor and destructor
 *******************************************************************************/
 MCPileUpHistMaker::MCPileUpHistMaker( const edm::ParameterSet& iConfig ) :
-   _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) ),
-   _pusrc( GETTOKEN( iConfig, std::vector<PileupSummaryInfo>, "pusrc" ) )
+  _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) ),
+  _pusrc( GETTOKEN( iConfig, std::vector<PileupSummaryInfo>, "pusrc" ) )
 {
-   edm::Service<TFileService> _fs;
-   _pileuphist = _fs->make<TH1D>( "pu", "pu", 100, 0, 100 );
+  edm::Service<TFileService> _fs;
+  _pileuphist = _fs->make<TH1D>( "pu", "pu", 100, 0, 100 );
 }
 
 /******************************************************************************/
 
 MCPileUpHistMaker::~MCPileUpHistMaker()
 {
-   std::cout << _pileuphist->Integral() << std::endl;
+  std::cout << _pileuphist->Integral() << std::endl;
 }
 
 /*******************************************************************************
@@ -72,18 +71,18 @@ MCPileUpHistMaker::~MCPileUpHistMaker()
 *******************************************************************************/
 void
 MCPileUpHistMaker::analyze(
-   const edm::Event&      iEvent,
-   const edm::EventSetup& iSetup )
+  const edm::Event&      iEvent,
+  const edm::EventSetup& iSetup )
 {
-   iEvent.getByToken( _lhesrc, _lhehandle );
-   iEvent.getByToken( _pusrc,  _puhandle  );
+  iEvent.getByToken( _lhesrc, _lhehandle );
+  iEvent.getByToken( _pusrc,  _puhandle  );
 
-   const double weight =
-      ( _lhehandle.isValid() && _lhehandle->hepeup().XWGTUP > 0  ) ?
-      +1 : -1;
-   const unsigned pu = _puhandle->at( 0 ).getPU_NumInteractions();
+  const double weight =
+    ( _lhehandle.isValid() && _lhehandle->hepeup().XWGTUP > 0  ) ?
+    +1 : -1;
+  const unsigned pu = _puhandle->at( 0 ).getPU_NumInteractions();
 
-   _pileuphist->Fill( pu, weight );
+  _pileuphist->Fill( pu, weight );
 }
 
 
@@ -99,7 +98,7 @@ MCPileUpHistMaker::beginJob()
 void
 MCPileUpHistMaker::endJob()
 {
-   std::cout << _pileuphist->Integral() << std::endl;
+  std::cout << _pileuphist->Integral() << std::endl;
 }
 
 /******************************************************************************/
@@ -107,9 +106,9 @@ MCPileUpHistMaker::endJob()
 void
 MCPileUpHistMaker::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
-   edm::ParameterSetDescription desc;
-   desc.setUnknown();
-   descriptions.addDefault( desc );
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault( desc );
 }
 
 /******************************************************************************/

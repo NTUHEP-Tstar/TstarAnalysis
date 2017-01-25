@@ -39,11 +39,11 @@ def main():
         for dataset in dataset_list :
             dataset  = dataset.strip() ## Removing redundant characeter like '\n'
             crabfilelist = myname.GetCrabOutputFileList('tstar',dataset,opt.mode)
-
+            print dataset
             for index,crabfile in enumerate(crabfilelist):
                 storefile = myname.GetEDMStoreFile( 'tstarbaseline', dataset, opt.mode, index )
-                cmd  = 'xrdcp -f root://{0}//{1} root://{0}//{2}'.format(myset.crab_siteurl,crabfile,storefile)
-                # print cmd
+                cmd  = 'xrdcp -f root://{0}//{1} {2}'.format(myset.crab_siteurl,crabfile,storefile)
+                #print cmd
                 os.system(cmd)
 
             # splitting= 0

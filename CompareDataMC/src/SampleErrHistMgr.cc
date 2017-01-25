@@ -14,7 +14,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
@@ -30,10 +30,7 @@
 #include <stdlib.h>
 
 using namespace std;
-using mgr::SampleMgr;
-using mgr::HistMgr;
-using mgr::ConfigReader;
-
+using namespace mgr;
 using namespace std;
 
 /*******************************************************************************
@@ -56,13 +53,13 @@ extern const vector<string> histnamelist = {
 };
 
 extern const vector<ErrorSource> histerrlist = {
-   { "jec",    "Jet energy correction",    ""                                                           },
-   { "jer",    "Jet energy resolution",    ""                                                           },
-   { "pu",     "Pileup #sigma_{mini}",     "4.6%"                                                       },
-   { "btag",   "b-tag scale factor",       ""                                                           },
-   { "lepton", "lepton scale factor",      ""                                                           },
-   { "pdf",    "PDF uncertainty",          ""                                                           },
-   { "scale",  "QCD scale variation",      ""                                                           }
+   { "jec",    "Jet energy correction",    ""      }
+   ,{ "jer",    "Jet energy resolution",    ""      }
+   ,{ "pu",     "Pileup #sigma_{mini}",     "4.6%"  }
+   ,{ "btag",   "b-tag scale factor",       ""      }
+   ,{ "lepton", "lepton scale factor",      ""      }
+   ,{ "pdf",    "PDF uncertainty",          ""      }
+   // { "scale",  "QCD scale variation",      ""   }
 };
 
 
@@ -234,7 +231,7 @@ SampleErrHistMgr::FillWeightErrHists(
    const double muonweightup   = GetMuonWeightUp( ev );
    const double muonweightdown = GetMuonWeightDown( ev );
    const double pdfweighterr   = GetPdfWeightError( ev, pdfidgoup );
-   const double scaleweighterr = GetScaleWeightError( ev, pdfidgoup );
+   // const double scaleweighterr = GetScaleWeightError( ev, pdfidgoup );
    const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
 
    const double totalweight = sampleweight * eventweight * topptweight;
@@ -247,8 +244,8 @@ SampleErrHistMgr::FillWeightErrHists(
    Hist( centralhistname + "leptondown" )->Fill( fillvalue, totalweight * elecweightdown * muonweightdown / elecweight / muonweight );
    Hist( centralhistname + "pdfup"      )->Fill( fillvalue, totalweight * ( 1 + pdfweighterr ) );
    Hist( centralhistname + "pdfdown"    )->Fill( fillvalue, totalweight * ( 1 - pdfweighterr ) );
-   Hist( centralhistname + "scaleup"    )->Fill( fillvalue, totalweight * ( 1 + scaleweighterr ) );
-   Hist( centralhistname + "scaledown"  )->Fill( fillvalue, totalweight * ( 1 - scaleweighterr ) );
+   // Hist( centralhistname + "scaleup"    )->Fill( fillvalue, totalweight * ( 1 + scaleweighterr ) );
+   // Hist( centralhistname + "scaledown"  )->Fill( fillvalue, totalweight * ( 1 - scaleweighterr ) );
 
    if( filljec ){
       Hist( centralhistname + "jecup"   )->Fill( fillvalue, totalweight );

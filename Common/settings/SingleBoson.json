@@ -3,7 +3,7 @@
    #    Single Boson production
    #    Reference https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#W_jets
    -----------------------------------------------------------------------------""",
-   "WJets_100_200": {
+   "___WJets_100_200": {
       "Is Data": false,
       "Latex Name" : "\\PW+Jets, \\HT\\in [100,200)\\GeVc",
       "Root Name": "W+jets ( 100 #leq H_{T} #leq 200)",
@@ -51,7 +51,7 @@
          "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    },
-   "___WJets_800_1200": {
+   "WJets_800_1200": {
       "Is Data": false,
       "Latex Name" : "\\PW+Jets, \\HT\\in [800,1200)\\GeVc ",
       "Root Name": "W+jets ( 800 #leq H_{T} #leq 1200)",

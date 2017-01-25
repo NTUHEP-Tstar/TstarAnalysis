@@ -74,9 +74,6 @@ else:
 
 process.electronsel = mylepsel.ElectronSelector
 process.muonsel = mylepsel.MuonSelector
-process.electronsel.reqtrigger = cms.VPSet()
-process.muonsel.reqtrigger = cms.VPSet()
-
 
 #-------------------------------------------------------------------------
 #   Reloading weight summing and lepton weight factors

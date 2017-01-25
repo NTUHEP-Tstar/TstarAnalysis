@@ -7,6 +7,5 @@
 
 <use name="ManagerUtils/EDMUtils"/>
 <use name="ManagerUtils/PhysUtils"/>
-<use name="TstarAnalysis/Common"/>
 
 <flags EDM_PLUGIN="1"/>

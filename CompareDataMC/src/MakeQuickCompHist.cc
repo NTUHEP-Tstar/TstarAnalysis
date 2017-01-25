@@ -47,7 +47,7 @@ MakeComparePlot(
       }
 
       // Legend settings
-      TLegend* l = plt::NewLegend( 0.6, 0.5 );
+      TLegend* l = mgr::NewLegend( 0.6, 0.5 );
       l->AddEntry( datahist, datamgr->RootName().c_str(), "lp" );
 
       for( const auto& entry : background ){
@@ -111,7 +111,7 @@ SetBkgColor( vector<SampleHistMgr*>& bkg )
    bkg[1]->SetColor( TColor::GetColor( "#996600" ) );
    bkg[2]->SetColor( TColor::GetColor( "#FF3333" ) );
    bkg[3]->SetColor( TColor::GetColor( "#33EEEE" ) );
-   bkg[4]->SetColor( TColor::GetColor( "#0066EE" ) );
+   // bkg[4]->SetColor( TColor::GetColor( "#0066EE" ) );
 }
 
 /******************************************************************************/

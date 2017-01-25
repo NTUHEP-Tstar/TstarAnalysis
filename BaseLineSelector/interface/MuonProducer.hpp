@@ -22,31 +22,31 @@
 class MuonProducer : public edm::stream::EDFilter<>
 {
 public:
-   explicit
-   MuonProducer( const edm::ParameterSet& );
-   ~MuonProducer();
-   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+  explicit
+  MuonProducer( const edm::ParameterSet& );
+  ~MuonProducer();
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
 private:
-   virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
+  virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
 
-   // Data Members
-   const edm::EDGetToken _rhosrc;
-   const edm::EDGetToken _vertexsrc;
-   const edm::EDGetToken _packedsrc;
-   const edm::EDGetToken _muonsrc;
+  // Data Members
+  const edm::EDGetToken _rhosrc;
+  const edm::EDGetToken _vertexsrc;
+  const edm::EDGetToken _packedsrc;
+  const edm::EDGetToken _muonsrc;
 
-   reco::Vertex _primary_vertex;
-   edm::Handle<double> _rhoHandle;
-   edm::Handle<reco::VertexCollection> _vertexHandle;
-   edm::Handle<pat::PackedCandidateCollection> _packedHandle;
-   edm::Handle<std::vector<pat::Muon>> _muonHandle;
+  reco::Vertex _primary_vertex;
+  edm::Handle<double> _rhoHandle;
+  edm::Handle<reco::VertexCollection> _vertexHandle;
+  edm::Handle<pat::PackedCandidateCollection> _packedHandle;
+  edm::Handle<std::vector<pat::Muon> > _muonHandle;
 
-   // Helper private functions, see src/MuonSelction.cc
-   bool GetPrimaryVertex();
-   bool IsSelectedMuon( const pat::Muon&, const edm::Event& ) const;
-   bool IsVetoMuon( const pat::Muon&, const edm::Event& )     const;
-   void AddMuonVariables( pat::Muon&, const edm::Event& )     const;
+  // Helper private functions, see src/MuonSelction.cc
+  bool GetPrimaryVertex();
+  bool IsSelectedMuon( const pat::Muon&, const edm::Event& ) const;
+  bool IsVetoMuon( const pat::Muon&, const edm::Event& )     const;
+  void AddMuonVariables( pat::Muon&, const edm::Event& )     const;
 };
 
 

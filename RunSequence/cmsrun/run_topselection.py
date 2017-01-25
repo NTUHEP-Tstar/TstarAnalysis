@@ -33,14 +33,6 @@ options.register(
     'Output EDM filename'
 )
 
-options.register(
-    'HLT',
-    False,
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.bool,
-    'Whether or not to run HLT selection'
-)
-
 
 options.setDefault('maxEvents', 1000)
 
@@ -75,11 +67,6 @@ process.jetselector = mysel.toplikeregion
 import TstarAnalysis.AdditionalSelector.AddLeptonSelector_cfi as mylepsel
 process.electronsel = mylepsel.ElectronSelector
 process.muonsel     = mylepsel.MuonSelector
-
-if not options.HLT :
-    # disable trigger selection for non-data samples
-    process.electronsel.reqtrigger = cms.VPSet()
-    process.muonsel.reqtrigger = cms.VPSet()
 
 
 #-------------------------------------------------------------------------------

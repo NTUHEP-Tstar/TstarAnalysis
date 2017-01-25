@@ -27,9 +27,10 @@ typedef std::vector<pat::Muon>     MuonList;
 typedef std::vector<pat::Electron> ElectronList;
 typedef std::vector<pat::Jet>      JetList;
 
-// ------------------------------------------------------------------------------
-//   Class Definition
-// ------------------------------------------------------------------------------
+
+/******************************************************************************/
+
+
 class ChiSqMassReco : public edm::EDProducer
 {
 public:
@@ -52,9 +53,8 @@ private:
    ChiSquareSolver _solver;
 };
 
-// ------------------------------------------------------------------------------
-//   Constructor and Desctructor
-// ------------------------------------------------------------------------------
+/******************************************************************************/
+
 ChiSqMassReco::ChiSqMassReco( const edm::ParameterSet& iConfig ) :
    _metsrc( GETTOKEN( iConfig, METList, "metsrc" ) ),
    _muonsrc( GETTOKEN( iConfig, MuonList, "muonsrc" ) ),
@@ -65,13 +65,13 @@ ChiSqMassReco::ChiSqMassReco( const edm::ParameterSet& iConfig ) :
    produces<RecoResult>( "ChiSquareResult" ).setBranchAlias( "ChiSquareResult" );
 }
 
+/******************************************************************************/
+
 ChiSqMassReco::~ChiSqMassReco()
 {}
 
+/******************************************************************************/
 
-// ------------------------------------------------------------------------------
-//   Main control flow
-// ------------------------------------------------------------------------------
 void
 ChiSqMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
 {

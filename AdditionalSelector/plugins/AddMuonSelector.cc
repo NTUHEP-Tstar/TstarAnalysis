@@ -15,7 +15,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
-
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 #include "ManagerUtils/PhysUtils/interface/TriggerMatching.hpp"
 #include "TstarAnalysis/BaseLineSelector/interface/TypeDef.hpp"
@@ -69,7 +68,11 @@ AddMuonSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
    if( _muonHandle->size() != 1 ){ return true; }
    // only parsing events that contain exactly one muon
 
-   return passtrigger( _muonHandle->at(0), iEvent );
+   const auto& mu = _muonHandle->at(0);
+
+   if( mu.pt() < 35 ){ return false; }
+
+   return passtrigger( mu, iEvent );
 }
 
 /*******************************************************************************
@@ -105,7 +108,7 @@ AddMuonSelector::passtrigger( const pat::Muon& mu, const edm::Event& iEvent ) co
    }
 
    for( const auto& triggerpair : _reqtriggerlist ){
-      const bool hasMatch = HasTriggerMatch(
+      const bool hasMatch = mgr::HasTriggerMatch(
          mu,
          *_triggerObjectHandle,
          triggerpair.first,

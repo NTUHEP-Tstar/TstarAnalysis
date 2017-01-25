@@ -40,43 +40,44 @@ SampleRooFitMgr::MaxMass(){ return x().getMax(); }
 void
 SampleRooFitMgr::InitStaticVars( const double min, const double max )
 {
-   StaticNewVar( "x", "M_{t+g}",      "GeV/c^{2}", min,   max  );
-   StaticNewVar( "w", "event_weight", "",          -1000, 1000 );
+  StaticNewVar( "x", "M_{t+g}",      "GeV/c^{2}", min,   max  );
+  StaticNewVar( "w", "event_weight", "",          -1000, 1000 );
 }
 
 /*******************************************************************************
 *   Constructor and destructor
 *******************************************************************************/
 SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ) :
-   Named( name ),
-   SampleGroup( name, cfg ),
-   RooFitMgr( name )
+  Named( name ),
+  SampleGroup( name, cfg ),
+  RooFitMgr( name )
 {
-   definesets();
+  definesets();
 
-   for( auto& sample : SampleList() ){
-      // Caching sample wide variable (weight sums.. etc), see Common/src/InitSample.cc
-      InitSampleFromEDM( sample );
+  for( auto& sample : SampleList() ){
+    // Caching sample wide variable (weight sums.. etc), see Common/src/InitSample.cc
+    InitSampleFromEDM( sample );
 
-      // Fitting the defined dataset, see LimitCalc/src/SampleRooFitMgr_FillSet.cc
-      fillsets( sample );
-   }
+    // Fitting the defined dataset, see LimitCalc/src/SampleRooFitMgr_FillSet.cc
+    fillsets( sample );
+  }
 }
 
 /******************************************************************************/
 
 SampleRooFitMgr::~SampleRooFitMgr()
 {
-   for( const auto& name : VarNameList() ){
-      RooRealVar* var = Var( name );
-      printf( "%-50s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
-      fflush( stdout );
-   }
-   for( const auto& name : FuncNameList() ){
-      RooAbsReal* func = Func( name );
-      printf("%50s %8.1lf\n" , func->GetName() , func->getVal() );
-      fflush( stdout );
-   }
+  for( const auto& name : VarNameList() ){
+    RooRealVar* var = Var( name );
+    printf( "%-50s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
+    fflush( stdout );
+  }
+
+  for( const auto& name : FuncNameList() ){
+    RooAbsReal* func = Func( name );
+    printf( "%50s %8.1lf\n", func->GetName(), func->getVal() );
+    fflush( stdout );
+  }
 }
 
 
@@ -86,17 +87,17 @@ SampleRooFitMgr::~SampleRooFitMgr()
 RooAbsData*
 SampleRooFitMgr::NewDataSet( const std::string& name )
 {
-   if( DataSet( name ) ){
-      return DataSet( name );
-   } else {
-      RooDataSet* set = new RooDataSet(// Using unbinned RooDataSet object
-         name.c_str(), "",
-         RooArgSet( x(), w() ),
-         RooFit::WeightVar( w() )
-         );
-      AddDataSet( set );
-      return set;
-   }
+  if( DataSet( name ) ){
+    return DataSet( name );
+  } else {
+    RooDataSet* set = new RooDataSet(  // Using unbinned RooDataSet object
+      name.c_str(), "",
+      RooArgSet( x(), w() ),
+      RooFit::WeightVar( w() )
+      );
+    AddDataSet( set );
+    return set;
+  }
 }
 
 /******************************************************************************/
@@ -104,5 +105,5 @@ SampleRooFitMgr::NewDataSet( const std::string& name )
 RooAbsData*
 SampleRooFitMgr::DataSet( const std::string& name )
 {
-   return RooFitMgr::DataSet( name );
+  return RooFitMgr::DataSet( name );
 }

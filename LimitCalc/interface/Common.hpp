@@ -14,10 +14,11 @@
 #include "RooAbsPdf.h"
 #include "RooAbsReal.h"
 #include "RooAddPdf.h"
-#include <cstdlib>
+
+#include <fstream>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 /*******************************************************************************
 *   Common variables, defined in src/Common_Init.cc
@@ -75,27 +76,27 @@ extern void InitMC( SampleRooFitMgr*& );
 *******************************************************************************/
 struct JoinRequest
 {
-   std::string joinname;
-   std::string centralpdfname;
-   std::string uppdfname;
-   std::string downpdfname;
+  std::string joinname;
+  std::string centralpdfname;
+  std::string uppdfname;
+  std::string downpdfname;
 
-   static std::string JoinCoeffName( const std::string& joinname );
-   std::string        JoinCoeffName() const;
+  static std::string JoinCoeffName( const std::string& joinname );
+  std::string        JoinCoeffName() const;
 };
 
 extern RooAbsPdf* MakeJoinPdf(
-   SampleRooFitMgr*   sample,
-   const JoinRequest& x
-   );
+  SampleRooFitMgr*   sample,
+  const JoinRequest& x
+  );
 
 
 extern RooAbsPdf* MakeMultiJoinPdf(
-   SampleRooFitMgr* sample,
-   const std::string& stitchname,
-   const std::string& central,
-   const std::vector<std::pair<std::string, std::string> >& joinlist
-   );
+  SampleRooFitMgr* sample,
+  const std::string& stitchname,
+  const std::string& central,
+  const std::vector<std::pair<std::string, std::string> >& joinlist
+  );
 
 /*******************************************************************************
 *   Make simple stitching
@@ -103,10 +104,10 @@ extern RooAbsPdf* MakeMultiJoinPdf(
 *   all given PDF functions
 *******************************************************************************/
 extern RooAbsPdf* MakeSimpleStitchPdf(
-   SampleRooFitMgr* sample,
-   const std::string& stitchname,
-   const std::vector<std::string>& pdfnamelist
-);
+  SampleRooFitMgr*                sample,
+  const std::string&              stitchname,
+  const std::vector<std::string>& pdfnamelist
+  );
 
 
 /*******************************************************************************
@@ -136,43 +137,43 @@ extern RooAbsPdf* MakeSimpleStitchPdf(
 *
 *******************************************************************************/
 extern void SaveRooWorkSpace(
-   RooAbsData*                     data,
-   const std::vector<RooAbsPdf*>&  pdflist,
-   const std::vector<RooAbsReal*>& funclist
-   );
+  RooAbsData*                     data,
+  const std::vector<RooAbsPdf*>&  pdflist,
+  const std::vector<RooAbsReal*>& funclist
+  );
 
-extern FILE* MakeCardCommon(
-   RooAbsData*        data,
-   RooAbsPdf*         bkg,
-   RooAbsPdf*         sig,
-   const std::string& card_tag
-   );
+extern void MakeCardCommon(
+  std::ofstream& outfile,
+  RooAbsData*    data,
+  RooAbsPdf*     bkg,
+  RooAbsPdf*     sig
+  );
 
 extern void PrintNuisanceFloats(
-   FILE*,
-   const std::string& nuisance_name,
-   const std::string& nuisance_type,
-   const Parameter&   sig_nuisance,// Leave (0,0,0) if skip
-   const Parameter&   bkg_nuisance
-   );
+  std::ofstream&        outfile,
+  const std::string&    nuisance_name,
+  const std::string&    nuisance_type,
+  const mgr::Parameter& sig_nuisance,// Leave (0,0,0) if skip
+  const mgr::Parameter& bkg_nuisance
+  );
 
 extern void PrintFloatParam(
-   FILE*,
-   const RooRealVar*
-   );
+  std::ofstream&    outfile,
+  const RooRealVar* var
+  );
 
 extern void PrintFlatParam(
-   FILE*,
-   const RooRealVar*
-   );
+  std::ofstream&    outfile,
+  const RooRealVar* var
+  );
 
 // Legacy functions
 // in src/RooFit_Bias.cc
 extern void MakeBias(
-   SampleRooFitMgr*,
-   SampleRooFitMgr*,
-   std::vector<SampleRooFitMgr*>&
-   );
+  SampleRooFitMgr*,
+  SampleRooFitMgr*,
+  std::vector<SampleRooFitMgr*>&
+  );
 namespace bias
 {
 void MakePsuedoData( SampleRooFitMgr*, const unsigned );

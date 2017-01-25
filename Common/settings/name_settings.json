@@ -3,49 +3,49 @@
       "MuonBaseline": {
          "Latex Name": "\\Pgm baseline",
          "Root Name": "1#mu, #geq 4 jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/tstarbaseline/Muon",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/tstarbaseline/Muon",
          "Data Prefix": "DataMuon"
       },
       "ElectronBaseline": {
          "Latex Name": "\\Pe baseline",
          "Root Name": "1e, #geq 4 jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/tstarbaseline/Electron",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/tstarbaseline/Electron",
          "Data Prefix": "DataElectron"
       },
       "MuonTopLike": {
          "Latex Name": "\\Pgm toplike",
          "Root Name": "1#mu, #geq 4 jets, 2 b jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/toplike/Muon",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/toplike/Muon",
          "Data Prefix": "DataMuon"
       },
       "ElectronTopLike": {
          "Latex Name": "\\Pe toplike",
          "Root Name": "1e, #geq 4jets, 2 b jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/toplike/Electron",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/toplike/Electron",
          "Data Prefix": "DataElectron"
       },
       "MuonSignal": {
          "Latex Name": "\\Pgm signal channel",
          "Root Name": "1#mu, #geq 6 jets, 2 b jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonSignal",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/massreco/MuonSignal",
          "Data Prefix": "DataMuon"
       },
       "ElectronSignal": {
          "Latex Name": "\\Pe signal channel",
          "Root Name": "1e, #geq 6 jets, 2 b jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronSignal",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/massreco/ElectronSignal",
          "Data Prefix": "DataElectron"
       },
       "MuonControl": {
          "Latex Name": "\\Pgm control region",
          "Root Name": "1#mu, #geq 6 jets, 0 b jets, 2 b-vetoed jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonControl",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/massreco/MuonControl",
          "Data Prefix": "DataMuon"
       },
       "ElectronControl": {
          "Latex Name": "\\Pe signal channel",
          "Root Name": "1e, #geq 6 jets, 0 b jets, 2 b-vetoed jets",
-         "EDM path": "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronControl",
+         "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/massreco/ElectronControl",
          "Data Prefix": "DataElectron"
       },
       "SignalMerge": {

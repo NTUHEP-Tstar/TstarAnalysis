@@ -6,9 +6,11 @@ Main code for excited top quark analysis.
 ```
 cmsrel CMSSW_8_0_21
 cd CMSSW_8_0_21/src
+cmsenv
 
 git cms-init
 git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
+git cms-merge-topic cms-met:METRecipe_8020
 git cms-merge-topic ikrav:egm_id_80X_v1
 
 git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git

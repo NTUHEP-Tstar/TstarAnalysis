@@ -63,6 +63,4 @@ extern bool FromHadronicW( const reco::Candidate* );
 extern bool FromLeptonicTstar( const reco::Candidate* );
 extern bool FromHadronicTstar( const reco::Candidate* );
 
-
-
 #endif/* end of include guard: __RECO_UTILS_HH__ */

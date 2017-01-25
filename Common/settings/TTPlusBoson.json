@@ -15,7 +15,7 @@
          "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0.root"
       ]
    },
-   "___TTW_Quark": {
+   "TTW_Quark": {
       "Is Data": false,
       "Latex Name" : "\\ttbar+(\\PW\\rightarrow\\PQq\\PAQq)",
       "Root Name": "t#bar{t} + W#rightarrow q#bar{q}",
@@ -39,7 +39,7 @@
          "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8_*.root"
       ]
    },
-   "TTZ_Quark": {
+   "_____TTZ_Quark": {
       "Is Data": false,
       "Latex Name" : "\\ttbar+(\\Z\\rightarrow\\PQq\\PAQq)",
       "Root Name": "t#bar{t} + Z#rightarrow qq",

@@ -27,15 +27,15 @@
 class GenWeight : public edm::EDProducer
 {
 public:
-   explicit
-   GenWeight( const edm::ParameterSet& );
-   ~GenWeight();
+  explicit
+  GenWeight( const edm::ParameterSet& );
+  ~GenWeight();
 
 private:
-   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
-   const edm::EDGetToken _lhesrc;
-   edm::Handle<LHEEventProduct> _lheHandle;
+  const edm::EDGetToken _lhesrc;
+  edm::Handle<LHEEventProduct> _lheHandle;
 };
 using namespace edm;
 using namespace std;
@@ -44,9 +44,9 @@ using namespace std;
 *   Constructor
 *******************************************************************************/
 GenWeight::GenWeight( const edm::ParameterSet& iConfig ) :
-   _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) )
+  _lhesrc( GETTOKEN( iConfig, LHEEventProduct, "lhesrc" ) )
 {
-   produces<double>( "GenWeight" );
+  produces<double>( "GenWeight" );
 }
 
 GenWeight::~GenWeight(){}
@@ -57,15 +57,15 @@ GenWeight::~GenWeight(){}
 void
 GenWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   if( iEvent.isRealData() ){ return; }// Don't do anything for data
+  if( iEvent.isRealData() ){ return; } // Don't do anything for data
 
-   auto_ptr<double> weightptr( new double(1.) );
-   iEvent.getByToken( _lhesrc, _lheHandle );
-   if( _lheHandle.isValid()  && _lheHandle->originalXWGTUP() < 0 ){
-      *weightptr = -1;
-   }
+  auto_ptr<double> weightptr( new double(1.) );
+  iEvent.getByToken( _lhesrc, _lheHandle );
+  if( _lheHandle.isValid()  && _lheHandle->originalXWGTUP() < 0 ){
+    *weightptr = -1;
+  }
 
-   iEvent.put( weightptr, "GenWeight" );
+  iEvent.put( weightptr, "GenWeight" );
 }
 
 /******************************************************************************/

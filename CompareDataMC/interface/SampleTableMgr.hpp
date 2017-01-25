@@ -9,7 +9,7 @@
 #ifndef TSTARANALYSIS_COMPAREDATAMC_SAMPLETABLEMGR_HPP
 #define TSTARANALYSIS_COMPAREDATAMC_SAMPLETABLEMGR_HPP
 
-#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/Common/interface/ConfigReader.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 
 class SampleTableMgr :

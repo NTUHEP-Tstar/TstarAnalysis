@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include "RooDataSet.h"
 #include "RooRandom.h"
@@ -32,95 +33,95 @@ using namespace std;
 void
 RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
-   RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
-   const double bkgnum       = data->DataSet()->sumEntries();
-   const double signum       = limnamer.HasOption( "relmag" ) ?
-                               sigmgr->ExpectedYield() * limnamer.InputDou( "relmag" ) :
-                               limnamer.InputDou( "absmag" );
+  RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
+  const double bkgnum       = data->DataSet()->sumEntries();
+  const double signum       = limnamer.HasOption( "relmag" ) ?
+                              sigmgr->ExpectedYield() * limnamer.InputDou( "relmag" ) :
+                              limnamer.InputDou( "absmag" );
 
-   vector<RooRealVar*> paramlist = mc->VarContains( "template" );
-   const double param1           = paramlist[0]->getVal();
-   const double param2           = paramlist[1]->getVal();
+  vector<RooRealVar*> paramlist = mc->VarContains( "template" );
+  const double param1           = paramlist[0]->getVal();
+  const double param2           = paramlist[1]->getVal();
 
-   RooAbsPdf* bkgfunc = mc->Pdf( "template" );
-   RooAbsPdf* sigfunc = MakeSingleKeysPdf( sigmgr, "" );
+  RooAbsPdf* bkgfunc = mc->Pdf( "template" );
+  RooAbsPdf* sigfunc = MakeSingleKeysPdf( sigmgr, "" );
 
-   const string strgthtag = SigStrengthTag();
-   const string filename  = limnamer.TextFileName( "valsimfit", {strgthtag} );
-   FILE* result;
-   if( !boost::filesystem::exists( filename)  ){
-      // If doesn't already exists create new file and print first fitting value.
-      result = fopen( filename.c_str(), "w" );
-      cout << "Writting central value to file " << filename << endl;
-      fprintf( result, "%lf %lf %lf %lf\n", bkgnum, signum, param1, param2 );
-   } else {
-      // Else open in append mode.
-      cout << "Appending fit to file " << filename << endl;
-      result = fopen( filename.c_str() , "a" );
-   }
+  const string strgthtag = SigStrengthTag();
+  const string filename  = limnamer.TextFileName( "valsimfit", {strgthtag} );
 
-   // Setting random seed to present time to allow multiple reruns
-   RooRandom::randomGenerator()->SetSeed( time( NULL ) );
+  ofstream result;
+  if( !boost::filesystem::exists( filename ) ){
+    // If doesn't already exists create new file and print first fitting value.
+    result.open( filename, ios_base::out );
+    cout << "Writting central value to file " << filename << endl;
+    result << boost::format("%lf %lf %lf %lf") % bkgnum % signum % param1 % param2  << endl;
+  } else {
+    // Else open in append mode.
+    cout << "Appending fit to file " << filename << endl;
+    result.open( filename, ios_base::app );
+  }
 
-   for( int i = 0; i < limnamer.InputInt( "num" ); ++i ){
-      const string pseudosetname = "pseudo";
+  // Setting random seed to present time to allow multiple reruns
+  RooRandom::randomGenerator()->SetSeed( time( NULL ) );
 
-      RooDataSet* psuedoset = bkgfunc->generate(
-         SampleRooFitMgr::x(),
-         bkgnum,
-         RooFit::Extended(),
-         RooFit::Name( pseudosetname.c_str() )
-         );
-      RooDataSet* sigset = sigfunc->generate(
-         SampleRooFitMgr::x(),
-         signum,
-         RooFit::Extended()
-         );
-      psuedoset->append( *sigset );
-      delete sigset;
+  for( int i = 0; i < limnamer.InputInt( "num" ); ++i ){
+    const string pseudosetname = "pseudo";
 
-      MakeFullKeysPdf( sigmgr );
+    RooDataSet* psuedoset = bkgfunc->generate(
+      SampleRooFitMgr::x(),
+      bkgnum,
+      RooFit::Extended(),
+      RooFit::Name( pseudosetname.c_str() )
+      );
+    RooDataSet* sigset = sigfunc->generate(
+      SampleRooFitMgr::x(),
+      signum,
+      RooFit::Extended()
+      );
+    psuedoset->append( *sigset );
+    delete sigset;
 
-      // Passes ownership to data
-      data->AddDataSet( psuedoset );
-      data->SetConstant( kFALSE );
+    MakeFullKeysPdf( sigmgr );
 
-      auto fitres = SimFitSingle( data, sigmgr, pseudosetname, bgconstrain );
+    // Passes ownership to data
+    data->AddDataSet( psuedoset );
+    data->SetConstant( kFALSE );
 
-      // Getting results
-      const string pseudobgname   = SimFitBGPdfName( pseudosetname, sigmgr->Name() );
-      const string pseudocombname = SimFitCombinePdfName( pseudosetname, sigmgr->Name() );
-      const RooRealVar* bkgfit    = data->Var( pseudocombname+"nb" );
-      const RooRealVar* sigfit    = data->Var( pseudocombname+"ns" );
-      const RooRealVar* p1fit     = data->Var( pseudobgname + "a" );
-      const RooRealVar* p2fit     = data->Var( pseudobgname + "b" );
+    auto fitres = SimFitSingle( data, sigmgr, pseudosetname, bgconstrain );
 
-      fprintf(
-         result, "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf\n",
-         bkgfit->getVal(), bkgfit->getError(),
-         sigfit->getVal(), sigfit->getError(),
-         p1fit->getVal(), p1fit->getError(),
-         p2fit->getVal(), p2fit->getError()
-         );
+    // Getting results
+    const string pseudobgname   = SimFitBGPdfName( pseudosetname, sigmgr->Name() );
+    const string pseudocombname = SimFitCombinePdfName( pseudosetname, sigmgr->Name() );
+    const RooRealVar* bkgfit    = data->Var( pseudocombname+"nb" );
+    const RooRealVar* sigfit    = data->Var( pseudocombname+"ns" );
+    const RooRealVar* p1fit     = data->Var( pseudobgname + "a" );
+    const RooRealVar* p2fit     = data->Var( pseudobgname + "b" );
 
-      // Saving plots for special cases
-      if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
-         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "bkgexcess" );
-      } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
-         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "bkgdifficient" );
-      } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
-         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "sigexcess" );
-      } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
-         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "sigdifficient" );
-      } else if( i%100 == 0 ){
-         MakeSimFitPlot( data, sigmgr, fitres, pseudosetname );
-      }
+    result << boost::format(  "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf" )
+      % bkgfit->getVal() % bkgfit->getError()
+      % sigfit->getVal() % sigfit->getError()
+      % p1fit->getVal() % p1fit->getError()
+      % p2fit->getVal() % p2fit->getError()
+      << endl;
 
-      // Deleting to avoid taking up to much memory
-      data->RemoveDataSet( pseudosetname );
-   }
+    // Saving plots for special cases
+    if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
+      MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "bkgexcess" );
+    } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
+      MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "bkgdifficient" );
+    } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
+      MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "sigexcess" );
+    } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
+      MakeSimFitPlot( data, sigmgr, fitres, pseudosetname, "sigdifficient" );
+    } else if( i%100 == 0 ){
+      MakeSimFitPlot( data, sigmgr, fitres, pseudosetname );
+    }
 
-   fclose( result );
+    // Deleting to avoid taking up to much memory
+    data->RemoveDataSet( pseudosetname );
+  }
+
+  result.close();
 }
 
 /******************************************************************************/
@@ -128,8 +129,8 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 string
 SigStrengthTag()
 {
-   static boost::format secfmt( "%1%%2%" );
-   return limnamer.HasOption( "relmag" ) ?
-          str( secfmt % "rel" % limnamer.InputDou( "relmag" ) ) :
-          str( secfmt % "abs" % limnamer.InputDou( "absmag" ) );
+  static boost::format secfmt( "%1%%2%" );
+  return limnamer.HasOption( "relmag" ) ?
+         str( secfmt % "rel" % limnamer.InputDou( "relmag" ) ) :
+         str( secfmt % "abs" % limnamer.InputDou( "absmag" ) );
 }

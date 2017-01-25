@@ -33,8 +33,8 @@ crab_default_path = crab_user_path + 'tstar_crab/'
 #-------------------------------------------------------------------------------
 eos_mount_path = os.environ['HOME']+'/eos/'
 eos_path       = eos_mount_path + '/cms/'
-edmstorage_dir = crab_user_path + 'tstar_store/'
 eos_remoteprefix = 'root://eoscms.cern.ch//'
+edmstorage_dir = '/wk_cms/yichen/TstarAnalysis/EDMStore'
 
 #-------------------------------------------------------------------------------
 #   CMSRUN settings

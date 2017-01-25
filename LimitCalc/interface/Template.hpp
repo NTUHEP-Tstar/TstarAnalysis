@@ -8,7 +8,6 @@
 *******************************************************************************/
 #ifndef TSTARANALYSIS_LIMITCALC_TEMPLATE_HPP
 #define TSTARANALYSIS_LIMITCALC_TEMPLATE_HPP
-
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 #include <string>
 #include <vector>
@@ -31,9 +30,9 @@ extern const std::string StitchTemplatePdfName;
 *
 *******************************************************************************/
 extern RooFitResult* FitBackgroundTemplate(
-   SampleRooFitMgr*   bkg,
-   const std::string& dataset
-   );
+  SampleRooFitMgr*   bkg,
+  const std::string& dataset
+  );
 
 extern RooAbsPdf* MakeFullTemplate( SampleRooFitMgr* bkg );
 
@@ -41,10 +40,10 @@ extern RooAbsPdf* MakeFullTemplate( SampleRooFitMgr* bkg );
 *   Main constrol flow to be called by main function
 *******************************************************************************/
 extern void MakeTemplate(
-   SampleRooFitMgr*               data,
-   SampleRooFitMgr*               mc,
-   std::vector<SampleRooFitMgr*>& signallist
-   );
+  SampleRooFitMgr*               data,
+  SampleRooFitMgr*               mc,
+  std::vector<SampleRooFitMgr*>& signallist
+  );
 
 /*******************************************************************************
 *
@@ -57,16 +56,16 @@ extern void MakeTemplate(
 *   ** MakeTemplateCardFile - generate card file to pass to the higgs combine package
 *******************************************************************************/
 extern void MakeTemplatePlot(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* mc,
-   SampleRooFitMgr* signal,
-   const bool       use_data
-   );
+  SampleRooFitMgr* data,
+  SampleRooFitMgr* mc,
+  SampleRooFitMgr* signal,
+  const bool       use_data
+  );
 
 extern void MakeTemplateCardFile(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* mc,
-   SampleRooFitMgr* signal
-   );
+  SampleRooFitMgr* data,
+  SampleRooFitMgr* mc,
+  SampleRooFitMgr* signal
+  );
 
 #endif/* end of include guard: TSTARANALYSIS_LIMITCALC_TEMPLATE_HPP */

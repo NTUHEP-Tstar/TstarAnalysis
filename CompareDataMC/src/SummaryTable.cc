@@ -5,8 +5,7 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "ManagerUtils/Maths/interface/ParameterArithmetic.hpp"
-#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"

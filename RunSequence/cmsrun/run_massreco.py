@@ -10,6 +10,7 @@ import sys
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as opts
+
 #-------------------------------------------------------------------------
 #   Loading addtional selection
 #-------------------------------------------------------------------------
@@ -41,11 +42,11 @@ options.register(
 )
 
 options.register(
-    'HLT',
+    'IsData',
     False,
     opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.bool ,
-    'Whether for not to use run HLT selection'
+    opts.VarParsing.varType.bool,
+    'Whether input is real data'
 )
 
 options.setDefault('maxEvents', 1000)
@@ -79,6 +80,7 @@ import TstarAnalysis.EventWeight.EventWeighter_cfi as myweight
 if "Control" in options.Mode:
     print "Loading modules for control region"
     process.jetselector = myjetsel.controlregion
+
 elif "Signal" in options.Mode:
     print "Loading modules for signal region"
     process.jetselector = myjetsel.signalregion
@@ -94,12 +96,6 @@ else:
 import TstarAnalysis.AdditionalSelector.AddLeptonSelector_cfi as mylepsel
 process.electronsel = mylepsel.ElectronSelector
 process.muonsel     = mylepsel.MuonSelector
-
-if not options.HLT :
-    # disable trigger selection for non-data samples
-    process.electronsel.reqtrigger = cms.VPSet()
-    process.muonsel.reqtrigger = cms.VPSet()
-
 
 #-------------------------------------------------------------------------
 #   Reloading weight summing and lepton weight factors
@@ -154,7 +150,12 @@ elif "Control" in options.Mode :
 #   Load mass calculator
 #-------------------------------------------------------------------------
 process.load("TstarAnalysis.TstarMassReco.Producer_cfi")
-
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+runMetCorAndUncFromMiniAOD(process,
+                           isData=True,
+                           pfCandColl=cms.InputTag("packedPFCandidates"),
+                           recoMetFromPFCs=True,
+                           )
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -189,6 +190,7 @@ if "Signal" in options.Mode :
         * process.MuonWeight
         * process.EventWeight
         * process.EventWeightAll
+        * process.fullPatMetSequence
         * process.tstarMassReco
      )
 elif "Control" in options.Mode :
@@ -200,6 +202,7 @@ elif "Control" in options.Mode :
         * process.MuonWeight
         * process.EventWeight
         * process.EventWeightAll
+        * process.fullPatMetSequence
         * process.tstarMassReco
      )
 

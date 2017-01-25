@@ -5,7 +5,7 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/Common/interface/ConfigReader.hpp"
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/MakeTable.hpp"

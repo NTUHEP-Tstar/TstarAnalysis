@@ -11,6 +11,7 @@
 #include <vector>
 
 using namespace std;
+using namespace mgr;
 
 /*******************************************************************************
 *   External variables for this subpackage
@@ -18,13 +19,13 @@ using namespace std;
 TstarNamer limnamer( "LimitCalc" );
 
 extern const std::vector<std::string> uncsource = {
-   "jec",
-   "jetres",
-   "btag",
-   "pu",
-   "lep",
-   "pdf",
-   "scale"
+  "jec",
+  "jetres",
+  "btag",
+  "pu",
+  "lep",
+  "pdf",
+  "model"
 };
 
 /*******************************************************************************
@@ -33,8 +34,8 @@ extern const std::vector<std::string> uncsource = {
 void
 InitSingle( SampleRooFitMgr*& mgr, const string& tag )
 {
-   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
-   mgr = new SampleRooFitMgr( tag, cfg );
+  const mgr::ConfigReader& cfg = limnamer.MasterConfig();
+  mgr = new SampleRooFitMgr( tag, cfg );
 }
 
 /******************************************************************************/
@@ -42,11 +43,11 @@ InitSingle( SampleRooFitMgr*& mgr, const string& tag )
 void
 InitRooFitSettings( const TstarNamer& x )
 {
-   const mgr::ConfigReader& cfg = x.MasterConfig();
-   const double mass_min        = cfg.GetStaticDouble( "Mass Min" );
-   const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
-   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
-   SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
+  const mgr::ConfigReader& cfg = x.MasterConfig();
+  const double mass_min        = cfg.GetStaticDouble( "Mass Min" );
+  const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
+  SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
+  SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
 }
 
 /******************************************************************************/
@@ -54,16 +55,16 @@ InitRooFitSettings( const TstarNamer& x )
 void
 InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
 {
-   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
-   const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
-                                  + limnamer.GetExtName( "era", "Data Postfix" );
+  const mgr::ConfigReader& cfg = limnamer.MasterConfig();
+  const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
+                                 + limnamer.GetExtName( "era", "Data Postfix" );
 
-   for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){
-      siglist.push_back( new SampleRooFitMgr( signaltag, cfg ) );
-   }
+  for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){
+    siglist.push_back( new SampleRooFitMgr( signaltag, cfg ) );
+  }
 
-   cout << "Created RooFitMgr for data: " << datatag << endl;
-   data = new SampleRooFitMgr( datatag, cfg );
+  cout << "Created RooFitMgr for data: " << datatag << endl;
+  data = new SampleRooFitMgr( datatag, cfg );
 
 }
 
@@ -72,6 +73,6 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
 void
 InitMC( SampleRooFitMgr*& mc )
 {
-   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
-   mc = new SampleRooFitMgr( "Background", cfg );
+  const mgr::ConfigReader& cfg = limnamer.MasterConfig();
+  mc = new SampleRooFitMgr( "Background", cfg );
 }

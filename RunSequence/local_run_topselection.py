@@ -8,6 +8,7 @@
 #*************************************************************************
 import optparse
 import os
+import glob
 import subprocess
 
 import TstarAnalysis.RunSequence.Naming as myname
@@ -17,10 +18,11 @@ import TstarAnalysis.RunSequence.PathVars as mypath
 
 script_template = """
 #!/bin/bash
+source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd  {0}/RunSequence/
 eval `scramv1 runtime -sh`
 cmsRun {0}/RunSequence/cmsrun/run_topselection.py maxEvents=-1 sample={1} output={2}
-xrdcp -f {2} root://{3}//{4}
+cp {2} {3}
 rm {2}
 """
 
@@ -46,17 +48,19 @@ def main():
             dataset = dataset.strip()
 
             filequery = myname.GetEDMStoreGlob( 'tstarbaseline', dataset, opt.mode )
-            p = subprocess.Popen(
-                ['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',filequery],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            masterfilelist = [ os.path.dirname(filequery)+'/'+x for x in  out.split()]
+            # p = subprocess.Popen(
+            #     ['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',filequery],
+            #     stdout=subprocess.PIPE,
+            #     stderr=subprocess.PIPE)
+            # out, err = p.communicate()
+            # masterfilelist = [ os.path.dirname(filequery)+'/'+x for x in  out.split()]
+            masterfilelist = glob.glob( filequery )
 
             filechunks = [masterfilelist[i:i + 3]
                            for i in range(0, len(masterfilelist), 3)]
 
             for index, file_list in enumerate(filechunks):
+                file_list = ['file://' + x for x in file_list ]
                 sample_input = ','.join(file_list)
 
                 tempoutput     = myname.GetTempOutput( 'toplike',dataset, opt.mode,index  )
@@ -67,7 +71,6 @@ def main():
                     mysetting.tstar_dir,
                     sample_input,
                     tempoutput,
-                    mysetting.crab_siteurl,
                     storeoutput,
                 )
 

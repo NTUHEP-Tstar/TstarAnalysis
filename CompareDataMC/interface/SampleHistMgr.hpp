@@ -8,7 +8,7 @@
 #ifndef TSTARANALYSIS_COMPAREDATAMC_SAMPLEHISTMGR_HPP
 #define TSTARANALYSIS_COMPAREDATAMC_SAMPLEHISTMGR_HPP
 
-#include "ManagerUtils/BaseClass/interface/ConfigReader.hpp"
+#include "ManagerUtils/Common/interface/ConfigReader.hpp"
 #include "ManagerUtils/RootMgr/interface/HistMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 

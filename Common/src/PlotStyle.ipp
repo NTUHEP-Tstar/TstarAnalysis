@@ -23,9 +23,9 @@ template<class T>
 void
 tstar::SetErrorStyle( T* x )
 {
-   x->SetFillColor( kBlack );
-   x->SetLineColor( kBlack );
-   x->SetFillStyle( 3004 );
+   x->SetFillColor( KBLUE );
+   x->SetLineColor( KBLUE );
+   x->SetFillStyle( FILL_ST );
 }
 
 /******************************************************************************/
@@ -34,9 +34,10 @@ template<class T>
 void
 tstar::SetSignalStyle( T* x )
 {
-   x->SetLineColor( kRed );
-   x->SetFillColor( kRed );
-   x->SetFillStyle( 3005 );
+   x->SetLineColor( KRED );
+   x->SetLineStyle( 5 );
+//   x->SetFillColor( kRed );
+//   x->SetFillStyle( 3005 );
 }
 
 

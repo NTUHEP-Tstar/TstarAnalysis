@@ -8,8 +8,7 @@
 #include "TstarAnalysis/CompareDataMC/interface/MakeErrHist.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleErrHistMgr.hpp"
 
-#include "ManagerUtils/Maths/interface/ParameterArithmetic.hpp"
-#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "TstarAnalysis/Common/interface/NameParse.hpp"
 #include "TstarAnalysis/Common/interface/PlotStyle.hpp"
@@ -20,6 +19,7 @@
 #include <boost/format.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 using namespace std;
+using namespace mgr;
 
 void
 MakeFullComparePlot(
@@ -52,7 +52,7 @@ MakeFullComparePlot(
       }
 
       // Legend settings
-      TLegend* l = plt::NewLegend( 0.6, 0.5 );
+      TLegend* l = mgr::NewLegend( 0.6, 0.5 );
       l->AddEntry( datahist, datamgr->RootName().c_str(), "lp" );
 
       for( const auto& entry : background ){
@@ -157,7 +157,7 @@ SetBkgColor( vector<SampleErrHistMgr*>& bkg )
    bkg[1]->SetColor( TColor::GetColor( "#996600" ) );
    bkg[2]->SetColor( TColor::GetColor( "#FF3333" ) );
    bkg[3]->SetColor( TColor::GetColor( "#33EEEE" ) );
-   bkg[4]->SetColor( TColor::GetColor( "#0066EE" ) );
+   // bkg[4]->SetColor( TColor::GetColor( "#0066EE" ) );
 }
 
 /******************************************************************************/
@@ -201,18 +201,6 @@ MakeBkgError(
       expyield.RelUpperError(),
       expyield.RelLowerError()
       );
-
-
-   if( histname == "MET" ){
-
-      for( int i = 1; i <= central->GetSize(); ++i ){
-         cout << i << " " << central->GetBinContent( i ) << " " << central->GetBinError( i ) << endl;
-
-         for( const auto pair : errorhistlist ){
-            cout << "\t" <<  pair.first->GetBinContent( i ) << " " << pair.second->GetBinContent( i ) << endl;
-         }
-      }
-   }
 
    for( int i = 1; i <= central->GetSize(); ++i ){
       const double bincont = central->GetBinContent( i );
@@ -283,45 +271,45 @@ PlotErrCompare(
    const double xmax = central->GetXaxis()->GetXmax();
 
    // Plotting
-   TCanvas* c = plt::NewCanvas();
+   TCanvas* c = mgr::NewCanvas();
 
    // TOPPAD
-   TPad* pad1 = plt::NewTopPad();
+   TPad* pad1 = mgr::NewTopPad();
    pad1->Draw();
    pad1->cd();
-   central->Draw( "axis" );
+   central->Draw( PS_AXIS );
    errup->Draw( PS_HIST PS_SAME );
    errdown->Draw( PS_HIST PS_SAME );
    central->Draw( PS_HIST PS_SAME );
    c->cd();
 
 
-   TPad* pad2      = plt::NewBottomPad();
+   TPad* pad2      = mgr::NewBottomPad();
    TLine* line     = new TLine( xmin, 1, xmax, 1 );
    TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
    TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
    pad2->Draw();
    pad2->cd();
 
-   uprel->Draw( "axis" );
-   uprel->Draw( "LE SAME" );
-   downrel->Draw( "LE SAME" );
-   line->Draw( "same" );
-   line_top->Draw( "SAME" );
-   line_bot->Draw( "SAME" );
+   uprel->Draw( PS_AXIS );
+   uprel->Draw( PS_HIST PS_SAME );
+   downrel->Draw( PS_HIST PS_SAME );
+   line->Draw( PS_SAME );
+   line_top->Draw( PS_SAME );
+   line_bot->Draw( PS_SAME );
    c->cd();
 
 
    // Drawing legend
    const double legxmin = 0.5;
    const double legymin = 0.7;
-   TLegend* tl          = plt::NewLegend( legxmin, legymin );
+   TLegend* tl          = mgr::NewLegend( legxmin, legymin );
    const string label   = ( err.label != "" ) ? err.label : "1#sigma";
    tl->AddEntry( central, "Central Value",                               "l" );
    tl->AddEntry( errup,   ( err.rootname + "(+" + label + ")" ).c_str(), "l" );
    tl->AddEntry( errdown, ( err.rootname + "(-" + label + ")" ).c_str(), "l" );
 
-   tl->Draw( "same" );
+   tl->Draw( PS_SAME );
 
    // Common styling
    central->SetLineColor( kBlack );
@@ -339,18 +327,18 @@ PlotErrCompare(
    line_top->SetLineStyle( 3 );
    line_bot->SetLineStyle( 3 );
 
-   plt::SetTopPlotAxis( central );
-   plt::SetBottomPlotAxis( uprel );
+   mgr::SetTopPlotAxis( central );
+   mgr::SetBottomPlotAxis( uprel );
 
    // Setting plot range
-   const double ymax = plt::GetYmax( {central, errup, errdown} );
+   const double ymax = mgr::GetYmax( {central, errup, errdown} );
    central->SetMaximum( ymax * 1.5 );
    uprel->SetMaximum( 2.2 );
    uprel->SetMinimum( -0.2 );
    uprel->GetYaxis()->SetTitle( "#frac{up,down}{Norm}" );
 
 
-   TPaveText* tb = plt::NewTextBox(
+   TPaveText* tb = mgr::NewTextBox(
       PLOT_X_MIN + 0.05,
       PLOT_Y_MAX - ( TEXT_FONT_SIZE*2.0 )/( DEFAULT_CANVAS_HEIGHT ),
       PLOT_X_MIN + 0.40,
@@ -372,14 +360,14 @@ PlotErrCompare(
 
    // cleaning up
    if( listname.find( "Data" ) != string::npos ){
-      plt::DrawCMSLabel( PRELIMINARY );
+      mgr::DrawCMSLabel( PRELIMINARY );
    } else {
-      plt::DrawCMSLabel( SIMULATION );
+      mgr::DrawCMSLabel( SIMULATION );
    }
-   plt::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+   mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
-   plt::SaveToPDF( c, compnamer.PlotFileName( "errcomp", {listname, histname, err.tag} ) );
-   plt::SaveToROOT(
+   mgr::SaveToPDF( c, compnamer.PlotFileName( "errcomp", {listname, histname, err.tag} ) );
+   mgr::SaveToROOT(
       c,
       compnamer.PlotRootFile(),
       compnamer.MakeFileName( "", "errcomp", {listname, histname, err.tag} )

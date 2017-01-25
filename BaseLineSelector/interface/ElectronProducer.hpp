@@ -19,56 +19,53 @@
 #include <vector>
 
 
-// ------------------------------------------------------------------------------
-//   Class Definition
-// ------------------------------------------------------------------------------
 class ElectronProducer : public edm::stream::EDFilter<>
 {
 public:
-   explicit
-   ElectronProducer( const edm::ParameterSet& );
-   ~ElectronProducer();
-   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+  explicit
+  ElectronProducer( const edm::ParameterSet& );
+  ~ElectronProducer();
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
 private:
-   virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
+  virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
 
-   // Data Members
-   const edm::EDGetToken _electronsrc;
-   const edm::EDGetToken _vertexsrc;
-   const edm::EDGetToken _vetoMapToken;
-   const edm::EDGetToken _looseMapToken;
-   const edm::EDGetToken _mediumMapToken;
-   const edm::EDGetToken _tightMapToken;
-   const edm::EDGetToken _heepMapToken;
-   const edm::EDGetToken _hltMapToken;
-   const edm::EDGetToken _packedsrc;
+  // Data Members
+  const edm::EDGetToken _electronsrc;
+  const edm::EDGetToken _vertexsrc;
+  const edm::EDGetToken _vetoMapToken;
+  const edm::EDGetToken _looseMapToken;
+  const edm::EDGetToken _mediumMapToken;
+  const edm::EDGetToken _tightMapToken;
+  const edm::EDGetToken _heepMapToken;
+  const edm::EDGetToken _hltMapToken;
+  const edm::EDGetToken _packedsrc;
 
-   edm::Handle<std::vector<pat::Electron>> _electronHandle;
-   edm::Handle<reco::VertexCollection> _vertexHandle;
-   edm::Handle<edm::ValueMap<bool> > _vetoMapHandle;
-   edm::Handle<edm::ValueMap<bool> > _looseMapHandle;
-   edm::Handle<edm::ValueMap<bool> > _mediumMapHandle;
-   edm::Handle<edm::ValueMap<bool> > _tightMapHandle;
-   edm::Handle<edm::ValueMap<bool> > _heepMapHandle;
-   edm::Handle<edm::ValueMap<bool> > _hltMapHandle;
-   edm::Handle<pat::PackedCandidateCollection> _packedHandle;
+  edm::Handle<std::vector<pat::Electron> > _electronHandle;
+  edm::Handle<reco::VertexCollection> _vertexHandle;
+  edm::Handle<edm::ValueMap<bool> > _vetoMapHandle;
+  edm::Handle<edm::ValueMap<bool> > _looseMapHandle;
+  edm::Handle<edm::ValueMap<bool> > _mediumMapHandle;
+  edm::Handle<edm::ValueMap<bool> > _tightMapHandle;
+  edm::Handle<edm::ValueMap<bool> > _heepMapHandle;
+  edm::Handle<edm::ValueMap<bool> > _hltMapHandle;
+  edm::Handle<pat::PackedCandidateCollection> _packedHandle;
 
-   // Helper functions: see src/ElectronSelection.cc
-   bool IsSelectedElectron(
-      pat::Electron&,
-      const edm::Ptr<pat::Electron>&,
-      const edm::Event&
-      ) const;
-   bool IsVetoElectron(
-      const pat::Electron&,
-      const edm::Ptr<pat::Electron>&,
-      const edm::Event&
-      ) const;
-   void AddElectronVariables(
-      pat::Electron&,
-      const edm::Event&
-      ) const;
+  // Helper functions: see src/ElectronSelection.cc
+  bool IsSelectedElectron(
+    pat::Electron&,
+    const edm::Ptr<pat::Electron>&,
+    const edm::Event&
+    ) const;
+  bool IsVetoElectron(
+    const pat::Electron&,
+    const edm::Ptr<pat::Electron>&,
+    const edm::Event&
+    ) const;
+  void AddElectronVariables(
+    pat::Electron&,
+    const edm::Event&
+    ) const;
 
 };
 

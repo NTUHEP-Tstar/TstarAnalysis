@@ -8,8 +8,8 @@
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 
-#include "RooGenericPdf.h"
 #include "RooAddPdf.h"
+#include "RooGenericPdf.h"
 #include <iostream>
 
 using namespace std;
@@ -21,49 +21,49 @@ using namespace std;
 std::string
 JoinRequest::JoinCoeffName(  const std::string& joinname )
 {
-   return joinname + "coeff";
+  return joinname + "coeff";
 }
 
 /******************************************************************************/
 std::string
 JoinRequest::JoinCoeffName() const
 {
-   return JoinRequest::JoinCoeffName( joinname );
+  return JoinRequest::JoinCoeffName( joinname );
 }
 
 /*******************************************************************************
 *   Single Stitch function
 *******************************************************************************/
 static const std::string LinearInterpolateForm =
-   "@1 * ( 1 - TMath::Abs(@0) ) + @2 * @0 * (@0 > 0 ) + @3 * (-@0) * (@0 < 0 )";
+  "@1 * ( 1 - TMath::Abs(@0) ) + @2 * @0 * (@0 > 0 ) + @3 * (-@0) * (@0 < 0 )";
 
 
 /******************************************************************************/
 
 RooAbsPdf*
 MakeJoinPdf(
-   SampleRooFitMgr*   sample,
-   const JoinRequest& x
-   )
+  SampleRooFitMgr*   sample,
+  const JoinRequest& x
+  )
 {
-   if( sample->Pdf( x.joinname ) ){
-      return sample->Pdf( x.joinname );
-   }
+  if( sample->Pdf( x.joinname ) ){
+    return sample->Pdf( x.joinname );
+  }
 
-   RooRealVar* coeff  = sample->NewVar( x.JoinCoeffName(), 0, -1, 1 );
-   RooAbsPdf* central = sample->Pdf( x.centralpdfname );
-   RooAbsPdf* up      = sample->Pdf( x.uppdfname );
-   RooAbsPdf* down    = sample->Pdf( x.downpdfname );
+  RooRealVar* coeff  = sample->NewVar( x.JoinCoeffName(), 0, -1, 1 );
+  RooAbsPdf* central = sample->Pdf( x.centralpdfname );
+  RooAbsPdf* up      = sample->Pdf( x.uppdfname );
+  RooAbsPdf* down    = sample->Pdf( x.downpdfname );
 
-   RooGenericPdf* joinpdf = new RooGenericPdf(
-      x.joinname.c_str(), x.joinname.c_str(),
-      LinearInterpolateForm.c_str(),
-      RooArgList( *coeff, *central, *up, *down )
-      );
+  RooGenericPdf* joinpdf = new RooGenericPdf(
+    x.joinname.c_str(), x.joinname.c_str(),
+    LinearInterpolateForm.c_str(),
+    RooArgList( *coeff, *central, *up, *down )
+    );
 
-   coeff->setConstant(kTRUE);
-   sample->AddPdf( joinpdf );
-   return joinpdf;
+  coeff->setConstant( kTRUE );
+  sample->AddPdf( joinpdf );
+  return joinpdf;
 }
 
 /******************************************************************************/
@@ -71,36 +71,36 @@ MakeJoinPdf(
 
 RooAbsPdf*
 MakeMultiJoinPdf(
-   SampleRooFitMgr* sample,
-   const string& stitchname,
-   const string& centralname,
-   const vector<pair<string, string> >& joinlist
-   )
+  SampleRooFitMgr* sample,
+  const string& stitchname,
+  const string& centralname,
+  const vector<pair<string, string> >& joinlist
+  )
 {
-   if( sample->Pdf( stitchname ) ){
-      return sample->Pdf( stitchname );
-   }
+  if( sample->Pdf( stitchname ) ){
+    return sample->Pdf( stitchname );
+  }
 
-   string opcen   = centralname;
-   RooAbsPdf* ans = sample->Pdf( centralname );
+  string opcen   = centralname;
+  RooAbsPdf* ans = sample->Pdf( centralname );
 
-   for( const auto& joinpair : joinlist  ){
-      const string joinname = ( joinpair == joinlist.back() ) ?
-                              stitchname :
-                              joinpair.first + "plus" + joinpair.second;
+  for( const auto& joinpair : joinlist  ){
+    const string joinname = ( joinpair == joinlist.back() ) ?
+                            stitchname :
+                            joinpair.first + "plus" + joinpair.second;
 
-      JoinRequest req = {
-         joinname,
-         opcen,
-         joinpair.first,
-         joinpair.second
-      };
+    JoinRequest req = {
+      joinname,
+      opcen,
+      joinpair.first,
+      joinpair.second
+    };
 
-      ans   = MakeJoinPdf( sample, req );
-      opcen = joinname;
-   }
+    ans   = MakeJoinPdf( sample, req );
+    opcen = joinname;
+  }
 
-   return ans;
+  return ans;
 }
 
 
@@ -109,44 +109,44 @@ MakeMultiJoinPdf(
 *******************************************************************************/
 RooAbsPdf*
 MakeSimpleStitchPdf(
-   SampleRooFitMgr*      sample,
-   const string&         stitchname,
-   const vector<string>& pdfnamelist
-   )
+  SampleRooFitMgr*      sample,
+  const string&         stitchname,
+  const vector<string>& pdfnamelist
+  )
 {
-   if( sample->Pdf( stitchname ) ){
-      return sample->Pdf( stitchname );
-   }
+  if( sample->Pdf( stitchname ) ){
+    return sample->Pdf( stitchname );
+  }
 
-   RooArgList pdflist;
-   RooArgList coefflist;
-   vector<string> coeffnamelist;
+  RooArgList pdflist;
+  RooArgList coefflist;
+  vector<string> coeffnamelist;
 
-   // Creating PDF list and coeffname;
-   for( const string& pdfname : pdfnamelist ){
-      if( pdfname != pdfnamelist.front() && sample->Pdf( pdfname ) ){
-         // Skipping the first, shifting it to the last
-         pdflist.add( *( sample->Pdf( pdfname ) ) );
-         coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) + "_" + pdfname );
-      }
-   }
+  // Creating PDF list and coeffname;
+  for( const string& pdfname : pdfnamelist ){
+    if( pdfname != pdfnamelist.front() && sample->Pdf( pdfname ) ){
+      // Skipping the first, shifting it to the last
+      pdflist.add( *( sample->Pdf( pdfname ) ) );
+      coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) + "_" + pdfname );
+    }
+  }
 
-   pdflist.add( *( sample->Pdf( pdfnamelist.front() ) ) );
+  pdflist.add( *( sample->Pdf( pdfnamelist.front() ) ) );
 
-   // Creating Coefficient and coefficient list
-   for( const string& coeffname : coeffnamelist ){
-      RooRealVar* coeff = sample->NewVar( coeffname, 0, 1 );
-      *coeff = 0.;
-      coeff->setConstant( kTRUE );// freezing everying!
-      coefflist.add( *coeff );
-   }
+  // Creating Coefficient and coefficient list
+  for( const string& coeffname : coeffnamelist ){
+    RooRealVar* coeff = sample->NewVar( coeffname, 0, 1 );
+    *coeff = 0.;
+    coeff->setConstant( kTRUE );  // freezing everying!
+    coefflist.add( *coeff );
+  }
 
-   // Creating add pdf list
-   RooAddPdf* ans = new RooAddPdf(
-      stitchname.c_str(), stitchname.c_str(),
-      pdflist,
-      coefflist
-      );
-   sample->AddPdf( ans );
-   return ans;
+  // Creating add pdf list
+  RooAddPdf* ans = new RooAddPdf(
+    stitchname.c_str(), stitchname.c_str(),
+    pdflist,
+    coefflist
+    );
+  sample->AddPdf( ans );
+  return ans;
 }

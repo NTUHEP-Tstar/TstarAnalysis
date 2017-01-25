@@ -19,8 +19,27 @@
 #define PS_HIST    "HIST"
 #define PS_ERROR   "E2"
 #define PGS_DATA   "PZ"// P for point, Z for no end of error bar tick
-#define PGS_SIGNAL "LB"
+#define PGS_SIGNAL "L"
 
+/*******************************************************************************
+*   Color settings
+*******************************************************************************/
+#define KRED    (kRed+2)
+#define KGREEN  (kGreen+1)
+#define KBLUE   (kBlue+2)
+#define KSKY    (kBlue-7)
+
+/*******************************************************************************
+*   Fill settings
+*******************************************************************************/
+#define FILL_NON   0
+#define FILL_SOLID 1001
+#define FILL_ST    3004
+#define FILL_DENSE 3144
+
+/*******************************************************************************
+*   Object settings functions
+*******************************************************************************/
 namespace tstar
 {
 
@@ -40,6 +59,7 @@ void SetSignalStyle( T* x );
 *   RooFit results styling options, see src/PlotStyle.cc
 *******************************************************************************/
 void SetFitBGStyle( TGraph* );
+void SetFitBGErrStyle( TGraph* );
 void SetFitCombStyle( TGraph* );
 
 /*******************************************************************************

@@ -32,52 +32,53 @@
 class HitFitter
 {
 public:
-   HitFitter( const edm::ParameterSet& );
-   virtual ~HitFitter ();
+  HitFitter( const edm::ParameterSet& );
+  virtual
+  ~HitFitter ();
 
-   void SetMET( const pat::MET* );
-   void SetMuon( const pat::Muon* );
-   void SetElectron( const pat::Electron* );
-   void AddBTagJet(  const pat::Jet* );
-   void AddLightJet( const pat::Jet* );
+  void SetMET( const pat::MET* );
+  void SetMuon( const pat::Muon* );
+  void SetElectron( const pat::Electron* );
+  void AddBTagJet(  const pat::Jet* );
+  void AddLightJet( const pat::Jet* );
 
-   void RunPermutations();
-   void ClearAll();
+  void RunPermutations();
+  void ClearAll();
 
-   const RecoResult& BestResult() const;
+  const RecoResult& BestResult() const;
 
 private:
 
-   // Storing objects
-   const unsigned _max_jets;
-   const unsigned _max_required_b_jet;
-   const pat::MET* _met;
-   const pat::Muon* _muon;
-   const pat::Electron* _elec;
-   std::vector<const pat::Jet*> _btagJetList;
-   std::vector<const pat::Jet*> _lightJetList;
+  // Storing objects
+  const unsigned _max_jets;
+  const unsigned _max_required_b_jet;
+  const pat::MET* _met;
+  const pat::Muon* _muon;
+  const pat::Electron* _elec;
+  std::vector<const pat::Jet*> _btagJetList;
+  std::vector<const pat::Jet*> _lightJetList;
 
-   std::vector<RecoResult> _results_list;
+  std::vector<RecoResult> _results_list;
 
-   hitfit::Top_Fit* _top_fitter;
-   hitfit::Resolution* _met_KtResolution;                // Constant for the time being
-   hitfit::EtaDepResolution* _electronResolution;        // Read from external file
-   hitfit::EtaDepResolution* _muonResolution;            // Read from external file
-   hitfit::EtaDepResolution* _lightJetResolution;        // Read from external file
-   hitfit::EtaDepResolution* _bJetResolution;            // Read from external file
+  hitfit::Top_Fit* _top_fitter;
+  hitfit::Resolution* _met_KtResolution;                 // Constant for the time being
+  hitfit::EtaDepResolution* _electronResolution;         // Read from external file
+  hitfit::EtaDepResolution* _muonResolution;             // Read from external file
+  hitfit::EtaDepResolution* _lightJetResolution;         // Read from external file
+  hitfit::EtaDepResolution* _bJetResolution;             // Read from external file
 
-   unsigned _debug;
+  unsigned _debug;
 
-   // ----- Translator functions  --------------------------------------------------
-   void SetHitFitTemplate( hitfit::Lepjets_Event& ) const;
-   void AddHitFitJet( hitfit::Lepjets_Event&, const pat::Jet*, const int ) const;
-   void AddResult(
-      const double,
-      const double,
-      const hitfit::Lepjets_Event& );// Converting results to RecoResult
+  // ----- Translator functions  --------------------------------------------------
+  void SetHitFitTemplate( hitfit::Lepjets_Event& ) const;
+  void AddHitFitJet( hitfit::Lepjets_Event&, const pat::Jet*, const int ) const;
+  void AddResult(
+    const double,
+    const double,
+    const hitfit::Lepjets_Event& );  // Converting results to RecoResult
 
-   // ----- B Tag checking functions  ----------------------------------------------
-   bool CheckBTagOrder( const std::vector<int>& ) const;
+  // ----- B Tag checking functions  ----------------------------------------------
+  bool CheckBTagOrder( const std::vector<int>& ) const;
 };
 
 #endif// __HITFITTER_CC__

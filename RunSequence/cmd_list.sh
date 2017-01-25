@@ -23,18 +23,18 @@
 
 ./local_run_massreco.py   -i MuonData80X.txt      -m MuonSignal
 ./local_run_massreco.py   -i ElectronData80X.txt  -m ElectronSignal
-./local_run_massreco.py   -i MC80X.txt            -m MuonSignal
-./local_run_massreco.py   -i MC80X.txt            -m ElectronSignal
+./local_run_massreco.py   -i Moriond17MC.txt      -m MuonSignal
+./local_run_massreco.py   -i Moriond17MC.txt      -m ElectronSignal
 ./local_run_massreco.py   -i MuonData80X.txt      -m MuonControl
 ./local_run_massreco.py   -i ElectronData80X.txt  -m ElectronControl
-./local_run_massreco.py   -i MC80X.txt            -m MuonControl
-./local_run_massreco.py   -i MC80X.txt            -m ElectronControl
+./local_run_massreco.py   -i Moriond17MC.txt      -m MuonControl
+./local_run_massreco.py   -i Moriond17MC.txt      -m ElectronControl
 
 ./local_run_topselection.py -i MuonData80X.txt     -m Muon
 ./local_run_topselection.py -i ElectronData80X.txt -m Electron
-./local_run_topselection.py -i MC80X.txt           -m Muon
-./local_run_topselection.py -i MC80X.txt           -m Electron
+./local_run_topselection.py -i Moriond17MC.txt       -m Muon
+./local_run_topselection.py -i Moriond17MC.txt       -m Electron
 
 
-./local_run_recocomp.py -i MC80X.txt -m MuonSignal
-./local_run_recocomp.py -i MC80X.txt -m ElectronSignal
+./local_run_recocomp.py -i Moriond17MC.txt -m MuonSignal
+./local_run_recocomp.py -i Moriond17MC.txt -m ElectronSignal

@@ -60,12 +60,6 @@ ElectronWeightAll = cms.EDProducer(
             file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_trackeff.root"),
             fileobj    = cms.string("EGamma_SF2D"),
         ),
-        # cms.PSet(
-        #     weightname = cms.string('CutWeight'),
-        #     objecttype = cms.string('TH2D'),
-        #     file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_tightcuteff.root"),
-        #     fileobj    = cms.string("EGamma_SF2D"),
-        # ),
         cms.PSet(
             weightname = cms.string('CutWeight'),
             objecttype = cms.string('TH2D'),
@@ -74,9 +68,9 @@ ElectronWeightAll = cms.EDProducer(
         ),
         cms.PSet(
             weightname = cms.string('TriggerWeight'),
-            objecttype = cms.string('TEfficiency'),
+            objecttype = cms.string('TH2D'),
             file       = cms.FileInPath("TstarAnalysis/EventWeight/data/electron_trigger.root"),
-            fileobj    = cms.string("total_clone"),
+            fileobj    = cms.string("scale_ele32"),
         ),
     )
 )
@@ -91,14 +85,14 @@ MuonWeightNoTrigger = cms.EDProducer(
         cms.PSet(
             weightname = cms.string('IDWeight'),
             objecttype = cms.string('TH2D'),
-            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonID_Z_RunBCD_prompt80X_7p65.root' ),
-            fileobj    = cms.string('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonScaleFactor_Merge.root' ),
+            fileobj    = cms.string('muid'),
         ),
         cms.PSet(
             weightname = cms.string('IsoWeight'),
             objecttype = cms.string('TH2D'),
-            file = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonIso_Z_RunBCD_prompt80X_7p65.root' ),
-            fileobj = cms.string( 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio' ),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonScaleFactor_Merge.root' ),
+            fileobj    = cms.string( 'muiso' ),
         ),
 
     )
@@ -111,20 +105,20 @@ MuonWeightAll = cms.EDProducer(
         cms.PSet(
             weightname = cms.string('IDWeight'),
             objecttype = cms.string('TH2D'),
-            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonID_Z_RunBCD_prompt80X_7p65.root' ),
-            fileobj    = cms.string('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonScaleFactor_Merge.root' ),
+            fileobj    = cms.string('muid'),
         ),
         cms.PSet(
             weightname = cms.string('IsoWeight'),
             objecttype = cms.string('TH2D'),
-            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonIso_Z_RunBCD_prompt80X_7p65.root' ),
-            fileobj    = cms.string( 'MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio' ),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonScaleFactor_Merge.root' ),
+            fileobj    = cms.string( 'muiso' ),
         ),
         cms.PSet(
             weightname = cms.string('TriggerWeight'),
-            objecttype = cms.string('TEfficiency'),
-            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/muon_trigger.root' ),
-            fileobj    = cms.string('total_era_bcd_clone'),
+            objecttype = cms.string('TH2D'),
+            file       = cms.FileInPath( 'TstarAnalysis/EventWeight/data/MuonScaleFactor_Merge.root' ),
+            fileobj    = cms.string('mutrig'),
         ),
     )
 )

@@ -26,10 +26,10 @@
                     and plot results.
 *******************************************************************************/
 extern void RunGenFit(
-   SampleRooFitMgr* data,
-   SampleRooFitMgr* bkg,
-   SampleRooFitMgr* sig
-   );
+  SampleRooFitMgr* data,
+  SampleRooFitMgr* bkg,
+  SampleRooFitMgr* sig
+  );
 
 extern void PlotGenFit( const std::vector<std::string>& );
 
@@ -55,16 +55,16 @@ extern std::string SigStrengthTag();
 struct PullResult;
 extern PullResult PlotSingleGenFit( const std::string& masstag );
 
-extern std::pair<Parameter, Parameter> MakePullPlot(
-   RooDataSet&,
-   const std::string& masstag,
-   const std::string& tag
-   );
+extern std::pair<mgr::Parameter, mgr::Parameter> MakePullPlot(
+  RooDataSet&,
+  const std::string& masstag,
+  const std::string& tag
+  );
 extern void MakePullComparePlot(
-   const std::map<int, PullResult>&,
-   const unsigned,
-   const std::string& tag
-   );
+  const std::map<int, PullResult>&,
+  const unsigned,
+  const std::string& tag
+  );
 
 
 #endif/* end of include guard: TSTARANALYSIS_LIMITCALC_SIMFITVAL_HPP */

@@ -10,7 +10,7 @@ import optparse
 import os
 import re
 import subprocess
-channellist= ["ElectronSignal", "MuonSignal"]
+import glob
 
 import TstarAnalysis.RunSequence.Naming   as myname
 import TstarAnalysis.RunSequence.Settings as mysetting
@@ -18,10 +18,11 @@ import TstarAnalysis.RunSequence.PathVars as mypath
 
 script_template = """
 #!/bin/bash
+source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd {0}
 eval `scramv1 runtime -sh`
 cmsRun {0}/RunSequence/cmsrun/run_reco_compare.py Mode={1} sample={2} output={3} maxEvents=-1
-xrdcp -f {3} root://{4}/{5}
+cp {3} {4}
 rm {3}
 """
 
@@ -56,17 +57,20 @@ def main():
                 print "ERROR! Unrecongnized mode ", opt.mode
                 sys.exit(1)
 
-            p = subprocess.Popen(
-                ['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',filequery],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            file_master_list = [ os.path.dirname(filequery)+'/'+x for x in  out.split()]
+            # p = subprocess.Popen(
+            #     ['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',filequery],
+            #     stdout=subprocess.PIPE,
+            #     stderr=subprocess.PIPE)
+            # out, err = p.communicate()
+            # file_master_list = [ os.path.dirname(filequery)+'/'+x for x in  out.split()]
+
+            file_master_list = glob.glob( filequery )
 
             file_chunks = [file_master_list[i:i + 3]
                            for i in range(0, len(file_master_list), 3)]
 
             for index, file_list in enumerate(file_chunks):
+                file_list = [ 'file://'+x for x in file_list ]
                 sample_input = ','.join(file_list)
 
                 tempoutput       = myname.GetTempOutput( 'recocomp',dataset, opt.mode,index  )
@@ -78,7 +82,6 @@ def main():
                     opt.mode,
                     sample_input,
                     tempoutput,
-                    mysetting.crab_siteurl,
                     storeoutput,
                 )
 

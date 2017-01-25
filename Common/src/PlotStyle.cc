@@ -6,6 +6,7 @@
 *
 *******************************************************************************/
 #include "TGraph.h"
+#include "TstarAnalysis/Common/interface/PlotStyle.hpp"
 
 namespace tstar {
 /*******************************************************************************
@@ -14,9 +15,21 @@ namespace tstar {
 void
 SetFitBGStyle( TGraph* x )
 {
-   x->SetFillColor( kCyan );
-   x->SetLineColor( kBlue );
-   x->SetFillStyle( 3004 );
+  x->SetLineColor( KBLUE );
+  x->SetLineWidth( 3 );
+  x->SetLineStyle( 3 );
+}
+
+/******************************************************************************/
+
+void
+SetFitBGErrStyle( TGraph* x )
+{
+  x->SetFillStyle( FILL_DENSE );
+  x->SetFillColor( KSKY );
+  x->SetLineColor( KBLUE );
+  x->SetLineWidth( 3 );
+  x->SetLineStyle( 3 );
 }
 
 /******************************************************************************/
@@ -24,9 +37,10 @@ SetFitBGStyle( TGraph* x )
 void
 SetFitCombStyle( TGraph* x )
 {
-   x->SetFillColor( kGreen );
-   x->SetLineColor( kGreen );
-   x->SetFillStyle( 1001 );
+  x->SetFillColor( KGREEN );
+  x->SetLineColor( KGREEN );
+  x->SetLineWidth( 1 );
+  x->SetLineStyle( 8 );
 }
 
 /*******************************************************************************
@@ -35,10 +49,10 @@ SetFitCombStyle( TGraph* x )
 void
 SetOneSigmaStyle( TGraph* x )
 {
-   x->SetFillColor( kGreen +1 );
-   x->SetLineColor( kGreen +1 );
-   x->SetLineWidth( 0 );
-   x->SetFillStyle( 1001 );
+  x->SetFillColor( KGREEN );
+  x->SetLineColor( KGREEN );
+  x->SetLineWidth( 0 );
+  x->SetFillStyle( FILL_SOLID );
 }
 
 /******************************************************************************/
@@ -46,10 +60,10 @@ SetOneSigmaStyle( TGraph* x )
 void
 SetTwoSigmaStyle( TGraph* x )
 {
-   x->SetFillColor( kOrange );
-   x->SetLineColor( kOrange );
-   x->SetLineWidth( 0 );
-   x->SetFillStyle( 3001 );
+  x->SetFillColor( kOrange );
+  x->SetLineColor( kOrange );
+  x->SetLineWidth( 0 );
+  x->SetFillStyle( FILL_DENSE );
 }
 
 /******************************************************************************/
@@ -57,9 +71,9 @@ SetTwoSigmaStyle( TGraph* x )
 void
 SetTheoryStyle( TGraph* x )
 {
-   x->SetLineColor( kBlue );
-   x->SetLineWidth( 2 );
-   x->SetLineStyle( 2 );
+  x->SetLineColor( KBLUE );
+  x->SetLineWidth( 2 );
+  x->SetLineStyle( 2 );
 
 }
 
@@ -68,9 +82,9 @@ SetTheoryStyle( TGraph* x )
 void
 SetExpLimitStyle( TGraph* x )
 {
-   x->SetLineColor( kBlack );
-   x->SetLineWidth( 2 );
-   x->SetLineStyle( 2 );
+  x->SetLineColor( kBlack );
+  x->SetLineWidth( 2 );
+  x->SetLineStyle( 2 );
 }
 
 /******************************************************************************/
@@ -78,9 +92,9 @@ SetExpLimitStyle( TGraph* x )
 void
 SetObsLimitStyle( TGraph* x )
 {
-   x->SetLineColor( kBlack );
-   x->SetLineWidth( 2 );
-   x->SetLineStyle( 1 );
+  x->SetLineColor( kBlack );
+  x->SetLineWidth( 2 );
+  x->SetLineStyle( 1 );
 
 }
 

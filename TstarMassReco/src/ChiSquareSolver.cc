@@ -16,9 +16,9 @@
 #include <iostream>
 using namespace std;
 
-// ------------------------------------------------------------------------------
-//   Defining constants
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Defining constants and helper function
+*******************************************************************************/
 #define TOP_MASS    173.34
 #define TOP_WIDTH   2.00
 #define W_MASS      80.385
@@ -30,9 +30,10 @@ using namespace std;
 bool
 SortJet( const pat::Jet* x, const pat::Jet* y ){ return x->pt() > y->pt();  }
 
-// ------------------------------------------------------------------------------
-//   Constructor and destructor
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Constructor and Destructor
+*******************************************************************************/
+
 ChiSquareSolver::ChiSquareSolver( const edm::ParameterSet& iConfig ) :
    _bcheck( "check", GETFILEPATH( iConfig, "btagfile" ) ),
    _debug( iConfig.getUntrackedParameter<int>( "Debug", 0 ) ),
@@ -40,11 +41,13 @@ ChiSquareSolver::ChiSquareSolver( const edm::ParameterSet& iConfig ) :
    _req_b_jets( iConfig.getUntrackedParameter<int>( "ReqBJet", DEFAULT_REQUIRED_BJETS_MATCHING ) )
 {}
 
+/******************************************************************************/
+
 ChiSquareSolver::~ChiSquareSolver(){}
 
-// ------------------------------------------------------------------------------
-//   Main Control Flow - Running Permutations
-// ------------------------------------------------------------------------------
+/*******************************************************************************
+*   Running all permutations
+*******************************************************************************/
 void
 ChiSquareSolver::RunPermutations()
 {
@@ -58,8 +61,8 @@ ChiSquareSolver::RunPermutations()
    TLorentzVector had_tstar;
    TLorentzVector lepton;
 
-   if( _muon ){ lepton = GetLorentzVector( *_muon, "" ); }
-   if( _electron ){ lepton = GetLorentzVector( *_electron, "" ); }
+   if( _muon ){ lepton = mgr::GetLorentzVector( *_muon, "" ); }
+   if( _electron ){ lepton = mgr::GetLorentzVector( *_electron, "" ); }
 
    do {// Running jet permutations
       if( !CheckPermutation() ){ continue; }
@@ -83,6 +86,8 @@ ChiSquareSolver::RunPermutations()
       }
    } while( next_permutation( _jetlist.begin(), _jetlist.end(), SortJet ) );
 }
+
+/******************************************************************************/
 
 void
 ChiSquareSolver::AddResult( const double tstar_mass, const double chi_square, const unsigned neu_index )
@@ -129,6 +134,7 @@ ChiSquareSolver::AddResult( const double tstar_mass, const double chi_square, co
    _resultsList.push_back( new_result );
 }
 
+/******************************************************************************/
 
 const RecoResult&
 ChiSquareSolver::BestResult() const
@@ -162,6 +168,8 @@ ChiSquareSolver::SetMET( const pat::MET* x )
    _met = x;
 }
 
+/******************************************************************************/
+
 void
 ChiSquareSolver::SetMuon( const pat::Muon* x )
 {
@@ -170,6 +178,8 @@ ChiSquareSolver::SetMuon( const pat::Muon* x )
    solveNeutrino();
 }
 
+/******************************************************************************/
+
 void
 ChiSquareSolver::SetElectron( const pat::Electron* x )
 {
@@ -177,6 +187,8 @@ ChiSquareSolver::SetElectron( const pat::Electron* x )
    _electron = x;
    solveNeutrino();
 }
+
+/******************************************************************************/
 
 void
 ChiSquareSolver::AddJet( const pat::Jet* jet )
@@ -188,6 +200,8 @@ ChiSquareSolver::AddJet( const pat::Jet* jet )
       _jetlist.resize( _max_jets );
    }
 }
+
+/******************************************************************************/
 
 void
 ChiSquareSolver::ClearAll()
@@ -253,11 +267,15 @@ ChiSquareSolver::solveNeutrino()
    }
 }
 
+/******************************************************************************/
+
 bool
 ChiSquareSolver::IsBtagged( const pat::Jet* x ) const
 {
    return _bcheck.PassMedium( *x );
 }
+
+/******************************************************************************/
 
 bool
 ChiSquareSolver::CheckPermutation() const
@@ -285,24 +303,23 @@ ChiSquareSolver::CheckPermutation() const
    }
 }
 
-
 /*******************************************************************************
 *   Jet Four momentum objects
 *******************************************************************************/
 TLorentzVector
-ChiSquareSolver::had_b()  const { return GetLorentzVector( *_jetlist[0], "ResP4" ); }
+ChiSquareSolver::had_b()  const { return mgr::GetLorentzVector( *_jetlist[0], "ResP4" ); }
 
 TLorentzVector
-ChiSquareSolver::lep_b()  const { return GetLorentzVector( *_jetlist[1], "ResP4" ); }
+ChiSquareSolver::lep_b()  const { return mgr::GetLorentzVector( *_jetlist[1], "ResP4" ); }
 
 TLorentzVector
-ChiSquareSolver::had_g()  const { return GetLorentzVector( *_jetlist[2], "ResP4" ); }
+ChiSquareSolver::had_g()  const { return mgr::GetLorentzVector( *_jetlist[2], "ResP4" ); }
 
 TLorentzVector
-ChiSquareSolver::had_q1() const { return GetLorentzVector( *_jetlist[3], "ResP4" ); }
+ChiSquareSolver::had_q1() const { return mgr::GetLorentzVector( *_jetlist[3], "ResP4" ); }
 
 TLorentzVector
-ChiSquareSolver::had_q2() const { return GetLorentzVector( *_jetlist[4], "ResP4" ); }
+ChiSquareSolver::had_q2() const { return mgr::GetLorentzVector( *_jetlist[4], "ResP4" ); }
 
 TLorentzVector
-ChiSquareSolver::lep_g()  const { return GetLorentzVector( *_jetlist[5], "ResP4" ); }
+ChiSquareSolver::lep_g()  const { return mgr::GetLorentzVector( *_jetlist[5], "ResP4" ); }

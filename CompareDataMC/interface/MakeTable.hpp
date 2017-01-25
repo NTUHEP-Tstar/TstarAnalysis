@@ -8,7 +8,7 @@
 #ifndef TSTARANALYSIS_COMPAREDATAMC_MAKETABLE_HPP
 #define TSTARANALYSIS_COMPAREDATAMC_MAKETABLE_HPP
 
-#include "ManagerUtils/Maths/interface/ParameterFormat.hpp"
+#include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleTableMgr.hpp"
@@ -56,9 +56,9 @@ extern void SummaryMCLumi(
 *   ** InitSampleString - Actually defining what sample stringto cache
 *
 *******************************************************************************/
-extern Parameter GetWeightError( const mgr::SampleMgr& );
+extern mgr::Parameter GetWeightError( const mgr::SampleMgr& );
 extern std::string  AddMathBrace( const std::string& );
-extern std::string  XSecStr( const Parameter& );
+extern std::string  XSecStr( const mgr::Parameter& );
 
 /*******************************************************************************
 *   Common Helper function
@@ -79,14 +79,14 @@ extern void CloseTableFile( FILE* );
 *******************************************************************************/
 extern FILE* OpenSelecFile( const std::string& );
 extern void  PrintSampleLine( FILE*, const mgr::SampleMgr& );
-extern void  PrintCount( FILE*, const std::string&, const Parameter& );
+extern void  PrintCount( FILE*, const std::string&, const mgr::Parameter& );
 
 /*******************************************************************************
 *   Helper functions for simple summary files
 *******************************************************************************/
 extern FILE* OpenSimpleFile( const std::string& );
 extern void  PrintSimpleLine( FILE*, const SampleTableMgr& );
-extern void  PrintSimpleCount( FILE*, const std::string&, const Parameter& );
+extern void  PrintSimpleCount( FILE*, const std::string&, const mgr::Parameter& );
 
 /*******************************************************************************
 *   Helper functions for Lumi files

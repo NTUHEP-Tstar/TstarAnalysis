@@ -1,6 +1,6 @@
 {
    "Scram Arch" : "slc6_amd64_gcc491",
-   "Store Path" : "/afs/cern.ch/work/y/yichen/Higgs_Combine",
+   "Store Path" : "/wk_cms/yichen/HiggsCombine/",
    "CMSSW Version": "CMSSW_7_4_7",
    "Higgs Combine Version" : "v6.2.1"
 }

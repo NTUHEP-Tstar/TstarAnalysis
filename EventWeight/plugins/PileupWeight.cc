@@ -27,21 +27,21 @@
 class PileupWeight : public edm::EDProducer
 {
 public:
-   explicit
-   PileupWeight( const edm::ParameterSet& );
-   ~PileupWeight();
+  explicit
+  PileupWeight( const edm::ParameterSet& );
+  ~PileupWeight();
 
 private:
-   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
-   // Getting objects from vector of sums
-   const edm::EDGetToken _pusrc;
-   edm::Handle<std::vector<PileupSummaryInfo> > _puhandle;
+  // Getting objects from vector of sums
+  const edm::EDGetToken _pusrc;
+  edm::Handle<std::vector<PileupSummaryInfo> > _puhandle;
 
-   // Vector representing weights
-   const std::vector<double> _puweights;
-   std::vector<double> readweight( const std::string& );// for aiding with contruction
-   double              getweight( const unsigned ) const;
+  // Vector representing weights
+  const std::vector<double> _puweights;
+  std::vector<double> readweight( const std::string& ); // for aiding with contruction
+  double              getweight( const unsigned ) const;
 };
 
 using namespace edm;
@@ -51,10 +51,10 @@ using namespace std;
 *   Constructor and destructor
 *******************************************************************************/
 PileupWeight::PileupWeight( const edm::ParameterSet& iConfig ) :
-   _pusrc( GETTOKEN( iConfig, std::vector<PileupSummaryInfo>, "pusrc" ) ),
-   _puweights( readweight( GETFILEPATH( iConfig, "pileupfile" ) ) )
+  _pusrc( GETTOKEN( iConfig, std::vector<PileupSummaryInfo>, "pusrc" ) ),
+  _puweights( readweight( GETFILEPATH( iConfig, "pileupfile" ) ) )
 {
-   produces<double>( "PileupWeight" );
+  produces<double>( "PileupWeight" );
 }
 
 PileupWeight::~PileupWeight(){}
@@ -65,17 +65,17 @@ PileupWeight::~PileupWeight(){}
 void
 PileupWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   if( iEvent.isRealData() ){ return; }// skipping if is data event
+  if( iEvent.isRealData() ){ return; } // skipping if is data event
 
-   std::auto_ptr<double> pileupweightptr( new double(1.) );
-   double& pileupweight = *pileupweightptr;
+  std::auto_ptr<double> pileupweightptr( new double(1.) );
+  double& pileupweight = *pileupweightptr;
 
-   iEvent.getByToken( _pusrc, _puhandle );
-   const unsigned pu = _puhandle->at( 0 ).getPU_NumInteractions();
-   if( pu < _puweights.size() ){
-      pileupweight = _puweights.at( pu );
-   }
-   iEvent.put( pileupweightptr, "PileupWeight" );
+  iEvent.getByToken( _pusrc, _puhandle );
+  const unsigned pu = _puhandle->at( 0 ).getPU_NumInteractions();
+  if( pu < _puweights.size() ){
+    pileupweight = _puweights.at( pu );
+  }
+  iEvent.put( pileupweightptr, "PileupWeight" );
 }
 
 
@@ -84,15 +84,15 @@ PileupWeight::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 vector<double>
 PileupWeight::readweight( const string& filename )
 {
-   vector<double> ans;
-   double weight;
-   FILE* weightfile = fopen( filename.c_str(), "r" );
+  vector<double> ans;
+  double weight;
+  FILE* weightfile = fopen( filename.c_str(), "r" );
 
-   while( fscanf( weightfile, "%lf", &weight ) != EOF ){
-      ans.push_back( weight );
-   }
+  while( fscanf( weightfile, "%lf", &weight ) != EOF ){
+    ans.push_back( weight );
+  }
 
-   return ans;
+  return ans;
 }
 
 /******************************************************************************/
@@ -100,7 +100,7 @@ PileupWeight::readweight( const string& filename )
 double
 PileupWeight::getweight( const unsigned x ) const
 {
-   if( x < _puweights.size() ){ return _puweights.at( x ); } else { return 1.; }
+  if( x < _puweights.size() ){ return _puweights.at( x ); } else { return 1.; }
 }
 
 /******************************************************************************/

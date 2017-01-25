@@ -66,7 +66,6 @@ ElectronProducer::IsVetoElectron(
    return true;
 }
 
-
 /*******************************************************************************
 *   Selection Criterias
 *******************************************************************************/
@@ -77,7 +76,7 @@ ElectronProducer::AddElectronVariables(
    ) const
 {
 
-   double miniIso = PFMiniIsolation(
+   double miniIso = mgr::PFMiniIsolation(
       _packedHandle,
       dynamic_cast<const reco::Candidate*>( &el ),
       0.05,
