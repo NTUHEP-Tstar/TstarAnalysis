@@ -78,6 +78,12 @@ SampleHistMgr::define_hist()
   AddHist( "Jet1Pt_NoTopPt",    "Leading Jet p_{T} (w/o top p_{T} weights)",           "GeV/c",     60,  30,   1000 );
   AddHist( "TstarMass_NoTopPt", "M_{t+g} (w/o top p_{T} weights)",                     "GeV/c^{2}", 50,   0,   2000 );
 
+  // Adding effect of B tag scale factors
+  AddHist( "MET_NoBTag",        "Missing transverse momentum (w/o b tag SF)",          "GeV",       50,   0,    500 );
+  AddHist( "JetNum_NoBTag",     "Number of jets (w/o b tag SF)",                       "",          11,   4,     15 );
+  AddHist( "Jet1Pt_NoBTag",     "Leading Jet p_{T} (w/o b tag SF)",                    "GeV/c",     60,  30,   1000 );
+  AddHist( "TstarMass_NoBTag",  "M_{t+g} (w/o b tag SF)",                              "GeV/c^{2}", 50,   0,   2000 );
+
   // Effects of Tighter electron selection
   AddHist( "LepNonePt",         "selection lepton p_{T} (w/o lepton weights)",         "GeV/c",     48,  20,    500 );
   AddHist( "LepNoneEta",        "selection lepton #eta (w/o lepton weight)",           "",          75,   -2.5, 5.0 );
@@ -154,7 +160,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
     Hist( "Jet3Pt"  )->Fill( jetHandle->at( 2 ).pt(), total_weight );
     Hist( "Jet4Pt"  )->Fill( jetHandle->at( 3 ).pt(), total_weight );
 
-
+    // No top pt weights
     Hist( "JetNum_NoTopPt" )->Fill( jetHandle->size(), total_weight / topptweight );
     Hist( "Jet1Pt_NoTopPt" )->Fill( jetHandle->at( 0 ).pt(), total_weight / topptweight );
 
@@ -164,6 +170,11 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
     Hist( "JetNum_PuDown" )->Fill( jetHandle->size(), total_weight / pileup_weight * puweight_down );
 
     Hist( "Jet1Pt_NoLep"  )->Fill( jetHandle->at( 0 ).pt(), total_weight / elecweight / muonweight );
+
+    // No b tag weights
+    Hist( "JetNum_NoBTag" )->Fill( jetHandle->size(), total_weight / btagweight );
+    Hist( "Jet1Pt_NoBTag" )->Fill( jetHandle->at( 0 ).pt(), total_weight / btagweight );
+
 
     int bjetnum = 0;
 
@@ -211,6 +222,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
     Hist( "MET" )->Fill( metHandle->front().pt(), total_weight );
     Hist( "METPhi" )->Fill( metHandle->front().phi(), total_weight );
     Hist( "MET_NoTopPt" )->Fill( metHandle->front().pt(), total_weight / topptweight );
+    Hist( "MET_NoBTag" )->Fill( metHandle->front().pt(), total_weight / btagweight );
 
     Hist( "VtxNum" )->Fill( vtxHandle->size(), total_weight );
     Hist( "VtxNumBestFit" )->Fill( vtxHandle->size(), total_weight / pileup_weight * pileup_weight_bf );
@@ -229,6 +241,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
       Hist( "TstarMass_PuDown" )->Fill( chisqHandle->TstarMass(), total_weight/pileup_weight * puweight_down );
       Hist( "TstarMass_NoTopPt" )->Fill( chisqHandle->TstarMass(), total_weight / topptweight );
       Hist( "TstarMass_NoLep" )->Fill( chisqHandle->TstarMass(), total_weight / elecweight );
+      Hist( "TstarMass_NoBTag" )->Fill( chisqHandle->TstarMass(), total_weight / btagweight );
 
       if( chisqHandle->TstarMass() > 350 ){
         Hist( "TstarZoom" )->Fill( chisqHandle->TstarMass(), total_weight );

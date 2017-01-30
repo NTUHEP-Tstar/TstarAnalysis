@@ -18,71 +18,74 @@ using namespace std;
 void
 MakeKeysPlots( KeysCompMgr* mgr )
 {
-   TCanvas* c     = mgr::NewCanvas();
-   RooPlot* frame = KeysCompMgr::x().frame();
+  TCanvas* c     = mgr::NewCanvas();
+  RooPlot* frame = KeysCompMgr::x().frame();
 
-   RooAbsData* dataset = mgr->DataSet( "" );
+  RooAbsData* dataset = mgr->DataSet( "" );
 
-   TGraph* setplot = mgr::PlotOn( frame, dataset ,
-      RooFit::DrawOption( PGS_DATA )
-   );
+  TGraph* setplot = mgr::PlotOn(
+    frame, dataset,
+    RooFit::DrawOption( PGS_DATA ),
+    RooFit::Binning( 40, KeysCompMgr::x().getMin(), KeysCompMgr::x().getMax() )// Reducing to 40 bin
+    );
 
-   vector<TGraph*> keyplotlist ;
-   for( const auto& pdfname : mgr->PdfNameList() ){
-      keyplotlist.push_back(
-         mgr::PlotOn( frame, mgr->Pdf(pdfname) )
+  vector<TGraph*> keyplotlist;
+
+  for( const auto& pdfname : mgr->PdfNameList() ){
+    keyplotlist.push_back(
+      mgr::PlotOn( frame, mgr->Pdf( pdfname ) )
       );
-   }
+  }
 
-   frame->Draw();
+  frame->Draw();
 
-   // Styling
-   mgr::SetFrame( frame );
-   mgr::DrawCMSLabel( SIMULATION );
-   for( size_t i = 0 ; i < keyplotlist.size() ; ++i ) {
-      keyplotlist.at(i)->SetLineColor( Color_Sequence[i] );
-   }
+  // Styling
+  mgr::SetFrame( frame );
+  mgr::DrawCMSLabel( SIMULATION );
 
-   // Adding additional label
-   TLatex tl;
-   tl.SetNDC( kTRUE );
-   tl.SetTextFont( FONT_TYPE );
-   tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
-   tl.SetTextAlign( TOP_LEFT );
-   tl.DrawLatex( PLOT_X_MIN + 0.02, PLOT_Y_MAX-0.02, mgr->LatexName().c_str() );
+  for( size_t i = 0; i < keyplotlist.size(); ++i ){
+    keyplotlist.at( i )->SetLineColor( Color_Sequence[i] );
+  }
 
-   // Making legend
-   TLegend* leg = mgr::NewLegend( 0.55,0.6 );
+  // Adding additional label
+  mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
+  .WriteLine( mgr->LatexName() );
 
-   boost::format setfmt( "Signal (%dGeV/c^{2})" );
-   const string setentry  = str(setfmt % reconamer.InputInt("mass"));
-   leg->AddEntry( setplot, setentry.c_str(), "lp" );
+  // Making legend
+  TLegend* leg = mgr::NewLegend( 0.55, 0.6 );
 
-   boost::format pdffmt( "PDF approx (%s)" );
-   for( size_t i = 0 ; i < keyplotlist.size() ; ++i ){
-      const TGraph* pdfplot = keyplotlist.at(i);
-      const string pdfname = mgr->PdfNameList().at(i);
-      const RooAbsPdf* pdf = mgr->Pdf( pdfname );
-      const string pdfentry = str( pdffmt % pdf->GetTitle() );
-      leg->AddEntry( pdfplot, pdfentry.c_str(), "l" );
-   }
-   leg->Draw();
+  boost::format setfmt( "Signal (%dGeV/c^{2})" );
+  const string setentry = str( setfmt % reconamer.InputInt( "mass" ) );
+  leg->AddEntry( setplot, setentry.c_str(), "lp" );
 
-   // Y axis range settings
-   keyplotlist.push_back( setplot );
-   const double ymax = mgr::GetYmax( keyplotlist );
+  boost::format pdffmt( "PDF approx (%s)" );
 
-   // for Linear scale
-   frame->SetMinimum( 0 );
-   frame->SetMaximum( ymax * 1.2 );
-   mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", {} ) );
+  for( size_t i = 0; i < keyplotlist.size(); ++i ){
+    const TGraph* pdfplot = keyplotlist.at( i );
+    const string pdfname  = mgr->PdfNameList().at( i );
+    const RooAbsPdf* pdf  = mgr->Pdf( pdfname );
+    const string pdfentry = str( pdffmt % pdf->GetTitle() );
+    leg->AddEntry( pdfplot, pdfentry.c_str(), "l" );
+  }
 
-   // for Log scale
-   frame->SetMinimum( 0.3 );
-   frame->SetMaximum( pow( 10, (log10(ymax)+0.5)*1.2) );
-   c->SetLogy(kTRUE);
-   mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", {"log"} ) );
+  leg->Draw();
 
-   delete c;
-   delete frame;
+  // Y axis range settings
+  keyplotlist.push_back( setplot );
+  const double ymax = mgr::GetYmax( keyplotlist );
+
+  // for Linear scale
+  frame->SetMinimum( 0 );
+  frame->SetMaximum( ymax * 1.2 );
+  mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", {} ) );
+
+  // for Log scale
+  frame->SetMinimum( 0.3 );
+  frame->SetMaximum( pow( 10, ( log10( ymax )+0.5 )*1.2 ) );
+  c->SetLogy( kTRUE );
+  mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", {"log"} ) );
+
+  delete c;
+  delete frame;
 }

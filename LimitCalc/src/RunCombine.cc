@@ -6,6 +6,7 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/SysUtils/interface/HiggsCombineSubmitter.hpp"
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 #include <string>
 #include <vector>
@@ -25,7 +26,7 @@ void
 RunCombine( const string& hc_opt )
 {
   const ConfigReader& cfg = limnamer.MasterConfig();
-  const HiggsCombineSubmitter sub( limnamer.SettingsDir() + "higgs_combine_settings.json" );
+  const HiggsCombineSubmitter sub( limnamer.SettingsDir() / "higgs_combine_settings.json" );
   vector<CombineRequest> submit_list;
 
   for( const auto& sig : cfg.GetStaticStringList( "Signal List" ) ){

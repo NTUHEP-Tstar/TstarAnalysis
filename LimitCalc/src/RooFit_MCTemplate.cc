@@ -258,7 +258,7 @@ MakeTemplatePlot(
   l->Draw();
 
   // Additional information plotting
-  boost::format goffmt( "K_{prob} = %3.lf" );
+  boost::format goffmt( "K_{prob} = %.3lf" );
   const double ksprob = use_data ? KSTest( *( data->DataSet() ), *( mc->Pdf( StitchTemplatePdfName ) ), SampleRooFitMgr::x() ) :
                         KSTest( *( mc->DataSet() ), *( mc->Pdf( StitchTemplatePdfName ) ), SampleRooFitMgr::x() );
   const string gofentry = str( goffmt % ksprob );
@@ -270,7 +270,7 @@ MakeTemplatePlot(
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
     .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
     .WriteLine( limnamer.GetExtName( "fitfunc", "Root Name" ) );
-  latex.SetOrigin( PLOT_X_TEXT_MIN, legend_y_min-TEXT_MARGIN, TOP_RIGHT )
+  latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT )
     .WriteLine( gofentry );
 
   // Range setting and saving

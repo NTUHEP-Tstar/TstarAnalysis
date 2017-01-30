@@ -332,6 +332,7 @@ MakeSimFitPlot(
   const double sigexpstrength = sig->ExpectedYield();
   const double ksbkg          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
   const double ksall          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
+  const double multipler      = (obs > sigexpstrength*4) ? (obs/(sigexpstrength*4)) : 1 ;
 
   TGraph* dataplot = mgr::PlotOn(
     frame, dataset,
@@ -340,7 +341,7 @@ MakeSimFitPlot(
 
   TGraph* sigplot = mgr::PlotOn(
     frame, sigpdf,
-    RooFit::Normalization( sigexpstrength, RooAbsReal::NumEvent ),
+    RooFit::Normalization( sigexpstrength * multipler, RooAbsReal::NumEvent ),
     RooFit::DrawOption( PGS_SIGNAL )
     );
 
@@ -370,14 +371,13 @@ MakeSimFitPlot(
   tstar::SetFitBGStyle( bgerrplot );
   tstar::SetSignalStyle( sigplot );
 
-
   // Creating legend
   const double legend_x_min = 0.53;
   const double legend_y_min = 0.7;
   TLegend* leg              = mgr::NewLegend( legend_x_min, legend_y_min );
 
-  boost::format sigfmt( "%s (%.2lf pb)" );
-  const string sigentry  = str( sigfmt % sig->RootName() % sig->Sample().CrossSection().CentralValue() );
+  boost::format sigfmt( "%s(#times%.1lf)" );
+  const string sigentry  = str( sigfmt % sig->RootName() % multipler );
   const string dataentry = datasetname == "pseudo" ? "Pseudo data" : "Data";
   const string bgentry   = "Fitted bkg. (#pm 1 s.d.)";
   const string mdlentry  = "Fitted bkg. + sig.";

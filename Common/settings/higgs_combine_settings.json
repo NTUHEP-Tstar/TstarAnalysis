@@ -2,5 +2,5 @@
    "Scram Arch" : "slc6_amd64_gcc491",
    "Store Path" : "/wk_cms/yichen/HiggsCombine/",
    "CMSSW Version": "CMSSW_7_4_7",
-   "Higgs Combine Version" : "v6.2.1"
+   "Higgs Combine Version" : "v6.3.0"
 }

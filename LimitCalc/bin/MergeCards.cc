@@ -6,6 +6,7 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/Common/interface/ConfigReader.hpp"
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 
 #include <boost/program_options.hpp>
@@ -37,7 +38,7 @@ main( int argc, char* argv[] )
   if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
 
   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
-  const mgr::ConfigReader higgscfg( limnamer.SettingsDir() + "higgs_combine_settings.json" );
+  const mgr::ConfigReader higgscfg( limnamer.SettingsDir() / "higgs_combine_settings.json" );
   const vector<string> masspointlist = cfg.GetStaticStringList( "Signal List" );
   const vector<string> channellist   = limnamer.GetMap()["channellist"].as<vector<string> >();
 

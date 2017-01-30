@@ -12,19 +12,17 @@ import re  # Importing regular expression
 
 import ManagerUtils.SysUtils.EOSUtils as myeos
 import TstarAnalysis.RunSequence.Settings as mysetting
+import ManagerUtils.SysUtils.pluginPathUtils as mypath
 
 
 #-------------------------------------------------------------------------
 #   Dataset naming
 #-------------------------------------------------------------------------
-
-
 def IsData(dataset):
     if re.match('/.*/.*Run[0-9]{4}.*/.*', dataset):
         return True
     else:
         return False
-
 
 def GetName(dataset):
     data_part = dataset.split('/')
@@ -41,11 +39,13 @@ def GetName(dataset):
             idx = idx + 1
         return retname
 
-
 def GetPrimary(dataset):
     data_part = dataset.split('/')
     return data_part[1]
 
+def GetSecondary(dataset):
+    datapart = dataset.split('/')
+    return datapart[2]
 
 def GetHLT(dataset):
     if IsData(dataset):
@@ -109,3 +109,21 @@ def GetEDMStoreGlob(tag, dataset, mode):
 
 def GetEDMStoreRegex(tag, dataset, mode):
     return "{}/{}_[0-9]*\.root".format(GetEDMStoreDir(tag, dataset, mode), GetName(dataset))
+
+
+#-------------------------------------------------------------------------------
+#   JEC/JER naming options
+#-------------------------------------------------------------------------------
+def JECDBName( jecversion ):
+    storepath = ""
+    jecfile   = storepath + jecversion + ".db"
+    return "sqlite:" + jecfile
+
+def JECTagName( jecversion, jettype ):
+    return 'JetCorrectorParametersCollection_' + jecversion + '_' + jettype
+
+def GetJECFromGT( globaltag ):
+    if( globaltag == mysetting.data_global_tag ):
+        return "Summer16_23Sep2016AllV3_DATA"
+    else:
+        return  "Summer16_23Sep2016V3_MC"

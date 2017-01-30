@@ -24,6 +24,7 @@ log*
 *.png
 *.dat
 *.pdf
+*.db
 
 
 # Specific file exclusion

@@ -166,7 +166,9 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
     );
 
   RooPlot* frame  = p.frame();
-  TGraph* setplot = mgr::PlotOn( frame, &set );
+  TGraph* setplot = mgr::PlotOn( frame, &set ,
+    RooFit::Binning(40,p.getMin(),p.getMax())
+  );
   TGraph* fitplot = mgr::PlotOn( frame, &pullfit );
   TGraph* subplot = mgr::PlotOn( frame, &spullfit, RooFit::Range("reduce"));
   frame->Draw();

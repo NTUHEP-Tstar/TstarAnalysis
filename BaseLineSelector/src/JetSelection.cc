@@ -134,14 +134,15 @@ bitconv( const float x )
   return *( (const unsigned*)( temp ) );
 }
 
+/******************************************************************************/
+
 TLorentzVector
 JetProducer::MakeSmeared( const pat::Jet& jet ) const
 {
   // Getting normal
   const double res   = GetJetPtRes( jet );
   const double ressf = GetJetResScale( jet );
-  const double width = ressf > 1 ?
-                       sqrt( ressf*ressf-1 ) * res : 0;
+  const double width = ressf > 1 ? sqrt( ressf*ressf-1 ) * res : 0;
 
   // Generating random number
   std::default_random_engine gen( bitconv( jet.phi() ) );
@@ -153,8 +154,6 @@ JetProducer::MakeSmeared( const pat::Jet& jet ) const
   const TLorentzVector jetp4( jet.px(), jet.py(), jet.pz(), jet.energy() );
 
   if( scale <= 0 || ::isnan( scale ) ){
-    std::cout << "Weird jet scaling found!" << std::endl;
-    cout << bitconv( jet.phi() ) << endl;
     return jetp4;
   } else {
     return jetp4 * scale;

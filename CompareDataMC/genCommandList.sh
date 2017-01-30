@@ -29,7 +29,7 @@ done
 for cmd in $cmdlist ; do
    for channel in $channellist; do
       for era in $eralist ; do
-         echo $cmd -c $channel -d -e $era
+         echo "$cmd -c $channel -d -e $era"
       done
    done
 done

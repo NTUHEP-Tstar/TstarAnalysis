@@ -36,9 +36,9 @@ MuonProducer::IsSelectedMuon( const pat::Muon&  mu,
                               const edm::Event& iEvent ) const
 {
   if( !mu.isTightMuon( _primary_vertex ) ){ return false; }
-  if( mu.pt()        < 30.               ){ return false; }
-  if( fabs( mu.eta() ) > 2.1             ){ return false; }
-  if( mgr::MuPfIso( mu )  > mgr::MUPFISO_TIGHT     ){ return false; }
+  if( mu.pt()             < 30.          ){ return false; }
+  if( fabs( mu.eta() )    > 2.4          ){ return false; }
+  if( mgr::MuPfIso( mu )  > mgr::MUPFISO_TIGHT ){ return false; }
   // Trigger selection moved to later, since it requires intensive study
   return true;
 }

@@ -157,7 +157,7 @@ MakeLimitPlot()
 map<double, double>
 GetXsectionMap()
 {
-  FILE* xsec_file = fopen( ( limnamer.SubPackageDir()+"data/excitedtoppair13TeV.dat" ).c_str(), "r" );
+  FILE* xsec_file = fopen( ( limnamer.SubPackageDir() / "data/excitedtoppair13TeV.dat" ).c_str(), "r" );
   map<double, double> ans;
   char* line_buf = NULL;
   size_t line_len = 0;

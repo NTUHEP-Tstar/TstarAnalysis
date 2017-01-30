@@ -227,7 +227,7 @@ MakeBkgError(
       errlist.emplace_back( 1, 0.046, 0.046 );// lumierror
       errlist.emplace_back( 1, 0.03,  0.03 );// leptonic errors
 
-      const Parameter binerror = Prod( errlist );
+      const Parameter binerror = ProdUncorrelated( errlist );
 
       if( bincont != 0 ){
          central->SetBinError( i, bincont * binerror.RelAvgError() );

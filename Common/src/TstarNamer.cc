@@ -6,6 +6,7 @@
 *
 *******************************************************************************/
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -19,9 +20,9 @@ namespace opt = boost::program_options;
 *   Constructor and Destructor
 *******************************************************************************/
 TstarNamer::TstarNamer( const string& sub_package ) :
-   PackagePathMgr( "TstarAnalysis", sub_package ),
-   OptsNamer(),
-   _master_config( SettingsDir() + "master.json" )
+  PackagePathMgr( "TstarAnalysis", sub_package ),
+  OptsNamer(),
+  _master_config( SettingsDir() / "master.json" )
 {
 }
 
@@ -34,32 +35,32 @@ TstarNamer::~TstarNamer()
 *******************************************************************************/
 int
 TstarNamer::LoadOptions(
-   const opt::options_description& desc,
-   int                             argc,
-   char*                           argv[] )
+  const opt::options_description& desc,
+  int                             argc,
+  char*                           argv[] )
 {
-   int parse_result = OptsNamer::LoadOptions( desc, argc, argv );
-   if( parse_result == OptsNamer::PARSE_ERROR ){
+  int parse_result = OptsNamer::LoadOptions( desc, argc, argv );
+  if( parse_result == OptsNamer::PARSE_ERROR ){
+    return OptsNamer::PARSE_ERROR;
+  } else if( parse_result == OptsNamer::PARSE_HELP  ){
+    return OptsNamer::PARSE_HELP;
+  }
+
+  if( GetMap().count( "channel" ) ){
+    _channel_tag = GetMap()["channel"].as<string>();
+  }
+
+  for( const auto& option : _naming_option_list ){
+    if( !GetMap().count( option ) ){
+      cerr << "Missing option [" << option  << "]" << endl;
+      cerr << desc << endl;
       return OptsNamer::PARSE_ERROR;
-   } else if( parse_result == OptsNamer::PARSE_HELP  ){
-      return OptsNamer::PARSE_HELP;
-   }
+    }
+  }
 
-   if( GetMap().count( "channel" ) ){
-      _channel_tag = GetMap()["channel"].as<string>();
-   }
+  LoadJsonFile( SettingsDir()/"name_settings.json" );
 
-   for( const auto& option : _naming_option_list ){
-      if( !GetMap().count( option ) ){
-         cerr << "Missing option [" << option  << "]" << endl;
-         cerr << desc << endl;
-         return OptsNamer::PARSE_ERROR;
-      }
-   }
-
-   LoadJsonFile( SettingsDir()+"name_settings.json" );
-
-   return PARSE_SUCESS;
+  return PARSE_SUCESS;
 }
 
 /******************************************************************************/
@@ -67,7 +68,7 @@ TstarNamer::LoadOptions(
 void
 TstarNamer::SetChannel( const std::string& x )
 {
-   _channel_tag = x;
+  _channel_tag = x;
 }
 
 /******************************************************************************/
@@ -75,7 +76,7 @@ TstarNamer::SetChannel( const std::string& x )
 string
 TstarNamer::GetChannelEDMPath() const
 {
-   return GetChannelEXT( "EDM path" );
+  return GetChannelEXT( "EDM path" );
 }
 
 /******************************************************************************/
@@ -83,7 +84,7 @@ TstarNamer::GetChannelEDMPath() const
 string
 TstarNamer::GetChannelEXT( const string& x ) const
 {
-   return query_tree( "channel", GetChannel(), x );
+  return query_tree( "channel", GetChannel(), x );
 }
 
 
@@ -93,72 +94,71 @@ TstarNamer::GetChannelEXT( const string& x ) const
 *******************************************************************************/
 string
 TstarNamer::CustomFileName(
-   const string&         extension,
-   const vector<string>& taglist
-   ) const
+  const string&         extension,
+  const vector<string>& taglist
+  ) const
 {
-   vector<string> mytaglist = taglist;// removing empty tags
-   static string empty      = "";
-   mytaglist.erase( remove( mytaglist.begin(), mytaglist.end(), empty ), mytaglist.end() );
-   string ans = ResultsDir() + GetChannel() + '/';
-   ans += boost::join( mytaglist, "_" );
+  vector<string> mytaglist = taglist; // removing empty tags
+  static string empty      = "";
+  mytaglist.erase( remove( mytaglist.begin(), mytaglist.end(), empty ), mytaglist.end() );
+  string ans = ResultsDir() / GetChannel()  / boost::join( mytaglist, "_" );
 
-   if( extension != "" ){
-      ans += "." + extension;
-   }
-   return ans;
+  if( extension != "" ){
+    ans += "." + extension;
+  }
+  return ans;
 }
 
 /******************************************************************************/
 
 string
 TstarNamer::MakeFileName(
-   const string&         extension,
-   const string&         main_tag,
-   const vector<string>& subtaglist
-   ) const
+  const string&         extension,
+  const string&         main_tag,
+  const vector<string>& subtaglist
+  ) const
 {
-   vector<string> taglist;
-   taglist.push_back( main_tag );
+  vector<string> taglist;
+  taglist.push_back( main_tag );
 
-   for( const auto opt : _naming_option_list ){
-      taglist.push_back( InputStr( opt ) );
-   }
+  for( const auto opt : _naming_option_list ){
+    taglist.push_back( InputStr( opt ) );
+  }
 
-   taglist.insert( taglist.end(), subtaglist.begin(), subtaglist.end() );
-   return CustomFileName( extension, taglist );
+  taglist.insert( taglist.end(), subtaglist.begin(), subtaglist.end() );
+  return CustomFileName( extension, taglist );
 }
 
 /******************************************************************************/
 
 string
 TstarNamer::TextFileName(
-   const string&         maintag,
-   const vector<string>& subtaglist ) const
+  const string&         maintag,
+  const vector<string>& subtaglist ) const
 {
-   return MakeFileName( "txt", maintag, subtaglist );
+  return MakeFileName( "txt", maintag, subtaglist );
 }
 
 string
 TstarNamer::PlotFileName(
-   const string&         maintag,
-   const vector<string>& subtaglist ) const
+  const string&         maintag,
+  const vector<string>& subtaglist ) const
 {
-   return MakeFileName( "pdf", maintag, subtaglist );
+  return MakeFileName( "pdf", maintag, subtaglist );
 }
 
 string
 TstarNamer::TexFileName(
-   const string&         maintag,
-   const vector<string>& subtaglist ) const
+  const string&         maintag,
+  const vector<string>& subtaglist ) const
 {
-   return MakeFileName( "tex", maintag, subtaglist );
+  return MakeFileName( "tex", maintag, subtaglist );
 }
 
 string
 TstarNamer::RootFileName(
-   const string&         maintag,
-   const vector<string>& subtaglist ) const
+  const string&         maintag,
+  const vector<string>& subtaglist ) const
 {
-   return MakeFileName( "root", maintag, subtaglist );
+  return MakeFileName( "root", maintag, subtaglist );
 }

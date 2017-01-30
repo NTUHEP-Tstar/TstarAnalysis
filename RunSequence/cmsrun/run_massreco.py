@@ -41,14 +41,6 @@ options.register(
     'Mode of for tstar reconstruction (Control and Signal)'
 )
 
-options.register(
-    'IsData',
-    False,
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.bool,
-    'Whether input is real data'
-)
-
 options.setDefault('maxEvents', 1000)
 
 options.parseArguments()
@@ -57,8 +49,10 @@ options.parseArguments()
 #   Defining process and cmsRun outputs
 #-------------------------------------------------------------------------
 process = cms.Process("TstarMassReco")
+
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(options.maxEvents)
@@ -150,12 +144,6 @@ elif "Control" in options.Mode :
 #   Load mass calculator
 #-------------------------------------------------------------------------
 process.load("TstarAnalysis.TstarMassReco.Producer_cfi")
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-runMetCorAndUncFromMiniAOD(process,
-                           isData=True,
-                           pfCandColl=cms.InputTag("packedPFCandidates"),
-                           recoMetFromPFCs=True,
-                           )
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -190,7 +178,6 @@ if "Signal" in options.Mode :
         * process.MuonWeight
         * process.EventWeight
         * process.EventWeightAll
-        * process.fullPatMetSequence
         * process.tstarMassReco
      )
 elif "Control" in options.Mode :
@@ -202,7 +189,6 @@ elif "Control" in options.Mode :
         * process.MuonWeight
         * process.EventWeight
         * process.EventWeightAll
-        * process.fullPatMetSequence
         * process.tstarMassReco
      )
 

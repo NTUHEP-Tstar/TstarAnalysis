@@ -32,7 +32,7 @@ options.register(
 
 options.register(
     'output',
-    'tstarBaseline.root',
+    'METTest.root',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Output EDM filename'
@@ -47,19 +47,11 @@ options.register(
 )
 
 options.register(
-    'Mode',
-    '',
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'Lepton mode to use'
-)
-
-options.register(
     'JECVersion',
     '',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
-    'JEC version to use, automatically guessing from global tag if not specified.'
+    'JEC version to use, auto deducing from global tag is not specified'
 )
 
 options.setDefault('maxEvents', 1000)
@@ -92,8 +84,7 @@ process.source = cms.Source(
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
-if not options.JECVersion :
-    options.JECVersion = myname.GetJECFromGT( options.GlobalTag )
+options.JECVersion = myname.GetJECFromGT( options.GlobalTag )
 
 #-------------------------------------------------------------------------------
 #   Reloading JEC/JER values from sqlite files
@@ -115,34 +106,6 @@ process.jec = cms.ESSource('PoolDBESSource',
 
 # Add an ESPrefer to override JEC that might be available from the global tag
 process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'jec')
-
-#-------------------------------------------------------------------------
-#   Importing Electron VID maps
-#-------------------------------------------------------------------------
-print "Loading electron ID processes..."
-switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
-elecIDModules = [
-    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
-    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
-    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff'
-]
-
-for mod in elecIDModules:
-    setupAllVIDIdsInModule(process, mod, setupVIDElectronSelection)
-
-#-------------------------------------------------------------------------
-#   Load self written filters
-#-------------------------------------------------------------------------
-print "Loading main filter...."
-process.load("TstarAnalysis.BaseLineSelector.Filter_cfi")
-
-if options.Mode == "Muon":
-    process.leptonSeparator.reqmuon = cms.int32(1)
-elif options.Mode == 'Electron':
-    process.leptonSeparator.reqelec = cms.int32(1)
-else:
-    print "[ERROR!!] Unrecognized option [", options.Mode, "]!"
-    sys.exit(1)
 
 #-------------------------------------------------------------------------------
 #   MET re-correction - MiniAOD objects required
@@ -174,90 +137,6 @@ process.seqMET = cms.Sequence(
     process.fullPatMetSequence
     * process.BadPFMuonFilter
     * process.BadChargedCandidateFilter
-    * process.METFilter
-)
-
-#-------------------------------------------------------------------------
-#   Load selected object producers
-#-------------------------------------------------------------------------
-print "Loading producers...."
-process.load("TstarAnalysis.BaseLineSelector.Producer_cfi")
-
-process.seqObjProduce = cms.Sequence(
-    process.selectedMuons
-    * process.skimmedPatMuons
-    * process.egmGsfElectronIDSequence
-    * process.selectedElectrons
-    * process.skimmedPatElectrons
-    * process.selectedJets
-    * process.skimmedPatJets
-)
-
-#-------------------------------------------------------------------------
-#   Load event weighting
-#   explicitly removing
-#-------------------------------------------------------------------------
-print "Loading event weighers...."
-
-# Defining weight calculators
-process.ElectronWeight       = weight.ElectronWeightNoTrigger
-process.MuonWeight           = weight.MuonWeightNoTrigger
-process.PileupWeight         = weight.PileupWeight
-process.PileupWeightXsecup   = weight.PileupWeightXsecup
-process.PileupWeightXsecdown = weight.PileupWeightXsecdown
-process.GenWeight            = weight.GenWeight
-process.TopPtWeight          = weight.TopPtWeight
-
-# Defining weight summing calculators
-process.EventWeight = cms.EDProducer(
-    "WeightProdSum",
-    weightlist=cms.VInputTag(
-        cms.InputTag("ElectronWeight", "ElectronWeight"),
-        cms.InputTag("MuonWeight",     "MuonWeight"),
-        cms.InputTag("PileupWeight",   "PileupWeight"),
-        cms.InputTag("GenWeight",     "GenWeight")
-    )
-)
-
-process.EventWeightAll = cms.EDProducer(
-    "WeightProdSum",
-    weightlist=cms.VInputTag(
-        cms.InputTag("ElectronWeight", "ElectronWeight"),
-        cms.InputTag("MuonWeight", "MuonWeight"),
-        cms.InputTag("PileupWeight", "PileupWeight"),
-        cms.InputTag("TopPtWeight", "TopPtWeight"),
-        cms.InputTag("GenWeight", "GenWeight")
-    )
-)
-
-# Counting effective number of events before any selection is done
-process.BeforeAll = cms.EDProducer(
-    "WeightProdSum",
-    weightlist = cms.VInputTag(
-        cms.InputTag("GenWeight","GenWeight")
-    )
-)
-
-## Weights that should be calculated in total weight
-process.noSelWeights = cms.Sequence(
-    (
-        process.PileupWeight
-        + process.PileupWeightXsecup
-        + process.PileupWeightXsecdown
-        + process.GenWeight
-        + process.TopPtWeight
-    )
-    * process.BeforeAll
-)
-
-# Defninig sequence
-process.selWeights = cms.Sequence(
-    (
-        process.ElectronWeight
-        + process.MuonWeight
-    )
-    * process.EventWeight
-    * process.EventWeightAll
 )
 
 #-------------------------------------------------------------------------
@@ -265,13 +144,8 @@ process.selWeights = cms.Sequence(
 #-------------------------------------------------------------------------
 print "Defining process path...."
 process.myfilterpath = cms.Path(
-    process.noSelWeights
-    * process.seqMET
-    * process.seqObjProduce
-    * process.leptonSeparator
-    * process.selWeights
+    process.seqMET
 )
-
 
 #-------------------------------------------------------------------------
 #   Defining output Module
@@ -282,22 +156,6 @@ process.edmOut = cms.OutputModule(
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "keep *",
-        "drop *_slimmedElectrons_*_*",
-        "drop *_slimmedJets*_*_*",
-        "drop *_slimmedMETsNoHF_*_*",
-        "drop *_slimmedJETsPuppi_*_*",
-        "drop *_slimmedPhotons_*_*",
-        "drop *_slimmedTaus*_*_*",
-        "drop *_selectedMuons_*_*",
-        "drop *_selectedElectrons_*_*",
-        "drop *_selectedJets_*_*",
-        "drop *_egmGsfElectronIDs_*_*",
-        "drop *_electronMVAValueMapProducer_*_*",
-        "drop *_TriggerResults_*_tstarbaseline",
-        "drop *_BeforeAll_WeightProd_*",
-        "drop *_patPFMetT1*_*_*",
-        "drop *_slimmedMET*_*_*",
-        "keep *_slimmedMETs_*_tstarbaseline",
         "keep mgrCounter_*_*_*"
     ),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))

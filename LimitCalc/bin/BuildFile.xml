@@ -8,3 +8,4 @@
 <bin name="PlotLimit"       file="PlotLimit.cc" />
 <bin name="RunValGenFit"    file="RunValGenFit.cc"/>
 <bin name="PlotValGenFit"   file="PlotValGenFit.cc"/>
+<bin name="PlotCombinePull" file="PlotCombinePull.cc"/>

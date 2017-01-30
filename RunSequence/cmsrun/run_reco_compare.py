@@ -39,7 +39,6 @@ options.register(
     opts.VarParsing.varType.string,
     'Mode of operation'
 )
-
 options.setDefault('maxEvents', 100)
 
 options.parseArguments()
