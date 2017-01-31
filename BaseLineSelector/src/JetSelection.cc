@@ -22,7 +22,7 @@ JetProducer::IsSelectedJet( const pat::Jet& jet, const bool isdata ) const
   TLorentzVector jetp4;
 
   if( isdata ){
-    jetp4.SetPtEtaPhiE( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
+    jetp4.MakeCorrected( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
   } else if( IsWellMatched( jet ) ){
     jetp4 = MakeScaled( jet );
   } else {
@@ -101,7 +101,8 @@ JetProducer::IsWellMatched( const pat::Jet& jet ) const
   return true;
 }
 
-/*****************************************************************************/
+
+/******************************************************************************/
 
 TLorentzVector
 JetProducer::MakeScaled( const pat::Jet& jet ) const

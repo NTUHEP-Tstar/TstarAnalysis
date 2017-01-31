@@ -62,6 +62,14 @@ options.register(
     'JEC version to use, automatically guessing from global tag if not specified.'
 )
 
+options.register(
+    'JERVersion',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'JER version to use, automatically guessing from global tag if not specified.'
+)
+
 options.setDefault('maxEvents', 1000)
 
 options.parseArguments()
@@ -94,13 +102,17 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
 if not options.JECVersion :
     options.JECVersion = myname.GetJECFromGT( options.GlobalTag )
+if not options.JERVersion :
+    options.JERVersion = myname.GetJERFromGT( options.GlobalTag )
 
 #-------------------------------------------------------------------------------
 #   Reloading JEC/JER values from sqlite files
 #   https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JecSqliteFile
 #-------------------------------------------------------------------------------
 print "Loading new JEC files"
+process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+
 process.jec = cms.ESSource('PoolDBESSource',
     CondDBSetup,
     connect = cms.string( myname.JECDBName(options.JECVersion) ),
@@ -113,8 +125,41 @@ process.jec = cms.ESSource('PoolDBESSource',
     )
 )
 
-# Add an ESPrefer to override JEC that might be available from the global tag
+process.jer = cms.ESSource("PoolDBESSource",
+ CondDBSetup,
+ connect = cms.string(myname.JERDBName(options.JERVersion)),
+ toGet = cms.VPSet(
+     cms.PSet( # Resolution
+         record = cms.string('JetResolutionRcd'),
+         tag    = cms.string( myname.JERTagName(options.JERVersion, 'AK4PFchs') ),
+         label  = cms.untracked.string('AK4PFchs_pt')
+         ),
+     cms.PSet( # Scale factors
+         record = cms.string('JetResolutionScaleFactorRcd'),
+         tag    = cms.string( myname.JERSFTagName(options.JERVersion,'AK4PFchs') ),
+         label  = cms.untracked.string('AK4PFchs')
+         ),
+     ),
+ )
+# Add an ESPrefer to override JEC/JEC that might be available from the global tag
+process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'jec')
+
+## Updaing JEC collrection to EDM file objects
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+correction = ['L1FastJet', 'L2Relative', 'L3Absolute']
+if options.GlobalTag == myset.data_global_tag:
+    correction.append('L2L3Residual')
+
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJets'),
+   labelName = 'UpdatedJEC',
+   jetCorrections = ('AK4PFchs', cms.vstring(correction), 'None')  # Do not forget 'L2L3Residual' on data!
+)
+
+process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
 #-------------------------------------------------------------------------
 #   Importing Electron VID maps
@@ -183,12 +228,15 @@ process.seqMET = cms.Sequence(
 print "Loading producers...."
 process.load("TstarAnalysis.BaseLineSelector.Producer_cfi")
 
+process.selectedJets.jetsrc = cms.InputTag('updatedPatJetsUpdatedJEC')
+
 process.seqObjProduce = cms.Sequence(
     process.selectedMuons
     * process.skimmedPatMuons
     * process.egmGsfElectronIDSequence
     * process.selectedElectrons
     * process.skimmedPatElectrons
+    * process.jecSequence
     * process.selectedJets
     * process.skimmedPatJets
 )
@@ -266,9 +314,9 @@ process.selWeights = cms.Sequence(
 print "Defining process path...."
 process.myfilterpath = cms.Path(
     process.noSelWeights
-    * process.seqMET
     * process.seqObjProduce
     * process.leptonSeparator
+    * process.seqMET
     * process.selWeights
 )
 
@@ -295,6 +343,8 @@ process.edmOut = cms.OutputModule(
         "drop *_electronMVAValueMapProducer_*_*",
         "drop *_TriggerResults_*_tstarbaseline",
         "drop *_BeforeAll_WeightProd_*",
+        "drop *_*UpdatedJEC*_*_*",
+        "drop *_shiftedPat*_*_*",
         "drop *_patPFMetT1*_*_*",
         "drop *_slimmedMET*_*_*",
         "keep *_slimmedMETs_*_tstarbaseline",

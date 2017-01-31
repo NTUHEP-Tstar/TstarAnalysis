@@ -66,16 +66,15 @@ def MakeCrabFile( dataset, opt ):
     if myname.IsData( dataset ):
         global_tag = mysetting.data_global_tag
         splittype  = 'LumiBased'
-        splitunit  = 480 * 6 * 60       # target time in seconds
-        splitunit  = splitunit / 0.07   # real time per event
+        splitunit  = 480 * 60           # target time in seconds
+        splitunit  = splitunit / 0.033  # real time per event
         splitunit  = splitunit / 4068   # average number of events in lumi
-        lumimask   = 'config.Data.lumiMask = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"'
     else:
         global_tag = mysetting.mc_global_tag
         splittype  = 'LumiBased'
-        splitunit  = 480 * 4 * 60  # target time in seconds
-        splitunit  = splitunit / 0.07   # real time per event
-        splitunit  = splitunit / 200 #    average number of events in lumi
+        splitunit  = 480 * 2 * 60       # target time in seconds
+        splitunit  = splitunit / 0.033  # real time per event
+        splitunit  = splitunit / 200    # average number of events in lumi
 
     file_content  = config_file_default.format(
         task_name  , #{0}

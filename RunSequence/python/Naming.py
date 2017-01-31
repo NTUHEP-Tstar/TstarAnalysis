@@ -115,8 +115,7 @@ def GetEDMStoreRegex(tag, dataset, mode):
 #   JEC/JER naming options
 #-------------------------------------------------------------------------------
 def JECDBName( jecversion ):
-    storepath = ""
-    jecfile   = storepath + jecversion + ".db"
+    jecfile   = "JEC_" + jecversion + ".db"
     return "sqlite:" + jecfile
 
 def JECTagName( jecversion, jettype ):
@@ -127,3 +126,19 @@ def GetJECFromGT( globaltag ):
         return "Summer16_23Sep2016AllV3_DATA"
     else:
         return  "Summer16_23Sep2016V3_MC"
+
+def JERDBName( jerversion ):
+    jerfile   = "JER_" + jerversion + ".db"
+    return "sqlite:" + jerfile
+
+def JERTagName( jerversion, jettype ):
+    return 'JR_' + jerversion + '_PtResolution_' + jettype
+
+def JERSFTagName( jerversion, jettype ):
+    return 'JR_' + jerversion + '_SF_' + jettype
+
+def GetJERFromGT( globaltag ):
+    if( globaltag == mysetting.data_global_tag ):
+        return "Spring16_25nsV6_DATA"
+    else:
+        return  "Spring16_25nsV6_MC"

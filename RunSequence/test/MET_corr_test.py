@@ -156,6 +156,10 @@ process.edmOut = cms.OutputModule(
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "keep *",
+       "drop *_patPFMetT1*_*_*",
+       "drop *_shiftedPat*_*_*",
+       "drop *_slimmedMET*_*_*",
+       "keep *_slimmedMETs_*_tstarbaseline",
         "keep mgrCounter_*_*_*"
     ),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))
