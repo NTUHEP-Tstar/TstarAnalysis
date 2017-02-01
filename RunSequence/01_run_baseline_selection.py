@@ -33,6 +33,14 @@ config.JobType.pyCfgParams = [
     'GlobalTag={4}',
 ]
 
+## Input files 
+config.JobType.inputFiles = [
+   'JEC_Summer16_23Sep2016AllV3_DATA.db', 
+   'JEC_Summer16_23Sep2016V3_MC.db',
+   'JER_Spring16_25nsV6_DATA.db',
+   'JER_Spring16_25nsV6_MC.db',
+]
+
 {5}
 config.Data.inputDataset = '{6}'
 config.Data.inputDBS = 'global'
@@ -66,7 +74,7 @@ def MakeCrabFile( dataset, opt ):
     if myname.IsData( dataset ):
         global_tag = mysetting.data_global_tag
         splittype  = 'LumiBased'
-        splitunit  = 480 * 60           # target time in seconds
+        splitunit  = 480 * 3 * 60           # target time in seconds
         splitunit  = splitunit / 0.033  # real time per event
         splitunit  = splitunit / 4068   # average number of events in lumi
     else:

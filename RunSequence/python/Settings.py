@@ -23,8 +23,8 @@ crab_work_dir  = storage_dir + 'CrabWorkSpace/'
 #-------------------------------------------------------------------------------
 #   Default settings for crab bjobs, change if needed
 #-------------------------------------------------------------------------------
-crab_site         = 'T2_CH_CERN'
-crab_siteurl      = 'eoscms.cern.ch'
+crab_site         = 'T2_TW_NCHC'
+crab_siteurl      = 'se01.grid.nchc.org.tw'
 crab_user_path    = '/store/user/yichen/'
 crab_default_path = crab_user_path + 'tstar_crab/'
 
