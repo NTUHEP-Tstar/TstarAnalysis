@@ -26,15 +26,15 @@ int main(int argc, char* argv[])
 
    TstarNamer my_name("Common");
    my_name.SetNamingOptions( {"fitmethod","fitfunc"});
-   my_name.LoadJsonFile( "./name_settings.json" );
-   if( my_name.LoadOptions( settings, argc, argv ) ) { return 1; }
+   my_name.AddOptions( settings );
+   if( my_name.ParseOptions( argc, argv ) ) { return 1; }
 
    cout << my_name.GetChannel() << endl;
    cout << my_name.GetChannelEDMPath() << endl;
    cout << my_name.GetChannelEXT("Data Tag") << endl;
-   cout << my_name.GetInput("fitmethod") << endl;
-   cout << my_name.GetExtName("fitfunc","Full Name") << endl;
-   cout << my_name.GetInput("combine") << endl;
+   cout << my_name.GetInput<string>("fitmethod") << endl;
+   cout << my_name.GetExt<string>("fitfunc","Full Name") << endl;
+   cout << my_name.GetInput<string>("combine") << endl;
    cout << my_name.TextFileName("test",{"subtest"}) << endl;
 
 

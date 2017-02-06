@@ -138,7 +138,4 @@ KeysCompMgr::MakeKeysPdf()
       );
     AddPdf( pdf );
   }
-
-
-
 }

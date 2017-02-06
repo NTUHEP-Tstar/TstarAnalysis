@@ -28,14 +28,15 @@ main( int argc, char* argv[] )
     ( "drawdata,d", "Whether to plot the data limits or not" )
   ;
 
-  limnamer.SetNamingOptions( {"fitmethod", "fitfunc", "era"} );
-  const int run = limnamer.LoadOptions( desc, argc, argv );
-  if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
-  if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
+  limnamer.AddOptions( desc );
+  limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
+  const int run = limnamer.ParseOptions( argc, argv );
+  if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
+  if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
 
-  if( limnamer.GetMap().count( "combine" ) ){
+  if( limnamer.CheckInput( "combine" ) ){
     cout << "Rerunning results higgs combine package with method ["
-         << limnamer.GetInput( "combine" ) << "] !" << endl;
+         << limnamer.GetInput<string>( "combine" ) << "] !" << endl;
     RunCombine();
   }
 

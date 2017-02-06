@@ -5,10 +5,12 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
+#include "ManagerUtils/Common/interface/STLUtils.hpp"
 #include "ManagerUtils/Common/interface/ConfigReader.hpp"
 #include "ManagerUtils/Maths/interface/Intersect.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
+
 #include "TstarAnalysis/Common/interface/PlotStyle.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Limit.hpp"
@@ -22,9 +24,6 @@
 #include <vector>
 
 #include "TFile.h"
-#include "TGraph.h"
-#include "TGraphAsymmErrors.h"
-#include "TMultiGraph.h"
 #include "TTree.h"
 
 using namespace std;
@@ -63,10 +62,7 @@ MakeLimitPlot()
 
   // Making object for plotting
   TCanvas* c1 = mgr::NewCanvas();
-  gPad->SetLeftMargin( PLOT_X_MIN );
-  gPad->SetRightMargin( 1 - PLOT_X_MAX );
-  gPad->SetBottomMargin( PLOT_Y_MIN );
-  gPad->SetTopMargin( 1 - PLOT_Y_MAX );
+  mgr::SetSinglePad( c1 );
 
   TMultiGraph* mg = new TMultiGraph();
 
@@ -74,7 +70,7 @@ MakeLimitPlot()
   mg->Add( onesiggraph );
   mg->Add( theorygraph );
   mg->Add( expgraph );
-  if( limnamer.HasOption( "drawdata" ) ){
+  if( limnamer.CheckInput( "drawdata" ) ){
     mg->Add( obsgraph );
   }
 
@@ -100,23 +96,20 @@ MakeLimitPlot()
 
   // Additional titles settings
   mgr::DrawCMSLabel();
-  mgr::DrawLuminosity( limnamer.GetExtDouble( "era", "Lumi" ) );
+  mgr::DrawLuminosity( limnamer.GetExt<double>( "era", "Lumi" ) );
 
   // Writing additional text
   const string rootlabel = limnamer.GetChannelEXT( "Root Name" );
-  const string fitmethod = limnamer.GetExtName( "fitmethod", "Full Name" );
-  const string funcname  = limnamer.GetExtName( "fitfunc", "Full Name" );
+  const string fitmethod = limnamer.GetExt<string>( "fitmethod", "Full Name" );
+  const string funcname  = limnamer.GetExt<string>( "fitfunc", "Full Name" );
   boost::format explimfmt( "Expected Lim (95%% CL.) = %s GeV/c^{2}" );
   boost::format obslimfmt( "Observed Lim (95%% CL.) = %s GeV/c^{2}" );
 
-  TLatex tl;
-  tl.SetNDC( kTRUE );
-  tl.SetTextFont( FONT_TYPE );
-  tl.SetTextSize( TEXT_FONT_SIZE );
-  tl.SetTextAlign( TOP_LEFT );
-  tl.DrawLatex( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX-0*LINE_HEIGHT, rootlabel.c_str() );
-  tl.DrawLatex( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX-1*LINE_HEIGHT, fitmethod.c_str() );
-  tl.DrawLatex( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX-2*LINE_HEIGHT, funcname.c_str() );
+  mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX,  TOP_LEFT )
+  .WriteLine( rootlabel )
+  .WriteLine( fitmethod )
+  .WriteLine( funcname );
 
   // Cannot have Latex style spacing '\,'
   const Parameter explim_err = GetInterSect( theorygraph, twosiggraph );
@@ -124,10 +117,10 @@ MakeLimitPlot()
   const string explim_str    = FloatingPoint( explim_err, 0, false );
   const string obslim_str    = FloatingPoint( obslim_err.CentralValue(), 0, false );
 
-  tl.SetTextAlign( TOP_RIGHT );
-  tl.DrawLatex( PLOT_X_TEXT_MAX, legend_y_min - TEXT_MARGIN - 0*LINE_HEIGHT, str( explimfmt % explim_str ).c_str() );
-  if( limnamer.HasOption( "drawdata" ) ){
-    tl.DrawLatex( PLOT_X_TEXT_MAX, legend_y_min - TEXT_MARGIN - 1*LINE_HEIGHT, str( obslimfmt % obslim_str ).c_str() );
+  latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT );
+  latex.WriteLine( boost::str( explimfmt % explim_str ) );
+  if( limnamer.CheckInput( "drawdata" ) ){
+    latex.WriteLine( boost::str( obslimfmt % obslim_str ) );
   }
 
   // Debug output

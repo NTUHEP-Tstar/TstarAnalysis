@@ -93,17 +93,17 @@
 
    "fitfunc": {
       "Fermi": {
-         "Full Name": "Fermi function",
+         "Full Name": "Fermi",
          "Latex Name": "N\\left(  1+\\exp\\left( \\frac{m-a}{b}\\\right) \\right)",
          "Root Name": "N #left(  1+ exp#left( #frac{m-a}{b} #right) #right)"
       },
       "Exo": {
-         "Full Name": "Di-jet function",
+         "Full Name": "Di-jet 0^{th} order",
          "Latex Name": "N \\left( \\frac{(1-x)^{p_{1}}}{ x^{p_{2} + p_3 \\ln{x} } }\\right)",
          "Root Name": "N #left( (1-x)^{p_{1}} / x^{p_{2}} #right)"
       },
       "Lognorm": {
-         "Full Name": "Log normal",
+         "Full Name": "Log-normal",
          "Latex Name": "\\frac{N}{\\sigma\\sqrt{2\\pi}} \\exp{-\\frac{(\\ln{x}-m_0)^{2}}{2\\sigma^{2}}}",
          "Root Name": "#frac{N}{m #sigma#sqrt{2#pi}} exp#left(-#frac{ln^{2}(m/m_{0})}{2#sigma^{2}}#right)"
       },

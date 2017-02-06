@@ -8,15 +8,19 @@
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 #include "TstarAnalysis/LimitCalc/interface/SampleRooFitMgr.hpp"
 
+#include <boost/program_options.hpp>
 #include <vector>
 
 using namespace std;
 using namespace mgr;
+namespace opt = boost::program_options;
 
 /*******************************************************************************
 *   External variables for this subpackage
 *******************************************************************************/
 TstarNamer limnamer( "LimitCalc" );
+
+/******************************************************************************/
 
 extern const std::vector<std::string> uncsource = {
   "jec",
@@ -27,6 +31,68 @@ extern const std::vector<std::string> uncsource = {
   "pdf",
   "model"
 };
+
+/******************************************************************************/
+
+extern opt::options_description
+LimitOptions()
+{
+  opt::options_description ans( "Common option related to limit calculation" );
+  ans.add_options()
+    ( "channel,c",   opt::value<string>()->required(),              "Which channel to run/use as output" )
+    ( "fitmethod,m", opt::value<string>()->required(),              "Which fitting method to use" )
+    ( "fitfunc,f",   opt::value<string>()->required(),              "Which fitting function to use" )
+    ( "era,e",       opt::value<string>()->default_value( "Rereco" ), "Which data era to use" )
+  ;
+  return ans;
+}
+
+/******************************************************************************/
+
+extern opt::options_description
+MassOptions()
+{
+  opt::options_description ans( "Mass point choosing options" );
+  ans.add_options()
+    ( "masspoint,p", opt::value<string>()->required(), "Which mass point tag (ex TstarM1000) to use." )
+  ;
+  return ans;
+}
+
+/******************************************************************************/
+
+extern opt::options_description
+PsuedoExpOptions()
+{
+  opt::options_description ans( "Psuedo experiment settings" );
+  ans.add_options()
+    ( "relmag,x", opt::value<double>(), "Relative magnitude of signal compared with prediction" )
+    ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
+  ;
+  return ans;
+}
+
+/******************************************************************************/
+
+extern mgr::OptNamer::PARSE_RESULTS
+CheckPsuedoExpOptions()
+{
+  if( limnamer.GetInput<string>( "fitmethod" ) != "SimFit" ){
+    cerr << "Does not support any psuedo experiment method other than SimFit!" << endl;
+    cerr << limnamer.GetDescription() << endl;
+    return mgr::OptNamer::PARSE_ERROR;
+  } else if( limnamer.CheckInput( "relmag" ) && limnamer.CheckInput( "absmag" ) ){
+    cerr << "Cannot set both relative and absolute magnitued" << endl;
+    cerr << limnamer.GetDescription() << endl;
+    return mgr::OptNamer::PARSE_ERROR;
+  } else if( !limnamer.CheckInput( "relmag" ) && !limnamer.CheckInput( "absmag" ) ){
+    cerr << "Must set either relative of absolute magnitude" << endl;
+    cerr << limnamer.GetDescription() << endl;
+    return mgr::OptNamer::PARSE_ERROR;
+  }
+  return mgr::OptNamer::PARSE_SUCESS;
+}
+
 
 /*******************************************************************************
 *   Initialization functions
@@ -57,7 +123,7 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
 {
   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
   const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
-                                 + limnamer.GetExtName( "era", "Data Postfix" );
+                                 + limnamer.GetExt<string>( "era", "Data Postfix" );
 
   for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){
     siglist.push_back( new SampleRooFitMgr( signaltag, cfg ) );

@@ -62,12 +62,12 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
     l->Draw();
     mgr::DrawCMSLabel( SIMULATION );
 
-    TLatex ltx;
-    ltx.SetNDC( kTRUE );
-    ltx.SetTextFont( FONT_TYPE );
-    ltx.SetTextSize( AXIS_TITLE_FONT_SIZE );
-    ltx.SetTextAlign( TOP_RIGHT );
-    ltx.DrawLatex( PLOT_X_MAX - 0.04, legend_ymin, str( boost::format( "M_{t*}=%dGeV/c^{2}" )%GetInt( reconamer.InputStr( "mass" ) ) ).c_str() );
+    boost::format entryfmt("M_{t*}=%dGeV/c^{2}");
+    const string entry = boost::str(entryfmt % reconamer.GetInput<int>("mass"));
+
+    mgr::LatexMgr latex;
+    latex.SetOrigin( PLOT_X_TEXT_MAX, legend_ymin-TEXT_MARGIN, TOP_RIGHT )
+    .WriteLine( entry );
 
     const string rootfile = reconamer.PlotRootFile();
     const string filename = reconamer.PlotFileName( comp_name, {histname} );
@@ -150,7 +150,7 @@ MatchPlot1D( CompareHistMgr* mgr )
 {
   TCanvas* c       = mgr::NewCanvas();
   TEfficiency* eff = new TEfficiency( *( mgr->Hist( "CorrPermPass" ) ), *( mgr->Hist( "CorrPermTotal" ) ) );
-  eff->SetStatisticOption( TEfficiency::kBUniform ); // Uniform Bayesian
+  eff->SetStatisticOption( TEfficiency::kBUniform );// Uniform Bayesian
 
   TGraph* plot = eff->CreateGraph();
   TLegend* tl  = mgr::NewLegend( 0.5, 0.7 );

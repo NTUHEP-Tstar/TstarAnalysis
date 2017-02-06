@@ -30,25 +30,26 @@ main( int argc, char* argv[] )
     ( "compare,x", opt::value<string>(), "Which reconstruction methods to use" )
   ;
 
-  reconamer.SetNamingOptions( {"mass", "compare"} );
-  const int run = reconamer.LoadOptions( desc, argc, argv );
-  if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-  if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
+  reconamer.AddOptions( desc );
+  reconamer.SetNamingOptions( "mass", "compare" );
+  const int run = reconamer.ParseOptions( argc, argv );
+  if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
+  if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
 
   /*******************************************************************************
   *   Making KeysCompMgr
   *******************************************************************************/
   KeysCompMgr::InitStaticVars();
 
-  const string name    = reconamer.InputStr( "compare" );
-  const string ltxname = reconamer.query_tree( "reco", name, "Root Name" );
+  const string name    = reconamer.GetInput<string>( "compare" );
+  const string ltxname = reconamer.ExtQuery<string>( "reco", name, "Root Name" );
   KeysCompMgr* compmgr = new KeysCompMgr( name, ltxname );
 
   /*******************************************************************************
   *   Filling and plotting
   *******************************************************************************/
   boost::format globformat( "/wk_cms/yichen/TstarAnalysis/EDMStore/recocomp/%s/*%d*.root" );
-  const string globq = str( globformat % reconamer.InputStr( "channel" ) % reconamer.InputInt( "mass" ) );
+  const string globq = str( globformat % reconamer.GetInput<string>( "channel" ) % reconamer.GetInput<int>( "mass" ) );
 
   cout << globq << endl;
 

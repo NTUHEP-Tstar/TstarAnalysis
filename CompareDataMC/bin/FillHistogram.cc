@@ -7,9 +7,9 @@
 *******************************************************************************/
 #include "TstarAnalysis/Common/interface/InitSample.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
-#include "TstarAnalysis/CompareDataMC/interface/SampleTableMgr.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleErrHistMgr.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hpp"
+#include "TstarAnalysis/CompareDataMC/interface/SampleTableMgr.hpp"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -22,36 +22,51 @@ namespace opt = boost::program_options;
 int
 main( int argc, char* argv[] )
 {
-   opt::options_description desc( "Options for KinematicCompare" );
-   desc.add_options()
-      ( "channel,c", opt::value<string>(), "What channel to run" )
-      ( "group,g",   opt::value<string>(), "What group to fill" )
-      ( "type,t",    opt::value<string>(), "What type of histrogram to fill" )
-      ( "era,e",     opt::value<string>(), "What era of data to fill" )
-   ;
+  opt::options_description desc( "Options for FillHistogram" );
+  desc.add_options()
+    ( "group,g",   opt::value<string>()->required(), "What group to fill" )
+    ( "type,t",    opt::value<string>()->required(), "What type of histrogram to fill" )
+  ;
 
-   const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
-   if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-   if( parse == mgr::OptsNamer::PARSE_HELP ){ return 0; }
+  compnamer.AddOptions( CompareOptions() ); // Defined in src/Common.cc
+  compnamer.AddOptions( desc );
+  const int parse = compnamer.ParseOptions( argc, argv ); // defined in Compare_Common.hpp
+  if( parse == mgr::OptNamer::PARSE_ERROR ){ return 1; }
+  if( parse == mgr::OptNamer::PARSE_HELP ){ return 0; }
 
-   InitSampleStatic( compnamer );
+  /*******************************************************************************
+  *   Additional parsing for this program
+  *******************************************************************************/
+  if( compnamer.GetInput<string>("group") == "Data" && !compnamer.CheckInput("era") ){
+    cerr << "Error! filling of group [Data] must have [era] specified!" << endl;
+    cerr << compnamer.GetDescription() << endl;
+    return 0;
+  }
 
-   const mgr::ConfigReader master =  compnamer.MasterConfig();
+  /*******************************************************************************
+  *   Initializing
+  *******************************************************************************/
+  InitSampleStatic( compnamer );
 
-   const string tag = ( compnamer.InputStr( "group" ) == "Data" ) ?
-                      compnamer.GetChannelEXT( "Data Prefix" )+ compnamer.GetExtName( "era", "Data Postfix") :
-                      compnamer.InputStr( "group" );
+  const mgr::ConfigReader& master = compnamer.MasterConfig();
 
-   if( compnamer.InputStr( "type" ) == "Err" ){
-      SampleErrHistMgr errmgr( tag, master );
-      errmgr.FillFromSample();
-   } else if( compnamer.InputStr("type") == "Qk") {
-      SampleHistMgr mgr( tag, master );
-      mgr.FillFromSample();
-   } else if( compnamer.InputStr("type") == "Tb" ){
-      SampleTableMgr mgr( tag, master );
-      mgr.LoadFromEDM();
-   }
+  const string tag = ( compnamer.GetInput<string>( "group" ) == "Data" ) ?
+                     compnamer.GetChannelEXT( "Data Prefix" )+ compnamer.GetExt<string>( "era", "Data Postfix" ) :
+                     compnamer.GetInput<string>( "group" );
 
-   return 0;
+  if( compnamer.GetInput<string>( "type" ) == "Err" ){
+    SampleErrHistMgr errmgr( tag, master );
+    errmgr.FillFromSample();
+  } else if( compnamer.GetInput<string>( "type" ) == "Qk" ){
+    SampleHistMgr mgr( tag, master );
+    mgr.FillFromSample();
+  } else if( compnamer.GetInput<string>( "type" ) == "Tb" ){
+    SampleTableMgr mgr( tag, master );
+    mgr.LoadFromEDM();
+  } else {
+    cerr << "Unknown histogram type!" << endl;
+    return 1;
+  }
+
+  return 0;
 }

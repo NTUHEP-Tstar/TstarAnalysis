@@ -5,11 +5,13 @@
 *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
 *
 *******************************************************************************/
-#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
+#include "ManagerUtils/Common/interface/STLUtils.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
+#include "TstarAnalysis/Common/interface/TstarNamer.hpp"
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 using namespace std;
 using namespace mgr;
@@ -21,8 +23,8 @@ namespace opt = boost::program_options;
 *******************************************************************************/
 TstarNamer::TstarNamer( const string& sub_package ) :
   PackagePathMgr( "TstarAnalysis", sub_package ),
-  OptsNamer(),
-  _master_config( SettingsDir() / "master.json" )
+  OptNamer( SettingsDir()/"name_settings.json" ),
+  _masterconfig( SettingsDir() / "master.json" )
 {
 }
 
@@ -34,41 +36,45 @@ TstarNamer::~TstarNamer()
 *   Channel specialization part
 *******************************************************************************/
 int
-TstarNamer::LoadOptions(
-  const opt::options_description& desc,
-  int                             argc,
-  char*                           argv[] )
+TstarNamer::ParseOptions(
+  int   argc,
+  char* argv[] )
 {
-  int parse_result = OptsNamer::LoadOptions( desc, argc, argv );
-  if( parse_result == OptsNamer::PARSE_ERROR ){
-    return OptsNamer::PARSE_ERROR;
-  } else if( parse_result == OptsNamer::PARSE_HELP  ){
-    return OptsNamer::PARSE_HELP;
+  int parse_result = OptNamer::ParseOptions( argc, argv );
+  if( parse_result != OptNamer::PARSE_SUCESS ){
+    return parse_result;
   }
 
-  if( GetMap().count( "channel" ) ){
-    _channel_tag = GetMap()["channel"].as<string>();
+  if( CheckInput( "channel" ) ){
+    _channel = GetInput<string>( "channel" );
   }
 
-  for( const auto& option : _naming_option_list ){
-    if( !GetMap().count( option ) ){
+  for( const auto& option : _namingoptionlist ){
+    if( !CheckInput( option ) ){
       cerr << "Missing option [" << option  << "]" << endl;
-      cerr << desc << endl;
-      return OptsNamer::PARSE_ERROR;
+      cerr << Description() << endl;
+      return OptNamer::PARSE_ERROR;
     }
   }
 
-  LoadJsonFile( SettingsDir()/"name_settings.json" );
-
-  return PARSE_SUCESS;
+  return OptNamer::PARSE_SUCESS;
 }
+
+/******************************************************************************/
+
+const string&
+TstarNamer::GetChannel() const
+{
+  return _channel;
+}
+
 
 /******************************************************************************/
 
 void
 TstarNamer::SetChannel( const std::string& x )
 {
-  _channel_tag = x;
+  _channel = x;
 }
 
 /******************************************************************************/
@@ -84,9 +90,8 @@ TstarNamer::GetChannelEDMPath() const
 string
 TstarNamer::GetChannelEXT( const string& x ) const
 {
-  return query_tree( "channel", GetChannel(), x );
+  return ExtQuery<string>( "channel", GetChannel(), x );
 }
-
 
 
 /*******************************************************************************
@@ -98,7 +103,7 @@ TstarNamer::CustomFileName(
   const vector<string>& taglist
   ) const
 {
-  vector<string> mytaglist = taglist; // removing empty tags
+  vector<string> mytaglist = taglist;// removing empty tags
   static string empty      = "";
   mytaglist.erase( remove( mytaglist.begin(), mytaglist.end(), empty ), mytaglist.end() );
   string ans = ResultsDir() / GetChannel()  / boost::join( mytaglist, "_" );
@@ -112,7 +117,7 @@ TstarNamer::CustomFileName(
 /******************************************************************************/
 
 string
-TstarNamer::MakeFileName(
+TstarNamer::OptFileName(
   const string&         extension,
   const string&         main_tag,
   const vector<string>& subtaglist
@@ -121,8 +126,31 @@ TstarNamer::MakeFileName(
   vector<string> taglist;
   taglist.push_back( main_tag );
 
-  for( const auto opt : _naming_option_list ){
-    taglist.push_back( InputStr( opt ) );
+  for( const auto opt : _namingoptionlist ){
+    string tag = "";
+
+    if( tag == "" ){
+      try {
+        tag = GetInput<string>( opt );
+      } catch( ... ){
+      }
+    }
+
+    if( tag == "" ){
+      try {
+        tag = boost::lexical_cast<string>( GetInput<int>( opt ) );
+      } catch( ... ){
+      }
+    }
+
+    if( tag == "" ){
+      try {
+        tag = boost::lexical_cast<string>( GetInput<double>( opt ) );
+      } catch( ... ){
+      }
+    }
+
+    taglist.push_back( tag );
   }
 
   taglist.insert( taglist.end(), subtaglist.begin(), subtaglist.end() );
@@ -136,7 +164,7 @@ TstarNamer::TextFileName(
   const string&         maintag,
   const vector<string>& subtaglist ) const
 {
-  return MakeFileName( "txt", maintag, subtaglist );
+  return OptFileName( "txt", maintag, subtaglist );
 }
 
 string
@@ -144,7 +172,7 @@ TstarNamer::PlotFileName(
   const string&         maintag,
   const vector<string>& subtaglist ) const
 {
-  return MakeFileName( "pdf", maintag, subtaglist );
+  return OptFileName( "pdf", maintag, subtaglist );
 }
 
 string
@@ -152,7 +180,7 @@ TstarNamer::TexFileName(
   const string&         maintag,
   const vector<string>& subtaglist ) const
 {
-  return MakeFileName( "tex", maintag, subtaglist );
+  return OptFileName( "tex", maintag, subtaglist );
 }
 
 string
@@ -160,5 +188,5 @@ TstarNamer::RootFileName(
   const string&         maintag,
   const vector<string>& subtaglist ) const
 {
-  return MakeFileName( "root", maintag, subtaglist );
+  return OptFileName( "root", maintag, subtaglist );
 }

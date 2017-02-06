@@ -6,6 +6,7 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/Common/interface/ConfigReader.hpp"
+#include "ManagerUtils/Common/interface/STLUtils.hpp"
 #include "ManagerUtils/EDMUtils/interface/Counter.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
@@ -31,15 +32,15 @@ InitSampleStatic( const TstarNamer& namer )
   std::cout << "Setting SampleGroup configuration file prefix to be:" << mgr::SampleGroup::SampleCfgPrefix() << std::endl;
 
   // Luminosity settings
-  if( namer.HasOption( "era" ) ){
+  if( namer.CheckInput( "era" ) ){
     if( namer.GetChannel().find( "Electron" ) != std::string::npos ){
-      mgr::SampleMgr::SetTotalLuminosity( namer.GetExtDouble( "era", "EleLumi" ) );
+      mgr::SampleMgr::SetTotalLuminosity( namer.GetExt<double>( "era", "EleLumi" ) );
     } else {
-      mgr::SampleMgr::SetTotalLuminosity( namer.GetExtDouble( "era", "Lumi" ) );
+      mgr::SampleMgr::SetTotalLuminosity( namer.GetExt<double>( "era", "Lumi" ) );
     }
   } else {
-    std::cerr << "Warning!! Era of data taking not specified! Setting luminosity to 0!" << std::endl;
-    mgr::SampleMgr::SetTotalLuminosity( 0 );
+    std::cerr << "Warning!! Era of data taking not specified! Setting luminosity to 1.!" << std::endl;
+    mgr::SampleMgr::SetTotalLuminosity( 1. );
   }
 }
 
@@ -60,16 +61,16 @@ InitSampleFromEDM( mgr::SampleMgr& sample )
 
   unsigned i = 1;
 
-  cout << ">>>> Sample Regexs: " << sample.FileList().size() << endl;
+  cout << " > Sample Regexs: " << sample.FileList().size() << endl;
 
   for( const auto& file : sample.FileList() ){
-    cout << ">>>>>>> " << file << endl;
+    cout << " > > " << file << endl;
   }
 
-  cout << ">>>> Sample Globbed:" << sample.GlobbedFileList().size() << endl;
+  cout << " > Sample Globbed:" << sample.GlobbedFileList().size() << endl;
 
   for( const auto& file : sample.GlobbedFileList() ){
-    cout << ">>>>>> " << file << endl;
+    cout << " > > " << file << endl;
   }
 
 
@@ -89,7 +90,7 @@ InitSampleFromEDM( mgr::SampleMgr& sample )
     topwcount += evtweightallhandle.ref().value;
   }
 
-  std::cout << "Done logging Run Level caches for " << sample.Name() << std::endl;
+  std::cout << std::endl << "Done logging Run Level caches for " << sample.Name() << std::endl;
 
   // Adding to samplemgr
   sample.SetOriginalEventCount( origcount );

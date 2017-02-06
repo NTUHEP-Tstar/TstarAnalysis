@@ -10,10 +10,8 @@
 #include "TstarAnalysis/CompareDataMC/interface/MakeErrHist.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleErrHistMgr.hpp"
 
-#include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
-namespace opt = boost::program_options;
 
 /*******************************************************************************
 *   Main control flow
@@ -21,97 +19,69 @@ namespace opt = boost::program_options;
 int
 main( int argc, char* argv[] )
 {
-   opt::options_description desc( "Options for KinematicCompare" );
-   desc.add_options()
-      ( "channel,c", opt::value<string>(), "What channel to run" )
-      ( "drawdata,d", "options to add if you wish to add data into plotting" )
-      ( "era,e", opt::value<string>(), "What data era to compare to" )
-   ;
-
-   compnamer.SetNamingOptions( {"era"} );
-   const int parse = compnamer.LoadOptions( desc, argc, argv );// defined in Compare_Common.hpp
-   if( parse == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-   if( parse == mgr::OptsNamer::PARSE_HELP ){ return 0; }
-
-   InitSampleStatic( compnamer );
-
-   const mgr::ConfigReader& master = compnamer.MasterConfig();
-
-   const string datatag = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExtName( "era", "Data Postfix" );
-
-   /*******************************************************************************
-   *   Histogram manager initialization
-   *   Whether to initialize from EDM files or existing root file is handle
-   *   by the SampleErrHistMgr constructor.
-   *******************************************************************************/
-   // Defining data settings
-   SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
-   data->LoadFromFile();
-   cout << data->ExpectedYield() << "|"
-        << data->Hist("MET")->GetName() << " "
-        << data->Hist("MET")->Integral() << endl;
+  compnamer.AddOptions( CompareOptions() ); //defined in src/Common.cc
+  compnamer.SetNamingOptions( "era" );
+  const int parse = compnamer.ParseOptions( argc, argv );
+  if( parse == mgr::OptNamer::PARSE_ERROR ){ return 1; }
+  if( parse == mgr::OptNamer::PARSE_HELP  ){ return 0; }
 
 
-   // Defining out channels see data/Groups.json for sample settings
-   vector<SampleErrHistMgr*> background;
+  InitSampleStatic( compnamer );
 
-   for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
-      background.push_back( new SampleErrHistMgr( bkggroup, master ) );
-      background.back()->LoadFromFile();
-      background.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
-      cout
-         << background.back()->ExpectedYield()  << "|"
-         << background.back()->Hist( "MET" )->GetName() << " "
-         << background.back()->Hist( "MET" )->Integral() << endl;
+  const mgr::ConfigReader& master = compnamer.MasterConfig();
 
-   }
+  const string datatag = compnamer.GetChannelEXT( "Data Prefix" ) + compnamer.GetExt<string>( "era", "Data Postfix" );
 
+  /*******************************************************************************
+  *   Histogram manager initialization
+  *   Whether to initialize from EDM files or existing root file is handle
+  *   by the SampleErrHistMgr constructor.
+  *******************************************************************************/
+  // Defining data settings
+  SampleErrHistMgr* data = new SampleErrHistMgr( datatag, master );
+  data->LoadFromFile();
 
-   // Declaring sample sample
-   vector<SampleErrHistMgr*> siglist;
+  // Defining out channels see data/Groups.json for sample settings
+  vector<SampleErrHistMgr*> background;
 
-   for( const auto& signame : master.GetStaticStringList( "Signal List" ) ){
-      siglist.push_back( new SampleErrHistMgr( signame, master ) );
-      siglist.back()->LoadFromFile();
-      siglist.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
-   }
-
-
-   /*******************************************************************************
-   *   Plotting error comparison histograms
-   *******************************************************************************/
-   for( const auto& err : histerrlist ){
-      for( const auto& sig : siglist ){
-         PlotErrCompare( sig->Name(), {sig}, "TstarMass", err );
-      }
-
-      PlotErrCompare( "bkg", background, "TstarMass", err );
-      PlotErrCompare( "bkg", background, "JetNum",    err );
-      PlotErrCompare( "bkg", background, "Jet1Pt",    err );
-      PlotErrCompare( "bkg", background, "LepPt",     err );
-   }
-
-   /*******************************************************************************
-   *   Making full comparison Plots
-   *   Data plotting is handled by the plotting functions
-   *******************************************************************************/
-   MakeFullComparePlot( data, background, siglist[1] );
-   Normalize( data, background );
-   MakeFullComparePlot( data, background, siglist[1], "normalized" );
-
-   /*******************************************************************************
-   *   Object clean up .
-   *******************************************************************************/
-   for( auto& histmgr : background ){
-      delete histmgr;
-   }
-
-   for( auto& sig : siglist ){
-      delete sig;
-   }
-
-   delete data;
+  for( const auto bkggroup : master.GetStaticStringList( "Background List" ) ){
+    background.push_back( new SampleErrHistMgr( bkggroup, master ) );
+    background.back()->LoadFromFile();
+    background.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
+  }
 
 
-   return 0;
+  // Declaring sample sample
+  vector<SampleErrHistMgr*> siglist;
+
+  for( const auto& signame : master.GetStaticStringList( "Signal List" ) ){
+    siglist.push_back( new SampleErrHistMgr( signame, master ) );
+    siglist.back()->LoadFromFile();
+    siglist.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
+  }
+
+
+  /*******************************************************************************
+  *   Making full comparison Plots
+  *   Data plotting is handled by the plotting functions
+  *******************************************************************************/
+  MakeFullComparePlot( data, background, siglist[1] );
+  Normalize( data, background );
+  MakeFullComparePlot( data, background, siglist[1], "normalized" );
+
+  /*******************************************************************************
+  *   Object clean up .
+  *******************************************************************************/
+  for( auto& histmgr : background ){
+    delete histmgr;
+  }
+
+  for( auto& sig : siglist ){
+    delete sig;
+  }
+
+  delete data;
+
+
+  return 0;
 }

@@ -141,11 +141,6 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
 
   cout << "Done!" << endl;
-
-  for( const auto& setname : SetNameList() ){
-    cout << "DataSet " << setname << ":" << DataSet( setname )->sumEntries() << endl;
-  }
-
 }
 
 /******************************************************************************/

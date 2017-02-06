@@ -28,11 +28,11 @@ using namespace mgr;
 *   Constructor/Destructor and related functions
 *******************************************************************************/
 SampleTableMgr::SampleTableMgr( const string& x, const ConfigReader& y ) :
-   Named( x ),
-   SampleGroup( x, y )
+  Named( x ),
+  SampleGroup( x, y )
 {
-   // Caching addtional strings stored in json file
-   LoadExtraString();
+  // Caching addtional strings stored in json file
+  LoadExtraString();
 }
 
 SampleTableMgr::~SampleTableMgr()
@@ -43,28 +43,28 @@ SampleTableMgr::~SampleTableMgr()
 void
 SampleTableMgr::LoadExtraString()
 {
-   const mgr::ConfigReader& cfg =  compnamer.MasterConfig();
+  const mgr::ConfigReader& cfg = compnamer.MasterConfig();
 
-   auto type = GetType( cfg );
-   if( type == Undef ){
-      LoadExtraString( Sample(), GetUndefConfig( cfg ) );
+  auto type = GetType( cfg );
+  if( type == Undef ){
+    LoadExtraString( Sample(), GetUndefConfig( cfg ) );
 
-   } else if( type == Standard ){
-      const auto samplecfg = GetSampleListConfig( cfg );
+  } else if( type == Standard ){
+    const auto samplecfg = GetSampleListConfig( cfg );
 
-      for( auto& sample : SampleList() ){
-         LoadExtraString( sample, samplecfg );
+    for( auto& sample : SampleList() ){
+      LoadExtraString( sample, samplecfg );
+    }
+  } else if( type == FileList ){
+    for( const auto& samplecfg : GetConfigList( cfg ) ){
+      for( const auto& sampletag : samplecfg.GetInstanceList() ){
+        LoadExtraString( Sample( sampletag ), samplecfg );
       }
-   } else if( type == FileList ){
-      for( const auto& samplecfg : GetConfigList( cfg ) ){
-         for( const auto& sampletag : samplecfg.GetInstanceList() ){
-            LoadExtraString( Sample( sampletag ), samplecfg );
-         }
-      }
-   } else if( type == Single ){
-      const auto samplecfg = GetSingleConfig( cfg );
-      LoadExtraString( Sample(), samplecfg );
-   }
+    }
+  } else if( type == Single ){
+    const auto samplecfg = GetSingleConfig( cfg );
+    LoadExtraString( Sample(), samplecfg );
+  }
 }
 
 /******************************************************************************/
@@ -72,12 +72,12 @@ SampleTableMgr::LoadExtraString()
 void
 SampleTableMgr::LoadExtraString( mgr::SampleMgr& sample, const mgr::ConfigReader& cfg )
 {
-   if( cfg.HasTag( sample.Name(), "Generator" ) ){
-      sample.AddCacheString( "Generator", cfg.GetString( sample.Name(), "Generator" ) );
-   }
-   if( cfg.HasTag( sample.Name(), "Cross Section Source" ) ){
-      sample.AddCacheString( "XsecSource", cfg.GetString( sample.Name(), "Cross Section Source" ) );
-   }
+  if( cfg.HasTag( sample.Name(), "Generator" ) ){
+    sample.AddCacheString( "Generator", cfg.GetString( sample.Name(), "Generator" ) );
+  }
+  if( cfg.HasTag( sample.Name(), "Cross Section Source" ) ){
+    sample.AddCacheString( "XsecSource", cfg.GetString( sample.Name(), "Cross Section Source" ) );
+  }
 }
 
 
@@ -87,19 +87,19 @@ SampleTableMgr::LoadExtraString( mgr::SampleMgr& sample, const mgr::ConfigReader
 void
 SampleTableMgr::LoadFromEDM()
 {
-   for( auto& sample : SampleList() ){
-      InitSampleFromEDM( sample );// common varaibles, see Common/InitSample.cc
-      LoadFromEDM( sample );// Self defined numbers, see below
-      SaveCacheToFile( sample, SampleCacheFile(sample) );
-   }
+  for( auto& sample : SampleList() ){
+    InitSampleFromEDM( sample );  // common varaibles, see Common/InitSample.cc
+    LoadFromEDM( sample );  // Self defined numbers, see below
+    SaveCacheToFile( sample, SampleCacheFile( sample ) );
+  }
 }
 
 void
 SampleTableMgr::LoadFromFile()
 {
-   for( auto& sample : SampleList() ){
-      LoadCacheFromFile( sample, SampleCacheFile(sample) );
-   }
+  for( auto& sample : SampleList() ){
+    LoadCacheFromFile( sample, SampleCacheFile( sample ) );
+  }
 }
 
 
@@ -109,93 +109,93 @@ SampleTableMgr::LoadFromFile()
 void
 SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 {
-   double eventweightsum     = 0;
-   double eventweightupsum   = 0;
-   double eventweightdownsum = 0;
+  double eventweightsum     = 0;
+  double eventweightupsum   = 0;
+  double eventweightdownsum = 0;
 
-   double btagweightsum   = 0;
-   double puweightsum     = 0;
-   double leptonweightsum = 0;
-   double topptweightsum  = 0;
-   double pdfweightsum    = 0;
+  double btagweightsum   = 0;
+  double puweightsum     = 0;
+  double leptonweightsum = 0;
+  double topptweightsum  = 0;
+  double pdfweightsum    = 0;
 
 
-   const auto& pdfidgroup = GetPdfIdGrouping( sample );
+  const auto& pdfidgroup = GetPdfIdGrouping( sample );
 
-   fwlite::Handle<std::vector<pat::Jet> > jethandle;
+  fwlite::Handle<std::vector<pat::Jet> > jethandle;
 
-   // counter asdf
-   unsigned evtcounter = 1;
-   mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
+  // counter asdf
+  unsigned evtcounter = 1;
+  mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
 
-   boost::format progressbar( "\rSample %s Event: %u/%u ...(%lf)" );
-   cout << progressbar % sample.Name()% evtcounter% myevt.size() % 1  << flush;
+  boost::format progressbar( "\rSample %s Event: %u/%u ...(%lf)" );
+  cout << progressbar % sample.Name()% evtcounter% myevt.size() % 1  << flush;
 
-   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++evtcounter ){
-      const auto& ev = myevt.Base();
+  for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++evtcounter ){
+    const auto& ev = myevt.Base();
 
-      const double btagweight     = GetBtagWeight( ev );
-      const double btagweightup   = GetBtagWeightUp( ev );
-      const double btagweightdown = GetBtagWeightDown( ev );
+    const double btagweight     = GetBtagWeight( ev );
+    const double btagweightup   = GetBtagWeightUp( ev );
+    const double btagweightdown = GetBtagWeightDown( ev );
 
-      const double puweight     = GetPileupWeight( ev );
-      const double puweightup   = GetPileupWeightXsecup( ev );
-      const double puweightdown = GetPileupWeightXsecdown( ev );
+    const double puweight     = GetPileupWeight( ev );
+    const double puweightup   = GetPileupWeightXsecup( ev );
+    const double puweightdown = GetPileupWeightXsecdown( ev );
 
-      const double leptonweight     = GetElectronWeight( ev ) * GetMuonWeight( ev );
-      const double leptonweightup   = GetElectronWeightUp( ev ) * GetMuonWeightUp( ev );
-      const double leptonweightdown = GetElectronWeightDown( ev ) * GetMuonWeightDown( ev );
+    const double leptonweight     = GetElectronWeight( ev ) * GetMuonWeight( ev );
+    const double leptonweightup   = GetElectronWeightUp( ev ) * GetMuonWeightUp( ev );
+    const double leptonweightdown = GetElectronWeightDown( ev ) * GetMuonWeightDown( ev );
 
-      const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
-      const double pdfweighterr   = GetPdfWeightError( ev, pdfidgroup );
-      const double scaleweighterr = GetScaleWeightError( ev, pdfidgroup );
+    const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
+    const double pdfweighterr   = GetPdfWeightError( ev, pdfidgroup );
+    const double scaleweighterr = GetScaleWeightError( ev, pdfidgroup );
 
-      cout << progressbar
-         % ( sample.Name() )
-         % ( evtcounter )
-         % ( myevt.size() )
-         % ( leptonweight*btagweight*puweight/GetEventWeight( ev ) )
-           << flush;
+    cout << progressbar
+      % ( sample.Name() )
+      % ( evtcounter )
+      % ( myevt.size() )
+      % ( leptonweight*btagweight*puweight/GetEventWeight( ev ) )
+         << flush;
 
-      const double sign        = GetEventWeight( ev ) > 0 ? 1 : -1;
-      const double eventweight = GetEventWeight( ev ) * topptweight;
+    const double sign        = GetEventWeight( ev ) > 0 ? 1 : -1;
+    const double eventweight = GetEventWeight( ev ) * topptweight;
 
-      const double eventweightup = btagweightup
-                                   * puweightup
-                                   * leptonweightup
+    const double eventweightup = btagweightup
+                                 * puweightup
+                                 * leptonweightup
+                                 * topptweight
+                                 * ( 1 + pdfweighterr )
+                                 * ( 1 + scaleweighterr )
+                                 * sign;
+    const double eventweightdown = btagweightdown
+                                   * puweightdown
+                                   * leptonweightdown
                                    * topptweight
-                                   * ( 1 + pdfweighterr )
-                                   * ( 1 + scaleweighterr )
+                                   * ( 1 - pdfweighterr )
+                                   * ( 1 - scaleweighterr )
                                    * sign;
-      const double eventweightdown = btagweightdown
-                                     * puweightdown
-                                     * leptonweightdown
-                                     * topptweight
-                                     * ( 1 - pdfweighterr )
-                                     * ( 1 - scaleweighterr )
-                                     * sign;
 
-      eventweightsum     += eventweight;
-      eventweightupsum   += eventweightup;
-      eventweightdownsum += eventweightdown;
+    eventweightsum     += eventweight;
+    eventweightupsum   += eventweightup;
+    eventweightdownsum += eventweightdown;
 
-      btagweightsum   += btagweight;
-      puweightsum     += puweight;
-      leptonweightsum += leptonweight;
-      topptweightsum  += topptweight;
-      pdfweightsum    += 1 + pdfweighterr;
-   }
+    btagweightsum   += btagweight;
+    puweightsum     += puweight;
+    leptonweightsum += leptonweight;
+    topptweightsum  += topptweight;
+    pdfweightsum    += 1 + pdfweighterr;
+  }
 
-   evtcounter--;
-   cout << boost::format( "Done! AVG weight: btag[%lf], pu[%lf], lepton[%lf] , toppt[%lf],  pdf[%lf]" )
-      % ( btagweightsum / evtcounter )
-      % ( puweightsum / evtcounter )
-      % ( leptonweightsum / evtcounter )
-      % ( topptweightsum / evtcounter )
-      % ( pdfweightsum / evtcounter )
-        << endl;
+  evtcounter--;
+  cout << boost::format( "Done! AVG weight: btag[%lf], pu[%lf], lepton[%lf] , toppt[%lf],  pdf[%lf]" )
+    % ( btagweightsum / evtcounter )
+    % ( puweightsum / evtcounter )
+    % ( leptonweightsum / evtcounter )
+    % ( topptweightsum / evtcounter )
+    % ( pdfweightsum / evtcounter )
+       << endl;
 
-   sample.AddCacheDouble( "EventWeightSum",     eventweightsum );
-   sample.AddCacheDouble( "EventWeightUpSum",   eventweightupsum );
-   sample.AddCacheDouble( "EventWeightDownSum", eventweightdownsum );
+  sample.AddCacheDouble( "EventWeightSum",     eventweightsum );
+  sample.AddCacheDouble( "EventWeightUpSum",   eventweightupsum );
+  sample.AddCacheDouble( "EventWeightDownSum", eventweightdownsum );
 }

@@ -9,12 +9,6 @@ PileupWeight = cms.EDProducer(
     pileupfile = cms.FileInPath("TstarAnalysis/EventWeight/data/pileupweights_69200.csv"),
 )
 
-PileupWeightBestFit = cms.EDProducer(
-    "PileupWeight",
-    pusrc      = cms.InputTag('slimmedAddPileupInfo'),
-    pileupfile = cms.FileInPath("TstarAnalysis/EventWeight/data/pileupweights_62000.csv"),
-)
-
 PileupWeightXsecup = cms.EDProducer(
     "PileupWeight",
     pusrc      = cms.InputTag('slimmedAddPileupInfo'),
@@ -63,7 +57,7 @@ ElectronWeightAll = cms.EDProducer(
         cms.PSet(
             weightname = cms.string('CutWeight'),
             objecttype = cms.string('TH2D'),
-            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_triggersafecut_eff.root"),
+            file       = cms.FileInPath("TstarAnalysis/EventWeight/data/egamma_tightcuteff.root"),
             fileobj    = cms.string("EGamma_SF2D"),
         ),
         cms.PSet(
@@ -131,7 +125,7 @@ BtagWeight = cms.EDProducer(
     "BtagWeight",
     checkjet = cms.int32(-1),
     jetsrc   = cms.InputTag('skimmedPatJets'),
-    btagfile = cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+    btagfile = cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2Moriond17_2017_1_26_BtoH.csv"),
 )
 
 #-------------------------------------------------------------------------------

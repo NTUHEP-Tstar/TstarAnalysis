@@ -35,12 +35,14 @@ main( int argc, char* argv[] )
     ( "outputtag,o", opt::value<string>(), "What output string to add" )
     ( "compare,x", opt::value<vector<string> >()->multitoken(), "Which reconstruction methods to compare" )
   ;
-  reconamer.SetNamingOptions( {"mass"} );
-  const int run = reconamer.LoadOptions( desc, argc, argv );
-  if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
-  if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
 
-  if( !reconamer.HasOption( "compare" ) ){
+  reconamer.AddOptions( desc );
+  reconamer.SetNamingOptions( "mass" );
+  const int run = reconamer.ParseOptions( argc, argv );
+  if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
+  if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
+
+  if( !reconamer.CheckInput( "compare" ) ){
     cerr << "Error! No comparison tokens specified!" << endl;
     return 1;
   }
@@ -50,8 +52,8 @@ main( int argc, char* argv[] )
   *******************************************************************************/
   vector<CompareHistMgr*> complist;
 
-  for( const auto& tag : reconamer.GetMap()["compare"].as<vector<string> >() ){
-    const string taglatex = reconamer.query_tree( "reco", tag, "Root Name" );
+  for( const auto& tag : reconamer.GetInputList<string>( "compare" ) ){
+    const string taglatex = reconamer.ExtQuery<string>( "reco", tag, "Root Name" );
     complist.push_back( new CompareHistMgr( tag, taglatex ) );
   }
 
@@ -59,7 +61,11 @@ main( int argc, char* argv[] )
   *   Filling from file
   *******************************************************************************/
   boost::format globformat( "/wk_cms/yichen/TstarAnalysis/EDMStore/recocomp/%s/*%d*.root" );
-  const std::string globq = str( globformat % reconamer.InputStr( "channel" ) % reconamer.InputInt( "mass" ) );
+  const std::string globq = boost::str(
+    globformat
+    % reconamer.GetInput<string>( "channel" )
+    % reconamer.GetInput<int>( "mass" )
+    );
 
   mgr::MultiFileEvent myevent( mgr::Glob( globq ) );
   unsigned i = 0;
@@ -82,7 +88,7 @@ main( int argc, char* argv[] )
     MatchPlot( mgr );
   }
 
-  ComparePlot( reconamer.InputStr( "outputtag" ), complist );
+  ComparePlot( reconamer.GetInput<string>( "outputtag" ), complist );
 
   return 0;
 }

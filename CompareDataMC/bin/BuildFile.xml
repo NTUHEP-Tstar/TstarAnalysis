@@ -6,7 +6,8 @@
 
 <flags CXXFLAGS="-g"/>
 
-<bin name="FillHistogram"    file="FillHistogram.cc"/>
-<bin name="FullCompare"      file="FullCompare.cc"/>
-<bin name="MakeSummaryTable" file="MakeSummaryTable.cc"/>
-<bin name="KinematicCompare" file="KinematicCompare.cc"/>
+<bin name="ErrorCompare"     file="ErrorCompare.cc"     />
+<bin name="FillHistogram"    file="FillHistogram.cc"    />
+<bin name="FullCompare"      file="FullCompare.cc"      />
+<bin name="MakeSummaryTable" file="MakeSummaryTable.cc" />
+<bin name="KinematicCompare" file="KinematicCompare.cc" />

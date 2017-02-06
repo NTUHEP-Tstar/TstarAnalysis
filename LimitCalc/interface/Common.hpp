@@ -15,6 +15,7 @@
 #include "RooAbsReal.h"
 #include "RooAddPdf.h"
 
+#include <boost/program_options.hpp>
 #include <fstream>
 #include <string>
 #include <utility>
@@ -27,6 +28,11 @@ extern TstarNamer limnamer;
 
 extern const std::vector<std::string> uncsource;
 
+extern boost::program_options::options_description LimitOptions();
+extern boost::program_options::options_description MassOptions();
+extern boost::program_options::options_description PsuedoExpOptions();
+
+extern mgr::OptNamer::PARSE_RESULTS CheckPsuedoExpOptions();
 
 /*******************************************************************************
 *   Object initializing functions ( called after parsing user input )

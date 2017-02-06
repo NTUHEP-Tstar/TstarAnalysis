@@ -33,7 +33,7 @@ RunCombine( const string& hc_opt )
 
     const string cardfile  = limnamer.TextFileName( "card", {sig} );
     const string storefile = limnamer.RootFileName( "combine", {sig} );
-    const string method    = limnamer.GetInput( "combine" );
+    const string method    = limnamer.GetInput<string>( "combine" );
     const string addopts   = AdditionalOptions( method );
     const int masspoint    = GetInt( sig );
 
@@ -58,7 +58,7 @@ AdditionalOptions( const string& method )
     ans += "  --iteration=16  ";
   }
   // ans += " --hintMethod=ProfileLikelihood ";
-  ans += " --rAbsAcc=0.000005 ";
-  ans += " --rRelAcc=0.00005  ";
+  ans += " --rAbsAcc=0.00000005 ";
+  ans += " --rRelAcc=0.0000005  ";
   return ans;
 }

@@ -32,19 +32,19 @@ main( int argc, char* argv[] )
     ( "era,e", opt::value<string>(), "Which data era to use" )
   ;
 
-  limnamer.SetNamingOptions( {"fitmethod", "fitfunc", "era"} );
-  const int run = limnamer.LoadOptions( desc, argc, argv );
-  if( run == mgr::OptsNamer::PARSE_HELP  ){ return 0; }
-  if( run == mgr::OptsNamer::PARSE_ERROR ){ return 1; }
+  limnamer.AddOptions( desc );
+  limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
+  const int run = limnamer.ParseOptions( argc, argv );
+  if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
+  if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
 
   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
   const mgr::ConfigReader higgscfg( limnamer.SettingsDir() / "higgs_combine_settings.json" );
   const vector<string> masspointlist = cfg.GetStaticStringList( "Signal List" );
-  const vector<string> channellist   = limnamer.GetMap()["channellist"].as<vector<string> >();
+  const vector<string> channellist   = limnamer.GetInputList<string>( "channellist" );
 
   for( auto& masspoint : masspointlist ){
     vector<string> inputcardlist;
-
 
     for( const auto& channel : channellist ){
       limnamer.SetChannel( channel );

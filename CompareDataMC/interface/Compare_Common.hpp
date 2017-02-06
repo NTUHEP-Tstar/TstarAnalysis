@@ -13,6 +13,7 @@
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 
+#include "boost/program_options.hpp"
 #include <vector>
 #include <string>
 
@@ -20,6 +21,8 @@
 *   Common external objects
 *******************************************************************************/
 extern TstarNamer compnamer;// see src/Common.cc
+
+extern boost::program_options::options_description CompareOptions();
 
 /*******************************************************************************
 *   Cachefile name settings

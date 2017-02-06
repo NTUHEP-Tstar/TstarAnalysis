@@ -17,10 +17,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <ctime>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <fstream>
 
 #include "RooDataSet.h"
 #include "RooRandom.h"
@@ -35,9 +35,9 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
 {
   RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
   const double bkgnum       = data->DataSet()->sumEntries();
-  const double signum       = limnamer.HasOption( "relmag" ) ?
-                              sigmgr->ExpectedYield() * limnamer.InputDou( "relmag" ) :
-                              limnamer.InputDou( "absmag" );
+  const double signum
+    = limnamer.CheckInput( "relmag" ) ? sigmgr->ExpectedYield() * limnamer.GetInput<double>( "relmag" ) :
+      limnamer.GetInput<double>( "absmag" );
 
   vector<RooRealVar*> paramlist = mc->VarContains( "template" );
   const double param1           = paramlist[0]->getVal();
@@ -54,7 +54,7 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
     // If doesn't already exists create new file and print first fitting value.
     result.open( filename, ios_base::out );
     cout << "Writting central value to file " << filename << endl;
-    result << boost::format("%lf %lf %lf %lf") % bkgnum % signum % param1 % param2  << endl;
+    result << boost::format( "%lf %lf %lf %lf" ) % bkgnum % signum % param1 % param2  << endl;
   } else {
     // Else open in append mode.
     cout << "Appending fit to file " << filename << endl;
@@ -64,7 +64,7 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
   // Setting random seed to present time to allow multiple reruns
   RooRandom::randomGenerator()->SetSeed( time( NULL ) );
 
-  for( int i = 0; i < limnamer.InputInt( "num" ); ++i ){
+  for( int i = 0; i < limnamer.GetInput<int>( "num" ); ++i ){
     const string pseudosetname = "pseudo";
 
     RooDataSet* psuedoset = bkgfunc->generate(
@@ -102,7 +102,7 @@ RunGenFit( SampleRooFitMgr* data, SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
       % sigfit->getVal() % sigfit->getError()
       % p1fit->getVal() % p1fit->getError()
       % p2fit->getVal() % p2fit->getError()
-      << endl;
+           << endl;
 
     // Saving plots for special cases
     if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
@@ -130,7 +130,7 @@ string
 SigStrengthTag()
 {
   static boost::format secfmt( "%1%%2%" );
-  return limnamer.HasOption( "relmag" ) ?
-         str( secfmt % "rel" % limnamer.InputDou( "relmag" ) ) :
-         str( secfmt % "abs" % limnamer.InputDou( "absmag" ) );
+  return limnamer.CheckInput( "relmag" ) ?
+         str( secfmt % "rel" % limnamer.GetInput<double>( "relmag" ) ) :
+         str( secfmt % "abs" % limnamer.GetInput<double>( "absmag" ) );
 }

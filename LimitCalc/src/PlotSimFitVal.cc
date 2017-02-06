@@ -55,7 +55,7 @@ PlotGenFit( const vector<string>& masslist )
 
   map<int, PullResult> pullresults;
 
-  p.setRange("reduce",-1,1);
+  p.setRange( "reduce", -1, 1 );
 
   for( const auto& masspoint : masslist ){
     const int mass = GetInt( masspoint );
@@ -76,7 +76,7 @@ PullResult
 PlotSingleGenFit( const std::string& masstag )
 {
   const string strgthtag = SigStrengthTag();
-  const string filename  = limnamer.TextFileName( "valsimfit", {masstag, strgthtag} );
+  const string filename  = limnamer.TextFileName( "valsimfit", masstag, strgthtag );
   ifstream result( filename );
 
   RooDataSet bkgset( "bkg", "bkg", RooArgSet( p ) );
@@ -162,27 +162,27 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
     RooFit::PrintLevel( -1 ),
     RooFit::PrintEvalErrors( -1 ),
     RooFit::Warnings( kFALSE ),
-    RooFit::Range("reduce") // Fitting to sub-range
+    RooFit::Range( "reduce" )// Fitting to sub-range
     );
 
   RooPlot* frame  = p.frame();
-  TGraph* setplot = mgr::PlotOn( frame, &set ,
-    RooFit::Binning(40,p.getMin(),p.getMax())
-  );
+  TGraph* setplot = mgr::PlotOn( frame, &set,
+    RooFit::Binning( 40, p.getMin(), p.getMax() )
+    );
   TGraph* fitplot = mgr::PlotOn( frame, &pullfit );
-  TGraph* subplot = mgr::PlotOn( frame, &spullfit, RooFit::Range("reduce"));
+  TGraph* subplot = mgr::PlotOn( frame, &spullfit, RooFit::Range( "reduce" ) );
   frame->Draw();
 
   // Styling
   fitplot->SetLineColor( KBLUE );
   subplot->SetLineColor( KRED  );
 
-  const double ymax = mgr::GetYmax( {setplot,fitplot,subplot} );
+  const double ymax = mgr::GetYmax( setplot, fitplot, subplot );
   frame->SetMaximum( ymax * 1.6 );
 
   // Calculation Kolmogorov-Smirnov Goodness-of-Fit Test
-  const double ksres = KSTest( set, pullfit, p );
-  const double sksres= KSTest( set, spullfit, p , RooFit::CutRange("reduce"));
+  const double ksres  = KSTest( set, pullfit, p );
+  const double sksres = KSTest( set, spullfit, p, RooFit::CutRange( "reduce" ) );
 
   // Styling plots
   mgr::SetFrame( frame );
@@ -194,37 +194,37 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
   boost::format signalfmt( "Sig. mass = %d GeV/c^{2}" );
   boost::format fitfmt(  "#mu = %.2lf_{#pm%.3lf}  #sigma = %.3lf_{#pm%.3lf}"  );
   boost::format sfitfmt( "#mu' = %.2lf_{#pm%.3lf} #sigma' = %.3lf_{#pm%.3lf}"  );
-  boost::format ksfmt( "K = %.3lf");
+  boost::format ksfmt( "K = %.3lf" );
   boost::format injectfmt( "signal events %1% %2%" );
 
   const string xtitle_s = str( xtitlefmt % tag );
   const string signal_s = str( signalfmt % GetInt( masstag ) );
   const string fit_s    = str( fitfmt    % mean.getVal() % mean.getError() % sigma.getVal() % sigma.getError() );
   const string sfit_s   = str( sfitfmt   % smean.getVal()% smean.getError()%ssigma.getVal() %ssigma.getError() );
-  const string inject_s = limnamer.HasOption( "relmag" ) ? str( injectfmt % 'x' % limnamer.InputDou( "relmag" ) ) :
-                                                           str( injectfmt % '=' % limnamer.InputDou( "absmag" ) );
+  const string inject_s = limnamer.CheckInput( "relmag" ) ? boost::str( injectfmt % 'x' % limnamer.GetInput<double>( "relmag" ) ) :
+                          boost::str( injectfmt % '=' % limnamer.GetInput<double>( "absmag" ) );
 
   // Making titles
   frame->SetTitle( "" );
   frame->GetXaxis()->SetTitle( xtitle_s.c_str() );
 
   // Legend for marking
-  TLegend* tl = mgr::NewLegend(0.5,0.6);
-  tl->AddEntry( fitplot, fit_s.c_str() , "l" );
-  tl->AddEntry( (TObject*)NULL, str(ksfmt%ksres).c_str() , "" );
-  tl->AddEntry( subplot, sfit_s.c_str(), "l" );
-  tl->AddEntry( (TObject*)NULL, str(ksfmt%sksres).c_str(), "" );
+  TLegend* tl = mgr::NewLegend( 0.5, 0.6 );
+  tl->AddEntry( fitplot,        fit_s.c_str(),                     "l" );
+  tl->AddEntry( (TObject*)NULL, boost::str( ksfmt%ksres ).c_str(),  "" );
+  tl->AddEntry( subplot,       sfit_s.c_str(),                     "l" );
+  tl->AddEntry( (TObject*)NULL, boost::str( ksfmt%sksres ).c_str(), "" );
   tl->Draw();
 
   LatexMgr latex;
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT );
   latex.WriteLine( limnamer.GetChannelEXT( "Root Name" ) );
-  latex.WriteLine( limnamer.GetExtName( "fitfunc", "Root Name" ) );
+  latex.WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
   latex.SetOrigin( PLOT_X_TEXT_MAX, 0.6, TOP_RIGHT );
   latex.WriteLine( signal_s );
   latex.WriteLine( inject_s );
 
-  mgr::SaveToPDF( c, limnamer.PlotFileName( "valpulldist", {masstag, tag, SigStrengthTag()} ).c_str() );
+  mgr::SaveToPDF( c, limnamer.PlotFileName( "valpulldist", masstag, tag, SigStrengthTag() ) );
 
   delete frame;
   delete c;
@@ -279,7 +279,7 @@ MakePullComparePlot(
 
   mg->Draw( "A" );
   mg->SetTitle( "" );
-  mg->GetXaxis()->SetTitle( "signal mass (GeV)" );
+  mg->GetXaxis()->SetTitle( "Signal mass (GeV/c^{2})" );
   mg->GetYaxis()->SetTitle( ( "pull_{"+tag+"}" ).c_str() );
   mg->SetMaximum( 3.25 );
   mg->SetMinimum( -1.75 );
@@ -318,21 +318,19 @@ MakePullComparePlot(
   lo.Draw();
 
   boost::format injectfmt( "signal events %1% %2%" );
-  const string inject_s = limnamer.GetMap().count( "relmag" ) ?
-                          str( injectfmt % 'x' % limnamer.GetMap()["relmag"].as<double>() ) :
-                          str( injectfmt % '=' % limnamer.GetMap()["absmag"].as<double>() );
+  const string inject_s
+    = limnamer.CheckInput( "relmag" ) ? boost::str( injectfmt % 'x' % limnamer.GetInput<double>( "relmag" ) ) :
+      boost::str( injectfmt % '=' % limnamer.GetInput<double>( "absmag" ) );
 
-  TLatex tl;
-  tl.SetNDC( kTRUE );
-  tl.SetTextFont( FONT_TYPE );
-  tl.SetTextSize( AXIS_TITLE_FONT_SIZE );
-  tl.SetTextAlign( TOP_LEFT );
-  tl.DrawLatex( PLOT_X_MIN+0.04, PLOT_Y_MAX-0.04, limnamer.GetChannelEXT( "Root Name" ).c_str() );
-  tl.SetTextAlign( TOP_RIGHT );
-  tl.DrawLatex( PLOT_X_MAX-0.04, PLOT_Y_MAX-0.04, limnamer.GetExtName( "fitfunc", "Root Name" ).c_str() );
-  tl.DrawLatex( PLOT_Y_MAX-0.04, PLOT_Y_MAX-0.22, inject_s.c_str() );
+  mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
+  .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
+  .SetOrigin( PLOT_X_TEXT_MAX, PLOT_Y_TEXT_MAX, TOP_RIGHT )
+  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) )
+  .WriteLine( "" )// Adding blank line
+  .WriteLine( inject_s );
 
-  mgr::SaveToPDF( c, limnamer.PlotFileName( "pullvmass", {tag, SigStrengthTag()} ).c_str() );
+  mgr::SaveToPDF( c, limnamer.PlotFileName( "pullvmass", tag, SigStrengthTag() ) );
 
   delete graph;
   delete meanerr;

@@ -11,6 +11,7 @@
 #include "ManagerUtils/PhysUtils/interface/BTagChecker.hpp"
 #include "ManagerUtils/PhysUtils/interface/MCHelper.hpp"
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedMomentum.hpp"
+#include "ManagerUtils/Common/interface/STLUtils.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 
 #include "CLHEP/Vector/LorentzVector.h"

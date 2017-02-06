@@ -77,7 +77,7 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
 {
   const string bgpdfname = TemplatePdfName( datatag );
 
-  RooAbsPdf* bgpdf = bg->NewPdf( bgpdfname, limnamer.GetInput( "fitfunc" ) );
+  RooAbsPdf* bgpdf = bg->NewPdf( bgpdfname, limnamer.GetInput<string>( "fitfunc" ) );
 
   RooFitResult* ans = bgpdf->fitTo(
     *( bg->DataSet( datatag ) ),
@@ -269,7 +269,7 @@ MakeTemplatePlot(
   LatexMgr latex;
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
     .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
-    .WriteLine( limnamer.GetExtName( "fitfunc", "Root Name" ) );
+    .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT )
     .WriteLine( gofentry );
 
@@ -279,17 +279,17 @@ MakeTemplatePlot(
 
   const string rootfile = limnamer.PlotRootFile();
   if( use_data ){
-    mgr::SaveToPDF( c, limnamer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
-    mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data"} ) );
+    mgr::SaveToPDF( c, limnamer.OptFileName( "", "fitplot", signal->Name(), "fitmc-vs-data" ) );
+    mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-data" ) );
     frame->SetMaximum( ymax * 300 );
     c->SetLogy();
-    mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-data_log"} ) );
+    mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-data_log" ) );
   } else {
-    mgr::SaveToPDF( c, limnamer.MakeFileName( "", "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
-    mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc"} ) );
+    mgr::SaveToPDF( c, limnamer.OptFileName( "", "fitplot", signal->Name(), "fitmc-vs-mc" ) );
+    mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-mc" ) );
     frame->SetMaximum( ymax * 300 );
     c->SetLogy();
-    mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", {signal->Name(), "fitmc-vs-mc_log"} ) );
+    mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-mc_log" ) );
   }
 
   // Cleaning up

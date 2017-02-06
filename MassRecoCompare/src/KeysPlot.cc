@@ -56,7 +56,7 @@ MakeKeysPlots( KeysCompMgr* mgr )
   TLegend* leg = mgr::NewLegend( 0.55, 0.6 );
 
   boost::format setfmt( "Signal (%dGeV/c^{2})" );
-  const string setentry = str( setfmt % reconamer.InputInt( "mass" ) );
+  const string setentry = boost::str( setfmt % reconamer.GetInput<int>( "mass" ) );
   leg->AddEntry( setplot, setentry.c_str(), "lp" );
 
   boost::format pdffmt( "PDF approx (%s)" );
@@ -78,13 +78,13 @@ MakeKeysPlots( KeysCompMgr* mgr )
   // for Linear scale
   frame->SetMinimum( 0 );
   frame->SetMaximum( ymax * 1.2 );
-  mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", {} ) );
+  mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp" ) );
 
   // for Log scale
   frame->SetMinimum( 0.3 );
   frame->SetMaximum( pow( 10, ( log10( ymax )+0.5 )*1.2 ) );
   c->SetLogy( kTRUE );
-  mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", {"log"} ) );
+  mgr::SaveToPDF( c, reconamer.PlotFileName( "keyscomp", "log" ) );
 
   delete c;
   delete frame;

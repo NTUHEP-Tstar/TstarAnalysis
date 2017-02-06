@@ -36,11 +36,11 @@ MakeCombinePull()
 {
   const mgr::ConfigReader higgscfg( limnamer.SettingsDir() / "higgs_combine_settings.json" );
 
-  const string cardfile = limnamer.TextFileName( "card", {} );
+  const string cardfile = limnamer.TextFileName( "card" );
 
-  const string scriptfilename = limnamer.TextFileName( "combpull", {} );
+  const string scriptfilename = limnamer.TextFileName( "combpull" );
 
-  const string storeroot = limnamer.RootFileName( "combpull", {} );
+  const string storeroot = limnamer.RootFileName( "combpull" );
 
   cout << cardfile << endl;
 
@@ -89,22 +89,24 @@ MakeVarPull( const RooArgList& post, const RooArgList& pre, const string& name )
   }
 }
 
+/******************************************************************************/
+
 void
 MakePullPlot()
 {
-  TFile* file               = TFile::Open( limnamer.RootFileName( "combpull", {} ).c_str(), "READ" );
+  TFile* file               = TFile::Open( limnamer.RootFileName( "combpull" ).c_str(), "READ" );
   const RooArgList& postfit = ( (RooFitResult*)( file->Get( "fit_s" ) ) )->floatParsFinal();
   const RooArgSet& prefit   = *( (RooArgSet*)( file->Get( "nuisances_prefit" ) ) );
 
   // Object nameing settgs
   const string datatag = limnamer.GetChannelEXT( "Data Prefix" )
-                         + limnamer.GetExtName( "era", "Data Postfix" );
+                         + limnamer.GetExt<string>( "era", "Data Postfix" );
 
   vector<pair<string, Parameter> > pulllist;
 
   // Fitting paramter varibles
-  const string avarname = datatag + limnamer.InputStr( "mass" ) + "simfitbga";
-  const string bvarname = datatag + limnamer.InputStr( "mass" ) + "simfitbgb";
+  const string avarname = datatag + limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
+  const string bvarname = datatag + limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
 
   pulllist.emplace_back( "Bkg. parm 1", MakeVarPull( postfit, prefit, avarname ) );
   pulllist.emplace_back( "Bkg. parm 2", MakeVarPull( postfit, prefit, bvarname ) );
@@ -112,10 +114,16 @@ MakePullPlot()
   // Shape uncertainties
   for( size_t i = 0; i < uncsource.size(); ++i ){
     boost::format shapename( "%s%s%u_%s%s%s" );
-    const string upname = str( shapename % limnamer.InputStr( "mass" ) % "keymastercoeff" % ( 2*i )
-      % uncsource.at( i ) % "Up"     %"key" );
-    const string dwname = str( shapename %limnamer.InputStr( "mass" ) % "keymastercoeff" % ( 2*i+1 )
-      % uncsource.at( i ) % "Down" %"key" );
+    const string upname = boost::str(
+      shapename
+      % limnamer.GetInput<string>( "masspoint" ) % "keymastercoeff" % ( 2*i )
+      % uncsource.at( i )  % "Up"     %"key"
+      );
+    const string dwname = boost::str(
+      shapename
+      % limnamer.GetInput<string>( "masspoint" ) % "keymastercoeff" % ( 2*i+1 )
+      % uncsource.at( i ) % "Down" %"key"
+      );
 
     const Parameter uppull = MakeVarPull( postfit, prefit, upname );
     const Parameter dwpull = MakeVarPull( postfit, prefit, dwname );
@@ -163,7 +171,7 @@ MakePullPlot()
   mgr::SetSinglePad( c );
   c->SetBottomMargin( 1.5 * PLOT_Y_MIN );
 
-  const double ymax = std::max( mgr::GetYmax( pullhist ) , 2.0 );
+  const double ymax = std::max( mgr::GetYmax( pullhist ), 2.0 );
   mgr::SetAxis( pullhist );
   tstar::SetDataStyle( pullhist );
   pullhist->Draw( PS_DATA );
@@ -174,7 +182,7 @@ MakePullPlot()
   pullhist->SetMinimum( ymax * -1.2 );
 
   mgr::DrawCMSLabel( PRELIMINARY );
-  mgr::DrawLuminosity( limnamer.GetExtDouble( "era", "Lumi" ) );
+  mgr::DrawLuminosity( limnamer.GetExt<double>( "era", "Lumi" ) );
 
   const double xmin = 0;
   const double xmax = pulllist.size();
@@ -206,13 +214,15 @@ MakePullPlot()
   top->SetLineStyle( 3 );
   bot->SetLineStyle( 3 );
 
+  boost::format massfmt( "t*=%dGeV/c^{2}" );
+  const string masstag = boost::str( massfmt % GetInt( limnamer.GetInput<string>( "masspoint" ) ) );
+
   mgr::LatexMgr latex;
-  const string masstag = str( boost::format( "t*=%dGeV/c^{2}" ) % GetInt( limnamer.InputStr( "mass" ) ) );
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX )
-  .WriteLine( limnamer.GetExtName( "channel", "Root Name" ) )
+  .WriteLine( limnamer.GetExt<string>( "channel", "Root Name" ) )
   .WriteLine( masstag );
 
-  mgr::SaveToPDF( c, limnamer.PlotFileName( "combpull", {} ) );
+  mgr::SaveToPDF( c, limnamer.PlotFileName( "combpull" ) );
 
   delete c;
   delete pullhist;

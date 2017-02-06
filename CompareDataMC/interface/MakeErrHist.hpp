@@ -13,12 +13,10 @@
 #include "THStack.h"
 
 extern void PlotErrCompare(
-   const std::string&                    listname,
    const std::vector<SampleErrHistMgr*>& samplelist,
    const std::string&  histname,
    const ErrorSource&  err
    );
-
 
 extern void MakeFullComparePlot(
    SampleErrHistMgr* data,

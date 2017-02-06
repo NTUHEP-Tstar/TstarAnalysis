@@ -106,7 +106,7 @@ SimFitSingle(
 {
   const string bgfuncname   = SimFitBGPdfName( datasetname, sig->Name() );
   const string combfuncname = SimFitCombinePdfName( datasetname, sig->Name() );
-  const string fitfunc      = limnamer.GetInput( "fitfunc" );
+  const string fitfunc      = limnamer.GetInput<string>( "fitfunc" );
 
   RooAbsData* fitdataset = data->DataSet( datasetname );
   RooAbsPdf* bgpdf       = data->NewPdf( bgfuncname, fitfunc );
@@ -313,6 +313,8 @@ MakeSimFitPlot(
   )
 {
   TCanvas* c     = mgr::NewCanvas();
+  TPad* toppad   = mgr::NewTopPad();
+  TPad* botpad   = mgr::NewBottomPad();
   RooPlot* frame = SampleRooFitMgr::x().frame();
 
   const string combpdfname = SimFitCombinePdfName( datasetname, sig->Name() );
@@ -332,7 +334,13 @@ MakeSimFitPlot(
   const double sigexpstrength = sig->ExpectedYield();
   const double ksbkg          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
   const double ksall          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
-  const double multipler      = (obs > sigexpstrength*4) ? (obs/(sigexpstrength*4)) : 1 ;
+  const double multipler      = ( obs > sigexpstrength*4 ) ? ( obs/( sigexpstrength*4 ) ) : 1;
+
+  /*******************************************************************************
+  *   Drawing top pad
+  *******************************************************************************/
+  toppad->Draw();
+  toppad->cd();
 
   TGraph* dataplot = mgr::PlotOn(
     frame, dataset,
@@ -361,15 +369,50 @@ MakeSimFitPlot(
     RooFit::Normalization( bgstrength + sigfitstrength, RooAbsReal::NumEvent )
     );
 
-
   frame->Draw();
   frame->SetMinimum( 0.3 );
-  mgr::SetFrame( frame );
+  frame->SetTitle( "" );
+  mgr::SetTopPlotAxis( frame );
+  c->cd();
 
+  /*******************************************************************************
+  *   Drawing bottom pad
+  *******************************************************************************/
+  botpad->Draw();
+  botpad->cd();
+
+  TGraphAsymmErrors* bgrelplot = mgr::DividedGraph(
+    (TGraphAsymmErrors*)bgerrplot,
+    bgplot );
+
+  TGraphAsymmErrors* datarelplot = mgr::DividedGraph( (TGraphAsymmErrors*)dataplot, bgplot );
+  TLine cen( SampleRooFitMgr::x().getMin(), 1, SampleRooFitMgr::x().getMax(), 1 );
+
+  bgrelplot->Draw( "AF" );
+  datarelplot->Draw( PGS_DATA );
+  cen.Draw();
+  cen.SetLineColor( KBLUE );
+  cen.SetLineWidth( 2 );
+
+  // Title setting
+  bgrelplot->GetXaxis()->SetTitle( frame->GetXaxis()->GetTitle() );
+  bgrelplot->GetXaxis()->SetRangeUser( SampleRooFitMgr::x().getMin(), SampleRooFitMgr::x().getMax() );
+  bgrelplot->GetYaxis()->SetTitle( "Data/Bkg.fit" );
+  mgr::SetBottomPlotAxis( bgrelplot );
+
+  c->cd();
+
+  /*******************************************************************************
+  *   Styling options
+  *******************************************************************************/
   tstar::SetFitCombStyle( modelplot );
   tstar::SetFitBGStyle( bgplot );
   tstar::SetFitBGStyle( bgerrplot );
   tstar::SetSignalStyle( sigplot );
+
+  tstar::SetFitBGErrStyle( bgrelplot );
+  tstar::SetDataStyle( datarelplot );
+  tstar::SetDataStyle( dataplot );
 
   // Creating legend
   const double legend_x_min = 0.53;
@@ -394,8 +437,8 @@ MakeSimFitPlot(
   LatexMgr latex;
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
   .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
-  .WriteLine( limnamer.query_tree( "fitmethod", "SimFit", "Full Name" ) )
-  .WriteLine( limnamer.GetExtName( "fitfunc", "Root Name" ) );
+  .WriteLine( limnamer.ExtQuery<string>( "fitmethod", "SimFit", "Full Name" ) )
+  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
 
   boost::format obsfmt( "Observed Yield: %d" );
   boost::format fitfmt( "Fitted bkg.: %.0lf #pm %.0lf" );
@@ -429,24 +472,24 @@ MakeSimFitPlot(
   mgr::SaveToROOT(
     c,
     limnamer.PlotRootFile(),
-    limnamer.MakeFileName( "", prefix, {datasetname, sig->Name(), exttag} )
+    limnamer.OptFileName( "", prefix, {datasetname, sig->Name(), exttag} )
     );
 
   // Unzoomed plot
   const vector<TGraph*> graphlist = {dataplot, modelplot, sigplot, bgplot};
-  const double ymax                     = mgr::GetYmax( graphlist );
+  const double ymax               = mgr::GetYmax( graphlist );
   frame->SetMaximum( ymax * 1.5 );
   mgr::SaveToPDF( c, mainname );
-  c->SetLogy( kTRUE );
-  frame->SetMaximum( ymax * 300 );
+  toppad->SetLogy( kTRUE );
+  frame->SetMaximum( ymax * 3000 );
   mgr::SaveToPDF( c, logname.c_str() );
-  c->SetLogy( kFALSE );
+  toppad->SetLogy( kFALSE );
 
   // Zooming into designated position
   const double peak_value = modelplot->Eval( GetInt( sig->Name() ) );
   frame->SetMaximum( peak_value*1.5 );
   mgr::SaveToPDF( c, zoomname.c_str() );
-  c->SetLogy( kTRUE );
+  toppad->SetLogy( kTRUE );
   frame->SetMaximum( peak_value*10. );
   frame->SetMinimum( peak_value*0.1 );
   mgr::SaveToPDF( c, zoomlog.c_str() );

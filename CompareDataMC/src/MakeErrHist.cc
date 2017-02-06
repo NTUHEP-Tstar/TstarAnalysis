@@ -23,64 +23,64 @@ using namespace mgr;
 
 void
 MakeFullComparePlot(
-   SampleErrHistMgr*          datamgr,
-   vector<SampleErrHistMgr*>& background,
-   SampleErrHistMgr*          signalmgr,
-   const string&              label
-   )
+  SampleErrHistMgr*          datamgr,
+  vector<SampleErrHistMgr*>& background,
+  SampleErrHistMgr*          signalmgr,
+  const string&              label
+  )
 {
-   SetBkgColor( background );
+  SetBkgColor( background );
 
-   for( const auto& histname : histnamelist ){
+  for( const auto& histname : histnamelist ){
 
-      // Declaring Histograms, for construction look below.
-      THStack* stack = MakeBkgStack( background, histname );
-      TH1D* bkgerror = MakeBkgError( background, histname );
-      TH1D* datahist = (TH1D*)datamgr->Hist( histname )->Clone();
-      TH1D* bkgrel   = MakeBkgRelHist( bkgerror );
-      TH1D* datarel  = MakeDataRelHist( datahist, bkgerror );
-      TH1D* sighist  = (TH1D*)signalmgr->Hist( histname )->Clone();
+    // Declaring Histograms, for construction look below.
+    THStack* stack = MakeBkgStack( background, histname );
+    TH1D* bkgerror = MakeBkgError( background, histname );
+    TH1D* datahist = (TH1D*)datamgr->Hist( histname )->Clone();
+    TH1D* bkgrel   = MakeBkgRelHist( bkgerror );
+    TH1D* datarel  = MakeDataRelHist( datahist, bkgerror );
+    TH1D* sighist  = (TH1D*)signalmgr->Hist( histname )->Clone();
 
-      cout << bkgerror->Integral() << " " << datahist->Integral() << endl;
+    cout << bkgerror->Integral() << " " << datahist->Integral() << endl;
 
-      // Scaling signal plot for clarity
-      const unsigned datanum = datahist->Integral();
-      const double signum    = sighist->Integral();
-      const double sigscale  = datanum / signum / 2.;
-      if( sighist->Integral() < datahist->Integral() /4.0 ){
-         sighist->Scale( sigscale );
-      }
+    // Scaling signal plot for clarity
+    const unsigned datanum = datahist->Integral();
+    const double signum    = sighist->Integral();
+    const double sigscale  = datanum / signum / 2.;
+    if( sighist->Integral() < datahist->Integral() /4.0 ){
+      sighist->Scale( sigscale );
+    }
 
-      // Legend settings
-      TLegend* l = mgr::NewLegend( 0.6, 0.5 );
-      l->AddEntry( datahist, datamgr->RootName().c_str(), "lp" );
+    // Legend settings
+    TLegend* l = mgr::NewLegend( 0.6, 0.5 );
+    l->AddEntry( datahist, datamgr->RootName().c_str(), "lp" );
 
-      for( const auto& entry : background ){
-         l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
-      }
+    for( const auto& entry : background ){
+      l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
+    }
 
-      l->AddEntry( bkgerror, "Bkg. error (1#sigma)",                                                                    "fl" );
-      l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
+    l->AddEntry( bkgerror, "Bkg. error (1#sigma)",                                                                    "fl" );
+    l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
-      MakePlot(
-         stack,
-         bkgerror,
-         datahist,
-         sighist,
-         bkgrel,
-         datarel,
-         l,
-         "fullcomp",
-         {histname, label}
-         );
-      delete l;
-      delete stack;
-      delete bkgerror;
-      delete datahist;
-      delete bkgrel;
-      delete datarel;
-      delete sighist;
-   }
+    MakePlot(
+      stack,
+      bkgerror,
+      datahist,
+      sighist,
+      bkgrel,
+      datarel,
+      l,
+      "fullcomp",
+      {histname, label}
+      );
+    delete l;
+    delete stack;
+    delete bkgerror;
+    delete datahist;
+    delete bkgrel;
+    delete datarel;
+    delete sighist;
+  }
 
 }
 
@@ -88,47 +88,47 @@ MakeFullComparePlot(
 
 extern void
 Normalize(
-   SampleErrHistMgr*               data,
-   std::vector<SampleErrHistMgr*>& bg
-   )
+  SampleErrHistMgr*               data,
+  std::vector<SampleErrHistMgr*>& bg
+  )
 {
-   const double datayield = data->ExpectedYield();
-   double bgyield         = 0;
+  const double datayield = data->ExpectedYield();
+  double bgyield         = 0;
 
-   for( const auto& sample : bg ){
-      bgyield += sample->ExpectedYield();
-   }
+  for( const auto& sample : bg ){
+    bgyield += sample->ExpectedYield();
+  }
 
-   const double scale = datayield / bgyield;
+  const double scale = datayield / bgyield;
 
-   for( auto& sample : bg ){
-      sample->Scale( scale );
-   }
+  for( auto& sample : bg ){
+    sample->Scale( scale );
+  }
 }
 
 /******************************************************************************/
 
 TH1D*
 MakeSumHistogram(
-   const vector<SampleErrHistMgr*>& samplelist,
-   const string&                    histname
-   )
+  const vector<SampleErrHistMgr*>& samplelist,
+  const string&                    histname
+  )
 {
-   const TH1D* temphist = samplelist.front()->Hist( histname );
-   const unsigned bins  = temphist->GetXaxis()->GetNbins();
-   const double xmin    = temphist->GetXaxis()->GetXmin();
-   const double xmax    = temphist->GetXaxis()->GetXmax();
+  const TH1D* temphist = samplelist.front()->Hist( histname );
+  const unsigned bins  = temphist->GetXaxis()->GetNbins();
+  const double xmin    = temphist->GetXaxis()->GetXmin();
+  const double xmax    = temphist->GetXaxis()->GetXmax();
 
-   const string newname = samplelist.front()->Name() + histname + "sum";
-   const string title   = ";" + string( temphist->GetXaxis()->GetTitle() ) + ";" + string( temphist->GetYaxis()->GetTitle() );
-   TH1D* sumhist        = new TH1D( newname.c_str(), title.c_str(), bins, xmin, xmax );
+  const string newname = samplelist.front()->Name() + histname + "sum";
+  const string title   = ";" + string( temphist->GetXaxis()->GetTitle() ) + ";" + string( temphist->GetYaxis()->GetTitle() );
+  TH1D* sumhist        = new TH1D( newname.c_str(), title.c_str(), bins, xmin, xmax );
 
-   for( const auto& sample : samplelist ){
-      sumhist->Add( sample->Hist( histname ) );
-   }
+  for( const auto& sample : samplelist ){
+    sumhist->Add( sample->Hist( histname ) );
+  }
 
-   sumhist->SetStats( 0 );
-   return sumhist;
+  sumhist->SetStats( 0 );
+  return sumhist;
 }
 
 
@@ -137,15 +137,15 @@ MakeSumHistogram(
 Parameter
 ExpectedYield( const vector<SampleErrHistMgr*>& samplelist )
 {
-   Parameter ans;
+  Parameter ans;
 
-   for( const auto& group : samplelist ){
-      for( const auto& sample : group->SampleList() ){
-         ans += sample.CrossSection() * sample.SelectionEfficiency();
-      }
-   }
+  for( const auto& group : samplelist ){
+    for( const auto& sample : group->SampleList() ){
+      ans += sample.CrossSection() * sample.SelectionEfficiency();
+    }
+  }
 
-   return ans;
+  return ans;
 }
 
 /******************************************************************************/
@@ -153,231 +153,215 @@ ExpectedYield( const vector<SampleErrHistMgr*>& samplelist )
 void
 SetBkgColor( vector<SampleErrHistMgr*>& bkg )
 {
-   bkg[0]->SetColor( TColor::GetColor( "#FFCC88" ) );
-   bkg[1]->SetColor( TColor::GetColor( "#996600" ) );
-   bkg[2]->SetColor( TColor::GetColor( "#FF3333" ) );
-   bkg[3]->SetColor( TColor::GetColor( "#33EEEE" ) );
-   // bkg[4]->SetColor( TColor::GetColor( "#0066EE" ) );
+  bkg[0]->SetColor( TColor::GetColor( "#FFCC88" ) );
+  bkg[1]->SetColor( TColor::GetColor( "#996600" ) );
+  bkg[2]->SetColor( TColor::GetColor( "#FF3333" ) );
+  bkg[3]->SetColor( TColor::GetColor( "#33EEEE" ) );
+  // bkg[4]->SetColor( TColor::GetColor( "#0066EE" ) );
 }
 
 /******************************************************************************/
 
 THStack*
 MakeBkgStack(
-   const vector<SampleErrHistMgr*>& samplelist,
-   const string&                    histname
-   )
+  const vector<SampleErrHistMgr*>& samplelist,
+  const string&                    histname
+  )
 {
-   THStack* stack = new THStack( ( histname+"bkgstack" ).c_str(), "" );
+  THStack* stack = new THStack( ( histname+"bkgstack" ).c_str(), "" );
 
-   for( const auto& sample : boost::adaptors::reverse( samplelist ) ){
-      stack->Add( sample->Hist( histname ), "HIST" );
-   }
+  for( const auto& sample : boost::adaptors::reverse( samplelist ) ){
+    stack->Add( sample->Hist( histname ), "HIST" );
+  }
 
-   return stack;
+  return stack;
 }
 
 /******************************************************************************/
 
 TH1D*
 MakeBkgError(
-   const vector<SampleErrHistMgr*>& samplelist,
-   const string&                    histname
-   )
+  const vector<SampleErrHistMgr*>& samplelist,
+  const string&                    histname
+  )
 {
-   TH1D* central = MakeSumHistogram( samplelist, histname );
-   vector<pair<TH1D*, TH1D*> > errorhistlist;
+  TH1D* central = MakeSumHistogram( samplelist, histname );
+  vector<pair<TH1D*, TH1D*> > errorhistlist;
 
-   for( const auto& err : histerrlist ){
-      errorhistlist.emplace_back(
-         MakeSumHistogram( samplelist, histname + err.tag + "up" ),
-         MakeSumHistogram( samplelist, histname + err.tag + "down" )
-         );
-   }
-
-   const Parameter expyield = ExpectedYield( samplelist );
-   const Parameter normerr  = Parameter(
-      1,
-      expyield.RelUpperError(),
-      expyield.RelLowerError()
+  for( const auto& err : histerrlist ){
+    errorhistlist.emplace_back(
+      MakeSumHistogram( samplelist, histname + err.tag + "up" ),
+      MakeSumHistogram( samplelist, histname + err.tag + "down" )
       );
+  }
 
-   for( int i = 1; i <= central->GetSize(); ++i ){
-      const double bincont = central->GetBinContent( i );
-      const double binerr  = central->GetBinError( i );
+  const Parameter expyield = ExpectedYield( samplelist );
+  const Parameter normerr  = Parameter(
+    1,
+    expyield.RelUpperError(),
+    expyield.RelLowerError()
+    );
 
-      vector<Parameter> errlist;
+  for( int i = 1; i <= central->GetSize(); ++i ){
+    const double bincont = central->GetBinContent( i );
+    const double binerr  = central->GetBinError( i );
 
-      errlist.emplace_back(
-         1,
-         binerr / bincont,
-         binerr / bincont
-         );
+    Parameter errtot(1, binerr/bincont, binerr/bincont );
 
-      for( const auto pair : errorhistlist ){
-         const double upbincont   = pair.first->GetBinContent( i );
-         const double downbincont = pair.second->GetBinContent( i );
-         const double upabserr    = std::max( 0.0, upbincont-bincont );
-         const double downabserr  = std::max( 0.0, bincont-downbincont );
-         errlist.emplace_back( 1, upabserr/bincont, downabserr/bincont );
-      }
+    for( const auto pair : errorhistlist ){
+      const double upbincont   = pair.first->GetBinContent( i );
+      const double downbincont = pair.second->GetBinContent( i );
+      const double upabserr    = std::max( 0.0, upbincont-bincont );
+      const double downabserr  = std::max( 0.0, bincont-downbincont );
+      errtot *= Parameter( 1, upabserr/bincont, downabserr/bincont );
+    }
 
-      // Additional errors
-      errlist.push_back( normerr );// cross section and selection eff
-      errlist.emplace_back( 1, 0.046, 0.046 );// lumierror
-      errlist.emplace_back( 1, 0.03,  0.03 );// leptonic errors
+    // Additional errors
+    errtot *= ( normerr );  // cross section and selection eff
+    errtot *= Parameter( 1, 0.046, 0.046 );  // lumierror
+    errtot *= Parameter( 1, 0.03,  0.03 );  // leptonic errors
 
-      const Parameter binerror = ProdUncorrelated( errlist );
+    if( bincont != 0 && errtot.RelAvgError() < 0.5 ){
+      central->SetBinError( i, bincont * errtot.RelAvgError() );
+    } else {
+      central->SetBinError( i, 0 );
+    }
 
-      if( bincont != 0 ){
-         central->SetBinError( i, bincont * binerror.RelAvgError() );
-      } else {
-         central->SetBinError( i, 0 );
-      }
-
-   }
+  }
 
 
-   for( auto& pair : errorhistlist ){
-      delete pair.first;
-      delete pair.second;
-   }
+  for( auto& pair : errorhistlist ){
+    delete pair.first;
+    delete pair.second;
+  }
 
-   return central;
+  return central;
 }
 
 /******************************************************************************/
 
 void
 PlotErrCompare(
-   const string&                    listname,
-   const vector<SampleErrHistMgr*>& samplelist,
-   const string&                    histname,
-   const ErrorSource&               err
-   )
+  const vector<SampleErrHistMgr*>& samplelist,
+  const string&                    histname,
+  const ErrorSource&               err
+  )
 {
-   TH1D* central = MakeSumHistogram( samplelist, histname );
-   TH1D* errup   = MakeSumHistogram( samplelist, histname + err.tag + "up" );
-   TH1D* errdown = MakeSumHistogram( samplelist, histname + err.tag + "down" );
+  TH1D* central = MakeSumHistogram( samplelist, histname );
+  TH1D* errup   = MakeSumHistogram( samplelist, histname + err.tag + "up" );
+  TH1D* errdown = MakeSumHistogram( samplelist, histname + err.tag + "down" );
 
 
-   // Making duplicate objects
-   TH1D* uprel   = (TH1D*)errup->Clone();
-   TH1D* downrel = (TH1D*)errdown->Clone();
-   uprel->Divide( central );
-   downrel->Divide( central );
+  // Making duplicate objects
+  TH1D* uprel   = (TH1D*)errup->Clone();
+  TH1D* downrel = (TH1D*)errdown->Clone();
+  uprel->Divide( central );
+  downrel->Divide( central );
 
-   const double xmin = central->GetXaxis()->GetXmin();
-   const double xmax = central->GetXaxis()->GetXmax();
+  const double xmin = central->GetXaxis()->GetXmin();
+  const double xmax = central->GetXaxis()->GetXmax();
 
-   // Plotting
-   TCanvas* c = mgr::NewCanvas();
+  // Plotting
+  TCanvas* c = mgr::NewCanvas();
 
-   // TOPPAD
-   TPad* pad1 = mgr::NewTopPad();
-   pad1->Draw();
-   pad1->cd();
-   central->Draw( PS_AXIS );
-   errup->Draw( PS_HIST PS_SAME );
-   errdown->Draw( PS_HIST PS_SAME );
-   central->Draw( PS_HIST PS_SAME );
-   c->cd();
-
-
-   TPad* pad2      = mgr::NewBottomPad();
-   TLine* line     = new TLine( xmin, 1, xmax, 1 );
-   TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
-   TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
-   pad2->Draw();
-   pad2->cd();
-
-   uprel->Draw( PS_AXIS );
-   uprel->Draw( PS_HIST PS_SAME );
-   downrel->Draw( PS_HIST PS_SAME );
-   line->Draw( PS_SAME );
-   line_top->Draw( PS_SAME );
-   line_bot->Draw( PS_SAME );
-   c->cd();
+  // TOPPAD
+  TPad* pad1 = mgr::NewTopPad();
+  pad1->Draw();
+  pad1->cd();
+  central->Draw( PS_AXIS );
+  errup->Draw( PS_HIST PS_SAME );
+  errdown->Draw( PS_HIST PS_SAME );
+  central->Draw( PS_HIST PS_SAME );
+  c->cd();
 
 
-   // Drawing legend
-   const double legxmin = 0.5;
-   const double legymin = 0.7;
-   TLegend* tl          = mgr::NewLegend( legxmin, legymin );
-   const string label   = ( err.label != "" ) ? err.label : "1#sigma";
-   tl->AddEntry( central, "Central Value",                               "l" );
-   tl->AddEntry( errup,   ( err.rootname + "(+" + label + ")" ).c_str(), "l" );
-   tl->AddEntry( errdown, ( err.rootname + "(-" + label + ")" ).c_str(), "l" );
+  TPad* pad2      = mgr::NewBottomPad();
+  TLine* line     = new TLine( xmin, 1, xmax, 1 );
+  TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
+  TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
+  pad2->Draw();
+  pad2->cd();
 
-   tl->Draw( PS_SAME );
-
-   // Common styling
-   central->SetLineColor( kBlack );
-   errup->SetLineColor( kRed );
-   errdown->SetLineColor( kBlue );
-   uprel->SetLineColor( kRed );
-   downrel->SetLineColor( kBlue );
-
-   // accessory styling
-   line->SetLineColor( kBlack );
-   line->SetLineStyle( 1 );
-   line->SetLineWidth( 2 );
-   line_top->SetLineColor( kBlack );
-   line_bot->SetLineColor( kBlack );
-   line_top->SetLineStyle( 3 );
-   line_bot->SetLineStyle( 3 );
-
-   mgr::SetTopPlotAxis( central );
-   mgr::SetBottomPlotAxis( uprel );
-
-   // Setting plot range
-   const double ymax = mgr::GetYmax( {central, errup, errdown} );
-   central->SetMaximum( ymax * 1.5 );
-   uprel->SetMaximum( 2.2 );
-   uprel->SetMinimum( -0.2 );
-   uprel->GetYaxis()->SetTitle( "#frac{up,down}{Norm}" );
+  uprel->Draw( PS_AXIS );
+  uprel->Draw( PS_HIST PS_SAME );
+  downrel->Draw( PS_HIST PS_SAME );
+  line->Draw( PS_SAME );
+  line_top->Draw( PS_SAME );
+  line_bot->Draw( PS_SAME );
+  c->cd();
 
 
-   TPaveText* tb = mgr::NewTextBox(
-      PLOT_X_MIN + 0.05,
-      PLOT_Y_MAX - ( TEXT_FONT_SIZE*2.0 )/( DEFAULT_CANVAS_HEIGHT ),
-      PLOT_X_MIN + 0.40,
-      PLOT_Y_MAX - 0.025
-      );
-   tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
-   tb->Draw();
+  // Drawing legend
+  const double legxmin = 0.5;
+  const double legymin = 0.7;
+  TLegend* tl          = mgr::NewLegend( legxmin, legymin );
+  const string label   = ( err.label != "" ) ? err.label : "1#sigma";
+  tl->AddEntry( central, "Central Value",                               "l" );
+  tl->AddEntry( errup,   ( err.rootname + "(+" + label + ")" ).c_str(), "l" );
+  tl->AddEntry( errdown, ( err.rootname + "(-" + label + ")" ).c_str(), "l" );
 
-   TLatex ltx;
-   ltx.SetNDC( kTRUE );
-   ltx.SetTextFont( FONT_TYPE );
-   ltx.SetTextSize( AXIS_TITLE_FONT_SIZE );
-   ltx.SetTextAlign( TOP_RIGHT );
-   try {
-      ltx.DrawLatex( PLOT_X_MAX-0.04, legymin-0.08, str( boost::format( "t* %dGeV" )%GetInt( listname ) ).c_str() );
-   } catch( std::exception ){
-      ltx.DrawLatex( PLOT_X_MAX-0.04, legymin-0.08, listname.c_str() );
-   }
+  tl->Draw( PS_SAME );
 
-   // cleaning up
-   if( listname.find( "Data" ) != string::npos ){
-      mgr::DrawCMSLabel( PRELIMINARY );
-   } else {
-      mgr::DrawCMSLabel( SIMULATION );
-   }
-   mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+  // Common styling
+  central->SetLineColor( kBlack );
+  errup->SetLineColor( KRED );
+  errdown->SetLineColor( KBLUE );
+  uprel->SetLineColor( KRED );
+  downrel->SetLineColor( KBLUE );
 
-   mgr::SaveToPDF( c, compnamer.PlotFileName( "errcomp", {listname, histname, err.tag} ) );
-   mgr::SaveToROOT(
-      c,
-      compnamer.PlotRootFile(),
-      compnamer.MakeFileName( "", "errcomp", {listname, histname, err.tag} )
-      );
+  // accessory styling
+  line->SetLineColor( kBlack );
+  line->SetLineStyle( 1 );
+  line->SetLineWidth( 2 );
+  line_top->SetLineColor( kBlack );
+  line_bot->SetLineColor( kBlack );
+  line_top->SetLineStyle( 3 );
+  line_bot->SetLineStyle( 3 );
 
-   delete tl;
-   delete uprel;
-   delete downrel;
-   delete central;
-   delete errup;
-   delete errdown;
-   delete c;
+  mgr::SetTopPlotAxis( central );
+  mgr::SetBottomPlotAxis( uprel );
+
+  // Setting plot range
+  const double ymax = mgr::GetYmax( {central, errup, errdown} );
+  central->SetMaximum( ymax * 1.5 );
+  uprel->SetMaximum( 2.2 );
+  uprel->SetMinimum( -0.2 );
+  uprel->GetYaxis()->SetTitle( "#frac{up,down}{Norm}" );
+
+
+  TPaveText* tb = mgr::NewTextBox(
+    PLOT_X_MIN + 0.05,
+    PLOT_Y_MAX - ( TEXT_FONT_SIZE*2.0 )/( DEFAULT_CANVAS_HEIGHT ),
+    PLOT_X_MIN + 0.40,
+    PLOT_Y_MAX - 0.025
+    );
+  tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
+  tb->Draw();
+
+  mgr::LatexMgr latex ;
+  latex.SetOrigin( PLOT_X_TEXT_MAX, legymin - 0.02 , TOP_RIGHT );
+  if( compnamer.GetInput<string>("group").find("Tstar") != string::npos ){
+      latex.WriteLine( boost::str( boost::format( "t* %dGeV" )%GetInt( compnamer.GetInput<string>("group") ) ) );
+  }else{
+    latex.WriteLine( compnamer.GetInput<string>("group") );
+  }
+
+  // cleaning up
+  mgr::DrawCMSLabel( SIMULATION );
+  mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+
+  mgr::SaveToPDF( c, compnamer.PlotFileName( "errcomp", histname, err.tag ) );
+  mgr::SaveToROOT(
+    c,
+    compnamer.PlotRootFile(),
+    compnamer.OptFileName( "", "errcomp", histname, err.tag )
+    );
+
+  delete tl;
+  delete uprel;
+  delete downrel;
+  delete central;
+  delete errup;
+  delete errdown;
+  delete c;
 }

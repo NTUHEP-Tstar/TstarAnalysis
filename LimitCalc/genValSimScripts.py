@@ -24,7 +24,7 @@ masspointlist=[
 functionlist=["Lognorm","Exo"]
 
 runnum   = 1000
-injlist  = [0,0.1,1]
+injlist  = [0,1]
 
 header="""
 #!/bin/bash
@@ -34,10 +34,10 @@ eval `scramv1 runtime -sh`
 """.format( os.environ['CMSSW_BASE'] )
 
 cmd = """
-RunValGenFit -c {0} -f {1} -n {2} -m {3} -e Rereco {4} {5}
+RunValGenFit --channel {0} --fitmethod SimFit --fitfunc {1} --num {2} --masspoint {3} -e Rereco {4} {5}
 """
 
-plotcmd = "./PlotValGenFit -c {0} -f {1} -x {2} -e Rereco"
+plotcmd = "./PlotValGenFit --channel {0} --fitmethod SimFit --fitfunc {1} --relmag {2} -e Rereco"
 
 for channel in channellist:
     for func in functionlist:
@@ -47,7 +47,7 @@ for channel in channellist:
                     channel, func, masspoint, inj )
                 script = open( filename, 'w')
                 script.write( header )
-                script.write(cmd.format( channel, func, runnum , masspoint , "-x" , inj ))
+                script.write(cmd.format( channel, func, runnum , masspoint , "--relmag" , inj ))
                 script.close()
                 os.system("chmod +x "+filename)
             print plotcmd.format( channel, func, inj )
