@@ -26,6 +26,9 @@ TstarNamer::TstarNamer( const string& sub_package ) :
   OptNamer( SettingsDir()/"name_settings.json" ),
   _masterconfig( SettingsDir() / "master.json" )
 {
+  Description().add_options()
+    ("channel,c", opt::value<string>()->required(), "Which channel to use.")
+  ;
 }
 
 TstarNamer::~TstarNamer()
@@ -45,14 +48,12 @@ TstarNamer::ParseOptions(
     return parse_result;
   }
 
-  if( CheckInput( "channel" ) ){
-    _channel = GetInput<string>( "channel" );
-  }
+  _channel = GetInput<string>( "channel" );
 
   for( const auto& option : _namingoptionlist ){
     if( !CheckInput( option ) ){
       cerr << "Missing option [" << option  << "]" << endl;
-      cerr << Description() << endl;
+      cerr << GetDescription() << endl;
       return OptNamer::PARSE_ERROR;
     }
   }

@@ -25,7 +25,6 @@ main( int argc, char* argv[] )
   *******************************************************************************/
   opt::options_description desc( "Options for comparing Keys Pdf results" );
   desc.add_options()
-    ( "channel,c", opt::value<string>(), "Channel to run" )
     ( "mass,m", opt::value<int>(), "Masspoint to run" )
     ( "compare,x", opt::value<string>(), "Which reconstruction methods to use" )
   ;

@@ -27,14 +27,15 @@ crab_site         = 'T2_TW_NCHC'
 crab_siteurl      = 'se01.grid.nchc.org.tw'
 crab_user_path    = '/store/user/yichen/'
 crab_default_path = crab_user_path + 'tstar_crab/'
+xrd_default_path  = '/cms/' + crab_default_path
 
 #-------------------------------------------------------------------------------
 #   EOS loading path
 #-------------------------------------------------------------------------------
 eos_mount_path = os.environ['HOME']+'/eos/'
 eos_path       = eos_mount_path + '/cms/'
-eos_remoteprefix = 'root://eoscms.cern.ch//'
-edmstorage_dir = '/wk_cms/yichen/TstarAnalysis/EDMStore'
+eos_remoteprefix = 'root://se01.grid.nchc.org.tw/'
+edmstorage_dir = '/wk_cms2/yichen/TstarAnalysis/EDMStore_New/'
 
 #-------------------------------------------------------------------------------
 #   CMSRUN settings

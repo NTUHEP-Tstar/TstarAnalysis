@@ -39,7 +39,6 @@ LimitOptions()
 {
   opt::options_description ans( "Common option related to limit calculation" );
   ans.add_options()
-    ( "channel,c",   opt::value<string>()->required(),              "Which channel to run/use as output" )
     ( "fitmethod,m", opt::value<string>()->required(),              "Which fitting method to use" )
     ( "fitfunc,f",   opt::value<string>()->required(),              "Which fitting function to use" )
     ( "era,e",       opt::value<string>()->default_value( "Rereco" ), "Which data era to use" )

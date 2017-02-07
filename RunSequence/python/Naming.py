@@ -80,7 +80,7 @@ def GetCrabOutputFileList(tag, dataset, mode):
     "Returns the directory at remote path"
     # Getting variables
     siteurl = mysetting.crab_siteurl
-    crabbase = mysetting.crab_default_path
+    crabbase = mysetting.xrd_default_path
     query = crabbase + '/' + GetPrimary(dataset) + '/' + 'crab_' + GetTaskName(tag, dataset, mode)
 
     #

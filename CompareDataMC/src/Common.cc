@@ -27,7 +27,6 @@ CompareOptions()
 {
   boost::program_options::options_description ans( "Common options for CompareDataMC" );
   ans.add_options()
-    ( "channel,c", opt::value<string>()->required(),              "What channel to run"       )
     ( "era,e",     opt::value<string>()->default_value( "Rereco" ), "which era to normalize to" )
   ;
   return ans;

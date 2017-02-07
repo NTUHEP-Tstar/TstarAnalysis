@@ -30,7 +30,6 @@ main( int argc, char* argv[] )
   *******************************************************************************/
   opt::options_description desc( "Options for Method comparison" );
   desc.add_options()
-    ( "channel,c", opt::value<string>(), "Channel to run" )
     ( "mass,m", opt::value<int>(), "Masspoint to run" )
     ( "outputtag,o", opt::value<string>(), "What output string to add" )
     ( "compare,x", opt::value<vector<string> >()->multitoken(), "Which reconstruction methods to compare" )

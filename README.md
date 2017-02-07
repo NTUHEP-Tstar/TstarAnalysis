@@ -4,8 +4,8 @@ Main code for excited top quark analysis.
 
 # Deploy commands
 ```
-cmsrel CMSSW_8_0_21
-cd CMSSW_8_0_21/src
+cmsrel CMSSW_8_0_25
+cd CMSSW_8_0_25/src
 cmsenv
 
 git cms-init
@@ -46,49 +46,53 @@ Next go to your `TstarAnalysis` directory and alter the `Common/settings/higgs_c
    "Higgs Combine Version" : "v6.2.1"
 }
 ```
+# Structure overview
 
+## Interfacing sub-packages
 
-### General structure (in alphabetical order)
+* [`Common`](Common): Utility functions and classes that are specific for this analysis, but is used among multiple sub routines. Helps ensures that the variables stored in the EDM files manipulation routines and FWLite readout routines are uniformed.
 
-* [`AdditionalSelector`](AdditionalSelector) All EDM plugins required to further select events to dedicated signal/control regions.
+* [`RootFormat`](RootFormat): Custom root objects to be stored in the EDM files. Avoid altering this sub-package as much as possible.
 
-* [`BaseLineSelector`](BaseLineSelector): All EDM plugins and functions required to strip MINIAOD files to baseline requirements and basic variable caching
+## EDM manipulation sub-packages
 
-* [`Common`](Common): Utility functions and classes that are specific for this analysis, but is used among multiple sub routines.
+* [`RunSequence`](RunSequence): Master EDM manipulation control script. For generating crab scripts and mass-processing EDM files and such.
 
-* [`CompareDataMC`](CompareDataMC): Plotting classes for comparing quantities between data and Monte Carlo
+* [`BaseLineSelector`](BaseLineSelector): EDM plugins required to strip MINIAOD files to baseline requirements and basic variable caching.
 
-* [`EventWeight`](EventWeight): All EDM classes required for caching event weighting information to events.
+* [`AdditionalSelector`](AdditionalSelector) EDM plugins required to further select events to dedicated signal/control regions.
 
-* [`LimitCalc`](LimitCalc): Preparing objects to pass to [Higgs Combine Package], and also plot results into graphs. Includes validation sub-processes
+* [`TstarMassReco`](TstarMassReco): EDM plugins and classes for running computing mass reconstruction algorithms. Includes interfaces for reconstruction classes.
+
+* [`EventWeight`](EventWeight): EDM plugins for applied event weights to various physical objects.
 
 * [`ModifiedHitFit`](ModifiedHitFit): Modified version of [`TopQuarkAnalysis/TopHitFit/`] (https://github.com/cms-sw/cmssw/tree/CMSSW_8_1_X/TopQuarkAnalysis/TopHitFit) package from the official CMSSW
 
-* [`RootFormat`](RootFormat): All classes with dictionaries for ROOT goes here.
+## FWLite readout and analysis sub-packages
 
-* [`RunSequence`](RunSequence): All instances where running over large numbers of datasets is placed here. Includes utility scripts for crab/lfn job submissions.
+* [`CompareDataMC`](CompareDataMC): Plotting classes for comparing quantities between data and Monte Carlo
 
-* [`TstarMassReco`](TstarMassReco): Algorithms for computing mass reconstruction. Includes interfaces for reconstruction classes and cmsRun
+* [`LimitCalc`](LimitCalc): limit determination study analysis code.
+
+* [`MassRecoCompare`](MassRecoCompare): Generating comparison plots for determining reconstruction algorithm performance.
 
 
-### General guideline in subpackages
+# General guideline in sub-packages
 
-* [`bin`]: Defining the main function for binaries. Binaries should be softlink to the subdirectory
+* `bin`: Defining the main function for binaries. Binaries should be soft-linked to the sub-package directory.
 
-* [`src`]: No class should share files. Any function other than the main functions and the EDM plugins should go here.
+* `src`: No class should share files. Any function other than the main functions and the EDM plugins should go here.
 
-* [`plugin`]: All plugins should be contained within one file.
+* `plugin`: EDM plugins should typically be contained within one file.
 
-* [`python`]: all python files that are not directly executable or executable by `cmsRun` should go here
+* `python`: all python files that are not directly executable or executable by `cmsRun` should go here
 
-* [`test`]: Various unit testing main function source code should go here. Please link testing binaries under the `test` directory
+* `test`: Various unit testing main function source code should go here. Please link testing binaries under the `test/bin` directory
 
-* [`interface`]: Each class that is not an EDM plugin should have it's own header file. A file listing all functions in the `src` directory and listing external global variables should also be included.
+* `interface`: Each class that is not an EDM plugin should have it's own header file. A file listing all functions in the `src` directory and listing external global variables should also be included.
 
-* [`settings`]: Common settings files shard among various subroutines, should be linked to [`Common/settings`](Common/settings)
+* `settings`: Common settings files shard among various subroutines, should be linked to [`Common/settings`](Common/settings)
 
-* [`data`]: Settings unique to sub package
+* `data`: Settings unique to sub package and are required for crab jobs.
 
-* [`samples`]: Soft link to EDM storage directory `RunSequence/store/EDM_Files`
-
-* [`results`]: All results(generated text files, plots, root files) should go in here.
+* `results`: All results(generated text files, plots, root files) should go in here.
