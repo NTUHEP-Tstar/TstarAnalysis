@@ -25,15 +25,7 @@ main( int argc, char* argv[] )
   SampleRooFitMgr* mc   = NULL;
   vector<SampleRooFitMgr*> signal_list;
 
-  opt::options_description desc( "Options for MakeRooFit" );
-  desc.add_options()
-    ( "channel,c", opt::value<string>(), "Which channel to run" )
-    ( "fitmethod,m", opt::value<string>(), "Which fitting method to use" )
-    ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
-    ( "era,e", opt::value<string>(), "Which data era to use" )
-  ;
-
-  limnamer.AddOptions( desc );
+  limnamer.AddOptions( LimitOptions() );
   limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
