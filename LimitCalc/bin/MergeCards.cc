@@ -26,13 +26,10 @@ main( int argc, char* argv[] )
 {
   opt::options_description desc( "Options for MergeCards" );
   desc.add_options()
-    ( "fitmethod,m", opt::value<string>(), "Which fitting method to use" )
-    ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
     ( "channellist,c", opt::value<vector<string> >()->multitoken(), "Which channels to merge" )
-    ( "era,e", opt::value<string>(), "Which data era to use" )
   ;
 
-  limnamer.AddOptions( desc );
+  limnamer.AddOptions( LimitOptions() ).AddOptions( desc );
   limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }

@@ -57,6 +57,7 @@ AdditionalOptions( const string& method )
   if( method == "HybridNew" ){
     ans += "  --iteration=16  ";
   }
+
   // ans += " --hintMethod=ProfileLikelihood ";
   ans += " --rAbsAcc=0.00000005 ";
   ans += " --rRelAcc=0.0000005  ";

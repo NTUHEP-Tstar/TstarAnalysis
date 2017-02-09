@@ -29,6 +29,7 @@ extern const std::vector<std::string> uncsource = {
   "pu",
   "lep",
   "pdf",
+  "scale",
   "model"
 };
 

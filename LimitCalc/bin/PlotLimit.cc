@@ -20,15 +20,10 @@ main( int argc, char* argv[] )
 {
   opt::options_description desc( "Options for MakeRooFit" );
   desc.add_options()
-    ( "channel,c", opt::value<string>(), "Which channel to run" )
-    ( "fitmethod,m", opt::value<string>(), "Which fitting method to use" )
-    ( "fitfunc,f", opt::value<string>(), "Which fitting function to use" )
     ( "combine,x", opt::value<string>(), "Which method to run with combine" )
-    ( "era,e", opt::value<string>(), "Which data era to use" )
     ( "drawdata,d", "Whether to plot the data limits or not" )
   ;
-
-  limnamer.AddOptions( desc );
+  limnamer.AddOptions( LimitOptions() ).AddOptions( desc );
   limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }

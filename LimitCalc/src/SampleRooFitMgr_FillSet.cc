@@ -65,6 +65,10 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     const auto& ev = myevt.Base();
 
 
+    if( limnamer.CheckInput("mucut") && mu.pt() < limnamer.GetInput<double>("mucut") ){
+      continue;
+    }
+
     const double weight
       = GetEventWeight( ev )
         * sampleweight
@@ -119,8 +123,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       const double muonweightdown = GetMuonWeightDown( ev );
       const double pdfweightup    = 1 + GetPdfWeightError( ev, pdfidgroup );
       const double pdfweightdown  = 1 - GetPdfWeightError( ev, pdfidgroup );
-      // const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
-      // const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
+      const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
+      const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
 
       AddToDataSet( "btagUp",    tstarmass, weight * btagweightup   / btagweight );
       AddToDataSet( "btagDown",  tstarmass, weight * btagweightdown / btagweight );
@@ -130,8 +134,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       AddToDataSet( "lepDown",   tstarmass, weight * ( elecweightdown/elecweight ) * ( muonweightdown/muonweight ) );
       AddToDataSet( "pdfUp",     tstarmass, weight * pdfweightup );
       AddToDataSet( "pdfDown",   tstarmass, weight * pdfweightdown );
-      // AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
-      // AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
+      AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
+      AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
       AddToDataSet( "modelUp",   tstarmass, weight );
       AddToDataSet( "modelDown", tstarmass, weight );
     }
