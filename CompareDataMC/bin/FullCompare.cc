@@ -10,8 +10,11 @@
 #include "TstarAnalysis/CompareDataMC/interface/MakeErrHist.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleErrHistMgr.hpp"
 
+#include <boost/program_options.hpp>
 #include <iostream>
+
 using namespace std;
+namespace opt = boost::program_options;
 
 /*******************************************************************************
 *   Main control flow
@@ -19,7 +22,12 @@ using namespace std;
 int
 main( int argc, char* argv[] )
 {
-  compnamer.AddOptions( CompareOptions() ); //defined in src/Common.cc
+  opt::options_description desc( "Options for FullComparison" );
+  desc.add_options()
+    ( "masspoint,p", opt::value<string>()->default_value( "TstarM800" ), "SignalmMass to use as comparison" )
+  ;
+
+  compnamer.AddOptions( CompareOptions() ).AddOptions( desc );// defined in src/Common.cc
   compnamer.SetNamingOptions( "era" );
   const int parse = compnamer.ParseOptions( argc, argv );
   if( parse == mgr::OptNamer::PARSE_ERROR ){ return 1; }
@@ -52,22 +60,17 @@ main( int argc, char* argv[] )
 
 
   // Declaring sample sample
-  vector<SampleErrHistMgr*> siglist;
-
-  for( const auto& signame : master.GetStaticStringList( "Signal List" ) ){
-    siglist.push_back( new SampleErrHistMgr( signame, master ) );
-    siglist.back()->LoadFromFile();
-    siglist.back()->Scale( mgr::SampleMgr::TotalLuminosity() );
-  }
-
+  SampleErrHistMgr* sigmgr =  new SampleErrHistMgr( compnamer.GetInput<string>("masspoint"), master );
+  sigmgr->LoadFromFile();
+  sigmgr->Scale( mgr::SampleMgr::TotalLuminosity() );
 
   /*******************************************************************************
   *   Making full comparison Plots
   *   Data plotting is handled by the plotting functions
   *******************************************************************************/
-  MakeFullComparePlot( data, background, siglist[1] );
+  MakeFullComparePlot( data, background, sigmgr );
   Normalize( data, background );
-  MakeFullComparePlot( data, background, siglist[1], "normalized" );
+  MakeFullComparePlot( data, background, sigmgr, "normalized" );
 
   /*******************************************************************************
   *   Object clean up .
@@ -76,12 +79,8 @@ main( int argc, char* argv[] )
     delete histmgr;
   }
 
-  for( auto& sig : siglist ){
-    delete sig;
-  }
-
+  delete sigmgr;
   delete data;
-
 
   return 0;
 }

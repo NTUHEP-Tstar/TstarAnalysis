@@ -44,8 +44,8 @@ MakeFullComparePlot(
     cout << bkgerror->Integral() << " " << datahist->Integral() << endl;
 
     // Scaling signal plot for clarity
-    const unsigned datanum = datahist->Integral();
-    const double signum    = sighist->Integral();
+    const unsigned datanum = datamgr->ExpectedYield();
+    const double signum    = signalmgr->ExpectedYield();
     const double sigscale  = datanum / signum / 2.;
     if( sighist->Integral() < datahist->Integral() /4.0 ){
       sighist->Scale( sigscale );
@@ -221,8 +221,10 @@ MakeBkgError(
     errtot *= Parameter( 1, 0.046, 0.046 );  // lumierror
     errtot *= Parameter( 1, 0.03,  0.03 );  // leptonic errors
 
-    if( bincont != 0 && errtot.RelAvgError() < 0.5 ){
+    if( bincont != 0 && errtot.RelAvgError() < 1 ){
       central->SetBinError( i, bincont * errtot.RelAvgError() );
+    } else if( errtot.RelAvgError() >= 1 ){
+      central->SetBinError( i, bincont * 1 );  
     } else {
       central->SetBinError( i, 0 );
     }

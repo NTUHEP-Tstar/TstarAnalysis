@@ -30,7 +30,7 @@ using namespace mgr;
 void
 SampleRooFitMgr::definesets()
 {
-  NewDataSet( "" ); // Default dataset
+  NewDataSet( "" );// Default dataset
 
   // Additional shapes unique to Monte Carlo data set
   if( Name().find( "Data" ) == std::string::npos ){
@@ -47,7 +47,6 @@ void
 SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
   fwlite::Handle<RecoResult> chiHandle;
-  fwlite::Handle<vector<pat::Muon> > muonHandle;
 
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
@@ -64,7 +63,6 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
 
-
     const double weight
       = GetEventWeight( ev )
         * sampleweight
@@ -80,15 +78,9 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       % GetSampleEventTopPtWeight( sample, ev )
          << flush;
 
-    // Getting event weight
+    // Getting mass reconstruction results
     chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
-    if( chiHandle->ChiSquare() < 0 ){ continue; }  // Skipping over unphysical results
-
-    // Cut by Muon PF Iso
-    muonHandle.getByLabel( ev, "skimmedPatMuons" );
-    if( muonHandle->size() == 1 && MuPfIso( muonHandle->back() ) > 0.20 ){
-      continue;
-    }
+    if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
 
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
@@ -105,22 +97,22 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       AddToDataSet( "jecUp",      tstarmass_jecup,   weight );
       AddToDataSet( "jecDown",    tstarmass_jecdown, weight );
 
-      const double btagweight     = GetBtagWeight( ev );
-      const double btagweightup   = GetBtagWeightUp( ev );
-      const double btagweightdown = GetBtagWeightDown( ev  );
-      const double puweight       = GetPileupWeight( ev );
-      const double puweightup     = GetPileupWeightXsecup( ev );
-      const double puweightdown   = GetPileupWeightXsecdown( ev );
-      const double elecweight     = GetElectronWeight( ev );
-      const double elecweightup   = GetElectronWeightUp( ev );
-      const double elecweightdown = GetElectronWeightDown( ev );
-      const double muonweight     = GetMuonWeight( ev );
-      const double muonweightup   = GetMuonWeightUp( ev );
-      const double muonweightdown = GetMuonWeightDown( ev );
-      const double pdfweightup    = 1 + GetPdfWeightError( ev, pdfidgroup );
-      const double pdfweightdown  = 1 - GetPdfWeightError( ev, pdfidgroup );
-      // const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
-      // const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
+      const double btagweight      = GetBtagWeight( ev );
+      const double btagweightup    = GetBtagWeightUp( ev );
+      const double btagweightdown  = GetBtagWeightDown( ev  );
+      const double puweight        = GetPileupWeight( ev );
+      const double puweightup      = GetPileupWeightXsecup( ev );
+      const double puweightdown    = GetPileupWeightXsecdown( ev );
+      const double elecweight      = GetElectronWeight( ev );
+      const double elecweightup    = GetElectronWeightUp( ev );
+      const double elecweightdown  = GetElectronWeightDown( ev );
+      const double muonweight      = GetMuonWeight( ev );
+      const double muonweightup    = GetMuonWeightUp( ev );
+      const double muonweightdown  = GetMuonWeightDown( ev );
+      const double pdfweightup     = 1 + GetPdfWeightError( ev, pdfidgroup );
+      const double pdfweightdown   = 1 - GetPdfWeightError( ev, pdfidgroup );
+      const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
+      const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
 
       AddToDataSet( "btagUp",    tstarmass, weight * btagweightup   / btagweight );
       AddToDataSet( "btagDown",  tstarmass, weight * btagweightdown / btagweight );
@@ -130,8 +122,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       AddToDataSet( "lepDown",   tstarmass, weight * ( elecweightdown/elecweight ) * ( muonweightdown/muonweight ) );
       AddToDataSet( "pdfUp",     tstarmass, weight * pdfweightup );
       AddToDataSet( "pdfDown",   tstarmass, weight * pdfweightdown );
-      // AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
-      // AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
+      AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
+      AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
       AddToDataSet( "modelUp",   tstarmass, weight );
       AddToDataSet( "modelDown", tstarmass, weight );
     }

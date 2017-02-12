@@ -196,7 +196,7 @@ MakeSimFitCardFile(
   const Parameter null( 0, 0, 0 );
   cardfile << "----------------------------------------" << endl;
 
-  // PrintNuisanceFloats( cardfile, "sigunc",   "lnN", sigunc,        null  );
+  // Normalization nuisance parameter
   for( const auto& source : uncsource ){
     const Parameter unc = GetMCNormError( sig, source + "Up", source + "Down" );
     PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
