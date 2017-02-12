@@ -66,13 +66,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
    
 
-    muonHandle.getByLabel( ev, "slimmedMuons");
+    muonHandle.getByLabel( ev, "skimmedPatMuons");
     if(limnamer.CheckInput("mucut")){
-
-        cout<<endl<<endl<<endl<<endl;
-        cout<<"muoncut is "<<limnamer.GetInput<double>("mucut")<<endl;
-        cout<<endl<<endl<<endl<<endl;
-
        if( (*muonHandle)[0].pt() < limnamer.GetInput<double>("mucut") )
            continue;
     }
@@ -99,6 +94,12 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
+    if(limnamer.CheckInput("masscut")){
+        if(tstarmass < limnamer.GetInput<double>("masscut"))
+            continue;
+    }
+
+
     AddToDataSet( "", tstarmass, weight );
 
     // Masses to insert for MC sample
