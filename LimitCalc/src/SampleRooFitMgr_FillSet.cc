@@ -47,6 +47,7 @@ void
 SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
   fwlite::Handle<RecoResult> chiHandle;
+  fwlite::Handle<vector<pat::Muon> > muonHandle;
 
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
@@ -63,6 +64,20 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
 
+   
+
+    muonHandle.getByLabel( ev, "slimmedMuons");
+    if(limnamer.CheckInput("mucut")){
+
+        cout<<endl<<endl<<endl<<endl;
+        cout<<"muoncut is "<<limnamer.GetInput<double>("mucut")<<endl;
+        cout<<endl<<endl<<endl<<endl;
+
+       if( (*muonHandle)[0].pt() < limnamer.GetInput<double>("mucut") )
+           continue;
+    }
+    
+    
     const double weight
       = GetEventWeight( ev )
         * sampleweight

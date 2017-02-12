@@ -31,6 +31,7 @@ extern const std::vector<std::string> uncsource;
 extern boost::program_options::options_description LimitOptions();
 extern boost::program_options::options_description MassOptions();
 extern boost::program_options::options_description PsuedoExpOptions();
+extern boost::program_options::options_description ExtraCutOptions();
 
 extern mgr::OptNamer::PARSE_RESULTS CheckPsuedoExpOptions();
 
