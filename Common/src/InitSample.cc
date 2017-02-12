@@ -22,6 +22,8 @@
 using std::cout;
 using std::endl;
 
+/******************************************************************************/
+
 void
 InitSampleStatic( const TstarNamer& namer )
 {

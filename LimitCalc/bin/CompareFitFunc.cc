@@ -25,10 +25,9 @@ main( int argc, char* argv[] )
 
   opt::options_description desc( "Options for MakeRooFit" );
   desc.add_options()
-    ( "channel,c", opt::value<string>(), "Which channel to run" )
-    ( "fitfunc,f", opt::value<vector<string> >()->multitoken(), "List of fitting function to use, first on will be taken as central" )
-    ( "sample,s", opt::value<string>(), "Which sample to use (Data for background)" )
-    ( "era,e", opt::value<string>(), "Which data era to use/scale to" )
+    ( "fitfunc,f", opt::value<vector<string> >()->multitoken(), "List of fitting function to use" )
+    ( "sample,s", opt::value<string>()->required(), "Which sample to use (Data for background)" )
+    ( "era,e", opt::value<string>()->default_value("Rereco"), "Which data era to use/scale to" )
   ;
 
   limnamer.AddOptions( desc );

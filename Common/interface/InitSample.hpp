@@ -27,5 +27,4 @@ extern void InitSampleStatic( const TstarNamer& );
 extern void InitSampleFromEDM( mgr::SampleMgr& );
 
 
-
 #endif/* end of include guard: TSTARANALYSIS_COMMON_INITSAMPLESTATIC_HPP */

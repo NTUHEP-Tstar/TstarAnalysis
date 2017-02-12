@@ -387,17 +387,27 @@ MakeSimFitPlot(
 
   TGraphAsymmErrors* datarelplot = mgr::DividedGraph( (TGraphAsymmErrors*)dataplot, bgplot );
   TLine cen( SampleRooFitMgr::x().getMin(), 1, SampleRooFitMgr::x().getMax(), 1 );
+  TLine lineup( SampleRooFitMgr::x().getMin(), 1.5, SampleRooFitMgr::x().getMax(), 1.5);
+  TLine linedown( SampleRooFitMgr::x().getMin(), 0.5, SampleRooFitMgr::x().getMax(), 0.5);
 
   bgrelplot->Draw( "AF" );
   datarelplot->Draw( PGS_DATA );
   cen.Draw();
   cen.SetLineColor( KBLUE );
   cen.SetLineWidth( 2 );
+  lineup.Draw();
+  lineup.SetLineColor( kBlack );
+  lineup.SetLineStyle( 3 );
+  linedown.Draw();
+  linedown.SetLineColor( kBlack );
+  linedown.SetLineStyle( 3 );
 
   // Title setting
   bgrelplot->GetXaxis()->SetTitle( frame->GetXaxis()->GetTitle() );
   bgrelplot->GetXaxis()->SetRangeUser( SampleRooFitMgr::x().getMin(), SampleRooFitMgr::x().getMax() );
   bgrelplot->GetYaxis()->SetTitle( "Data/Bkg.fit" );
+  bgrelplot->SetMaximum( 1.6 );
+  bgrelplot->SetMinimum( 0.4 );
   mgr::SetBottomPlotAxis( bgrelplot );
 
   c->cd();

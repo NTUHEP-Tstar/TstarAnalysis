@@ -25,6 +25,9 @@ static RooAbsPdf* MakeExo( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeLognorm( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeLandau( SampleRooFitMgr*, const std::string& tag );
 static RooAbsPdf* MakeTrial( SampleRooFitMgr*, const std::string& tag );
+static RooAbsPdf* MakeLogExt3( SampleRooFitMgr*, const std::string& tag );
+static RooAbsPdf* MakeLogExt4( SampleRooFitMgr*, const std::string& tag );
+static RooAbsPdf* MakeLogExt5( SampleRooFitMgr*, const std::string& tag );
 
 /*******************************************************************************
 *   SampeRootFirMgr Generic MakePDf interface function
@@ -34,7 +37,7 @@ SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
 {
   static const string def = "Exo";
 
-  if( Pdf( name ) ){ // Do not reproduce if already exists
+  if( Pdf( name ) ){// Do not reproduce if already exists
     cerr << "Warning! Duplicate name detected, not regenerating!" << endl;
     return Pdf( name );
   }
@@ -45,6 +48,12 @@ SampleRooFitMgr::NewPdf( const string& name, const std::string& fitfunc )
     return MakeFermi( this, name );
   } else if( fitfunc == "Lognorm" ){
     return MakeLognorm( this, name );
+  } else if( fitfunc == "LogExt3" ){
+    return MakeLogExt3( this, name );
+  } else if( fitfunc == "LogExt4" ){
+    return MakeLogExt4( this, name );
+  } else if( fitfunc == "LogExt5" ){
+    return MakeLogExt5( this, name );
   } else if( fitfunc == "Landau"  ){
     return MakeLandau( this, name );
   } else if( fitfunc == "Trial"   ){
@@ -113,15 +122,127 @@ MakeExo( SampleRooFitMgr* sample, const string& name = "exo" )
 RooAbsPdf*
 MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
 {
-  RooRealVar* a     = sample->NewVar( name+"a", 300, 0, 1000 );
-  RooRealVar* b     = sample->NewVar( name+"b", 1.6, 0.00001, 100 ); // could not be negative
-  RooLognormal* pdf = new RooLognormal(
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 1000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.00001, 100 );// could not be negative
+
+  sprintf(
+    formula,
+    "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)",
+    a->GetName(),
+    b->GetName()
+    );
+
+  RooGenericPdf* pdf = new RooGenericPdf(
     name.c_str(), name.c_str(),
-    SampleRooFitMgr::x(),  *a, *b
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b )
     );
   sample->AddPdf( pdf );
   return pdf;
 }
+
+/*******************************************************************************
+*   Extended Lognormal distribution
+*   f = Lognormal_pdf( x, a, b ) * exp( -c * ln^{3}(x) ) * exp( -d * ln^{4}(x))
+*******************************************************************************/
+RooAbsPdf*
+MakeLogExt3( SampleRooFitMgr* sample, const string& name = "logext3" )
+{
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 10000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.0001, 100 );
+  RooRealVar* c = sample->NewVar( name+"c", 0.0, -5, +5 );
+
+  sprintf(
+    formula,
+    "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )",
+    a->GetName(),
+    b->GetName(),
+    c->GetName(),
+    a->GetName()
+    );
+
+  RooGenericPdf* pdf = new RooGenericPdf(
+    name.c_str(), name.c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b, *c  )
+    );
+  sample->AddPdf( pdf );
+  return pdf;
+}
+
+/******************************************************************************/
+
+RooAbsPdf*
+MakeLogExt4( SampleRooFitMgr* sample, const string& name = "logext4" )
+{
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 10000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.0001, 100 );
+  RooRealVar* c = sample->NewVar( name+"c", 0.0, -5, +5 );
+  RooRealVar* d = sample->NewVar( name+"d", 0.0, -5, +5 );
+
+  sprintf(
+    formula,
+    "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),4) )",
+    a->GetName(),
+    b->GetName(),
+    c->GetName(),
+    a->GetName(),
+    d->GetName(),
+    a->GetName()
+    );
+
+  RooGenericPdf* pdf = new RooGenericPdf(
+    name.c_str(), name.c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b, *c, *d )
+    );
+  sample->AddPdf( pdf );
+  return pdf;
+}
+
+/******************************************************************************/
+
+RooAbsPdf*
+MakeLogExt5( SampleRooFitMgr* sample, const string& name = "logext5" )
+{
+  static char formula[1024];
+  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 10000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.0001, 100 );
+  RooRealVar* c = sample->NewVar( name+"c", 0.0, -5, +5 );
+  RooRealVar* d = sample->NewVar( name+"d", 0.0, -5, +5 );
+  RooRealVar* e = sample->NewVar( name+"e", 0.0, -5, +5 );
+
+  sprintf(
+    formula,
+    "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),4) )"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),5) )",
+    a->GetName(),
+    b->GetName(),
+    c->GetName(),
+    a->GetName(),
+    d->GetName(),
+    a->GetName(),
+    e->GetName(),
+    a->GetName()
+    );
+
+  RooGenericPdf* pdf = new RooGenericPdf(
+    name.c_str(), name.c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *b, *c, *d, *e )
+    );
+  sample->AddPdf( pdf );
+  return pdf;
+}
+
 
 /*******************************************************************************
 *   Landau distribution

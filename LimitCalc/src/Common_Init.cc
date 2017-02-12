@@ -11,6 +11,8 @@
 #include <boost/program_options.hpp>
 #include <vector>
 
+#include "Math/MinimizerOptions.h"
+
 using namespace std;
 using namespace mgr;
 namespace opt = boost::program_options;
@@ -113,6 +115,10 @@ InitRooFitSettings( const TstarNamer& x )
   const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
   SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
+
+  // Default fitting settings
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2","Migrad");
+  ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
 }
 
 /******************************************************************************/

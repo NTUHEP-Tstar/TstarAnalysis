@@ -112,6 +112,18 @@
          "Latex Name": "",
          "Root Name": "Landau function"
       },
+      "LogExt3":{
+         "Full Name": "Logn (3^{rd} Order)",
+         "Root Name": "#frac{N}x^{a} exp#left( b #ln^{2}(x) + c #ln^{3}(x) #right)"
+      },
+      "LogExt4":{
+         "Full Name": "Logn (4^{th} Order)",
+         "Root Name": "#frac{N}x^{a} exp#left( b #ln^{2}(x) + c #ln^{3}(x) + d #ln^{4}(x) #right)"
+      },
+      "LogExt5":{
+         "Full Name": "Logn (5^{th} Order)",
+         "Root Name": "#frac{N}x^{a} exp#left( b #ln^{2}(x) + c #ln^{3}(x) + d #ln^{4}(x) #right)"
+      },
       "Trial": {
          "Full Name": "Trial",
          "Latex Name": "",

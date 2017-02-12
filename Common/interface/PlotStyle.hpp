@@ -28,6 +28,7 @@
 #define KGREEN  (kGreen+1)
 #define KBLUE   (kBlue+2)
 #define KSKY    (kBlue-7)
+#define KPURPLE (kViolet-3)
 
 /*******************************************************************************
 *   Fill settings
