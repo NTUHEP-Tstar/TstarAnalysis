@@ -38,6 +38,7 @@ public:
 
   // Additional option parsing
   void SetNamingOptions( const std::vector<std::string>& x ) { _namingoptionlist = x; }
+  void AddCutOptions( const std::string& x ) { _cutoptionlist.push_back(x); }
   int  ParseOptions( int argc, char** argv );
 
   // Options specializations: "channel"
@@ -105,6 +106,7 @@ public:
 private:
   std::string _channel;
   std::vector<std::string> _namingoptionlist;
+  std::vector<std::string> _cutoptionlist;
   mgr::ConfigReader _masterconfig;
 };
 

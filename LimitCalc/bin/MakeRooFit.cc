@@ -25,8 +25,10 @@ main( int argc, char* argv[] )
   SampleRooFitMgr* mc   = NULL;
   vector<SampleRooFitMgr*> signal_list;
 
-  limnamer.AddOptions( LimitOptions() );
+  limnamer.AddOptions( LimitOptions() ).AddOptions( ExtraCutOptions()  );
   limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
+  
+
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
@@ -36,6 +38,15 @@ main( int argc, char* argv[] )
 
   InitDataAndSignal( data, signal_list );
   InitMC( mc );
+  
+  if( limnamer.CheckInput("mucut")){
+      limnamer.AddCutOptions("mucut");
+  }
+  if( limnamer.CheckInput("masscut")){
+      limnamer.AddCutOptions("masscut");
+  }
+
+  
   if( limnamer.GetInput<string>( "fitmethod" ) == "SimFit"  ){
     cout << "Running SimFit Method!" << endl;
     MakeSimFit( data, mc, signal_list );

@@ -47,6 +47,7 @@ void
 SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
   fwlite::Handle<RecoResult> chiHandle;
+  fwlite::Handle<vector<pat::Muon> > muonHandle;
 
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
@@ -63,6 +64,15 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
 
+   
+
+    muonHandle.getByLabel( ev, "skimmedPatMuons");
+    if(limnamer.CheckInput("mucut")){
+       if( (*muonHandle)[0].pt() < limnamer.GetInput<double>("mucut") )
+           continue;
+    }
+    
+    
     const double weight
       = GetEventWeight( ev )
         * sampleweight
@@ -84,6 +94,12 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
+    if(limnamer.CheckInput("masscut")){
+        if(tstarmass < limnamer.GetInput<double>("masscut"))
+            continue;
+    }
+
+
     AddToDataSet( "", tstarmass, weight );
 
     // Masses to insert for MC sample

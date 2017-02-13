@@ -124,10 +124,12 @@ TstarNamer::OptFileName(
   const vector<string>& subtaglist
   ) const
 {
+
   vector<string> taglist;
   taglist.push_back( main_tag );
 
   for( const auto opt : _namingoptionlist ){
+      
     string tag = "";
 
     if( tag == "" ){
@@ -151,8 +153,46 @@ TstarNamer::OptFileName(
       }
     }
 
+
+
     taglist.push_back( tag );
   }
+
+
+    cout<<"here"<<endl;
+
+  for( const auto opt : _cutoptionlist){
+
+
+    string tag = "";
+
+    if( tag == "" ){
+      try {
+        tag = GetInput<string>( opt );
+      } catch( ... ){
+      }
+    }
+
+    if( tag == "" ){
+      try {
+        tag = boost::lexical_cast<string>( GetInput<int>( opt ) );
+      } catch( ... ){
+      }
+    }
+
+    if( tag == "" ){
+      try {
+        tag = boost::lexical_cast<string>( GetInput<double>( opt ) );
+      } catch( ... ){
+      }
+    }
+
+    cout<<opt+tag<<endl;
+
+    taglist.push_back( opt+tag );
+  }
+
+
 
   taglist.insert( taglist.end(), subtaglist.begin(), subtaglist.end() );
   return CustomFileName( extension, taglist );
