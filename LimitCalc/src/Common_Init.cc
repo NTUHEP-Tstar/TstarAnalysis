@@ -122,8 +122,13 @@ void
 InitRooFitSettings( const TstarNamer& x )
 {
   const mgr::ConfigReader& cfg = x.MasterConfig();
-  const double mass_min        = cfg.GetStaticDouble( "Mass Min" );
+  double mass_min        = cfg.GetStaticDouble( "Mass Min" );
   const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
+
+  if( x.CheckInput("masscut")  ){
+      mass_min = x.GetInput<double>("masscut");
+  }
+
   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
   SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
 }
