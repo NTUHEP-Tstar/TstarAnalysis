@@ -120,6 +120,10 @@ InitRooFitSettings( const TstarNamer& x )
   // Default fitting settings
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2","Migrad");
   ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
+  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls( 10000 );
+  ROOT::Math::MinimizerOptions::SetDefaultMaxIterations( 50000 );
+  ROOT::Math::MinimizerOptions::SetDefaultPrecision( 1e-7 );
+  ROOT::Math::MinimizerOptions::SetDefaultTolerance( 1e-7 );
 }
 
 /******************************************************************************/
