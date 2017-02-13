@@ -17,8 +17,14 @@
 /*******************************************************************************
 *   Main control flow to be called by main functions
 *******************************************************************************/
-extern void RunCombine( const std::string& higgs_opt = "" );// src/RunCombine.cc
-extern void MakeLimitPlot();// src/PlotLimit.cc
+extern void RunCombine(
+  const std::string& additionaltag = "",
+  const std::string& higgs_opt = ""
+  );// src/RunCombine.cc
+
+// First is the expected limit , second is the observed limit
+extern std::pair<mgr::Parameter, mgr::Parameter> MakeLimitPlot( const std::string& additionaltag = ""
+                                                                );// src/PlotLimit.cc
 
 /*******************************************************************************
 *   Helper functions for limit plotting
@@ -51,8 +57,8 @@ extern const int twosig_down;
 extern const int skip;
 
 extern TGraph* MakeCalcGraph(
-  const std::vector<std::string>& masslist,
   const std::map<double, double>& xsec,
+  const std::string& additionaltag,
   const int centralentry,
   const int uperrorentry,
   const int downerrorentry

@@ -36,7 +36,9 @@ main( int argc, char* argv[] )
   }
 
   cout << "Making limit plot" << endl;
-  MakeLimitPlot();
+  auto lim = MakeLimitPlot();
+
+  cout << lim.first.CentralValue() << " " << lim.second.CentralValue() << endl;
 
   return 0;
 }

@@ -27,7 +27,7 @@ TstarNamer::TstarNamer( const string& sub_package ) :
   _masterconfig( SettingsDir() / "master.json" )
 {
   Description().add_options()
-    ("channel,c", opt::value<string>()->required(), "Which channel to use.")
+    ( "channel,c", opt::value<string>()->required(), "Which channel to use." )
   ;
 }
 
@@ -129,7 +129,7 @@ TstarNamer::OptFileName(
   taglist.push_back( main_tag );
 
   for( const auto opt : _namingoptionlist ){
-      
+
     string tag = "";
 
     if( tag == "" ){
@@ -152,18 +152,10 @@ TstarNamer::OptFileName(
       } catch( ... ){
       }
     }
-
-
-
     taglist.push_back( tag );
   }
 
-
-    cout<<"here"<<endl;
-
-  for( const auto opt : _cutoptionlist){
-
-
+  for( const auto opt : _cutoptionlist ){
     string tag = "";
 
     if( tag == "" ){
@@ -191,8 +183,6 @@ TstarNamer::OptFileName(
 
     taglist.push_back( opt+tag );
   }
-
-
 
   taglist.insert( taglist.end(), subtaglist.begin(), subtaglist.end() );
   return CustomFileName( extension, taglist );

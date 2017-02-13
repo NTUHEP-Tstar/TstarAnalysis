@@ -74,17 +74,19 @@ PsuedoExpOptions()
   return ans;
 }
 
+/******************************************************************************/
 
 extern opt::options_description
 ExtraCutOptions()
 {
-  opt::options_description ans( "Apply extra cut");
+  opt::options_description ans( "Apply extra cut" );
   ans.add_options()
-      ( "mucut,c"  , opt::value<double>(), "Set the pass threshold for the muon" )
-      ( "masscut,t", opt::value<double>(), "Mass of gluon plus t" )
+    ( "mucut,c", opt::value<double>(), "Set the pass threshold for the muon" )
+    ( "masscut,t", opt::value<double>(), "Mass of gluon plus t" )
   ;
   return ans;
 }
+
 
 /******************************************************************************/
 
@@ -107,6 +109,43 @@ CheckPsuedoExpOptions()
   return mgr::OptNamer::PARSE_SUCESS;
 }
 
+/******************************************************************************/
+
+extern opt::options_description
+HiggsCombineOptions()
+{
+  opt::options_description ans( "Extra options for higgs combine" );
+  ans.add_options()
+    ( "combine,x", opt::value<string>(), "Which method to run with combine" )
+    ( "drawdata,d", "Whether to plot the data limits or not" )
+  ;
+  return ans;
+}
+
+/******************************************************************************/
+
+extern mgr::OptNamer::PARSE_RESULTS
+CheckDisableOptions()
+{
+  if( !limnamer.CheckInput( "disable" ) ){
+    return mgr::OptNamer::PARSE_SUCESS;
+  }
+
+  for( const auto& unc : uncsource ){
+    if( limnamer.GetInput<string>( "disable" ) == unc ){
+      return mgr::OptNamer::PARSE_SUCESS;
+    }
+  }
+
+  if( limnamer.GetInput<string>( "disable" ) == "stat"
+      || limnamer.GetInput<string>( "disable" ) == "lumi"
+      || limnamer.GetInput<string>( "disable" ) == "bg" ){
+    return mgr::OptNamer::PARSE_SUCESS;
+  }
+
+  cerr << "Unknown uncertainty to disable!" << endl;
+  return mgr::OptNamer::PARSE_ERROR;
+}
 
 /*******************************************************************************
 *   Initialization functions
@@ -130,8 +169,8 @@ InitRooFitSettings( const TstarNamer& x )
   SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
 
   // Default fitting settings
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2","Migrad");
-  ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer( "Minuit2", "Migrad" );
+  ROOT::Math::MinimizerOptions::SetDefaultPrintLevel( -1 );
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls( 10000 );
   ROOT::Math::MinimizerOptions::SetDefaultMaxIterations( 50000 );
   ROOT::Math::MinimizerOptions::SetDefaultPrecision( 1e-7 );

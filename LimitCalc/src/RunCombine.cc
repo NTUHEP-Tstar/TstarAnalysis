@@ -23,7 +23,7 @@ static string AdditionalOptions( const string& method );
 /******************************************************************************/
 
 void
-RunCombine( const string& hc_opt )
+RunCombine( const string& addtag, const string& hc_opt )
 {
   const ConfigReader& cfg = limnamer.MasterConfig();
   const HiggsCombineSubmitter sub( limnamer.SettingsDir() / "higgs_combine_settings.json" );
@@ -31,8 +31,8 @@ RunCombine( const string& hc_opt )
 
   for( const auto& sig : cfg.GetStaticStringList( "Signal List" ) ){
 
-    const string cardfile  = limnamer.TextFileName( "card", {sig} );
-    const string storefile = limnamer.RootFileName( "combine", {sig} );
+    const string cardfile  = limnamer.TextFileName( "card", sig, addtag );
+    const string storefile = limnamer.RootFileName( "combine", sig, addtag );
     const string method    = limnamer.GetInput<string>( "combine" );
     const string addopts   = AdditionalOptions( method );
     const int masspoint    = GetInt( sig );
@@ -49,6 +49,7 @@ RunCombine( const string& hc_opt )
   sub.SubmitParallel( submit_list );
 }
 
+/******************************************************************************/
 
 string
 AdditionalOptions( const string& method )

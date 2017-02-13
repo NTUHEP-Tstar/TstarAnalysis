@@ -32,8 +32,10 @@ extern boost::program_options::options_description LimitOptions();
 extern boost::program_options::options_description MassOptions();
 extern boost::program_options::options_description PsuedoExpOptions();
 extern boost::program_options::options_description ExtraCutOptions();
+extern boost::program_options::options_description HiggsCombineOptions();
 
 extern mgr::OptNamer::PARSE_RESULTS CheckPsuedoExpOptions();
+extern mgr::OptNamer::PARSE_RESULTS CheckDisableOptions();
 
 /*******************************************************************************
 *   Object initializing functions ( called after parsing user input )
