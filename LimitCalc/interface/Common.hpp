@@ -58,7 +58,6 @@ extern void InitDataAndSignal( SampleRooFitMgr*&, std::vector<SampleRooFitMgr*>&
 
 extern void InitMC( SampleRooFitMgr*& );
 
-
 /*******************************************************************************
 *   PDF stitching functions:
 *

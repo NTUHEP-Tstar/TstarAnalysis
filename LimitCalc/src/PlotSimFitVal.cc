@@ -149,6 +149,7 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
   TCanvas* c = mgr::NewCanvas();
 
   pullfit.fitTo( set,
+    RooFit::Minimizer( "Minuit2", "Migrad" ),
     RooFit::Minos( kTRUE ),
     RooFit::Verbose( kFALSE ),
     RooFit::PrintLevel( -1 ),
@@ -157,6 +158,7 @@ MakePullPlot( RooDataSet& set, const string& masstag, const string& tag )
     );
 
   spullfit.fitTo( set,
+    RooFit::Minimizer( "Minuit2", "Migrad" ),
     RooFit::Minos( kTRUE ),
     RooFit::Verbose( kFALSE ),
     RooFit::PrintLevel( -1 ),

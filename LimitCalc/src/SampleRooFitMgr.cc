@@ -69,7 +69,7 @@ SampleRooFitMgr::~SampleRooFitMgr()
 {
   for( const auto& name : VarNameList() ){
     RooRealVar* var = Var( name );
-    printf( "%-50s %8.4lf %8.4f\n", var->GetName(), var->getVal(), var->getError() );
+    printf( "%-50s %8.4lf %8.4f %8.4f\n", var->GetName(), var->getVal(), var->getErrorHi(), var->getErrorLo() );
     fflush( stdout );
   }
 

@@ -85,7 +85,6 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
     *( bg->DataSet( datatag ) ),
     RooFit::Save(),
     RooFit::SumW2Error( kTRUE ),// For Weighted dataset
-    // RooFit::Range( "FitRange" ),// Fitting range
     RooFit::Minimizer( "Minuit2", "Migrad" ),
     RooFit::Minos( kTRUE ),
     RooFit::Verbose( kFALSE ),

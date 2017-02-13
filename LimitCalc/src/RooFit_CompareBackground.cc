@@ -67,6 +67,7 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     RooDataSet* set = (RooDataSet*)( mgr->DataSet( "" ) );
 
     MyFitResult x;
+
     x.fitresult = pdf->fitTo(
       *set,
       // RooFit::Extended(kTRUE),
