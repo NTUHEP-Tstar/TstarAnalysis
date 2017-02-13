@@ -70,6 +70,7 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     x.fitresult = pdf->fitTo(
       *set,
       // RooFit::Extended(kTRUE),
+      RooFit::Minimizer("Minuit2","Migrad"),
       RooFit::SumW2Error( kTRUE ),
       RooFit::Minos( kTRUE ),
       RooFit::Save(),
@@ -104,16 +105,17 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     mg->Add( fitresult.pullplot, "Z" );
   }
 
-  TLine* line     = new TLine( xmin, 1, xmax, 1 );
-  TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
-  TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
+  TLine line    ( xmin, 1, xmax, 1 );
+  TLine line_top( xmin, 1.5, xmax, 1.5 );
+  TLine line_bot( xmin, 0.5, xmax, 0.5 );
 
   mg->Draw( "AZ" );
-  line->Draw("SAME");
-  line_top->Draw("SAME");
-  line_bot->Draw("SAME");
-  mg->GetXaxis()->SetTitle( setplot->GetXaxis()->GetTitle() );
+  line.Draw("SAME");
+  line_top.Draw("SAME");
+  line_bot.Draw("SAME");
+  mg->GetXaxis()->SetTitle( frame->GetXaxis()->GetTitle() );
   mg->GetYaxis()->SetTitle( "Data/Fit" );
+  mg->GetXaxis()->SetRangeUser( xmin, xmax );
   mgr::SetBottomPlotAxis( mg );
   mg->SetMaximum( 1.6 );
   mg->SetMinimum( 0.4 );
@@ -124,12 +126,12 @@ CompareFitFunc( SampleRooFitMgr* mgr )
   *******************************************************************************/
   tstar::SetDataStyle( setplot );
 
-  line->SetLineColor( KRED );
-  line->SetLineStyle( 1 );
-  line_top->SetLineColor( kBlack );
-  line_bot->SetLineColor( kBlack );
-  line_top->SetLineStyle( 3 );
-  line_bot->SetLineStyle( 3 );
+  line.SetLineColor( KRED );
+  line.SetLineStyle( 1 );
+  line_top.SetLineColor( kBlack );
+  line_bot.SetLineColor( kBlack );
+  line_top.SetLineStyle( 3 );
+  line_bot.SetLineStyle( 3 );
 
   // Drawing common
   mgr::DrawCMSLabel();

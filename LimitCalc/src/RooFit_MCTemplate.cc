@@ -20,6 +20,8 @@
 #include <fstream>
 #include <string>
 
+#include "RooDataSet.h"
+
 using namespace std;
 using namespace mgr;
 
@@ -52,9 +54,9 @@ MakeTemplate(
     // funclist.push_back( sig->Func(StitchKeyNormName));
   }
 
-  MakeFullTemplate( bg );
-  MakeTemplatePlot( data, bg, signal_list.front(), true );
-  MakeTemplatePlot( data, bg, signal_list.front(), false );
+  auto fitresultlist = MakeFullTemplate( bg );
+  MakeTemplatePlot( data, bg, signal_list.front(), fitresultlist.front(), true );
+  MakeTemplatePlot( data, bg, signal_list.front(), fitresultlist.front(), false );
   pdflist.push_back( bg->Pdf( StitchTemplatePdfName ) );
 
   SaveRooWorkSpace(
@@ -83,7 +85,8 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
     *( bg->DataSet( datatag ) ),
     RooFit::Save(),
     RooFit::SumW2Error( kTRUE ),// For Weighted dataset
-    RooFit::Range( "FitRange" ),// Fitting range
+    // RooFit::Range( "FitRange" ),// Fitting range
+    RooFit::Minimizer( "Minuit2", "Migrad" ),
     RooFit::Minos( kTRUE ),
     RooFit::Verbose( kFALSE ),
     RooFit::PrintLevel( -1 ),
@@ -98,17 +101,19 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
 
 /******************************************************************************/
 
-RooAbsPdf*
+vector<RooFitResult*>
 MakeFullTemplate( SampleRooFitMgr* bg )
 {
   vector<string> bgpdflist;
+  vector<RooFitResult*> ans;
 
   for( const auto& datasetname : bg->SetNameList() ){
-    FitBackgroundTemplate( bg, datasetname );
+    ans.push_back( FitBackgroundTemplate( bg, datasetname ) );
     bgpdflist.push_back( TemplatePdfName( datasetname ) );
   }
 
-  return MakeSimpleStitchPdf( bg, StitchTemplatePdfName, bgpdflist );
+  MakeSimpleStitchPdf( bg, StitchTemplatePdfName, bgpdflist );
+  return ans;
 }
 
 /******************************************************************************/
@@ -128,7 +133,7 @@ MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMg
     % "rate"
     % sig->DataSet()->sumEntries()
     % bg->DataSet()->sumEntries()
-    << endl;
+           << endl;
 
   cardfile << "----------------------------------------" << endl;
 
@@ -138,19 +143,19 @@ MakeTemplateCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMg
   const Parameter sigstatunc = sig->Sample().SelectionEfficiency();
   const Parameter bkgstatunc( 1, 0.03, 0.03 );// includes uncertaintly from cross section and selection effiency
 
-  const Parameter sigjecunc   = GetMCNormError( sig, "jecUp",    "jecDown"    );
-  const Parameter sigjerunc   = GetMCNormError( sig, "jetresUp", "jetresDown" );
-  const Parameter siglepunc   = GetMCNormError( sig, "lepUp",    "lepDown"    );
-  const Parameter sigbtagunc  = GetMCNormError( sig, "btagUp",   "btagDown"   );
-  const Parameter sigpuunc    = GetMCNormError( sig, "puUp",     "puDown"     );
-  const Parameter sigpdfunc   = GetMCNormError( sig, "pdfUp",    "pdfDown"    );
+  const Parameter sigjecunc  = GetMCNormError( sig, "jecUp",    "jecDown"    );
+  const Parameter sigjerunc  = GetMCNormError( sig, "jetresUp", "jetresDown" );
+  const Parameter siglepunc  = GetMCNormError( sig, "lepUp",    "lepDown"    );
+  const Parameter sigbtagunc = GetMCNormError( sig, "btagUp",   "btagDown"   );
+  const Parameter sigpuunc   = GetMCNormError( sig, "puUp",     "puDown"     );
+  const Parameter sigpdfunc  = GetMCNormError( sig, "pdfUp",    "pdfDown"    );
 
-  const Parameter bkgjecunc   = GetMCNormError( bg, "jecUp",    "jecDown"    );
-  const Parameter bkgjerunc   = GetMCNormError( bg, "jetresUp", "jetresDown" );
-  const Parameter bkglepunc   = GetMCNormError( bg, "lepUp",    "lepDown"    );
-  const Parameter bkgbtagunc  = GetMCNormError( bg, "btagUp",   "btagDown"   );
-  const Parameter bkgpuunc    = GetMCNormError( bg, "puUp",     "puDown"     );
-  const Parameter bkgpdfunc   = GetMCNormError( bg, "pdfUp",    "pdfDown"    );
+  const Parameter bkgjecunc  = GetMCNormError( bg, "jecUp",    "jecDown"    );
+  const Parameter bkgjerunc  = GetMCNormError( bg, "jetresUp", "jetresDown" );
+  const Parameter bkglepunc  = GetMCNormError( bg, "lepUp",    "lepDown"    );
+  const Parameter bkgbtagunc = GetMCNormError( bg, "btagUp",   "btagDown"   );
+  const Parameter bkgpuunc   = GetMCNormError( bg, "puUp",     "puDown"     );
+  const Parameter bkgpdfunc  = GetMCNormError( bg, "pdfUp",    "pdfDown"    );
 
   PrintNuisanceFloats( cardfile, "Lumi",    "lnN", lumi,       lumi        );
   PrintNuisanceFloats( cardfile, "lepsys",  "lnN", lepunc,     lepunc      );
@@ -192,55 +197,112 @@ MakeTemplatePlot(
   SampleRooFitMgr* data,
   SampleRooFitMgr* mc,
   SampleRooFitMgr* signal,
+  RooFitResult*    fitresult,
   const bool       use_data )
 {
   // First plot against MC
   const double TotalLuminosity = mgr::SampleMgr::TotalLuminosity();
+  const double xmin            = SampleRooFitMgr::x().getMin();
+  const double xmax            = SampleRooFitMgr::x().getMax();
 
   TCanvas* c     = mgr::NewCanvas();
+  TPad* toppad   = mgr::NewTopPad();
+  TPad* botpad   = mgr::NewBottomPad();
   RooPlot* frame = SampleRooFitMgr::x().frame();
-  TGraph* pdfplot;
-  TGraph* sigplot;
-  TGraph* setplot;
 
-  if( use_data ){
-    setplot = mgr::PlotOn(
-      frame,
-      data->DataSet(),
-      RooFit::DrawOption( PGS_DATA )
-      );
-    pdfplot = mgr::PlotOn(
-      frame,
-      mc->Pdf( StitchTemplatePdfName ),
-      RooFit::Range( "FitRange" ),
-      RooFit::Normalization( data->DataSet()->sumEntries(), RooAbsReal::NumEvent )
-      );
-  } else {
-    setplot = mgr::PlotOn(
-      frame,
-      mc->DataSet(),
-      RooFit::DrawOption( PGS_DATA )
-      );
-    pdfplot = mgr::PlotOn(
-      frame, mc->Pdf( StitchTemplatePdfName ),
-      RooFit::Range( "FitRange" ),
-      RooFit::Normalization( mc->DataSet()->sumEntries(), RooAbsReal::NumEvent )
-      );
-  }
+  // Objects to draw
+  RooDataSet* set   = (RooDataSet*)( use_data ? data->DataSet() : mc->DataSet() );
+  RooAbsPdf* bkgpdf = mc->Pdf( TemplatePdfName( "" ) );// Taking central value only
+  RooAbsPdf* sigpdf = signal->Pdf( StitchKeyPdfName );
 
-  sigplot = mgr::PlotOn(
-    frame, signal->Pdf( StitchKeyPdfName ),
+  /*******************************************************************************
+  *   Objects for drawing top pad
+  *******************************************************************************/
+  toppad->Draw();
+  toppad->cd();
+
+  TGraph* setplot = mgr::PlotOn(
+    frame,
+    set,
+    RooFit::DrawOption( PGS_DATA )
+    );
+
+  TGraph* pdferrplot = mgr::PlotOn(
+    frame,
+    bkgpdf,
+    RooFit::VisualizeError( *fitresult, 1, kFALSE )
+    );
+
+  TGraph* pdfplot = mgr::PlotOn(
+    frame,
+    bkgpdf,
+    RooFit::Normalization( set->sumEntries(), RooAbsReal::NumEvent )
+    );
+
+  TGraph* sigplot = mgr::PlotOn(
+    frame,
+    sigpdf,
     RooFit::DrawOption( PGS_SIGNAL ),
     RooFit::Normalization( signal->ExpectedYield(), RooAbsReal::NumEvent )
     );
 
-  // Typicall styling options
+  // Typical styling options
   frame->Draw();
   frame->SetMinimum( 0.3 );
-  mgr::SetFrame( frame );
-  frame->GetYaxis()->SetTitle( setplot->GetYaxis()->GetTitle() );
+  mgr::SetTopPlotAxis( frame );
 
+  c->cd();
+  /*******************************************************************************
+  *   Objects for drawing bottom pad
+  *******************************************************************************/
+  botpad->Draw();
+  botpad->cd();
+
+  TGraphAsymmErrors* bgrelplot = mgr::DividedGraph(
+    (TGraphAsymmErrors*)pdferrplot,
+    pdfplot
+    );
+  TGraphAsymmErrors* datarelplot = mgr::DividedGraph(
+    (TGraphAsymmErrors*)setplot,
+    pdfplot
+    );
+
+  bgrelplot->Draw( "AF" );
+  datarelplot->Draw( PGS_DATA );
+
+  TLine cen( xmin, 1, xmax, 1 );
+  TLine lineup( xmin, 1.5, xmax, 1.5 );
+  TLine linedown( xmin, 0.5, xmax, 0.5 );
+  cen.Draw();
+  cen.SetLineColor( KBLUE );
+  cen.SetLineWidth( 2 );
+  lineup.Draw();
+  lineup.SetLineColor( kBlack );
+  lineup.SetLineStyle( 3 );
+  linedown.Draw();
+  linedown.SetLineColor( kBlack );
+  linedown.SetLineStyle( 3 );
+
+  // Title setting
+  bgrelplot->GetXaxis()->SetTitle( frame->GetXaxis()->GetTitle() );
+  bgrelplot->GetXaxis()->SetRangeUser( xmin, xmax );
+  bgrelplot->GetYaxis()->SetTitle( "Data/Bkg.fit" );
+  bgrelplot->SetMaximum( 1.6 );
+  bgrelplot->SetMinimum( 0.4 );
+  mgr::SetBottomPlotAxis( bgrelplot );
+
+  c->cd();
+  /*******************************************************************************
+  *   Common styling and additiona objects
+  *******************************************************************************/
   tstar::SetSignalStyle( sigplot );
+  tstar::SetFitBGStyle( pdfplot );
+  tstar::SetFitBGStyle( pdferrplot );
+  tstar::SetSignalStyle( sigplot );
+
+  tstar::SetFitBGErrStyle( bgrelplot );
+  tstar::SetDataStyle( datarelplot );
+  tstar::SetDataStyle( setplot );
 
   // Legend entries
   const double legend_x_min = 0.53;
@@ -249,7 +311,7 @@ MakeTemplatePlot(
   boost::format sigfmt( "%s (%.2lf pb)" );
   const string sigentry  = str( sigfmt % signal->RootName() % signal->Sample().CrossSection().CentralValue() );
   const string dataentry = ( use_data ) ? "Data" : "M.C. Bkg.";
-  const string fitentry  = string("Bkg. fit to MC") + ( use_data ? "(Norm.)" : "" );
+  const string fitentry  = string( "Bkg. fit to MC" ) + ( use_data ? "(Norm.)" : "" );
 
 
   l->AddEntry( setplot, dataentry.c_str(), "lp" );
@@ -259,8 +321,7 @@ MakeTemplatePlot(
 
   // Additional information plotting
   boost::format goffmt( "K_{prob} = %.3lf" );
-  const double ksprob = use_data ? KSTest( *( data->DataSet() ), *( mc->Pdf( StitchTemplatePdfName ) ), SampleRooFitMgr::x() ) :
-                        KSTest( *( mc->DataSet() ), *( mc->Pdf( StitchTemplatePdfName ) ), SampleRooFitMgr::x() );
+  const double ksprob   = KSTest( *( set ), *( bkgpdf ), SampleRooFitMgr::x() );
   const string gofentry = str( goffmt % ksprob );
 
   mgr::DrawCMSLabel();
@@ -268,29 +329,22 @@ MakeTemplatePlot(
 
   LatexMgr latex;
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
-    .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
-    .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
+  .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
+  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT )
-    .WriteLine( gofentry );
+  .WriteLine( gofentry );
 
   // Range setting and saving
-  const double ymax = mgr::GetYmax( {pdfplot, setplot, sigplot} );
+  const double ymax = mgr::GetYmax( pdfplot, setplot, sigplot );
   frame->SetMaximum( ymax * 1.5 );
 
   const string rootfile = limnamer.PlotRootFile();
-  if( use_data ){
-    mgr::SaveToPDF( c, limnamer.OptFileName( "", "fitplot", signal->Name(), "fitmc-vs-data" ) );
-    mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-data" ) );
-    frame->SetMaximum( ymax * 300 );
-    c->SetLogy();
-    mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-data_log" ) );
-  } else {
-    mgr::SaveToPDF( c, limnamer.OptFileName( "", "fitplot", signal->Name(), "fitmc-vs-mc" ) );
-    mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-mc" ) );
-    frame->SetMaximum( ymax * 300 );
-    c->SetLogy();
-    mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", signal->Name(), "fitmc-vs-mc_log" ) );
-  }
+  const string lastag   = use_data ? "fitmc-vs-data" : "fitmc-vs-mc";
+  mgr::SaveToPDF( c, limnamer.PlotFileName( "", "fitplot", signal->Name(), lastag ) );
+  mgr::SaveToROOT( c, rootfile, limnamer.PlotFileName( "fitplot", signal->Name(), lastag ) );
+  frame->SetMaximum( ymax * 300 );
+  toppad->SetLogy( kTRUE );
+  mgr::SaveToPDF( c, limnamer.PlotFileName( "fitplot", signal->Name(), lastag, "log" ) );
 
   // Cleaning up
   delete frame;

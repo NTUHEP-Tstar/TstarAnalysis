@@ -119,24 +119,25 @@ SimFitSingle(
   RooRealVar* nb = data->NewVar( combfuncname+"nb", numdata, -1000000, 1000000 );
   RooRealVar* ns = data->NewVar( combfuncname+"ns", 0, -1000000, 1000000 );
 
-  RooArgSet fitconstraints;
+  // Remove background constraining function for now.
+  // RooArgSet fitconstraints;
 
-  for( unsigned i = 0; i < bgfitvarlist.size(); ++i ){
-    RooRealVar* bgvar    = bgfitvarlist[i];
-    RooRealVar* bgconvar =
-      (RooRealVar*)( bgconstrain->floatParsFinal().at( i ) );
+  // for( unsigned i = 0; i < bgfitvarlist.size(); ++i ){
+  //   RooRealVar* bgvar    = bgfitvarlist[i];
+  //   RooRealVar* bgconvar =
+  //     (RooRealVar*)( bgconstrain->floatParsFinal().at( i ) );
 
-    string pdfname = bgvar->GetName();
-    pdfname += "constrain";
+  //   string pdfname = bgvar->GetName();
+  //   pdfname += "constrain";
 
-    RooGaussian bgvarconpdf(
-      pdfname.c_str(), pdfname.c_str(),
-      *bgvar,
-      RooFit::RooConst( bgconvar->getVal() ),
-      RooFit::RooConst( 5*bgconvar->getError() )// five time sigma constrain for the time being
-      );
-    fitconstraints.addClone( bgvarconpdf );
-  }
+  //   RooGaussian bgvarconpdf(
+  //     pdfname.c_str(), pdfname.c_str(),
+  //     *bgvar,
+  //     RooFit::RooConst( bgconvar->getVal() ),
+  //     RooFit::RooConst( 5*bgconvar->getError() )// five time sigma constrain for the time being
+  //     );
+  //   fitconstraints.addClone( bgvarconpdf );
+  // }
 
   RooAddPdf* model = new RooAddPdf(
     combfuncname.c_str(),
@@ -147,9 +148,10 @@ SimFitSingle(
 
   RooFitResult* err = model->fitTo(
     *( fitdataset ),
-    RooFit::Range( "FitRange" ),
+    RooFit::Minimizer("Minuit2","Migrad"),
+    RooFit::Extended( kTRUE ),
     RooFit::Minos( kTRUE ),
-    RooFit::ExternalConstraints( fitconstraints ),
+    // RooFit::ExternalConstraints( fitconstraints ),
     RooFit::Save(),
     RooFit::Verbose( kFALSE ),
     RooFit::PrintLevel( -1 ),
@@ -383,9 +385,12 @@ MakeSimFitPlot(
 
   TGraphAsymmErrors* bgrelplot = mgr::DividedGraph(
     (TGraphAsymmErrors*)bgerrplot,
-    bgplot );
-
-  TGraphAsymmErrors* datarelplot = mgr::DividedGraph( (TGraphAsymmErrors*)dataplot, bgplot );
+    bgplot
+  );
+  TGraphAsymmErrors* datarelplot = mgr::DividedGraph(
+    (TGraphAsymmErrors*)dataplot,
+    bgplot
+  );
   TLine cen( SampleRooFitMgr::x().getMin(), 1, SampleRooFitMgr::x().getMax(), 1 );
   TLine lineup( SampleRooFitMgr::x().getMin(), 1.5, SampleRooFitMgr::x().getMax(), 1.5);
   TLine linedown( SampleRooFitMgr::x().getMin(), 0.5, SampleRooFitMgr::x().getMax(), 0.5);
@@ -448,15 +453,15 @@ MakeSimFitPlot(
   latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
   .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
   .WriteLine( limnamer.ExtQuery<string>( "fitmethod", "SimFit", "Full Name" ) )
-  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
+  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Full Name" ) );
 
   boost::format obsfmt( "Observed Yield: %d" );
   boost::format fitfmt( "Fitted bkg.: %.0lf #pm %.0lf" );
-  boost::format detfmt( "#Delta:%.3lf%%, K_{bkg} = %.3lf,  K_{all} = %.3lf" );
+  boost::format detfmt( "K_{bkg} = %.3lf,  K_{all} = %.3lf" );
 
   const string obsentry = str( obsfmt % obs );
   const string expentry = str( fitfmt % bgstrength % bgerr );
-  const string detentry = str( detfmt % ( 100*( bgstrength-obs )/obs ) % ksbkg % ksall );
+  const string detentry = str( detfmt % ksbkg % ksall );
 
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min - TEXT_MARGIN, TOP_RIGHT )
   .WriteLine( obsentry )
@@ -482,7 +487,7 @@ MakeSimFitPlot(
   mgr::SaveToROOT(
     c,
     limnamer.PlotRootFile(),
-    limnamer.OptFileName( "", prefix, {datasetname, sig->Name(), exttag} )
+    limnamer.OptFileName( "", prefix, taglist )
     );
 
   // Unzoomed plot

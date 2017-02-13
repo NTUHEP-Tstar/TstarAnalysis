@@ -34,7 +34,7 @@ extern RooFitResult* FitBackgroundTemplate(
   const std::string& dataset
   );
 
-extern RooAbsPdf* MakeFullTemplate( SampleRooFitMgr* bkg );
+extern std::vector<RooFitResult*> MakeFullTemplate( SampleRooFitMgr* bkg );
 
 /*******************************************************************************
 *   Main constrol flow to be called by main function
@@ -59,6 +59,7 @@ extern void MakeTemplatePlot(
   SampleRooFitMgr* data,
   SampleRooFitMgr* mc,
   SampleRooFitMgr* signal,
+  RooFitResult*    fitresult,
   const bool       use_data
   );
 

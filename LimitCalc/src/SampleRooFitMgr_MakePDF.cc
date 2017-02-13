@@ -123,8 +123,8 @@ RooAbsPdf*
 MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 1000 );
-  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.00001, 100 );// could not be negative
+  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 1000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100 );// could not be negative
 
   sprintf(
     formula,
@@ -150,8 +150,8 @@ RooAbsPdf*
 MakeLogExt3( SampleRooFitMgr* sample, const string& name = "logext3" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 10000 );
-  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.0001, 100 );
+  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 10000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100 );
   RooRealVar* c = sample->NewVar( name+"c", 0.0, -5, +5 );
 
   sprintf(
@@ -179,8 +179,8 @@ RooAbsPdf*
 MakeLogExt4( SampleRooFitMgr* sample, const string& name = "logext4" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 10000 );
-  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.0001, 100 );
+  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 10000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100 );
   RooRealVar* c = sample->NewVar( name+"c", 0.0, -5, +5 );
   RooRealVar* d = sample->NewVar( name+"d", 0.0, -5, +5 );
 
@@ -212,8 +212,8 @@ RooAbsPdf*
 MakeLogExt5( SampleRooFitMgr* sample, const string& name = "logext5" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 285, 0, 10000 );
-  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.0001, 100 );
+  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 10000 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100 );
   RooRealVar* c = sample->NewVar( name+"c", 0.0, -5, +5 );
   RooRealVar* d = sample->NewVar( name+"d", 0.0, -5, +5 );
   RooRealVar* e = sample->NewVar( name+"e", 0.0, -5, +5 );
