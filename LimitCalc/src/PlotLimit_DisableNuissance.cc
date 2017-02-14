@@ -53,7 +53,7 @@ MakeNewCard( const std::string& masspoint, const std::string nuisance )
     if( firstword.find( nuisance ) != string::npos ){
       cout << "# Disabled line: " << originalline << endl;
     } else if( firstword == "kmax" ){
-      newfile << "kmax *" << endl; // Saving kmax 
+      newfile << "kmax *" << endl; // Saving kmax
     } else {
       newfile << originalline << endl;
     }

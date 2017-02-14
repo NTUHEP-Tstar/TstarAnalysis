@@ -12,5 +12,6 @@
 
 <flag CXXFLAGS="-g"/>
 
-<bin name="CompareKeys" file="CompareKeys.cc"/>
-<bin name="CompareMethods" file="CompareMethods.cc"/>
+<bin name="CompareKeys"      file="CompareKeys.cc"/>
+<bin name="CompareKeysError" file="CompareKeysError.cc"/>
+<bin name="CompareMethods"   file="CompareMethods.cc"/>

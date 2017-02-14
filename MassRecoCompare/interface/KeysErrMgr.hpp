@@ -9,14 +9,15 @@
 #define TSTARANALYSIS_MASSRECOCOMPARE_KEYSERRMGR_HP
 
 #include "ManagerUtils/RootMgr/interface/RooFitMgr.hpp"
+#include <vector>
 #include <string>
 
-class KeysCompMgr : public mgr::RooFitMgr
+class KeysErrMgr : public mgr::RooFitMgr
 {
 
 public:
-  KeysCompMgr( const std::string&, const std::string& );
-  virtual ~KeysCompMgr();
+  KeysErrMgr( const std::string&, const std::string& );
+  virtual ~KeysErrMgr();
 
   static void        InitStaticVars();
   static RooRealVar& x();

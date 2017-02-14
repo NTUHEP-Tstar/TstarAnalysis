@@ -9,9 +9,10 @@
 #define TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP
 
 #include "TstarAnalysis/Common/interface/TstarNamer.hpp"
-#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 #include "TstarAnalysis/MassRecoCompare/interface/CompareHistMgr.hpp"
 #include "TstarAnalysis/MassRecoCompare/interface/KeysCompMgr.hpp"
+#include "TstarAnalysis/MassRecoCompare/interface/KeysErrMgr.hpp"
+#include "TstarAnalysis/RootFormat/interface/RecoResult.hpp"
 
 #include <string>
 
@@ -47,5 +48,10 @@ extern void MatchMassPlot( CompareHistMgr* );
 *   Keys Comparison plotting functions, see KeysPlot.cc
 *******************************************************************************/
 extern void MakeKeysPlots( KeysCompMgr* );
+
+/*******************************************************************************
+*   Keys Comparison for errors
+*******************************************************************************/
+extern void MakeKeysErrPlots( KeysErrMgr* );
 
 #endif/* end of include guard: TSTARANALYSIS_TSTARMASSRECO_BINCOMMON_HPP */

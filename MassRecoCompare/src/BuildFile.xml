@@ -3,6 +3,7 @@
 <use name="ManagerUtils/PlotUtils"/>
 <use name="ManagerUtils/RootMgr"/>
 <use name="TstarAnalysis/Common"/>
+<use name="TstarAnalysis/CompareDataMC"/>
 <use name="TstarAnalysis/RootFormat"/>
 
 <flags CXXFLAGS="-g"/>
