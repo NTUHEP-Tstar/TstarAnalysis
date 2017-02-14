@@ -10,6 +10,7 @@
 #include "ManagerUtils/Maths/interface/Intersect.hpp"
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 
 #include "TstarAnalysis/Common/interface/PlotStyle.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
@@ -76,7 +77,7 @@ MakeLimitPlot( const std::string& additionaltag )
   mg->GetXaxis()->SetTitle( "t* Mass (GeV/c^{2})" );// MUST Be after draw!!
   mg->GetYaxis()->SetTitle( "#sigma(pp#rightarrow t*#bar{t}*) (pb)" );// https://root.cern.ch/root/roottalk/roottalk09/0078.html
   mg->GetXaxis()->SetLimits( x_min-50, x_max+50 );
-  mg->SetMaximum( y_max*100. );
+  mg->SetMaximum( y_max*300. );
   mg->SetMinimum( y_min*0.3 );
 
   // Making legend
@@ -87,7 +88,7 @@ MakeLimitPlot( const std::string& additionaltag )
   l->AddEntry( expgraph,    "Expected limit",          "l" );
   l->AddEntry( onesiggraph, "68% expected",            "f" );
   l->AddEntry( twosiggraph, "95% expected",            "f" );
-  l->AddEntry( theorygraph, "Theory",                  "l" );
+  l->AddEntry( theorygraph, "Theory",                  "lf" );
   l->Draw();
 
 
@@ -123,9 +124,10 @@ MakeLimitPlot( const std::string& additionaltag )
 
   // ----- Saving and cleaning up  ------------------------------------------------
   c1->SetLogy( kTRUE );
+  c1->Update();
 
-  mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit" ) );
-  mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit" ) );
+  mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit", additionaltag ) );
+  mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit", additionaltag ) );
   delete onesiggraph;
   delete twosiggraph;
   delete obsgraph;
@@ -171,18 +173,67 @@ GetXsectionMap()
 /*******************************************************************************
 *   Object generation functions
 *******************************************************************************/
-TGraph*
+TGraphAsymmErrors*
 MakeTheoryGraph( const map<double, double>& xsec )
 {
-  TGraph* graph = new TGraph( xsec.size() );
-  unsigned bin  = 0;
+  // Making the PDF/QCD scale error Graph objects for linear interpolation
+  const vector<string> siglist = limnamer.MasterConfig().GetStaticStringList( "Signal List" );
+  TGraph* errorupgraph         = new TGraph( siglist.size() );
+  TGraph* errordowngraph       = new TGraph( siglist.size() );
+
+  for( size_t i = 0; i < siglist.size(); ++i ){
+    const auto& sig   = siglist.at( i );
+    const double mass = GetInt( sig );
+
+    mgr::SampleMgr mgr( sig );
+    mgr::LoadCacheFromFile( mgr, limnamer.CustomFileName( "txt", sig ) );
+
+    const mgr::Parameter pdferr = mgr::Parameter( mgr.SelectedEventCount(),
+      mgr.GetCacheDouble( "PDFup" ) - mgr.SelectedEventCount(),
+      mgr.SelectedEventCount() - mgr.GetCacheDouble( "PDFdown" )
+      ).NormParam();
+    const mgr::Parameter scaleerr = mgr::Parameter( mgr.SelectedEventCount(),
+      mgr.GetCacheDouble( "scaleup" ) - mgr.SelectedEventCount(),
+      mgr.SelectedEventCount() - mgr.GetCacheDouble( "scaledown" )
+      ).NormParam();
+    const mgr::Parameter toterr = pdferr * scaleerr;
+
+    errorupgraph->SetPoint( i, mass, toterr.RelUpperError() );
+    errordowngraph->SetPoint( i, mass, toterr.RelLowerError() );
+    cout << toterr.RelLowerError() << " " << toterr.RelUpperError() << endl;
+  }
+
+
+  // Making the main theoretical curve line
+  TGraphAsymmErrors* graph = new TGraphAsymmErrors();
 
   for( const auto& point : xsec ){
     const double mass     = point.first;
+    if( mass < 650 || mass > 1650 ) { continue; }
     const double thisxsec = point.second;
-    graph->SetPoint( bin, mass, thisxsec );
-    bin++;
+    const double xsecup   = thisxsec * errorupgraph->Eval( mass );
+    const double xsecdown = thisxsec * errordowngraph->Eval( mass );
+
+    const int newbin = graph->GetN();
+    graph->SetPoint( newbin, mass, thisxsec );
+    graph->SetPointError(
+      newbin,
+      0, 0,// No X error for now
+      xsecdown,
+      xsecup
+      );
+    // cout << mass << " " <<thisxsec << " " << xsecup << " " << xsecdown << endl;
   }
+
+  for( int i = 0 ; i < graph->GetN() ; ++i ){
+    cout << graph->GetX()[i] << " " << graph->GetY()[i]  << " "
+         << graph->GetErrorXhigh(i) << " " << graph->GetErrorXlow(i) << " "
+         << graph->GetErrorYhigh(i) << " " << graph->GetErrorYlow(i) << endl;
+  }
+
+
+  delete errorupgraph;
+  delete errordowngraph;
 
   return graph;
 }
@@ -206,8 +257,8 @@ MakeCalcGraph(
   const int downerrorentry
   )
 {
-  const vector<string> siglist = limnamer.MasterConfig().GetStaticStringList("Signal List");
-  TGraphAsymmErrors* graph = new TGraphAsymmErrors( siglist.size() );
+  const vector<string> siglist = limnamer.MasterConfig().GetStaticStringList( "Signal List" );
+  TGraphAsymmErrors* graph     = new TGraphAsymmErrors( siglist.size() );
 
   unsigned bin = 0;
 
@@ -247,7 +298,7 @@ MakeCalcGraph(
     graph->SetPoint( bin, mass, central );
     graph->SetPointError( bin, 50, 50, errordown, errorup );
 
-    printf( "%lf %lf %lf %lf\n", mass, central, errorup, errordown );
+    //printf( "%lf %lf %lf %lf\n", mass, central, errorup, errordown );
     ++bin;
   }
 
