@@ -75,6 +75,8 @@ SetTheoryStyle( TGraph* x )
   x->SetLineWidth( 2 );
   x->SetLineStyle( 2 );
 
+  x->SetFillColor(KSKY);
+  x->SetFillStyle( FILL_DENSE );
 }
 
 /******************************************************************************/

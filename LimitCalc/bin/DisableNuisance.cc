@@ -29,7 +29,7 @@ main( int argc, char* argv[] )
 
   for( const auto nuisance : unclist ){
 
-    if( limnamer.CheckInput( "combine" ) ){
+    if( limnamer.CheckInput( "combine" ) && nuisance != "" ){
       for( const auto sig : siglist ){
         MakeNewCard( sig, nuisance );
       }

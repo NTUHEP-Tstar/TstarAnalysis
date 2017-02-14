@@ -10,6 +10,7 @@
 
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "TGraph.h"
+#include "TGraphAsymmErrors.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@ extern std::pair<mgr::Parameter, mgr::Parameter> MakeLimitPlot( const std::strin
 
 extern std::map<double, double> GetXsectionMap();
 
-extern TGraph* MakeTheoryGraph( const std::map<double, double>&  );
+extern TGraphAsymmErrors* MakeTheoryGraph( const std::map<double, double>&  );
 
 extern const int explim;
 extern const int obslim;

@@ -148,7 +148,7 @@ SimFitSingle(
 
   RooFitResult* err = model->fitTo(
     *( fitdataset ),
-    RooFit::Minimizer("Minuit2","Migrad"),
+    RooFit::Minimizer( "Minuit2", "Migrad" ),
     RooFit::Extended( kTRUE ),
     RooFit::Minos( kTRUE ),
     // RooFit::ExternalConstraints( fitconstraints ),
@@ -200,8 +200,10 @@ MakeSimFitCardFile(
 
   // Normalization nuisance parameter
   for( const auto& source : uncsource ){
-    const Parameter unc = GetMCNormError( sig, source + "Up", source + "Down" );
-    PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
+    if( source != "pdf" && source != "scale" ){
+      const Parameter unc = GetMCNormError( sig, source + "Up", source + "Down" );
+      PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
+    }
   }
 
   PrintNuisanceFloats( cardfile, "lumi",    "lnN", lumi,   lumi  );
@@ -386,14 +388,14 @@ MakeSimFitPlot(
   TGraphAsymmErrors* bgrelplot = mgr::DividedGraph(
     (TGraphAsymmErrors*)bgerrplot,
     bgplot
-  );
+    );
   TGraphAsymmErrors* datarelplot = mgr::DividedGraph(
     (TGraphAsymmErrors*)dataplot,
     bgplot
-  );
+    );
   TLine cen( SampleRooFitMgr::x().getMin(), 1, SampleRooFitMgr::x().getMax(), 1 );
-  TLine lineup( SampleRooFitMgr::x().getMin(), 1.5, SampleRooFitMgr::x().getMax(), 1.5);
-  TLine linedown( SampleRooFitMgr::x().getMin(), 0.5, SampleRooFitMgr::x().getMax(), 0.5);
+  TLine lineup( SampleRooFitMgr::x().getMin(), 1.5, SampleRooFitMgr::x().getMax(), 1.5 );
+  TLine linedown( SampleRooFitMgr::x().getMin(), 0.5, SampleRooFitMgr::x().getMax(), 0.5 );
 
   bgrelplot->Draw( "AF" );
   datarelplot->Draw( PGS_DATA );

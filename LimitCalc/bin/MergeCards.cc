@@ -6,12 +6,13 @@
 *
 *******************************************************************************/
 #include "ManagerUtils/Common/interface/ConfigReader.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 #include "ManagerUtils/SysUtils/interface/PathUtils.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Common.hpp"
 
+#include <boost/format.hpp>
 #include <boost/program_options.hpp>
-#include <cstdio>
-#include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -26,7 +27,7 @@ main( int argc, char* argv[] )
 {
   opt::options_description desc( "Options for MergeCards" );
   desc.add_options()
-    ( "channellist,c", opt::value<vector<string> >()->multitoken(), "Which channels to merge" )
+    ( "channellist,l", opt::value<vector<string> >()->multitoken(), "Which channels to merge" )
   ;
 
   limnamer.AddOptions( LimitOptions() ).AddOptions( desc );
@@ -39,52 +40,87 @@ main( int argc, char* argv[] )
   const mgr::ConfigReader higgscfg( limnamer.SettingsDir() / "higgs_combine_settings.json" );
   const vector<string> masspointlist = cfg.GetStaticStringList( "Signal List" );
   const vector<string> channellist   = limnamer.GetInputList<string>( "channellist" );
+  const string outputchannel         = limnamer.GetInput<string>( "channel" );
 
   for( auto& masspoint : masspointlist ){
     vector<string> inputcardlist;
+    double originalevtcount = 0;
+    double selectedevtcount = 0;
+    double scaleupcount     = 0;
+    double scaledowncount   = 0;
+    double pdfupcount       = 0;
+    double pdfdowncount     = 0;
 
+    /*******************************************************************************
+    *   Loading old information
+    *******************************************************************************/
     for( const auto& channel : channellist ){
       limnamer.SetChannel( channel );
-      inputcardlist.push_back( limnamer.TextFileName( "card", {masspoint} ) );
+      inputcardlist.push_back( limnamer.TextFileName( "card", masspoint ) );
+
+      mgr::SampleMgr mgr( "temp" );
+      mgr::LoadCacheFromFile( mgr, limnamer.CustomFileName( "txt", masspoint ) );
+      originalevtcount += mgr.OriginalEventCount();
+      selectedevtcount += mgr.SelectedEventCount();
+      scaleupcount     += mgr.GetCacheDouble( "scaleup" );
+      scaledowncount   += mgr.GetCacheDouble( "scaledown" );
+      pdfupcount       += mgr.GetCacheDouble( "PDFup" );
+      pdfdowncount     += mgr.GetCacheDouble( "PDFdown" );
     }
 
-    limnamer.SetChannel( "SignalMerge" );
-    const string combfile = limnamer.TextFileName( "card", {masspoint} );
+    limnamer.SetChannel( outputchannel );
+    const string combfile = limnamer.TextFileName( "card", masspoint );
 
-    FILE* tempscript = fopen( "temp.sh", "w" );
-    fprintf( tempscript, "#!/bin/bash\n" );
-    fprintf( tempscript, "cd %s/%s/src\n",
-      higgscfg.GetStaticString( "Store Path" ).c_str(),
-      higgscfg.GetStaticString( "CMSSW Version" ).c_str()
-      );
-    fprintf( tempscript, "eval `scramv1 runtime -sh 2> /dev/null`\n" );
+    /*******************************************************************************
+    *   Combine card Call
+    *******************************************************************************/
 
-    unsigned i = 0;
+    ofstream tempscript( "temp.sh" );
 
-    for( const auto& cardfile : inputcardlist ){
-      fprintf( tempscript, "cp %s temp%u.txt\n", cardfile.c_str(), i );
-      ++i;
+    tempscript << "#!/bin/bash" << endl;
+    tempscript << boost::format( "cd %s/%s/src" )
+      % higgscfg.GetStaticString( "Store Path" )
+      % higgscfg.GetStaticString( "CMSSW Version" )
+               << endl;
+    tempscript << "eval `scramv1 runtime -sh 2> /dev/null`" << endl;
+
+    boost::format tmpcardfile( "temp%u.txt" );
+
+    for( size_t i = 0; i < inputcardlist.size(); ++i ){
+      const auto cardfile = inputcardlist.at( i );
+      tempscript << "cp " << cardfile << " " << ( tmpcardfile%i ) << endl;
     }
 
-    fprintf( tempscript, "combineCards.py " );
+    tempscript << "combineCards.py " << flush;
 
-    for( i = 0; i < inputcardlist.size(); ++i ){
-      fprintf( tempscript, "temp%u.txt ", i );
-
+    for( size_t i = 0; i < inputcardlist.size(); ++i ){
+      tempscript << ( tmpcardfile%i ) << " "  << flush;
     }
 
-    fprintf( tempscript, " > %s\n", combfile.c_str() );
+    tempscript << " > " << combfile << endl;
 
-    for( i = 0; i < inputcardlist.size(); ++i ){
-      fprintf( tempscript, "rm temp%u.txt\n", i );
-      ++i;
+    for( size_t i = 0; i < inputcardlist.size(); ++i ){
+      tempscript << "rm " << ( tmpcardfile%i ) << endl;
     }
 
-    fclose( tempscript );
+    tempscript.close();
 
     system( "chmod +x temp.sh" );
     system( "./temp.sh" );
     system( "rm temp.sh" );
+
+    /*******************************************************************************
+    *   Outputing sample mgr cached event count
+    *******************************************************************************/
+    mgr::SampleMgr mgr( "temp" );
+    mgr.SetOriginalEventCount( originalevtcount );
+    mgr.SetSelectedEventCount( selectedevtcount );
+    mgr.AddCacheDouble( "scaleup",   scaleupcount );
+    mgr.AddCacheDouble( "scaledown", scaledowncount );
+    mgr.AddCacheDouble( "PDFup",     pdfupcount );
+    mgr.AddCacheDouble( "PDFdown",   pdfdowncount );
+    mgr::SaveCacheToFile( mgr, limnamer.CustomFileName( "txt", masspoint ) );
+
   }
 
   return 0;

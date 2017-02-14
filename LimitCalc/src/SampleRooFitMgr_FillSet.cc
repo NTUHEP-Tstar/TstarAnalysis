@@ -13,6 +13,7 @@
 #include "ManagerUtils/Maths/interface/Parameter.hpp"
 #include "ManagerUtils/PhysUtils/interface/ObjectExtendedVars.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -64,15 +65,16 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
 
-   
 
-    muonHandle.getByLabel( ev, "skimmedPatMuons");
-    if(limnamer.CheckInput("mucut")){
-       if( (*muonHandle)[0].pt() < limnamer.GetInput<double>("mucut") )
-           continue;
+
+    muonHandle.getByLabel( ev, "skimmedPatMuons" );
+    if( limnamer.CheckInput( "mucut" ) ){
+      if( ( *muonHandle )[0].pt() < limnamer.GetInput<double>( "mucut" ) ){
+        continue;
+      }
     }
-    
-    
+
+
     const double weight
       = GetEventWeight( ev )
         * sampleweight
@@ -94,9 +96,10 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
-    if(limnamer.CheckInput("masscut")){
-        if(tstarmass < limnamer.GetInput<double>("masscut"))
-            continue;
+    if( limnamer.CheckInput( "masscut" ) ){
+      if( tstarmass < limnamer.GetInput<double>( "masscut" ) ){
+        continue;
+      }
     }
 
 
@@ -147,6 +150,15 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
   // Recalculating selection efficiency based on number of events pushed to central dataset
   sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
+
+  // Writing the number of events to a cache file for signal samples
+  if( sample.Name().find( "Tstar" ) != string::npos ){
+    sample.AddCacheDouble( "PDFup",     DataSet( "pdfUp" )->sumEntries() );
+    sample.AddCacheDouble( "PDFdown",   DataSet( "pdfDown" )->sumEntries() );
+    sample.AddCacheDouble( "scaleup",   DataSet( "scaleUp" )->sumEntries() );
+    sample.AddCacheDouble( "scaledown", DataSet( "scaleDown" )->sumEntries() );
+    mgr::SaveCacheToFile( sample, limnamer.CustomFileName( "txt", sample.Name() ) );
+  }
 
   cout << "Done!" << endl;
 }
