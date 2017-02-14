@@ -115,7 +115,8 @@ KeysCompMgr::MakeKeysPdf()
     1.176,
     1.676
   };
-  cout << sqrt( na/n2 ) << " "
+  cout << "Computed Value: "
+       << sqrt( na/n2 ) << " "
        << sqrt( na/n3 ) << " "
        << sqrt( na/n4 ) << " "
        << na << endl;

@@ -48,8 +48,8 @@ MakeLimitPlot( const std::string& additionaltag )
 
   const double y_max = mgr::GetYmax( twosiggraph, obsgraph );
   const double y_min = mgr::GetYmin( twosiggraph, obsgraph );
-  const double x_max = obsgraph->GetX()[obsgraph->GetN()-1];
-  const double x_min = obsgraph->GetX()[0];
+  const double x_max = theorygraph->GetX()[obsgraph->GetN()-1];
+  const double x_min = theorygraph->GetX()[0];
 
   // ----- Setting Styles  --------------------------------------------------------
   tstar::SetOneSigmaStyle( onesiggraph );
@@ -76,7 +76,7 @@ MakeLimitPlot( const std::string& additionaltag )
   mgr::SetAxis( mg );
   mg->GetXaxis()->SetTitle( "t* Mass (GeV/c^{2})" );// MUST Be after draw!!
   mg->GetYaxis()->SetTitle( "#sigma(pp#rightarrow t*#bar{t}*) (pb)" );// https://root.cern.ch/root/roottalk/roottalk09/0078.html
-  mg->GetXaxis()->SetLimits( x_min-50, x_max+50 );
+  mg->GetXaxis()->SetLimits( x_min, x_max );
   mg->SetMaximum( y_max*300. );
   mg->SetMinimum( y_min*0.3 );
 

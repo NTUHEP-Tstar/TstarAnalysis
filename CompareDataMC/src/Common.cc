@@ -38,5 +38,5 @@ CompareOptions()
 string
 SampleCacheFile( const mgr::SampleMgr& x )
 {
-  return compnamer.CustomFileName( "txt", {x.Name()} );
+  return compnamer.CustomFileName( "txt", x.Name() );
 }

@@ -206,7 +206,7 @@ MakeBkgError(
     const double bincont = central->GetBinContent( i );
     const double binerr  = central->GetBinError( i );
 
-    Parameter errtot(1, binerr/bincont, binerr/bincont );
+    Parameter errtot( 1, binerr/bincont, binerr/bincont );
 
     for( const auto pair : errorhistlist ){
       const double upbincont   = pair.first->GetBinContent( i );
@@ -217,16 +217,16 @@ MakeBkgError(
     }
 
     // Additional errors
-    errtot *= ( normerr );  // cross section and selection eff
-    errtot *= Parameter( 1, 0.046, 0.046 );  // lumierror
-    errtot *= Parameter( 1, 0.03,  0.03 );  // leptonic errors
+    errtot *= ( normerr );// cross section and selection eff
+    errtot *= Parameter( 1, 0.046, 0.046 );// lumierror
+    errtot *= Parameter( 1, 0.03,  0.03 );// leptonic errors
 
-    if( bincont != 0 && errtot.RelAvgError() < 1 ){
-      central->SetBinError( i, bincont * errtot.RelAvgError() );
-    } else if( errtot.RelAvgError() >= 1 ){
-      central->SetBinError( i, bincont * 1 );  
-    } else {
+    if( bincont == 0 ){
       central->SetBinError( i, 0 );
+    } else if( errtot.RelAvgError() >= 0.6 ){
+      central->SetBinError( i, bincont * 0.6 );
+    } else {
+      central->SetBinError( i, bincont * errtot.RelAvgError() );
     }
 
   }
@@ -253,12 +253,16 @@ PlotErrCompare(
   TH1D* errup   = MakeSumHistogram( samplelist, histname + err.tag + "up" );
   TH1D* errdown = MakeSumHistogram( samplelist, histname + err.tag + "down" );
 
+  // Normailizing plots if err is the pdf error or scale errors
+  if( err.tag == "scale" || err.tag == "pdf" ){
+    errup->Scale( central->Integral() / errup->Integral() );
+    errdown->Scale( central->Integral() / errdown->Integral( ) );
+  }
+
 
   // Making duplicate objects
-  TH1D* uprel   = (TH1D*)errup->Clone();
-  TH1D* downrel = (TH1D*)errdown->Clone();
-  uprel->Divide( central );
-  downrel->Divide( central );
+  TH1D* uprel   = mgr::DivideHist( errup, central );
+  TH1D* downrel = mgr::DivideHist( errdown, central );
 
   const double xmin = central->GetXaxis()->GetXmin();
   const double xmax = central->GetXaxis()->GetXmax();
@@ -276,7 +280,6 @@ PlotErrCompare(
   central->Draw( PS_HIST PS_SAME );
   c->cd();
 
-
   TPad* pad2      = mgr::NewBottomPad();
   TLine* line     = new TLine( xmin, 1, xmax, 1 );
   TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
@@ -285,7 +288,7 @@ PlotErrCompare(
   pad2->cd();
 
   uprel->Draw( PS_AXIS );
-  uprel->Draw( PS_HIST PS_SAME );
+  uprel->Draw(   PS_HIST PS_SAME );
   downrel->Draw( PS_HIST PS_SAME );
   line->Draw( PS_SAME );
   line_top->Draw( PS_SAME );
@@ -340,12 +343,12 @@ PlotErrCompare(
   tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
   tb->Draw();
 
-  mgr::LatexMgr latex ;
-  latex.SetOrigin( PLOT_X_TEXT_MAX, legymin - 0.02 , TOP_RIGHT );
-  if( compnamer.GetInput<string>("group").find("Tstar") != string::npos ){
-      latex.WriteLine( boost::str( boost::format( "t* %dGeV" )%GetInt( compnamer.GetInput<string>("group") ) ) );
-  }else{
-    latex.WriteLine( compnamer.GetInput<string>("group") );
+  mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_TEXT_MAX, legymin - 0.02, TOP_RIGHT );
+  if( compnamer.GetInput<string>( "group" ).find( "Tstar" ) != string::npos ){
+    latex.WriteLine( boost::str( boost::format( "t* %dGeV" )%GetInt( compnamer.GetInput<string>( "group" ) ) ) );
+  } else  {
+    latex.WriteLine( compnamer.GetInput<string>( "group" ) );
   }
 
   // cleaning up
