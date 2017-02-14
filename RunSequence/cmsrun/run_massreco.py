@@ -41,6 +41,14 @@ options.register(
     'Mode of for tstar reconstruction (Control and Signal)'
 )
 
+options.register(
+    'Lumimask',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Lumimask to impose on data'
+)
+
 options.setDefault('maxEvents', 1000)
 
 options.parseArguments()
@@ -61,6 +69,10 @@ process.source = cms.Source(
     "PoolSource",
     fileNames=cms.untracked.vstring(options.sample)
 )
+
+import FWCore.PythonUtilities.LumiList as LumiList
+if options.Lumimask:
+    process.source.lumisToProcess = LumiList.LumiList(filename = options.Lumimask).getVLuminosityBlockRange()
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 

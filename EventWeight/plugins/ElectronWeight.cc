@@ -105,7 +105,7 @@ ElectronWeight::produce( edm::Event& iEvent, const edm::EventSetup & iSetup )
   iEvent.getByToken( _elecsrc, _elechandle );
 
 
-  mgr::Parameter totalweight( 1, 0, 0 );
+  mgr::Parameter totalweight( 1, 0.00001, 0.00001 );
 
   if( _elechandle->size() ){// Weight will remain 1.0 otherwise
     const double pt  = _elechandle->at( 0 ).pt();

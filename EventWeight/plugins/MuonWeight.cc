@@ -97,7 +97,7 @@ MuonWeight::produce( edm::Event& iEvent, const edm::EventSetup & iSetup )
 
   iEvent.getByToken( _muonsrc, _muonhandle );
 
-  mgr::Parameter totalweight( 1, 0, 0 );
+  mgr::Parameter totalweight( 1, 0.00001, 0.00001 );
 
   if( _muonhandle->size() == 1 ){// MuonWeight is stuck at 1 otherwise
     const double pt  = _muonhandle->at( 0 ).pt();

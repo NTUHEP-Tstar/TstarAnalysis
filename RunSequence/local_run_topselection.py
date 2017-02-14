@@ -21,8 +21,8 @@ script_template = """
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd  {0}/RunSequence/
 eval `scramv1 runtime -sh`
-cmsRun {0}/RunSequence/cmsrun/run_topselection.py maxEvents=-1 sample={1} output={2}
-cp {2} {3}
+cmsRun {0}/RunSequence/cmsrun/run_topselection.py maxEvents=-1 sample={1} output={2} Lumimask={3}
+cp {2} {4}
 rm {2}
 """
 
@@ -56,8 +56,15 @@ def main():
             # masterfilelist = [ os.path.dirname(filequery)+'/'+x for x in  out.split()]
             masterfilelist = glob.glob( filequery )
 
-            filechunks = [masterfilelist[i:i + 3]
-                           for i in range(0, len(masterfilelist), 3)]
+            # Getting lumimask for data
+            Lumimask  = ""
+            if myname.IsData(dataset) and "Muon" in opt.mode:
+                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_25/src/TstarAnalysis/RunSequence/settings/lumimask_2016_master.json"
+            elif myname.IsData(dataset) and "Electron" in opt.mode:
+                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_25/src/TstarAnalysis/RunSequence/settings/lumimask_2016_electron.json"
+
+            filechunks = [masterfilelist[i:i + 8]
+                           for i in range(0, len(masterfilelist), 8)]
 
             for index, file_list in enumerate(filechunks):
                 file_list = ['file://' + x for x in file_list ]
@@ -71,6 +78,7 @@ def main():
                     mysetting.tstar_dir,
                     sample_input,
                     tempoutput,
+                    Lumimask,
                     storeoutput,
                 )
 

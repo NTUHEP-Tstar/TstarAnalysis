@@ -22,8 +22,8 @@ script_template = """
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd  {0}/RunSequence/
 eval `scramv1 runtime -sh`
-cmsRun {0}/RunSequence/cmsrun/run_massreco.py Mode={1} maxEvents=-1 sample={2} output={3}
-cp  {3} {4}
+cmsRun {0}/RunSequence/cmsrun/run_massreco.py Mode={1} maxEvents=-1 sample={2} output={3} Lumimask="{4}"
+cp  {3} {5}
 rm {3}
 """
 
@@ -56,6 +56,14 @@ def main():
                 print "ERROR! Unrecongnized mode ", opt.mode
                 sys.exit(1)
 
+            # Getting lumimask for data
+            Lumimask  = ""
+            if myname.IsData(dataset) and "Muon" in opt.mode:
+                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_25/src/TstarAnalysis/RunSequence/settings/lumimask_2016_master.json"
+            elif myname.IsData(dataset) and "Electron" in opt.mode:
+                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_25/src/TstarAnalysis/RunSequence/settings/lumimask_2016_electron.json"
+
+
             # p = subprocess.Popen(
             #    ['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',filequery],
             #    stdout=subprocess.PIPE,
@@ -63,8 +71,9 @@ def main():
             # out, err = p.communicate()
             file_master_list = glob.glob( filequery )
 
-            file_chunks = [file_master_list[i:i + 3]
-                           for i in range(0, len(file_master_list), 3)]
+
+            file_chunks = [file_master_list[i:i + 16]
+                           for i in range(0, len(file_master_list), 16)]
 
             for index, file_list in enumerate(file_chunks):
                 file_list = ["file://"+x for x in file_list]
@@ -79,6 +88,7 @@ def main():
                     opt.mode,
                     sample_input,
                     tempoutput,
+                    Lumimask,
                     storeoutput,
                 )
 

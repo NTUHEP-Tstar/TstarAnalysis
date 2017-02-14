@@ -70,7 +70,7 @@ AddMuonSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 
   const auto& mu = _muonHandle->at( 0 );
 
-  if( mu.pt() < 35 ){ return false; }
+  // if( mu.pt() < 30 ){ return false; }
   if( fabs( mu.eta() ) > 2.1 ){ return false; }
 
   return passtrigger( mu, iEvent );

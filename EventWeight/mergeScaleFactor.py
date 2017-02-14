@@ -39,14 +39,14 @@ mergelist = {
     ],
     'mutrig':[
         {
-            'filename': 'TstarAnalysis/EventWeight/data/MuonTrigger_EfficienciesAndSF_Period3.root',
+            'filename': 'TstarAnalysis/EventWeight/data/MuonTrigger_EfficienciesAndSF_RunBtoF.root',
             'fileobj': 'IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio',
-            'lumi': 3.0
+            'lumi': 20.1
         },
         {
-            'filename': 'TstarAnalysis/EventWeight/data/MuonTrigger_EfficienciesAndSF_Period4.root',
+            'filename': 'TstarAnalysis/EventWeight/data/MuonTrigger_EfficienciesAndSF_RunGH.root',
             'fileobj': 'IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio',
-            'lumi': 16.0
+            'lumi': 16.3
         }
     ]
 }

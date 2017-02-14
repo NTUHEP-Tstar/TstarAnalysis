@@ -33,6 +33,14 @@ options.register(
     'Output EDM filename'
 )
 
+options.register(
+    'Lumimask',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Lumimask file to impose on data'
+)
+
 
 options.setDefault('maxEvents', 1000)
 
@@ -44,7 +52,7 @@ options.parseArguments()
 process = cms.Process("TopLike")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(options.maxEvents)
 )
@@ -52,6 +60,9 @@ process.source = cms.Source(
     "PoolSource",
     fileNames=cms.untracked.vstring(options.sample)
 )
+import FWCore.PythonUtilities.LumiList as LumiList
+if options.Lumimask:
+    process.source.lumisToProcess = LumiList.LumiList(filename = options.Lumimask).getVLuminosityBlockRange()
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
