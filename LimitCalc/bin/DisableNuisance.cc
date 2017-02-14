@@ -38,8 +38,8 @@ main( int argc, char* argv[] )
 
     limitresults[nuisance] = MakeLimitPlot( nuisance );
 
-    MakeLimitTable( limitresults );
   }
+  MakeLimitTable( limitresults );
 
 
   return 0;

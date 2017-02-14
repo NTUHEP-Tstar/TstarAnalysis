@@ -48,7 +48,7 @@ MakeLimitPlot( const std::string& additionaltag )
 
   const double y_max = mgr::GetYmax( twosiggraph, obsgraph );
   const double y_min = mgr::GetYmin( twosiggraph, obsgraph );
-  const double x_max = theorygraph->GetX()[obsgraph->GetN()-1];
+  const double x_max = theorygraph->GetX()[theorygraph->GetN()-1];
   const double x_min = theorygraph->GetX()[0];
 
   // ----- Setting Styles  --------------------------------------------------------
@@ -200,9 +200,7 @@ MakeTheoryGraph( const map<double, double>& xsec )
 
     errorupgraph->SetPoint( i, mass, toterr.RelUpperError() );
     errordowngraph->SetPoint( i, mass, toterr.RelLowerError() );
-    cout << toterr.RelLowerError() << " " << toterr.RelUpperError() << endl;
   }
-
 
   // Making the main theoretical curve line
   TGraphAsymmErrors* graph = new TGraphAsymmErrors();
@@ -222,15 +220,7 @@ MakeTheoryGraph( const map<double, double>& xsec )
       xsecdown,
       xsecup
       );
-    // cout << mass << " " <<thisxsec << " " << xsecup << " " << xsecdown << endl;
   }
-
-  for( int i = 0 ; i < graph->GetN() ; ++i ){
-    cout << graph->GetX()[i] << " " << graph->GetY()[i]  << " "
-         << graph->GetErrorXhigh(i) << " " << graph->GetErrorXlow(i) << " "
-         << graph->GetErrorYhigh(i) << " " << graph->GetErrorYlow(i) << endl;
-  }
-
 
   delete errorupgraph;
   delete errordowngraph;

@@ -36,5 +36,5 @@
 ./local_run_topselection.py -i MC80X.txt           -m Electron
 
 
-./local_run_recocomp.py -i Moriond17MC.txt -m MuonSignal
-./local_run_recocomp.py -i Moriond17MC.txt -m ElectronSignal
+./local_run_recocomp.py -i MC80X.txt -m MuonSignal
+./local_run_recocomp.py -i MC80X.txt -m ElectronSignal
