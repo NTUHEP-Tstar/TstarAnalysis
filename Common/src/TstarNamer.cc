@@ -159,7 +159,6 @@ TstarNamer::OptFileName(
   }
 
 
-    cout<<"here"<<endl;
 
   for( const auto opt : _cutoptionlist){
 
@@ -187,7 +186,6 @@ TstarNamer::OptFileName(
       }
     }
 
-    cout<<opt+tag<<endl;
 
     taglist.push_back( opt+tag );
   }
