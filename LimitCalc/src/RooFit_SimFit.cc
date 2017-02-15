@@ -198,6 +198,7 @@ MakeSimFitCardFile(
 
   // Normalization nuisance parameter
   for( const auto& source : uncsource ){
+    if( source == "pdf" || source == "scale" ){ continue; }
     const Parameter unc = GetMCNormError( sig, source + "Up", source + "Down" );
     PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
   }

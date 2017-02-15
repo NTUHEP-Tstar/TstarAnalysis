@@ -78,8 +78,20 @@ ExtraCutOptions()
 {
   opt::options_description ans( "Apply extra cut");
   ans.add_options()
-      ( "mucut,c"  , opt::value<double>(), "Set the pass threshold for the muon" )
-      ( "masscut,t", opt::value<double>(), "Mass of gluon plus t" )
+    ( "mucut,c"  , opt::value<double>(), "Set the pass threshold for the muon" )
+    ( "masscut,t", opt::value<double>(), "Mass of gluon plus t" )
+  ;
+  return ans;
+}
+
+extern opt::options_description
+ExtraLimitOptions()
+{
+  opt::options_description ans( "Investigate limit fluctuation"  );
+  ans.add_options()
+    ( "seed,s", opt::value<double>(), "change the random seed "  )
+    ( "rMin",   opt::value<double>(), "override the r min value"  )
+    ( "rMax",   opt::value<double>(), "override the r max value"  )
   ;
   return ans;
 }

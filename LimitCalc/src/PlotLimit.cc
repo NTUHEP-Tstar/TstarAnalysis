@@ -131,6 +131,19 @@ MakeLimitPlot()
   // ----- Saving and cleaning up  ------------------------------------------------
   c1->SetLogy( kTRUE );
 
+  if( limnamer.CheckInput("seed") ){
+      limnamer.AddCutOptions("seed");
+  }
+
+  if( limnamer.CheckInput("rMin") ){
+      limnamer.AddCutOptions("rMin");
+  }
+
+  if( limnamer.CheckInput("rMax") ){
+      limnamer.AddCutOptions("rMax");
+  }
+
+
   mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit" ) );
   mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit" ) );
   delete onesiggraph;

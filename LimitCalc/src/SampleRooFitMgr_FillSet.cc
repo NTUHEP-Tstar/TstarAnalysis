@@ -68,9 +68,9 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
     muonHandle.getByLabel( ev, "skimmedPatMuons");
     
-    if( muonHandle->size() == 1 && MuPfIso( muonHandle->back() ) > 0.20 ){
-      continue;
-    }
+//    if( muonHandle->size() == 1 && MuPfIso( muonHandle->back() ) > 0.20 ){
+//      continue;
+//    }
     
     if(limnamer.CheckInput("mucut")){
        if( (*muonHandle)[0].pt() < limnamer.GetInput<double>("mucut") )

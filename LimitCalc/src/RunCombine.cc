@@ -53,6 +53,8 @@ RunCombine( const string& hc_opt )
 string
 AdditionalOptions( const string& method )
 {
+  
+    
   string ans = "";
   if( method == "HybridNew" ){
     ans += "  --iteration=16  ";
@@ -61,5 +63,17 @@ AdditionalOptions( const string& method )
   // ans += " --hintMethod=ProfileLikelihood ";
   ans += " --rAbsAcc=0.00000005 ";
   ans += " --rRelAcc=0.0000005  ";
+
+  if (limnamer.CheckInput( "seed"  ) ){
+    ans+= ( " --seed " +  boost::lexical_cast<string>( limnamer.GetInput<double>( "seed"  )  ) );
+  }
+  if (limnamer.CheckInput( "rMin"  ) ){
+    ans+= (" --rMin " + boost::lexical_cast<string>( limnamer.GetInput<double>( "rMin"  )  ) );
+  }
+  if (limnamer.CheckInput( "rMax"  ) ){
+    ans+= (" --rMax " + boost::lexical_cast<string>( limnamer.GetInput<double>( "rMax"  )  ) );
+  }
+
+
   return ans;
 }
