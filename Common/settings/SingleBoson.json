@@ -123,16 +123,52 @@
          "DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    },
-   "___ZJets_600_Inf": {
+   "ZJets_600_800": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [600,\\infty)\\GeVc",
-      "Root Name": "Z+jets ( 600 #leq H_{T} #leq #infty)",
-      "Cross Section": [ 2.189, 0.002, 0.002 ],
+      "Latex Name" : "\\Z+Jets, \\HT\\in [600,800)\\GeVc",
+      "Root Name": "Z+jets ( 600 #leq H_{T} #leq 800)",
+      "Cross Section": [2.559,0.007269,0.007269  ],
       "K Factor": 1.23,
       "Generator": "\\MADGRAPH",
       "Cross Section Source": "LO",
       "EDM Files":[
-         "DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+         "DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+      ]
+   },
+   "ZJets_800_1200": {
+      "Is Data": false,
+      "Latex Name" : "\\Z+Jets, \\HT\\in [800,1200)\\GeVc",
+      "Root Name": "Z+jets ( 800 #leq H_{T} #leq 1200)",
+      "Cross Section": [1.1796,0.00336,0.00336],
+      "K Factor": 1.23,
+      "Generator": "\\MADGRAPH",
+      "Cross Section Source": "LO",
+      "EDM Files":[
+         "DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+      ]
+   },
+   "ZJets_1200_2500": {
+      "Is Data": false,
+      "Latex Name" : "\\Z+Jets, \\HT\\in [1200,2500)\\GeVc",
+      "Root Name": "Z+jets ( 1200 #leq H_{T} #leq 2500)",
+      "Cross Section": [0.28833,0.000726,0.000726],
+      "K Factor": 1.23,
+      "Generator": "\\MADGRAPH",
+      "Cross Section Source": "LO",
+      "EDM Files":[
+         "DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
+      ]
+   },
+   "ZJets_2500_Inf": {
+      "Is Data": false,
+      "Latex Name" : "\\Z+Jets, \\HT\\in [2500,\\infty)\\GeVc",
+      "Root Name": "Z+jets (2500#leq H_{T} #leq #infty)",
+      "Cross Section": [0.006945,0.000021,0.000021],
+      "K Factor": 1.23,
+      "Generator": "\\MADGRAPH",
+      "Cross Section Source": "LO",
+      "EDM Files":[
+         "DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*.root"
       ]
    }
 }

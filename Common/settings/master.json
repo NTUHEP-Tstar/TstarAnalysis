@@ -1,13 +1,7 @@
 {
-    "___Comment___": ""
-    "-----------------------------------------------------------#
+    "___Comment___": """-----------------------------------------------------------#
     Static Settings
-    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- - ""
-    ",
-
-    "Total Luminosity": 12900,
-    "Total Luminosity 2015": 2180,
-    "Total Luminosity 2016": 12900,
+    -----------------------------------------------------------------------------""",
 
     "Mass Min": 400,
     "Mass Max": 2500,
@@ -114,7 +108,8 @@
         "File List": [
             "TopSamples.json",
             "TTPlusBoson.json",
-            "SingleBoson.json"
+            "SingleBoson.json",
+            "DiBoson.json"
         ]
     },
 
@@ -122,7 +117,8 @@
         "TTJets",
         "SingleTop",
         "TTBoson",
-        "SingleBoson"
+        "SingleBoson",
+        "DiBoson"
     ],
 
     "Signal List": [

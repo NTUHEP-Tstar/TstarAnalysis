@@ -39,7 +39,7 @@
          "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8_*.root"
       ]
    },
-   "_____TTZ_Quark": {
+   "TTZ_Quark": {
       "Is Data": false,
       "Latex Name" : "\\ttbar+(\\Z\\rightarrow\\PQq\\PAQq)",
       "Root Name": "t#bar{t} + Z#rightarrow qq",
