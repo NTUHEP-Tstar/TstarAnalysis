@@ -96,12 +96,24 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
-    if( limnamer.CheckInput( "masscut" ) ){
-      if( tstarmass < limnamer.GetInput<double>( "masscut" ) ){
-        continue;
-      }
-    }
 
+
+    cout<<"min mass "<<MinMass()<<endl;
+    cout<<"max mass "<<MaxMass()<<endl;
+
+
+
+
+
+    cout<<endl<<endl<<endl<<endl<<endl;
+    cout<<"start to process tstarmass"<<endl;
+    cout<<endl<<endl<<endl<<endl<<endl;
+    if(limnamer.CheckInput("masscut")){
+        if(tstarmass < limnamer.GetInput<double>("masscut")){
+          cout<<"tstarmass : "<<tstarmass<<endl;
+          continue;
+        }
+    }
 
     AddToDataSet( "", tstarmass, weight );
 

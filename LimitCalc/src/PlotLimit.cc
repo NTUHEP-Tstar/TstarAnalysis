@@ -126,8 +126,21 @@ MakeLimitPlot( const std::string& additionaltag )
   c1->SetLogy( kTRUE );
   c1->Update();
 
-  mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit", additionaltag ) );
-  mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit", additionaltag ) );
+  if( limnamer.CheckInput("seed") ){
+      limnamer.AddCutOptions("seed");
+  }
+
+  if( limnamer.CheckInput("rMin") ){
+      limnamer.AddCutOptions("rMin");
+  }
+
+  if( limnamer.CheckInput("rMax") ){
+      limnamer.AddCutOptions("rMax");
+  }
+
+
+  mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit" ) );
+  mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit" ) );
   delete onesiggraph;
   delete twosiggraph;
   delete obsgraph;

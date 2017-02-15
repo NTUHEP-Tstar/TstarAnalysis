@@ -81,8 +81,20 @@ ExtraCutOptions()
 {
   opt::options_description ans( "Apply extra cut" );
   ans.add_options()
-    ( "mucut,c", opt::value<double>(), "Set the pass threshold for the muon" )
+    ( "mucut,c"  , opt::value<double>(), "Set the pass threshold for the muon" )
     ( "masscut,t", opt::value<double>(), "Mass of gluon plus t" )
+  ;
+  return ans;
+}
+
+extern opt::options_description
+ExtraLimitOptions()
+{
+  opt::options_description ans( "Investigate limit fluctuation"  );
+  ans.add_options()
+    ( "seed,s", opt::value<double>(), "change the random seed "  )
+    ( "rMin",   opt::value<double>(), "override the r min value"  )
+    ( "rMax",   opt::value<double>(), "override the r max value"  )
   ;
   return ans;
 }
@@ -163,8 +175,13 @@ void
 InitRooFitSettings( const TstarNamer& x )
 {
   const mgr::ConfigReader& cfg = x.MasterConfig();
-  const double mass_min        = cfg.GetStaticDouble( "Mass Min" );
+  double mass_min        = cfg.GetStaticDouble( "Mass Min" );
   const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
+
+  if( x.CheckInput("masscut")  ){
+      mass_min = x.GetInput<double>("masscut");
+  }
+
   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
   SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
 

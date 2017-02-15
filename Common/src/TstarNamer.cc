@@ -155,7 +155,11 @@ TstarNamer::OptFileName(
     taglist.push_back( tag );
   }
 
-  for( const auto opt : _cutoptionlist ){
+
+
+  for( const auto opt : _cutoptionlist){
+
+
     string tag = "";
 
     if( tag == "" ){
@@ -179,7 +183,6 @@ TstarNamer::OptFileName(
       }
     }
 
-    cout<<opt+tag<<endl;
 
     taglist.push_back( opt+tag );
   }

@@ -33,6 +33,7 @@ extern boost::program_options::options_description MassOptions();
 extern boost::program_options::options_description PsuedoExpOptions();
 extern boost::program_options::options_description ExtraCutOptions();
 extern boost::program_options::options_description HiggsCombineOptions();
+extern boost::program_options::options_description ExtraLimitOptions();
 
 extern mgr::OptNamer::PARSE_RESULTS CheckPsuedoExpOptions();
 extern mgr::OptNamer::PARSE_RESULTS CheckDisableOptions();
