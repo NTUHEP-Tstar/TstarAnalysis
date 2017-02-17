@@ -158,7 +158,7 @@ KeysErrMgr::MakeKeysPdf()
       x(),
       *dataset,
       RooKeysPdf::NoMirror,
-      1.68
+      1.36
       );
     AddPdf( pdf );
   }

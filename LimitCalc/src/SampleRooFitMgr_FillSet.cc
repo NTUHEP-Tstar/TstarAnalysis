@@ -17,6 +17,7 @@
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include <boost/format.hpp>
 #include <cstdio>
@@ -49,6 +50,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
   fwlite::Handle<RecoResult> chiHandle;
   fwlite::Handle<vector<pat::Muon> > muonHandle;
+  fwlite::Handle<vector<pat::MET>> methandle;
 
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
@@ -65,11 +67,14 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
 
+    // Hotfit for met selection
+    methandle.getByLabel( ev, "slimmedMETs" );
+    if( methandle.ref().front().pt() < 20 ){ continue ; }
 
 
     muonHandle.getByLabel( ev, "skimmedPatMuons" );
     if( limnamer.CheckInput( "mucut" ) ){
-      if( ( *muonHandle )[0].pt() < limnamer.GetInput<double>( "mucut" ) ){
+      if( muonHandle.ref().size() && muonHandle.ref().front().pt() < limnamer.GetInput<double>( "mucut" ) ){
         continue;
       }
     }
@@ -97,20 +102,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
 
-
-    cout<<"min mass "<<MinMass()<<endl;
-    cout<<"max mass "<<MaxMass()<<endl;
-
-
-
-
-
-    cout<<endl<<endl<<endl<<endl<<endl;
-    cout<<"start to process tstarmass"<<endl;
-    cout<<endl<<endl<<endl<<endl<<endl;
     if(limnamer.CheckInput("masscut")){
         if(tstarmass < limnamer.GetInput<double>("masscut")){
-          cout<<"tstarmass : "<<tstarmass<<endl;
           continue;
         }
     }

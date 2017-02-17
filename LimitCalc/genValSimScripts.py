@@ -21,7 +21,7 @@ masspointlist=[
     "TstarM1600",
 ]
 
-functionlist=["Lognorm","Exo"]
+functionlist=["Lognorm","Exo","LogExt3"]
 
 runnum   = 1000
 injlist  = [0,1]

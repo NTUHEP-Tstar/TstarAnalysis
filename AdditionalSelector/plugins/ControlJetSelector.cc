@@ -26,30 +26,30 @@
 class ControlJetSelector : public edm::EDFilter
 {
 public:
-   explicit
-   ControlJetSelector( const edm::ParameterSet& );
-   ~ControlJetSelector();
-   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+  explicit
+  ControlJetSelector( const edm::ParameterSet& );
+  ~ControlJetSelector();
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
 private:
-   virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
+  virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
 
-   // EDM Tags
-   const edm::EDGetToken       _jetsrc;
-   edm::Handle<tstar::JetList> _jetHandle;
+  // EDM Tags
+  const edm::EDGetToken _jetsrc;
+  edm::Handle<tstar::JetList> _jetHandle;
 
-   const mgr::BTagChecker _checker ;
+  const mgr::BTagChecker _checker;
 
-   // Control flags for jet counting
-   const unsigned _maxjet;
-   const unsigned _minjet;
+  // Control flags for jet counting
+  const unsigned _maxjet;
+  const unsigned _minjet;
 
-   // Control flags for b tag checking
-   const unsigned _btagcheckorder;
-   const unsigned _maxfailloose  ;
-   const unsigned _minfailloose  ;
-   const unsigned _maxpassmedium ;
-   const unsigned _minpassmedium ;
+  // Control flags for b tag checking
+  const unsigned _btagcheckorder;
+  const unsigned _maxfailloose;
+  const unsigned _minfailloose;
+  const unsigned _maxpassmedium;
+  const unsigned _minpassmedium;
 };
 
 
@@ -57,42 +57,43 @@ private:
 //   Constructor and Destructor
 // ------------------------------------------------------------------------------
 ControlJetSelector::ControlJetSelector( const edm::ParameterSet& iConfig ) :
-   _jetsrc( GETTOKEN( iConfig, tstar::JetList, "jetsrc" ) ),
-   _checker( "mycheck", GETFILEPATH( iConfig, "btagchecker") ),
-   _maxjet( iConfig.getParameter<int>("maxjet") ),
-   _minjet( iConfig.getParameter<int>("minjet") ),
-   _btagcheckorder( iConfig.getParameter<int>("checkorder") ),
-   _maxfailloose( iConfig.getParameter<int>("maxfailloose") ),
-   _minfailloose( iConfig.getParameter<int>("minfailloose") ),
-   _maxpassmedium( iConfig.getParameter<int>("maxpassmedium") ),
-   _minpassmedium( iConfig.getParameter<int>("minpassmedium") )
+  _jetsrc( GETTOKEN( iConfig, tstar::JetList, "jetsrc" ) ),
+  _checker( "mycheck", GETFILEPATH( iConfig, "btagchecker" ) ),
+  _maxjet( iConfig.getParameter<int>( "maxjet" ) ),
+  _minjet( iConfig.getParameter<int>( "minjet" ) ),
+  _btagcheckorder( iConfig.getParameter<int>( "checkorder" ) ),
+  _maxfailloose( iConfig.getParameter<int>( "maxfailloose" ) ),
+  _minfailloose( iConfig.getParameter<int>( "minfailloose" ) ),
+  _maxpassmedium( iConfig.getParameter<int>( "maxpassmedium" ) ),
+  _minpassmedium( iConfig.getParameter<int>( "minpassmedium" ) )
 {
 }
 
 bool
 ControlJetSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   iEvent.getByToken( _jetsrc, _jetHandle );
+  iEvent.getByToken( _jetsrc, _jetHandle );
 
-   if( _jetHandle->size() >  _maxjet ) { return false; }
-   if( _jetHandle->size() <  _minjet ) { return false; }
+  if( _jetHandle->size() >  _maxjet ){ return false; }
+  if( _jetHandle->size() <  _minjet ){ return false; }
 
-   unsigned passmedium = 0;
-   unsigned failloose  = 0;
-   for( unsigned i = 0 ; i < _btagcheckorder && i < _jetHandle->size() ; ++i ){
-      const auto& jet = _jetHandle->at(i);
-      if( _checker.PassMedium(jet) ) {
-         passmedium++;
-      } else if ( !_checker.PassLoose(jet) ){
-         failloose++;
-      }
-   }
+  unsigned passmedium = 0;
+  unsigned failloose  = 0;
 
-   if( passmedium > _maxpassmedium ) { return false; }
-   if( passmedium < _minpassmedium ) { return false; }
-   if( failloose  > _maxfailloose  ) { return false; }
-   if( failloose  < _minpassmedium ) { return false; }
-   return true;
+  for( unsigned i = 0; i < _btagcheckorder && i < _jetHandle->size(); ++i ){
+    const auto& jet = _jetHandle->at( i );
+    if( _checker.PassMedium( jet ) ){
+      passmedium++;
+    } else if( !_checker.PassLoose( jet ) ){
+      failloose++;
+    }
+  }
+
+  if( passmedium > _maxpassmedium ){ return false; }
+  if( passmedium < _minpassmedium ){ return false; }
+  if( failloose  > _maxfailloose  ){ return false; }
+  if( failloose  < _minpassmedium ){ return false; }
+  return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -104,11 +105,11 @@ ControlJetSelector::~ControlJetSelector()
 void
 ControlJetSelector::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
-   // The following says we do not know what parameters are allowed so do no validation
-   // Please change this to state exactly what you do use, even if it is no parameters
-   edm::ParameterSetDescription desc;
-   desc.setUnknown();
-   descriptions.addDefault( desc );
+  // The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault( desc );
 }
 
 // define this as a plug-in

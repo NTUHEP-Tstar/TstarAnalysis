@@ -118,7 +118,8 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
   const double sampleweight = sample.IsRealData() ?
                               1. : sample.CrossSection().CentralValue() / sample.OriginalEventCount();
 
-  unsigned i = 1;
+  double weightsum = 0;
+  unsigned i       = 1;
   boost::format processform( "\rSample [%s|%s] , Event[%u/%llu]..." );
 
 
@@ -130,6 +131,16 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
     const auto& ev = myevt.Base();
 
     cout << processform % Name() % sample.Name() % i % myevt.size() << flush;
+
+    metHandle.getByLabel( ev, "slimmedMETs"    );
+    vtxHandle.getByLabel( ev, "offlineSlimmedPrimaryVertices" );
+    jetHandle.getByLabel( ev, "skimmedPatJets" );
+    muonHandle.getByLabel( ev, "skimmedPatMuons" );
+    electronHandle.getByLabel( ev, "skimmedPatElectrons" );
+    chisqHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+
+    // Hot fit offline cut
+    if( metHandle->at( 0 ).pt() < 20 ){ continue; }
 
     const double pileup_weight    = GetPileupWeight( ev );
     const double pileup_weight_bf = GetPileupWeightBestFit( ev );
@@ -145,12 +156,7 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
 
     const double total_weight = GetEventWeight( ev ) * sampleweight * topptweight;
 
-    metHandle.getByLabel( ev, "slimmedMETs"    );
-    vtxHandle.getByLabel( ev, "offlineSlimmedPrimaryVertices" );
-    jetHandle.getByLabel( ev, "skimmedPatJets" );
-    muonHandle.getByLabel( ev, "skimmedPatMuons" );
-    electronHandle.getByLabel( ev, "skimmedPatElectrons" );
-    chisqHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+    weightsum += GetEventWeight( ev );
 
     Hist( "JetNum"  )->Fill( jetHandle->size(), total_weight );
     Hist( "Jet1Pt"  )->Fill( jetHandle->at( 0 ).pt(), total_weight );
@@ -248,6 +254,8 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
       }
     }
   }
+
+  sample.SetSelectedEventCount( weightsum );
 
   cout << "Done!" << endl;
 }

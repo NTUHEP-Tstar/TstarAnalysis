@@ -108,8 +108,7 @@
         "File List": [
             "TopSamples.json",
             "TTPlusBoson.json",
-            "SingleBoson.json",
-            "DiBoson.json"
+            "SingleBoson.json"
         ]
     },
 
@@ -117,8 +116,7 @@
         "TTJets",
         "SingleTop",
         "TTBoson",
-        "SingleBoson",
-        "DiBoson"
+        "SingleBoson"
     ],
 
     "Signal List": [

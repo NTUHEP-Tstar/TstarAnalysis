@@ -61,11 +61,11 @@ MakeSingleKeysPdf( SampleRooFitMgr* sample, const string& datasetname )
     return (RooKeysPdf*)( sample->Pdf( keypdfname ) );
   }
 
-  // Change rho factor according to the dataset name (1.38 as central value)
+  // Change rho factor according to the dataset name (1.36 as central value)
   const double rho =
-    datasetname.find( "model" ) == string::npos ? 1.38 :
-    datasetname.find( "Up" )    == string::npos ? 1.18 :
-    1.68;
+    datasetname.find( "model" ) == string::npos ? 1.36 :
+    datasetname.find( "Up" )    == string::npos ? 1.17 :
+    1.66;
 
   // Running roofit KeysPdf construction`
   RooKeysPdf* pdf = new RooKeysPdf(

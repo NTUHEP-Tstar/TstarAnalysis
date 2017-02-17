@@ -111,9 +111,9 @@ KeysCompMgr::MakeKeysPdf()
   double n4 = dataset.sigma( x(), "n>=5"  );
 
   static const vector<double> rholist = {
-    1.382,
-    1.176,
-    1.676
+    1.364,
+    1.166,
+    1.660
   };
   cout << "Computed Value: "
        << sqrt( na/n2 ) << " "

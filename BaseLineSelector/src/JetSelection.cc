@@ -22,7 +22,7 @@ JetProducer::IsSelectedJet( const pat::Jet& jet, const bool isdata ) const
   TLorentzVector jetp4;
 
   if( isdata ){
-    jetp4 = TLorentzVector( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
+    jetp4 = TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() );
   } else if( IsWellMatched( jet ) ){
     jetp4 = MakeScaled( jet );
   } else {

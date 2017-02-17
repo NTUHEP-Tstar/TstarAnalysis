@@ -11,6 +11,8 @@
 #include "TstarAnalysis/BaseLineSelector/interface/TypeDef.hpp"
 #include "ManagerUtils/EDMUtils/interface/PluginAlias.hpp"
 
+#include <iostream>
+using namespace std;
 using namespace tstar;
 JetProducer::JetProducer( const edm::ParameterSet& iConfig ) :
    _jetsrc( GETTOKEN( iConfig , JetList, "jetsrc" ) ),

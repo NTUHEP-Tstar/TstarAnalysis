@@ -17,6 +17,7 @@
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include <boost/format.hpp>
 #include <iostream>
@@ -122,7 +123,7 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 
   const auto& pdfidgroup = GetPdfIdGrouping( sample );
 
-  fwlite::Handle<std::vector<pat::Jet> > jethandle;
+  fwlite::Handle<std::vector<pat::MET>>  methandle;
 
   // counter asdf
   unsigned evtcounter = 1;
@@ -133,6 +134,10 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++evtcounter ){
     const auto& ev = myevt.Base();
+
+    // Hotfix for offline met selection
+    methandle.getByLabel( ev, "slimmedMETs"    );
+    if( methandle.ref().front().pt() < 20 ) { continue ; }
 
     const double btagweight     = GetBtagWeight( ev );
     const double btagweightup   = GetBtagWeightUp( ev );
