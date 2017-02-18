@@ -27,9 +27,9 @@ using namespace mgr;
 void
 KeysCompMgr::InitStaticVars()
 {
-  StaticNewVar( "x", "M_{t+g}", "GeV/c^{2}", 400, 2500 );
-  StaticNewVar( "w", "w",       "",        -1000, 1000 );
-  StaticNewVar( "n", "n",       "",           -1,    7 );
+  StaticNewVar( "x", "M_{t+jet}", "GeV/c^{2}", 400, 2500 );
+  StaticNewVar( "w", "w",         "",        -1000, 1000 );
+  StaticNewVar( "n", "n",         "",           -1,    7 );
 }
 
 /******************************************************************************/

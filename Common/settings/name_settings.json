@@ -38,13 +38,13 @@
       },
       "MuonControl": {
          "Latex Name": "\\Pgm control region",
-         "Root Name": "1#mu, #geq 6 jets, 0 b jets, 2 b-vetoed jets",
+         "Root Name": "1#mu, #geq 6 jets, 0 b jets",
          "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/massreco/MuonControl",
          "Data Prefix": "DataMuon"
       },
       "ElectronControl": {
          "Latex Name": "\\Pe signal channel",
-         "Root Name": "1e, #geq 6 jets, 0 b jets, 2 b-vetoed jets",
+         "Root Name": "1e, #geq 6 jets, 0 b jets",
          "EDM path": "/wk_cms/yichen/TstarAnalysis/EDMStore/massreco/ElectronControl",
          "Data Prefix": "DataElectron"
       },

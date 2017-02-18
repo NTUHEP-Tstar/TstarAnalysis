@@ -14,53 +14,53 @@
 
     "DataMuonICHEP": {
         "Latex Name": "Data",
-        "Root Name": "Data (ICHEP)",
+        "Root Name": "Data",
         "Subset Json": "Data_Muon.json",
         "Sample List": ["Run2016B", "Run2016C", "Run2016D"]
     },
 
     "DataElectronICHEP": {
         "Latex Name": "Data",
-        "Root Name": "Data (ICHEP)",
+        "Root Name": "Data",
         "Subset Json": "Data_Electron.json",
         "Sample List": ["Run2016B", "Run2016C", "Run2016D"]
     },
 
     "DataMuonPostHIP": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016G)",
+        "Root Name": "Data",
         "Subset Json": "Data_Muon.json",
         "Sample List": ["Run2016G"]
     },
     "DataElectronPostHIP": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016G)",
+        "Root Name": "Data",
         "Subset Json": "Data_Electron.json",
         "Sample List": ["Run2016G"]
     },
 
     "DataMuonEarly": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016B)",
+        "Root Name": "Data",
         "Subset Json": "Data_Muon.json",
         "Sample List": ["Run2016B"]
     },
     "DataElectronEarly": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016B)",
+        "Root Name": "Data",
         "Subset Json": "Data_Electron.json",
         "Sample List": ["Run2016B"]
     },
 
     "DataMuonAll": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016B-H)",
+        "Root Name": "Data",
         "File List": ["Data_Muon.json"]
     },
 
     "DataElectronAll": {
         "Latex Name": "Data",
-        "Root Name": "Data (Run2016B-H)",
+        "Root Name": "Data",
         "File List": ["Data_Electron.json"]
     },
 

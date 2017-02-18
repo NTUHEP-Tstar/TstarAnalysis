@@ -148,7 +148,7 @@ SimFitSingle(
 
   RooFitResult* err = model->fitTo(
     *( fitdataset ),
-    RooFit::Minimizer( "Minuit2", "Migrad" ),
+    RooFit::Minimizer( "Minuit", "Migrad" ),
     RooFit::Extended( kTRUE ),
     RooFit::Minos( kTRUE ),
     // RooFit::ExternalConstraints( fitconstraints ),

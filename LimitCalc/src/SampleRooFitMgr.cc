@@ -40,7 +40,7 @@ SampleRooFitMgr::MaxMass(){ return x().getMax(); }
 void
 SampleRooFitMgr::InitStaticVars( const double min, const double max )
 {
-  StaticNewVar( "x", "M_{t+g}",      "GeV/c^{2}", min,   max  );
+  StaticNewVar( "x", "M_{t+jet}",    "GeV/c^{2}", min,   max  );
   StaticNewVar( "w", "event_weight", "",          -1000, 1000 );
 }
 
@@ -90,7 +90,7 @@ SampleRooFitMgr::NewDataSet( const std::string& name )
   if( DataSet( name ) ){
     return DataSet( name );
   } else {
-    RooDataSet* set = new RooDataSet(  // Using unbinned RooDataSet object
+    RooDataSet* set = new RooDataSet(// Using unbinned RooDataSet object
       name.c_str(), "",
       RooArgSet( x(), w() ),
       RooFit::WeightVar( w() )

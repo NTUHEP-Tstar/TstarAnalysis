@@ -51,8 +51,8 @@ SampleHistMgr::define_hist()
   AddHist( "Jet2Eta",           "Second Leading Jet #eta",                             "",          75,   -2.5, 5.0 );
 
   // Tstar Variables
-  AddHist( "TstarMass",         "M_{t+g}",                                             "GeV/c^{2}", 50,   0,   2000 );
-  AddHist( "TstarZoom",         "M_{t+g}",                                             "GeV/c^{2}", 50, 350,   2500 );
+  AddHist( "TstarMass",         "M_{t+jet}",                                           "GeV/c^{2}", 50,   0,   2000 );
+  AddHist( "TstarZoom",         "M_{t+jet}",                                           "GeV/c^{2}", 50, 350,   2500 );
   AddHist( "ChiSq",             "#chi^{2}",                                            "",          50,   0,  10000 );
   AddHist( "LepGluonPt",        "Leptonic Gluon Jet p_{T}",                            "GeV/c",     60,  30,  1000. );
   AddHist( "HadGluonPt",        "Hadronic Gluon Jet p_{T}",                            "GeV/c",     60,  30,  1000. );
@@ -69,20 +69,20 @@ SampleHistMgr::define_hist()
   AddHist( "Jet1Pt_PuDown",     "First Leading Jet p_{T} (#sigma_{min}-4.6%)",         "GeV/c",     60,  30,   1000 );
   AddHist( "JetNum_PuUp",       "Number of Jets (#sigma_{min}+4.6%)",                  "GeV/c^{2}", 11,   4,     15 );
   AddHist( "JetNum_PuDown",     "Number of Jets (#sigma_{min}-4.6%)",                  "GeV/c^{2}", 11,   4,     15 );
-  AddHist( "TstarMass_PuUp",    "M_{t+g} (#sigma_{min}+4.6%)",                         "GeV/c^{2}", 50,   0,   2000 );
-  AddHist( "TstarMass_PuDown",  "M_{t+g} (#sigma_{min}-4.6%)",                         "GeV/c^{2}", 50,   0,   2000 );
+  AddHist( "TstarMass_PuUp",    "M_{t+jet} (#sigma_{min}+4.6%)",                       "GeV/c^{2}", 50,   0,   2000 );
+  AddHist( "TstarMass_PuDown",  "M_{t+jet} (#sigma_{min}-4.6%)",                       "GeV/c^{2}", 50,   0,   2000 );
 
   // Effects of TopPtWeight
   AddHist( "MET_NoTopPt",       "Missing transverse momentum (w/o top p_{T} weights)", "GeV",       50,   0,    500 );
   AddHist( "JetNum_NoTopPt",    "Number of jets (w/o top p_{T} weights)",              "",          11,   4,     15 );
   AddHist( "Jet1Pt_NoTopPt",    "Leading Jet p_{T} (w/o top p_{T} weights)",           "GeV/c",     60,  30,   1000 );
-  AddHist( "TstarMass_NoTopPt", "M_{t+g} (w/o top p_{T} weights)",                     "GeV/c^{2}", 50,   0,   2000 );
+  AddHist( "TstarMass_NoTopPt", "M_{t+jet} (w/o top p_{T} weights)",                   "GeV/c^{2}", 50,   0,   2000 );
 
   // Adding effect of B tag scale factors
   AddHist( "MET_NoBTag",        "Missing transverse momentum (w/o b tag SF)",          "GeV",       50,   0,    500 );
   AddHist( "JetNum_NoBTag",     "Number of jets (w/o b tag SF)",                       "",          11,   4,     15 );
   AddHist( "Jet1Pt_NoBTag",     "Leading Jet p_{T} (w/o b tag SF)",                    "GeV/c",     60,  30,   1000 );
-  AddHist( "TstarMass_NoBTag",  "M_{t+g} (w/o b tag SF)",                              "GeV/c^{2}", 50,   0,   2000 );
+  AddHist( "TstarMass_NoBTag",  "M_{t+jet} (w/o b tag SF)",                            "GeV/c^{2}", 50,   0,   2000 );
 
   // Effects of Tighter electron selection
   AddHist( "LepNonePt",         "selection lepton p_{T} (w/o lepton weights)",         "GeV/c",     48,  20,    500 );
@@ -100,7 +100,7 @@ SampleHistMgr::define_hist()
   AddHist( "MuPfIso",           "Muon P.F. Isolation",                                 "",         100,   0,    1.5 );
 
   AddHist( "Jet1Pt_NoLep",      "Leading Jet p_{T} (w/o lepton weight)",               "GeV/c",     60,  30,   1000 );
-  AddHist( "TstarMass_NoLep",   "M_{t+g} (w/o lepton weight)",                         "GeV/c^{2}", 50,   0,   2000 );
+  AddHist( "TstarMass_NoLep",   "M_{t+jet} (w/o lepton weight)",                       "GeV/c^{2}", 50,   0,   2000 );
 }
 
 /******************************************************************************/

@@ -29,7 +29,9 @@ for direc in dirlist:
 
         for myfile in filelist:
             newname = './results/' +direc +'/'+ channel + '_' + os.path.basename( myfile )
-            os.system( 'cp {} {}'.format(myfile,newname) )
+            os.system( 'cp --verbose {} {}'.format(myfile,newname) )
+
+os.system( 'cp -r --verbos /wk_cms/sam7k9621/ele_TriggerStudy ./results')
 
 os.system('tar -zcvf results.tar.gz results')
 os.system("rm ./results -rf")

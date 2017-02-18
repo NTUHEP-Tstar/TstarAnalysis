@@ -54,14 +54,12 @@ RunCombine( const string& addtag, const string& hc_opt )
 string
 AdditionalOptions( const string& method )
 {
-  
-    
   string ans = "";
   if( method == "HybridNew" ){
     ans += "  --iteration=16  ";
   }
 
-  // ans += " --hintMethod=ProfileLikelihood ";
+  ans += " --hintMethod=ProfileLikelihood ";
   ans += " --rAbsAcc=0.00000005 ";
   ans += " --rRelAcc=0.0000005  ";
 

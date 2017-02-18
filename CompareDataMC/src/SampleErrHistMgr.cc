@@ -53,13 +53,13 @@ extern const vector<string> histnamelist = {
 };
 
 extern const vector<ErrorSource> histerrlist = {
-  { "jec",    "Jet energy correction",    ""               }
-  ,{ "jer",    "Jet energy resolution",    ""               }
-  ,{ "pu",     "Pileup #sigma_{mini}",     "4.6%"           }
-  ,{ "btag",   "b-tag scale factor",       ""               }
-  ,{ "lepton", "lepton scale factor",      ""               }
-  ,{ "pdf",    "PDF uncertainty",          ""               }
-  ,{ "scale",  "QCD scale variation",      ""               }
+  { "jec",    "Jet energy correction",    ""                        }
+  ,{ "jer",    "Jet energy resolution",    ""                        }
+  ,{ "pu",     "Pileup #sigma_{mini}",     "4.6%"                    }
+  ,{ "btag",   "b-tag scale factor",       ""                        }
+  ,{ "lepton", "lepton scale factor",      ""                        }
+  ,{ "pdf",    "PDF uncertainty",          ""                        }
+  ,{ "scale",  "QCD scale variation",      ""                        }
 };
 
 
@@ -79,7 +79,7 @@ SampleErrHistMgr::define_hist()
   AddErrHists( "Jet2Pt",    "Second Leading Jet p_{T}",  "GeV/c",      50,  0,    600 );
   AddErrHists( "Jet2Eta",   "Second Leading Jet #eta",   "",           75,  -2.5, 5.0 );
   AddErrHists( "MET",       "Missing transverse energy", "GeV",        50,  0,    500 );
-  AddErrHists( "TstarMass", "M_{t+g}",                   "GeV/c^{2}", 100,  0,   3000 );
+  AddErrHists( "TstarMass", "M_{t+jet}",                 "GeV/c^{2}", 100,  0,   3000 );
   AddErrHists( "MuPfIso",   "Muon PF Isolation",         "",          100,  0,   0.15 );
 }
 
@@ -121,7 +121,7 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
     chisqHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
 
     // Hotfix for offline met selection
-    if( metHandle.ref().front().pt() < 20 ) { continue ; }
+    if( metHandle.ref().front().pt() < 20 ){ continue; }
 
     weightsum += GetEventWeight( ev );
     const double totalweight = sampleweight
@@ -235,7 +235,7 @@ SampleErrHistMgr::FillWeightErrHists(
   const double muonweightdown = GetMuonWeightDown( ev );
   const double pdfweighterr   = GetPdfWeightError( ev, pdfidgoup );
   const double scaleweighterr = GetScaleWeightError( ev, pdfidgoup );
-  const double topptweight = GetSampleEventTopPtWeight( sample, ev );
+  const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
 
   const double totalweight = sampleweight * eventweight * topptweight;
   Hist( centralhistname )->Fill( fillvalue, totalweight );
