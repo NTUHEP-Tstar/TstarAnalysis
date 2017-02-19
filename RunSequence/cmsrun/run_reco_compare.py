@@ -60,18 +60,11 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 #-------------------------------------------------------------------------------
 #   Loading jet selection
 #-------------------------------------------------------------------------------
-import TstarAnalysis.BaseLineSelector.Producer_cfi as myjetprod
 import TstarAnalysis.AdditionalSelector.ControlJetSelector_cfi as myjetsel
-
-process.reselectedJets  = myjetprod.selectedJets
-process.reselectedJets.jetsrc = cms.InputTag( "skimmedPatJets::tstarBaseline")
-process.skimmedPatJets  = myjetprod.skimmedPatJets
-process.skimmedPatJets.jetsrc = cms.InputTag( "reselectedJets" )
 
 if "Control" in options.Mode:
     print "Loading modules for control region"
     process.jetselector = myjetsel.controlregion
-    process.jetselector.src = cms.InputTag("skimmedPatJets::")
 elif "Signal" in options.Mode:
     print "Loading modules for signal region"
     process.jetselector = myjetsel.signalregion

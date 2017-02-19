@@ -73,14 +73,28 @@ MakeCombinePull()
 static Parameter
 MakeVarPull( const RooArgList& post, const RooArgList& pre, const string& name )
 {
-  RooRealVar* postvar = (RooRealVar*)( post.find( name.c_str() ) );
-  RooRealVar* prevar  = (RooRealVar*)( pre.find( name.c_str() ) );
+  vector<RooRealVar*> postvarlist;
+  vector<RooRealVar*> prevarlist;
 
-  if( postvar && prevar ){
-    const double preval  = prevar->getVal();
-    const double preerr  = prevar->getError();
-    const double postval = postvar->getVal();
-    const double posterr = postvar->getError();
+  for( int i = 0; i < post.getSize(); ++i ){
+    RooRealVar* postvar = (RooRealVar*)( post.at( i ) );
+    if( std::string( postvar->GetName() ).find( name ) != string::npos ){
+      postvarlist.push_back( postvar );
+    }
+  }
+
+  for( int i = 0; i < pre.getSize(); ++i ){
+    RooRealVar* prevar = (RooRealVar*)( pre.at( i ) );
+    if( std::string( prevar->GetName() ).find( name ) != string::npos ){
+      prevarlist.push_back( prevar );
+    }
+  }
+
+  if( postvarlist.size() && prevarlist.size() ){
+    const double preval  = prevarlist.front()->getVal();
+    const double preerr  = prevarlist.front()->getError();
+    const double postval = postvarlist.front()->getVal();
+    const double posterr = postvarlist.front()->getError();
     const double pull    = ( postval - preval ) / preerr;
     const double pullerr = posterr / preerr;
     return Parameter( pull, pullerr, pullerr );
@@ -98,15 +112,11 @@ MakePullPlot()
   const RooArgList& postfit = ( (RooFitResult*)( file->Get( "fit_s" ) ) )->floatParsFinal();
   const RooArgSet& prefit   = *( (RooArgSet*)( file->Get( "nuisances_prefit" ) ) );
 
-  // Object nameing settgs
-  const string datatag = limnamer.GetChannelEXT( "Data Prefix" )
-                         + limnamer.GetExt<string>( "era", "Data Postfix" );
-
   vector<pair<string, Parameter> > pulllist;
 
   // Fitting paramter varibles
-  const string avarname = datatag + limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
-  const string bvarname = datatag + limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
+  const string avarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
+  const string bvarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
 
   pulllist.emplace_back( "Bkg. parm 1", MakeVarPull( postfit, prefit, avarname ) );
   pulllist.emplace_back( "Bkg. parm 2", MakeVarPull( postfit, prefit, bvarname ) );

@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
 
   compnamer.AddOptions( CompareOptions() );
   compnamer.AddOptions( desc );
-  compnamer.SetNamingOptions( "group", "era" );
+  compnamer.SetNamingOptions( "era", "group" );
   const int parse = compnamer.ParseOptions( argc, argv );
   if( parse == mgr::OptNamer::PARSE_ERROR ){ return 1; }
   if( parse == mgr::OptNamer::PARSE_HELP  ){ return 0; }

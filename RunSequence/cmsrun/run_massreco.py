@@ -60,9 +60,6 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7'
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
@@ -83,30 +80,18 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 #-------------------------------------------------------------------------------
 #   Objects for jet selection and weigting
 #-------------------------------------------------------------------------------
-import TstarAnalysis.BaseLineSelector.Producer_cfi as myjetprod
 import TstarAnalysis.AdditionalSelector.ControlJetSelector_cfi as myjetsel
 import TstarAnalysis.EventWeight.EventWeighter_cfi as myweight
-
-# Rerunning for data
-process.reselectedJets = myjetprod.selectedJets
-process.reselectedJets.jetsrc = cms.InputTag("skimmedPatJets::tstarbaseline")
-process.reselectedJets.muonsrc = cms.InputTag("skimmedPatMuons::tstarbaseline")
-process.reselectedJets.electronsrc = cms.InputTag("skimmedPatElectrons::tstarbaseline")
-process.skimmedPatJets = myjetprod.skimmedPatJets
-process.skimmedPatJets.src = cms.InputTag("reselectedJets")
 
 if "Control" in options.Mode:
     print "Loading modules for control region"
     process.jetselector = myjetsel.controlregion
-    process.jetselector.jetsrc = cms.InputTag('skimmedPatJets::TstarMassReco')
 
 elif "Signal" in options.Mode:
     print "Loading modules for signal region"
     process.jetselector = myjetsel.signalregion
-    process.jetselector.jetsrc = cms.InputTag('skimmedPatJets::TstarMassReco')
     process.BtagWeight = myweight.BtagWeight
     process.BtagWeight.checkjet = process.jetselector.checkorder
-    process.BtagWeight.jetsrc = cms.InputTag('skimmedPatJets::TstarMassReco')
 else:
     print "ERROR! Input Mode: [", options.Mode, "] not recognized!"
     sys.exit(1)
@@ -198,9 +183,7 @@ process.edmOut = cms.OutputModule(
 
 if "Signal" in options.Mode:
     process.path = cms.Path(
-        process.reselectedJets
-        * process.skimmedPatJets
-        * process.jetselector
+        process.jetselector
         * process.BtagWeight
         * process.electronsel
         * process.muonsel
@@ -212,8 +195,7 @@ if "Signal" in options.Mode:
     )
 elif "Control" in options.Mode:
     process.path = cms.Path(
-        process.reselectedJets
-        * process.skimmedPatJets
+        process.skimmedPatJets
         * process.jetselector
         * process.electronsel
         * process.muonsel

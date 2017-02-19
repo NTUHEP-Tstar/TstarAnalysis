@@ -36,7 +36,9 @@ private:
 
   // EDM Tags
   const edm::EDGetToken _jetsrc;
+  const edm::EDGetToken _metsrc;
   edm::Handle<tstar::JetList> _jetHandle;
+  edm::Handle<tstar::METList> _methandle;
 
   const mgr::BTagChecker _checker;
 
@@ -50,6 +52,9 @@ private:
   const unsigned _minfailloose;
   const unsigned _maxpassmedium;
   const unsigned _minpassmedium;
+
+  // MET cut
+  const double _minmet;
 };
 
 
@@ -58,6 +63,7 @@ private:
 // ------------------------------------------------------------------------------
 ControlJetSelector::ControlJetSelector( const edm::ParameterSet& iConfig ) :
   _jetsrc( GETTOKEN( iConfig, tstar::JetList, "jetsrc" ) ),
+  _metsrc( GETTOKEN( iConfig, tstar::METList, "metsrc" ) ),
   _checker( "mycheck", GETFILEPATH( iConfig, "btagchecker" ) ),
   _maxjet( iConfig.getParameter<int>( "maxjet" ) ),
   _minjet( iConfig.getParameter<int>( "minjet" ) ),
@@ -65,7 +71,8 @@ ControlJetSelector::ControlJetSelector( const edm::ParameterSet& iConfig ) :
   _maxfailloose( iConfig.getParameter<int>( "maxfailloose" ) ),
   _minfailloose( iConfig.getParameter<int>( "minfailloose" ) ),
   _maxpassmedium( iConfig.getParameter<int>( "maxpassmedium" ) ),
-  _minpassmedium( iConfig.getParameter<int>( "minpassmedium" ) )
+  _minpassmedium( iConfig.getParameter<int>( "minpassmedium" ) ),
+  _minmet( iConfig.getParameter<int>( "minmet" ) )
 {
 }
 
@@ -73,15 +80,19 @@ bool
 ControlJetSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   iEvent.getByToken( _jetsrc, _jetHandle );
+  iEvent.getByToken( _metsrc, _methandle );
 
-  if( _jetHandle->size() >  _maxjet ){ return false; }
-  if( _jetHandle->size() <  _minjet ){ return false; }
+  if( !_methandle.ref().size() ) { return false; }
+  if( _methandle.ref().front().pt() < _minmet ){ return false; }
+
+  if( _jetHandle.ref().size() >  _maxjet ){ return false; }
+  if( _jetHandle.ref().size() <  _minjet ){ return false; }
 
   unsigned passmedium = 0;
   unsigned failloose  = 0;
 
-  for( unsigned i = 0; i < _btagcheckorder && i < _jetHandle->size(); ++i ){
-    const auto& jet = _jetHandle->at( i );
+  for( unsigned i = 0; i < _btagcheckorder && i < _jetHandle.ref().size(); ++i ){
+    const auto& jet = _jetHandle.ref().at( i );
     if( _checker.PassMedium( jet ) ){
       passmedium++;
     } else if( !_checker.PassLoose( jet ) ){

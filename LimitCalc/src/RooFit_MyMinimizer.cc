@@ -52,7 +52,7 @@ MyMinimizer::RunFit( const int weightflag )
   hesse();
 
   // Reevaluating error for weighted datasets
-  if( weightflag == WEIGHTED && getNPar() > 0 ){
+  if( weightflag && getNPar() > 0 ){
     // Make list of RooNLLVar components of FCN
     RooArgSet*  argset = _nll->getComponents();
     vector<RooNLLVar*> nllComponents = mgr::FromRooArgSet<RooNLLVar>( argset );

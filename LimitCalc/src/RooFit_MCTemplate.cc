@@ -249,6 +249,7 @@ MakeTemplatePlot(
   frame->Draw();
   frame->SetMinimum( 0.3 );
   mgr::SetTopPlotAxis( frame );
+  frame->SetTitle("");
 
   c->cd();
   /*******************************************************************************
