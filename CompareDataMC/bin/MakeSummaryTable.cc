@@ -23,7 +23,7 @@ main( int argc, char* argv[] )
 
   /******************************************************************************/
   // options parsing and object initialization
-  compnamer.AddOptions( CompareOptions() ); // defined in src/Common.cc
+  compnamer.AddOptions( CompareOptions() );// defined in src/Common.cc
   compnamer.SetNamingOptions( "era" );
   const int parse = compnamer.ParseOptions( argc, argv );
   if( parse == OptNamer::PARSE_ERROR ){ return 1; }
@@ -62,6 +62,28 @@ main( int argc, char* argv[] )
 
   for( auto& group : siglist ){
     group.LoadFromFile();
+  }
+
+
+  /******************************************************************************/
+  // overiding selected number of events with weight sum
+  for( auto& group : bkglist ){
+    for( auto& sample : group.SampleList() ){
+      const double evtweight = sample.GetCacheDouble( "EventWeightSum" );
+      sample.SetSelectedEventCount( evtweight );
+    }
+  }
+
+  for( auto& group : siglist ){
+    for( auto& sample : group.SampleList() ){
+      const double evtweight = sample.GetCacheDouble( "EventWeightSum" );
+      sample.SetSelectedEventCount( evtweight );
+    }
+  }
+
+  for( auto sample : data.SampleList() ){
+    const double evtweight = sample.GetCacheDouble( "EventWeightSum" );
+    sample.SetSelectedEventCount( evtweight );
   }
 
   /******************************************************************************/

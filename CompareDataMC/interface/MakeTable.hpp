@@ -12,8 +12,7 @@
 #include "ManagerUtils/SampleMgr/interface/SampleGroup.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/Compare_Common.hpp"
 #include "TstarAnalysis/CompareDataMC/interface/SampleTableMgr.hpp"
-#include <cstdio>
-#include <cstdlib>
+#include <fstream>
 #include <vector>
 
 
@@ -61,37 +60,23 @@ extern std::string  AddMathBrace( const std::string& );
 extern std::string  XSecStr( const mgr::Parameter& );
 
 /*******************************************************************************
-*   Common Helper function
-*
-*   * Print latex \hline to file
-*
-*   * Print latex \end{tabular} and close file
-*
-*******************************************************************************/
-extern void PrintHline( FILE* );
-extern void CloseTableFile( FILE* );
-
-/*******************************************************************************
 *   Helper function for SummaryComplete
 *   * OpenSelecFile   - open files and print latex table format header s
 *   * PrintSampleLine - pritn line for single sample
 *   * PrintCount      - Print only yield part ( for mc summary and data )
 *******************************************************************************/
-extern FILE* OpenSelecFile( const std::string& );
-extern void  PrintSampleLine( FILE*, const mgr::SampleMgr& );
-extern void  PrintCount( FILE*, const std::string&, const mgr::Parameter& );
+extern std::string SampleLine( const mgr::SampleMgr& );
+extern std::string CountLine( const std::string&, const mgr::Parameter& );
 
 /*******************************************************************************
 *   Helper functions for simple summary files
 *******************************************************************************/
-extern FILE* OpenSimpleFile( const std::string& );
-extern void  PrintSimpleLine( FILE*, const SampleTableMgr& );
-extern void  PrintSimpleCount( FILE*, const std::string&, const mgr::Parameter& );
+extern std::string  SimpleLine( const SampleTableMgr& );
+extern std::string  SimpleCount( const std::string&, const mgr::Parameter& );
 
 /*******************************************************************************
 *   Helper functions for Lumi files
 *******************************************************************************/
-extern FILE* OpenLumiFile( const std::string& );
-extern void  PrintLumiLine( FILE*, const mgr::SampleMgr& );
+extern std::string  LumiLine( const mgr::SampleMgr& );
 
 #endif/* end of include guard: TSTARANALYSIS_COMPAREDATAMC_MAKETABLE_HPP */
