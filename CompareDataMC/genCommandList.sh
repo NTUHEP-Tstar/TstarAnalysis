@@ -7,7 +7,7 @@
  #
 #*******************************************************************************
 channellist="MuonSignal ElectronSignal MuonControl ElectronControl MuonTopLike ElectronTopLike"
-grouplist="TTBoson TTJets SingleTop SingleBoson Data TstarM700 TstarM800 TstarM900 TstarM1000 TstarM1100 TstarM1200 TstarM1300 TstarM1400 TstarM1500 TstarM1600"
+grouplist="TTBoson TTJets SingleTop SingleBoson TstarM700 TstarM800 TstarM900 TstarM1000 TstarM1100 TstarM1200 TstarM1300 TstarM1400 TstarM1500 TstarM1600 Data"
 typelist="Err Qk Tb"
 eralist="Rereco"
 cmdlist="MakeSummaryTable KinematicCompare FullCompare"

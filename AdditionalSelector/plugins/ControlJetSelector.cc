@@ -72,7 +72,7 @@ ControlJetSelector::ControlJetSelector( const edm::ParameterSet& iConfig ) :
   _minfailloose( iConfig.getParameter<int>( "minfailloose" ) ),
   _maxpassmedium( iConfig.getParameter<int>( "maxpassmedium" ) ),
   _minpassmedium( iConfig.getParameter<int>( "minpassmedium" ) ),
-  _minmet( iConfig.getParameter<int>( "minmet" ) )
+  _minmet( iConfig.getParameter<double>( "minmet" ) )
 {
 }
 
@@ -82,17 +82,17 @@ ControlJetSelector::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
   iEvent.getByToken( _jetsrc, _jetHandle );
   iEvent.getByToken( _metsrc, _methandle );
 
-  if( !_methandle.ref().size() ) { return false; }
-  if( _methandle.ref().front().pt() < _minmet ){ return false; }
+  if( !_methandle->size() ) { return false; }
+  if( _methandle->front().pt() < _minmet ){ return false; }
 
-  if( _jetHandle.ref().size() >  _maxjet ){ return false; }
-  if( _jetHandle.ref().size() <  _minjet ){ return false; }
+  if( _jetHandle->size() >  _maxjet ){ return false; }
+  if( _jetHandle->size() <  _minjet ){ return false; }
 
   unsigned passmedium = 0;
   unsigned failloose  = 0;
 
-  for( unsigned i = 0; i < _btagcheckorder && i < _jetHandle.ref().size(); ++i ){
-    const auto& jet = _jetHandle.ref().at( i );
+  for( unsigned i = 0; i < _btagcheckorder && i < _jetHandle->size(); ++i ){
+    const auto& jet = _jetHandle->at( i );
     if( _checker.PassMedium( jet ) ){
       passmedium++;
     } else if( !_checker.PassLoose( jet ) ){

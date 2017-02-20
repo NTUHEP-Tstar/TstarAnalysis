@@ -165,7 +165,6 @@ process.edmOut = cms.OutputModule(
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "keep *",
-        "drop *_skimmedPatJets_*_tstarbaseline",
         "drop *_*ElectronWeight*_*_*",
         "drop *_*MuonWeight*_*_*",
         "drop *_*_WeightProd_*",
@@ -195,8 +194,7 @@ if "Signal" in options.Mode:
     )
 elif "Control" in options.Mode:
     process.path = cms.Path(
-        process.skimmedPatJets
-        * process.jetselector
+        process.jetselector
         * process.electronsel
         * process.muonsel
         * process.ElectronWeight

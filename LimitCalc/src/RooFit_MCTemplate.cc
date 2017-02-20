@@ -85,7 +85,7 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
     *( bg->DataSet( datatag ) ),
     RooFit::Save(),
     RooFit::SumW2Error( kTRUE ),// For Weighted dataset
-    RooFit::Minimizer( "Minuit2", "Migrad" ),
+    RooFit::Minimizer( "Minuit", "Migrad" ), // Minuit 2 seems to bad at converging?
     RooFit::Minos( kTRUE ),
     RooFit::Verbose( kFALSE ),
     RooFit::PrintLevel( -1 ),

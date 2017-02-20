@@ -120,9 +120,6 @@ SampleErrHistMgr::FillFromSample( mgr::SampleMgr& sample )
     electronHandle.getByLabel( ev, "skimmedPatElectrons" );
     chisqHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
 
-    // Hotfix for offline met selection
-    if( metHandle.ref().front().pt() < 20 ){ continue; }
-
     weightsum += GetEventWeight( ev );
     const double totalweight = sampleweight
                                * GetEventWeight( ev )

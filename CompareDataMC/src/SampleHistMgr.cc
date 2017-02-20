@@ -139,9 +139,6 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
     electronHandle.getByLabel( ev, "skimmedPatElectrons" );
     chisqHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
 
-    // Hot fit offline cut
-    if( metHandle->at( 0 ).pt() < 20 ){ continue; }
-
     const double pileup_weight    = GetPileupWeight( ev );
     const double pileup_weight_bf = GetPileupWeightBestFit( ev );
     const double puweight_up      = GetPileupWeightXsecup( ev );

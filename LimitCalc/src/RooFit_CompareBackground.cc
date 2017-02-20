@@ -70,8 +70,7 @@ CompareFitFunc( SampleRooFitMgr* mgr )
 
     x.fitresult = pdf->fitTo(
       *set,
-      // RooFit::Extended(kTRUE),
-      RooFit::Minimizer("Minuit2","Migrad"),
+      RooFit::Minimizer("Minuit","Migrad"), 
       RooFit::SumW2Error( kTRUE ),
       RooFit::Minos( kTRUE ),
       RooFit::Save(),

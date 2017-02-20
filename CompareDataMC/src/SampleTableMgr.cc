@@ -123,8 +123,6 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 
   const auto& pdfidgroup = GetPdfIdGrouping( sample );
 
-  fwlite::Handle<std::vector<pat::MET>>  methandle;
-
   // counter asdf
   unsigned evtcounter = 1;
   mgr::MultiFileEvent myevt( sample.GlobbedFileList() );
@@ -134,10 +132,6 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++evtcounter ){
     const auto& ev = myevt.Base();
-
-    // Hotfix for offline met selection
-    methandle.getByLabel( ev, "slimmedMETs"    );
-    if( methandle.ref().front().pt() < 20 ) { continue ; }
 
     const double btagweight     = GetBtagWeight( ev );
     const double btagweightup   = GetBtagWeightUp( ev );
