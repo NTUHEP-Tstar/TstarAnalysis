@@ -26,7 +26,6 @@
                     and plot results.
 *******************************************************************************/
 extern void RunGenFit(
-  SampleRooFitMgr* data,
   SampleRooFitMgr* bkg,
   SampleRooFitMgr* sig
   );
@@ -60,6 +59,7 @@ extern std::pair<mgr::Parameter, mgr::Parameter> MakePullPlot(
   const std::string& masstag,
   const std::string& tag
   );
+
 extern void MakePullComparePlot(
   const std::map<int, PullResult>&,
   const unsigned,

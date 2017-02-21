@@ -20,28 +20,29 @@ int
 main( int argc, char const* argv[] )
 {
 
-   const auto& pdfidgroup = GetPdfIdGrouping( argv[1] );
+  const auto& pdfidgroup = GetPdfIdGrouping( argv[1] );
 
-   unsigned i = 0;
+  unsigned i = 0;
 
-   for( const auto& idgroup : pdfidgroup ){
-      cout << "Group " << i << endl;
+  for( const auto& idgroup : pdfidgroup ){
+    cout << "Group " << i << endl;
 
-      for( const auto& id : idgroup ){
-         cout << "\t" << id;
-      }
+    for( const auto& id : idgroup ){
+      cout << "\t" << id;
+    }
 
-      cout << endl;
-      ++i;
-   }
+    cout << endl;
+    ++i;
+  }
 
-   fwlite::Event ev( TFile::Open( argv[1] ) );
-   fwlite::Handle<LHEEventProduct> evthandle;
-   evthandle.getByLabel( ev, "externalLHEProducer" );
+  fwlite::Event ev( TFile::Open( argv[1] ) );
+  fwlite::Handle<LHEEventProduct> evthandle;
+  evthandle.getByLabel( ev, "externalLHEProducer" );
 
-   for( ev.toBegin(); !ev.atEnd(); ++ev ){
+  for( ev.toBegin(); !ev.atEnd(); ++ev ){
+    cout << evthandle->weights().size() << endl;
       cout << GetPdfWeightError( ev, pdfidgroup ) << " " << GetScaleWeightError( ev, pdfidgroup ) << endl;
-   }
+  }
 
-   return 0;
+  return 0;
 }

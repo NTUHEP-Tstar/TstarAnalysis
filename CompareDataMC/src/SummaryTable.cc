@@ -175,14 +175,12 @@ SampleLine( const SampleMgr& x )
   const Parameter expyield = x.ExpectedYield()// double
                              * Prod( x.CrossSection().NormParam()// 1+- rel error
                                    , x.SelectionEfficiency().NormParam()
-                                   , GetWeightError( x )
+                                   , err.NormParam()
     );
-  string expcol;
-  if( expyield.CentralValue() > 100 ){
-    expcol = FloatingPoint( expyield.CentralValue(), 0 );
-  } else {
-    expcol = FloatingPoint( expyield.CentralValue(), 1 );
-  }
+
+  const string expcol =
+    expyield.CentralValue() > 100 ?  FloatingPoint( expyield.CentralValue(), 0 ) :
+    FloatingPoint( expyield.CentralValue(), 1 );
 
   return boost::str( samplelinefmt
     % namecol
@@ -255,7 +253,7 @@ LumiLine( const SampleMgr& x )
                          Scientific( x.CrossSection(), 2 ) :
                          XSecStr( x.CrossSection() );
   const string kfaccol = FloatingPoint( x.KFactor(), -1 );
-  const string xseccol = str( boost::format( "%s(%s)" )%AddMathBrace(xsec)%x.GetCacheString( "XsecSource" ) );
+  const string xseccol = str( boost::format( "%s(%s)" )%AddMathBrace( xsec )%x.GetCacheString( "XsecSource" ) );
   const string lumicol = Scientific( Parameter( equiv, 0, 0 ), 2 );
   const string gencol  = x.GetCacheString( "Generator" );
 
@@ -279,7 +277,8 @@ GetWeightError( const mgr::SampleMgr& sample )
     sample.GetCacheDouble( "EventWeightUpSum" ) - sample.GetCacheDouble( "EventWeightSum" ),
     sample.GetCacheDouble( "EventWeightSum" )   - sample.GetCacheDouble( "EventWeightDownSum" )
     );
-  err = err.NormParam();
+
+  err  = err.NormParam();
   err *= Parameter( 1, 0.046, 0.046 );
   err *= Parameter( 1, 0.03, 0.03 );
   return err;

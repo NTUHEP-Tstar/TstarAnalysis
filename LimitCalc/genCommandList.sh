@@ -35,7 +35,7 @@ for method in $method_list ; do
    done
 done
 
-exttaglist="--mucut=35 --mucut=40 --masscut=500 --masscut=600"
+exttaglist="--mucut=35 --mucut=40 --masscut=500 --masscut=600 --muiso=0.09 --muiso=0.06"
 
 for exttag in $exttaglist ; do
   for channel in $channel_list ; do

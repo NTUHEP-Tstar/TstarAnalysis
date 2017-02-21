@@ -16,8 +16,8 @@
 #include "ManagerUtils/SampleMgr/interface/SampleMgrLoader.hpp"
 
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include <boost/format.hpp>
 #include <cstdio>
@@ -50,7 +50,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 {
   fwlite::Handle<RecoResult> chiHandle;
   fwlite::Handle<vector<pat::Muon> > muonHandle;
-  fwlite::Handle<vector<pat::MET>> methandle;
+  fwlite::Handle<vector<pat::MET> > methandle;
 
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
@@ -66,18 +66,6 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
-
-    // Hotfit for met selection
-    methandle.getByLabel( ev, "slimmedMETs" );
-    if( methandle.ref().front().pt() < 20 ){ continue ; }
-
-
-    muonHandle.getByLabel( ev, "skimmedPatMuons" );
-    if( limnamer.CheckInput( "mucut" ) ){
-      if( muonHandle.ref().size() && muonHandle.ref().front().pt() < limnamer.GetInput<double>( "mucut" ) ){
-        continue;
-      }
-    }
 
 
     const double weight
@@ -95,6 +83,20 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       % GetSampleEventTopPtWeight( sample, ev )
          << flush;
 
+    // Muon additional selections
+    muonHandle.getByLabel( ev, "skimmedPatMuons" );
+    if( limnamer.CheckInput( "mucut" ) &&
+        muonHandle.ref().size() &&
+        muonHandle.ref().front().pt() < limnamer.GetInput<double>( "mucut" ) ){
+      continue;
+    }
+    if( limnamer.CheckInput( "muiso" ) &&
+        muonHandle.ref().size() &&
+        mgr::MuPfIso( muonHandle.ref().front() ) > limnamer.GetInput<double>( "muiso" ) ){
+      continue;
+    }
+
+
     // Getting mass reconstruction results
     chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
     if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
@@ -102,10 +104,10 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     // Points to insert for all mass data types
     const double tstarmass = chiHandle->TstarMass();
 
-    if(limnamer.CheckInput("masscut")){
-        if(tstarmass < limnamer.GetInput<double>("masscut")){
-          continue;
-        }
+    if( limnamer.CheckInput( "masscut" ) ){
+      if( tstarmass < limnamer.GetInput<double>( "masscut" ) ){
+        continue;
+      }
     }
 
     AddToDataSet( "", tstarmass, weight );

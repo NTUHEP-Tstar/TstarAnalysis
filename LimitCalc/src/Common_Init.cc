@@ -82,6 +82,7 @@ ExtraCutOptions()
   opt::options_description ans( "Apply extra cut" );
   ans.add_options()
     ( "mucut"  , opt::value<double>(), "Set the pass threshold for the muon" )
+    ( "muiso"  , opt::value<double>(), "Threshold for muon isolation" )
     ( "masscut", opt::value<double>(), "Mass of gluon plus t" )
   ;
   return ans;

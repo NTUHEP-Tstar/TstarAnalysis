@@ -23,7 +23,7 @@ masspointlist=[
 
 functionlist=["Lognorm","Exo","LogExt3"]
 
-runnum   = 1000
+runnum   = 200
 injlist  = [0,1]
 
 header="""

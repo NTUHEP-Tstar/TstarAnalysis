@@ -20,8 +20,6 @@ namespace opt = boost::program_options;
 int
 main( int argc, char* argv[] )
 {
-
-  SampleRooFitMgr* data   = NULL;
   SampleRooFitMgr* mc     = NULL;
   SampleRooFitMgr* sigmgr = NULL;
 
@@ -40,13 +38,11 @@ main( int argc, char* argv[] )
 
   InitSampleStatic( limnamer );
   InitRooFitSettings( limnamer );
-  InitSingle( data,   limnamer.GetChannelEXT( "Data Prefix" ) + limnamer.GetExt<string>( "era", "Data Postfix" ) );
   InitSingle( sigmgr, limnamer.GetInput<string>( "masspoint" ) );
   InitMC( mc );
 
-  RunGenFit( data, mc, sigmgr );
+  RunGenFit( mc, sigmgr );
 
-  delete data;
   delete mc;
   delete sigmgr;
 

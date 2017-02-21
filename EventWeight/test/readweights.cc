@@ -20,7 +20,11 @@ using namespace std;
 int
 main( int argc, char const* argv[] )
 {
-  fwlite::Event ev( TFile::Open( "root://eoscms.cern.ch//store/user/yichen/tstar_store/toplike/Muon/TT_TuneCUETP8M1_13TeV-powheg-pythia8_0.root" ) );
+  const std::string testfile =
+  "/wk_cms2/yichen/TstarAnalysis/EDMStore_New/massreco/MuonSignal/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_0.root";
+  fwlite::Event ev( TFile::Open( testfile.c_str() ) );
+
+  auto& pdfidgroup = GetPdfIdGrouping( testfile );
 
   for( ev.toBegin(); !ev.atEnd(); ++ev ){
     cout << "\nTotal event weight:" <<  GetEventWeight( ev ) << endl;
@@ -40,9 +44,13 @@ main( int argc, char const* argv[] )
     cout << "\tMuon Trigger Weight:" << GetMuonTriggerWeight( ev ) << endl;
     cout << "\tMuon ISO weight:" << GetMuonIsoWeight( ev ) << endl;
     cout << "\tMuon ID weight: " << GetMuonIDWeight( ev ) << endl;
+    cout << "\tPDF weight err: " << GetPdfWeightError( ev, pdfidgroup ) << endl;
   }
 
-  fwlite::Run run( TFile::Open( "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/MuonSignal/TT_TuneCUETP8M1_13TeV-powheg-pythia8_0.root" ) );
+
+
+
+  fwlite::Run run( TFile::Open( testfile.c_str() ) );
   fwlite::Handle<mgr::Counter> counthandle;
 
   for( run.toBegin(); !run.atEnd(); ++run ){

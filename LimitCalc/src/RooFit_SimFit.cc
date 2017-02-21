@@ -326,7 +326,7 @@ MakeSimFitPlot(
   RooAbsData* dataset = data->DataSet( datasetname );
   RooAddPdf* model    = (RooAddPdf*)data->Pdf( combpdfname );
   RooAbsPdf* bgpdf    = data->Pdf( bgpdfname );
-  RooAbsPdf* sigpdf   = sig->Pdf( StitchKeyPdfName );
+  RooAbsPdf* sigpdf   = sig->Pdf( KeyPdfName("") );
 
   const RooRealVar* bgvar     = data->Var( combpdfname + "nb" );
   const RooRealVar* sigvar    = data->Var( combpdfname + "ns" );

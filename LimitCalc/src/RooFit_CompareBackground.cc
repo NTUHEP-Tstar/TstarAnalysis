@@ -62,15 +62,27 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     frame, mgr->DataSet( "" )
     );
 
+  vector<double> prevfitvaluelist = {280, 0.51};
+
   for( const auto& fitfunc : funclist ){
     RooAbsPdf* pdf  = mgr->NewPdf( fitfunc, fitfunc );
     RooDataSet* set = (RooDataSet*)( mgr->DataSet( "" ) );
+
+    // Setting up fitting parameters with previous fit results for faster convertions
+    vector<RooRealVar*> fitparams = mgr->VarContains( fitfunc );
+    for( size_t i = 0 ; i < fitparams.size() ; ++i ){
+      if( i < prevfitvaluelist.size() ){
+        *(fitparams.at(i)) = prevfitvaluelist.at(i);
+      } else {
+        *(fitparams.at(i)) = 0 ;
+      }
+    }
 
     MyFitResult x;
 
     x.fitresult = pdf->fitTo(
       *set,
-      RooFit::Minimizer("Minuit","Migrad"), 
+      RooFit::Minimizer("Minuit","Migrad"),
       RooFit::SumW2Error( kTRUE ),
       RooFit::Minos( kTRUE ),
       RooFit::Save(),
@@ -82,6 +94,17 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     x.fitplot  = mgr::PlotOn( frame, pdf );
     x.ksvalue  = KSTest( *set, *pdf, SampleRooFitMgr::x() );
     x.pullplot = mgr::DividedGraph( setplot, x.fitplot );
+
+    // Small information dump after fit
+    prevfitvaluelist.clear();
+    cout << "Minimum NLL:" << x.fitresult->minNll() << endl;
+    cout << "Parameter fit values: " << endl;
+    for( int i = 0 ; i < x.fitresult->floatParsFinal().getSize() ; ++i ){
+      RooRealVar* var = (RooRealVar*)(x.fitresult->floatParsFinal().at(i));
+      cout << var->GetName() << " " << var->getVal() << endl;
+      prevfitvaluelist.push_back( var->getVal() );
+    }
+    cout << "===" << endl;
 
     fitlist.push_back( x );
   }

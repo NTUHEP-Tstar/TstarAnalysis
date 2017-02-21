@@ -23,27 +23,15 @@ main( int argc, char* argv[] )
     ( "combine,x", opt::value<string>(), "Which method to run with combine" )
     ( "drawdata,d", "Whether to plot the data limits or not" )
   ;
-  limnamer.AddOptions( LimitOptions() ).AddOptions( desc ).AddOptions( ExtraCutOptions() ).AddOptions( ExtraLimitOptions()  );
+  limnamer.AddOptions( LimitOptions() ).AddOptions( desc ).AddOptions( ExtraCutOptions() ).AddOptions( ExtraLimitOptions() );
   limnamer.SetNamingOptions( "fitmethod", "fitfunc", "era" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
 
-  if( limnamer.CheckInput("mucut") ){
-      limnamer.AddCutOptions("mucut");
-  }
-  if( limnamer.CheckInput("masscut") ){
-      limnamer.AddCutOptions("masscut");
-  }
-
-
-  if (limnamer.CheckInput( "mucut"  ) ){
-    cout<< "mucut is : "<<limnamer.GetInput<double>( "mucut"  ) << endl;
-  }
-
-  if (limnamer.CheckInput( "seed"  ) ){
-    cout<< "random seed is : "<<limnamer.GetInput<double>( "seed"  )<<endl;
-  }
+  if( limnamer.CheckInput( "mucut" ) ){ limnamer.AddCutOptions( "mucut" ); }
+  if( limnamer.CheckInput( "muiso" ) ){ limnamer.AddCutOptions( "muiso" ); }
+  if( limnamer.CheckInput( "masscut" ) ){ limnamer.AddCutOptions( "masscut" );   }
 
   if( limnamer.CheckInput( "combine" ) ){
     cout << "Rerunning results higgs combine package with method ["
