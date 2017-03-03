@@ -22,9 +22,9 @@
 #include <stdio.h>
 
 #include "RooAddPdf.h"
-#include "RooConstVar.h"
 #include "RooFitResult.h"
-#include "RooGaussian.h"
+#include "RooGenericPdf.h"
+#include "RooProdPdf.h"
 #include "RooRealVar.h"
 #include "RooWorkspace.h"
 #include "TFile.h"
@@ -80,7 +80,8 @@ MakeSimFit(
 
     MakeSimFitCardFile( data, sig );
 
-    pdflist.push_back( data->Pdf( SimFitBGPdfName( "", sig->Name() ) ) );
+    // pdflist.push_back( data->Pdf( SimFitBGPdfName( "", sig->Name() ) ) );
+    pdflist.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
     pdflist.push_back( sig->Pdf( StitchKeyPdfName ) );
     funclist.push_back( sig->Func( StitchKeyNormName ) );
 
@@ -112,38 +113,16 @@ SimFitSingle(
   RooAbsPdf* bgpdf       = data->NewPdf( bgfuncname, fitfunc );
   RooAbsPdf* sigpdf      = sig->Pdf( KeyPdfName( "" ) );   // attempting simfit will default signal regardless
 
-  vector<RooRealVar*> bgfitvarlist = data->VarContains( bgfuncname );
-
   const double numdata = fitdataset->sumEntries();
 
   RooRealVar* nb = data->NewVar( combfuncname+"nb", numdata, -1000000, 1000000 );
   RooRealVar* ns = data->NewVar( combfuncname+"ns", 0, -1000000, 1000000 );
 
-  // Remove background constraining function for now.
-  // RooArgSet fitconstraints;
-
-  // for( unsigned i = 0; i < bgfitvarlist.size(); ++i ){
-  //   RooRealVar* bgvar    = bgfitvarlist[i];
-  //   RooRealVar* bgconvar =
-  //     (RooRealVar*)( bgconstrain->floatParsFinal().at( i ) );
-
-  //   string pdfname = bgvar->GetName();
-  //   pdfname += "constrain";
-
-  //   RooGaussian bgvarconpdf(
-  //     pdfname.c_str(), pdfname.c_str(),
-  //     *bgvar,
-  //     RooFit::RooConst( bgconvar->getVal() ),
-  //     RooFit::RooConst( 5*bgconvar->getError() )// five time sigma constrain for the time being
-  //     );
-  //   fitconstraints.addClone( bgvarconpdf );
-  // }
-
   RooAddPdf* model = new RooAddPdf(
     combfuncname.c_str(),
     combfuncname.c_str(),
     RooArgList( *bgpdf, *sigpdf ),
-    RooArgList( *nb,    *ns )
+    RooArgList( *nb,    *ns     )
     );
 
   RooFitResult* err = model->fitTo(
@@ -160,6 +139,36 @@ SimFitSingle(
     );
 
   cout << "Finish running simultaneous fit for " << sig->Name() << endl;
+
+  // Adding external term
+  RooRealVar* c = data->NewVar( bgfuncname + "sys", 0, -5, 5 );// Item for adding background shape systematic
+  RooRealVar* a = data->Var( bgfuncname + "a" );
+
+  char formula[1024];
+  sprintf(
+    formula,
+    "TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )",
+    c->GetName(),
+    a->GetName()
+    );
+  c->setError( 0.01 );// A magic number for now
+  c->setConstant( kTRUE );
+
+  RooGenericPdf* bkgsys = new RooGenericPdf(
+    ( bgfuncname + "sys" ).c_str(),
+    ( bgfuncname + "sys" ).c_str(),
+    formula,
+    RooArgSet( SampleRooFitMgr::x(), *a, *c )
+    );
+
+  RooProdPdf* bkgtot = new RooProdPdf(
+    StitchSimFitBgPdfname( sig->Name() ).c_str(),
+    StitchSimFitBgPdfname( sig->Name() ).c_str(),
+    RooArgSet( *bgpdf, *bkgsys )
+    );
+
+  data->AddPdf( bkgsys );
+  data->AddPdf( bkgtot );
   data->AddPdf( model );
   return err;
 }
@@ -174,14 +183,14 @@ MakeSimFitCardFile(
   )
 {
   const string sigpdfname = StitchKeyPdfName;
-  const string bgpdfname  = SimFitBGPdfName( "", sig->Name() );
+  const string bgpdfname  = StitchSimFitBgPdfname( sig->Name() );
   RooAbsData* dataset     = data->DataSet();
   RooAbsPdf* bgpdf        = data->Pdf( bgpdfname );
   RooAbsPdf* sigpdf       = sig->Pdf( sigpdfname );
   const Parameter bgunc   = GetBgNormError( data, "", "", sig->Name() );
 
   // Writting the common parts
-  ofstream cardfile( limnamer.TextFileName( "card", {sig->Name()} ) );
+  ofstream cardfile( limnamer.TextFileName( "card", sig->Name() ) );
 
   MakeCardCommon( cardfile, dataset, bgpdf, sigpdf );
   cardfile << boost::format( "%12s %15lf %15lf" )
@@ -191,9 +200,10 @@ MakeSimFitCardFile(
            << endl;
 
   // Printing list of normalization errors
-  const Parameter lumi( 1, 0.062, 0.062 );
-  const Parameter lepunc = data->Name().find( "Muon" ) == string::npos ? Parameter( 1, 0.03, 0.03 ) :
-                           Parameter( 1, 0.03, 0.03 );
+  const Parameter lumi   = limnamer.MasterConfig().GetStaticParameter( "Lumi Error" );
+  const Parameter lepunc = data->Name().find( "Muon" ) == string::npos ?
+                           limnamer.MasterConfig().GetStaticParameter( "Electron Systematic" ) :
+                           limnamer.MasterConfig().GetStaticParameter( "Muon Systematic" );
   const Parameter sigunc = sig->Sample().SelectionEfficiency();
   const Parameter null( 0, 0, 0 );
   cardfile << "----------------------------------------" << endl;
@@ -221,14 +231,15 @@ MakeSimFitCardFile(
         PrintFloatParam( cardfile, var );
       }
     }
+
+    // Parameter for background systematic error
+    for( auto var : data->VarContains( StitchSimFitBgPdfname( sig->Name() ) ) ){
+      PrintFloatParam( cardfile, var );
+    }
   }
 
   // Getting stitching variables
   vector<RooRealVar*> stitchvarlist;
-
-  for( auto var : data->VarContains( StitchSimFitBgPdfname( sig->Name() ) + "coeff" ) ){
-    stitchvarlist.push_back( var );
-  }
 
   for( auto var : sig->VarContains( "coeff" ) ){
     stitchvarlist.push_back( var );
@@ -326,7 +337,13 @@ MakeSimFitPlot(
   RooAbsData* dataset = data->DataSet( datasetname );
   RooAddPdf* model    = (RooAddPdf*)data->Pdf( combpdfname );
   RooAbsPdf* bgpdf    = data->Pdf( bgpdfname );
-  RooAbsPdf* sigpdf   = sig->Pdf( KeyPdfName("") );
+  RooAbsPdf* sigpdf   = sig->Pdf( KeyPdfName( "" ) );
+
+  cout << bgpdfname << endl;
+
+  for( const auto& pdfname : data->PdfNameList() ){
+    cout << pdfname << endl;
+  }
 
   const RooRealVar* bgvar     = data->Var( combpdfname + "nb" );
   const RooRealVar* sigvar    = data->Var( combpdfname + "ns" );
@@ -336,7 +353,7 @@ MakeSimFitPlot(
   const double sigfitstrength = sigvar->getVal();
   const double sigexpstrength = sig->ExpectedYield();
   const double ksbkg          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
-  const double ksall          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
+  const double ksall          = KSTest( *dataset, *model, SampleRooFitMgr::x() );
   const double multipler      = ( obs > sigexpstrength*4 ) ? ( obs/( sigexpstrength*4 ) ) : 1;
 
   /*******************************************************************************
