@@ -41,6 +41,7 @@ SummaryComplete(
 {
   ofstream selfile( compnamer.TexFileName( "summary" ) );
   selfile << "\\begin{tabular}{|l|ccc|c|}" << endl
+          << hlinestr << endl
           << samplelinefmt
     % "Sample"
     % "Cross Section (pb)"

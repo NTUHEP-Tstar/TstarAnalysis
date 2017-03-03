@@ -51,6 +51,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   fwlite::Handle<RecoResult> chiHandle;
   fwlite::Handle<vector<pat::Muon> > muonHandle;
   fwlite::Handle<vector<pat::MET> > methandle;
+  fwlite::Handle<vector<pat::Electron> > elechandle;
 
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
@@ -85,11 +86,19 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
     // Muon additional selections
     muonHandle.getByLabel( ev, "skimmedPatMuons" );
-    if( limnamer.CheckInput( "mucut" ) &&
-        muonHandle.ref().size() &&
-        muonHandle.ref().front().pt() < limnamer.GetInput<double>( "mucut" ) ){
+    elechandle.getByLabel( ev, "skimmedPatElectrons" );
+
+    const double lepptcut
+      = limnamer.CheckInput( "mucut" ) ? limnamer.GetInput<double>( "mucut" ) :
+        0;
+
+    if( muonHandle.ref().size() && muonHandle.ref().front().pt() < lepptcut ){
       continue;
     }
+    if( elechandle.ref().size() && elechandle.ref().front().pt() < lepptcut ){
+      continue;
+    }
+
     if( limnamer.CheckInput( "muiso" ) &&
         muonHandle.ref().size() &&
         mgr::MuPfIso( muonHandle.ref().front() ) > limnamer.GetInput<double>( "muiso" ) ){
@@ -97,77 +106,77 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     }
 
 
-    // Getting mass reconstruction results
-    chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
-    if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
+  // Getting mass reconstruction results
+  chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+  if( chiHandle->ChiSquare() < 0 ){ continue; }  // Skipping over unphysical results
 
-    // Points to insert for all mass data types
-    const double tstarmass = chiHandle->TstarMass();
+  // Points to insert for all mass data types
+  const double tstarmass = chiHandle->TstarMass();
 
-    if( limnamer.CheckInput( "masscut" ) ){
-      if( tstarmass < limnamer.GetInput<double>( "masscut" ) ){
-        continue;
-      }
-    }
-
-    AddToDataSet( "", tstarmass, weight );
-
-    // Masses to insert for MC sample
-    if( Name().find( "Data" ) == std::string::npos ){
-      const double tstarmass_jecup   = chiHandle->ComputeFromPaticleList( tstar::corr_up  );
-      const double tstarmass_jecdown = chiHandle->ComputeFromPaticleList( tstar::corr_down );
-      const double tstarmass_jerup   = chiHandle->ComputeFromPaticleList( tstar::res_up );
-      const double tstarmass_jerdown = chiHandle->ComputeFromPaticleList( tstar::res_down );
-      AddToDataSet( "jetresUp",   tstarmass_jerup,   weight );
-      AddToDataSet( "jetresDown", tstarmass_jerdown, weight );
-      AddToDataSet( "jecUp",      tstarmass_jecup,   weight );
-      AddToDataSet( "jecDown",    tstarmass_jecdown, weight );
-
-      const double btagweight      = GetBtagWeight( ev );
-      const double btagweightup    = GetBtagWeightUp( ev );
-      const double btagweightdown  = GetBtagWeightDown( ev  );
-      const double puweight        = GetPileupWeight( ev );
-      const double puweightup      = GetPileupWeightXsecup( ev );
-      const double puweightdown    = GetPileupWeightXsecdown( ev );
-      const double elecweight      = GetElectronWeight( ev );
-      const double elecweightup    = GetElectronWeightUp( ev );
-      const double elecweightdown  = GetElectronWeightDown( ev );
-      const double muonweight      = GetMuonWeight( ev );
-      const double muonweightup    = GetMuonWeightUp( ev );
-      const double muonweightdown  = GetMuonWeightDown( ev );
-      const double pdfweightup     = 1 + GetPdfWeightError( ev, pdfidgroup );
-      const double pdfweightdown   = 1 - GetPdfWeightError( ev, pdfidgroup );
-      const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
-      const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
-
-      AddToDataSet( "btagUp",    tstarmass, weight * btagweightup   / btagweight );
-      AddToDataSet( "btagDown",  tstarmass, weight * btagweightdown / btagweight );
-      AddToDataSet( "puUp",      tstarmass, weight * puweightup / puweight );
-      AddToDataSet( "puDown",    tstarmass, weight * puweightdown / puweight );
-      AddToDataSet( "lepUp",     tstarmass, weight * ( elecweightup/elecweight )   * ( muonweightup/muonweight ) );
-      AddToDataSet( "lepDown",   tstarmass, weight * ( elecweightdown/elecweight ) * ( muonweightdown/muonweight ) );
-      AddToDataSet( "pdfUp",     tstarmass, weight * pdfweightup );
-      AddToDataSet( "pdfDown",   tstarmass, weight * pdfweightdown );
-      AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
-      AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
-      AddToDataSet( "modelUp",   tstarmass, weight );
-      AddToDataSet( "modelDown", tstarmass, weight );
+  if( limnamer.CheckInput( "masscut" ) ){
+    if( tstarmass < limnamer.GetInput<double>( "masscut" ) ){
+      continue;
     }
   }
 
-  // Recalculating selection efficiency based on number of events pushed to central dataset
-  sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
+  AddToDataSet( "", tstarmass, weight );
 
-  // Writing the number of events to a cache file for signal samples
-  if( sample.Name().find( "Tstar" ) != string::npos ){
-    sample.AddCacheDouble( "PDFup",     DataSet( "pdfUp" )->sumEntries() );
-    sample.AddCacheDouble( "PDFdown",   DataSet( "pdfDown" )->sumEntries() );
-    sample.AddCacheDouble( "scaleup",   DataSet( "scaleUp" )->sumEntries() );
-    sample.AddCacheDouble( "scaledown", DataSet( "scaleDown" )->sumEntries() );
-    mgr::SaveCacheToFile( sample, limnamer.CustomFileName( "txt", sample.Name() ) );
+  // Masses to insert for MC sample
+  if( Name().find( "Data" ) == std::string::npos ){
+    const double tstarmass_jecup   = chiHandle->ComputeFromPaticleList( tstar::corr_up  );
+    const double tstarmass_jecdown = chiHandle->ComputeFromPaticleList( tstar::corr_down );
+    const double tstarmass_jerup   = chiHandle->ComputeFromPaticleList( tstar::res_up );
+    const double tstarmass_jerdown = chiHandle->ComputeFromPaticleList( tstar::res_down );
+    AddToDataSet( "jetresUp",   tstarmass_jerup,   weight );
+    AddToDataSet( "jetresDown", tstarmass_jerdown, weight );
+    AddToDataSet( "jecUp",      tstarmass_jecup,   weight );
+    AddToDataSet( "jecDown",    tstarmass_jecdown, weight );
+
+    const double btagweight      = GetBtagWeight( ev );
+    const double btagweightup    = GetBtagWeightUp( ev );
+    const double btagweightdown  = GetBtagWeightDown( ev  );
+    const double puweight        = GetPileupWeight( ev );
+    const double puweightup      = GetPileupWeightXsecup( ev );
+    const double puweightdown    = GetPileupWeightXsecdown( ev );
+    const double elecweight      = GetElectronWeight( ev );
+    const double elecweightup    = GetElectronWeightUp( ev );
+    const double elecweightdown  = GetElectronWeightDown( ev );
+    const double muonweight      = GetMuonWeight( ev );
+    const double muonweightup    = GetMuonWeightUp( ev );
+    const double muonweightdown  = GetMuonWeightDown( ev );
+    const double pdfweightup     = 1 + GetPdfWeightError( ev, pdfidgroup );
+    const double pdfweightdown   = 1 - GetPdfWeightError( ev, pdfidgroup );
+    const double scaleweightup   = 1 + GetScaleWeightError( ev, pdfidgroup );
+    const double scaleweightdown = 1 - GetScaleWeightError( ev, pdfidgroup );
+
+    AddToDataSet( "btagUp",    tstarmass, weight * btagweightup   / btagweight );
+    AddToDataSet( "btagDown",  tstarmass, weight * btagweightdown / btagweight );
+    AddToDataSet( "puUp",      tstarmass, weight * puweightup / puweight );
+    AddToDataSet( "puDown",    tstarmass, weight * puweightdown / puweight );
+    AddToDataSet( "lepUp",     tstarmass, weight * ( elecweightup/elecweight )   * ( muonweightup/muonweight ) );
+    AddToDataSet( "lepDown",   tstarmass, weight * ( elecweightdown/elecweight ) * ( muonweightdown/muonweight ) );
+    AddToDataSet( "pdfUp",     tstarmass, weight * pdfweightup );
+    AddToDataSet( "pdfDown",   tstarmass, weight * pdfweightdown );
+    AddToDataSet( "scaleUp",   tstarmass, weight * scaleweightup );
+    AddToDataSet( "scaleDown", tstarmass, weight * scaleweightdown );
+    AddToDataSet( "modelUp",   tstarmass, weight );
+    AddToDataSet( "modelDown", tstarmass, weight );
   }
+}
 
-  cout << "Done!" << endl;
+// Recalculating selection efficiency based on number of events pushed to central dataset
+sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
+
+// Writing the number of events to a cache file for signal samples
+if( sample.Name().find( "Tstar" ) != string::npos ){
+  sample.AddCacheDouble( "PDFup",     DataSet( "pdfUp" )->sumEntries() );
+  sample.AddCacheDouble( "PDFdown",   DataSet( "pdfDown" )->sumEntries() );
+  sample.AddCacheDouble( "scaleup",   DataSet( "scaleUp" )->sumEntries() );
+  sample.AddCacheDouble( "scaledown", DataSet( "scaleDown" )->sumEntries() );
+  mgr::SaveCacheToFile( sample, limnamer.CustomFileName( "txt", sample.Name() ) );
+}
+
+cout << "Done!" << endl;
 }
 
 /******************************************************************************/

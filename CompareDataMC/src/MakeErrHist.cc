@@ -218,8 +218,11 @@ MakeBkgError(
 
     // Additional errors
     errtot *= ( normerr );// cross section and selection eff
-    errtot *= Parameter( 1, 0.046, 0.046 );// lumierror
-    errtot *= Parameter( 1, 0.03,  0.03 );// leptonic errors
+    errtot *= compnamer.MasterConfig().GetStaticParameter( "Lumi Error" );// lumierror
+    errtot *= compnamer.GetChannel().find( "Electron" ) == string::npos ?  // leptonic systematic error
+              compnamer.MasterConfig().GetStaticParameter( "Muon Systematic" ) :
+              compnamer.MasterConfig().GetStaticParameter( "Electron Systematic" );
+
 
     if( bincont == 0 ){
       central->SetBinError( i, 0 );
@@ -256,7 +259,7 @@ PlotErrCompare(
   // Normailizing plots if err is the pdf error or scale errors
   if( err.tag == "scale" || err.tag == "pdf" ){
     errup->Scale( central->Integral() / errup->Integral() );
-    errdown->Scale( central->Integral() / errdown->Integral( ) );
+    errdown->Scale( central->Integral() / errdown->Integral() );
   }
 
 
@@ -288,7 +291,7 @@ PlotErrCompare(
   pad2->cd();
 
   uprel->Draw( PS_AXIS );
-  uprel->Draw(   PS_HIST PS_SAME );
+  uprel->Draw( PS_HIST PS_SAME );
   downrel->Draw( PS_HIST PS_SAME );
   line->Draw( PS_SAME );
   line_top->Draw( PS_SAME );
@@ -347,7 +350,7 @@ PlotErrCompare(
   latex.SetOrigin( PLOT_X_TEXT_MAX, legymin - 0.02, TOP_RIGHT );
   if( compnamer.GetInput<string>( "group" ).find( "Tstar" ) != string::npos ){
     latex.WriteLine( boost::str( boost::format( "t* %dGeV" )%GetInt( compnamer.GetInput<string>( "group" ) ) ) );
-  } else  {
+  } else {
     latex.WriteLine( compnamer.GetInput<string>( "group" ) );
   }
 

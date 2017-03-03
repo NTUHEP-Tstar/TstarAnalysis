@@ -200,7 +200,7 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     const double nextnll  = fitlist[i+1].fitresult->minNll();
     const int thisorder   = fitlist[i].fitresult->floatParsFinal().getSize();
     const int nextorder   = fitlist[i+1].fitresult->floatParsFinal().getSize();
-    const double chi2test = TMath::Prob( 2*( std::max( thisnll-nextnll, 0. ) ), nextorder-thisorder );
+    const double chi2test = TMath::Prob( 2*( std::max( fabs(thisnll-nextnll), 0. ) ), nextorder-thisorder );
 
     latex.WriteLine( boost::str( chi2testfmt % thisorder % nextorder % chi2test ) );
   }

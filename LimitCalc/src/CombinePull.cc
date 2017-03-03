@@ -99,6 +99,7 @@ MakeVarPull( const RooArgList& post, const RooArgList& pre, const string& name )
     const double pullerr = posterr / preerr;
     return Parameter( pull, pullerr, pullerr );
   } else {
+    cout << "Warning! parameter [" << name  << "] not found!" << endl;
     return Parameter( 0, 0, 0 );
   }
 }
@@ -115,11 +116,13 @@ MakePullPlot()
   vector<pair<string, Parameter> > pulllist;
 
   // Fitting paramter varibles
-  const string avarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
-  const string bvarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
+  const string avarname   = limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
+  const string bvarname   = limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
+  const string sysvarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbgsys";
 
   pulllist.emplace_back( "Bkg. parm 1", MakeVarPull( postfit, prefit, avarname ) );
   pulllist.emplace_back( "Bkg. parm 2", MakeVarPull( postfit, prefit, bvarname ) );
+  pulllist.emplace_back( "Bkg. sys",    MakeVarPull( postfit, prefit, sysvarname ) );
 
   // Shape uncertainties
   for( size_t i = 0; i < uncsource.size(); ++i ){
@@ -159,7 +162,7 @@ MakePullPlot()
   pulllist.emplace_back( "stat.",    MakeVarPull( postfit, prefit, "statunc" ) );
 
   for( const auto& mypair : pulllist ){
-    cout << mypair.first << " " << mypair.second << endl;
+    cout << mypair.first << " " << mgr::FloatingPoint(mypair.second.CentralValue(),10) << endl;
   }
 
   delete file;

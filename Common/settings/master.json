@@ -5,6 +5,9 @@
 
     "Mass Min": 400,
     "Mass Max": 2500,
+    "Lumi Error": [1,0.026,0.026],
+    "Muon Systematic":[1,0.03,0.03],
+    "Electron Systematic":[1,0.03,0.03],
 
     "___Comment___": """-----------------------------------------------------------
     # Defining Groups:

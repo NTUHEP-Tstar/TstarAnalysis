@@ -35,11 +35,22 @@ for method in $method_list ; do
    done
 done
 
-exttaglist="--mucut=35 --mucut=40 --masscut=500 --masscut=600 --muiso=0.09 --muiso=0.06"
+exttaglist="--mucut=35 --mucut=40 --mucut=50 --mucut=60 --masscut=500 --masscut=600 --muiso=0.12 --muiso=0.09 --muiso=0.06"
 
 for exttag in $exttaglist ; do
   for channel in $channel_list ; do
-    echo "MakeRooFit  --channel $channel --fitmethod SimFit --fitfunc ${exttag} Lognorm"
-    echo "PlotLimit   --channel $channel --fitmethod SimFit --fitfunc ${exttag} Lognorm -x $combine_method"
+    echo "MakeRooFit  --channel $channel --fitmethod SimFit --fitfunc  Lognorm ${exttag}"
+    echo "PlotLimit   --channel $channel --fitmethod SimFit --fitfunc  Lognorm ${exttag} -x $combine_method"
+  done
+done
+
+## Commands for background function comparison
+channel_list="MuonSignal MuonControl ElectronSignal ElectronControl"
+funclist="Lognorm LogExt3 LogExt4 LogExt5"
+samplelist="Background"
+
+for channel in $channel_list ; do
+  for sample in $samplelist ; do
+    echo "CompareFitFunc --channel $channel -f $funclist -s $sample"
   done
 done

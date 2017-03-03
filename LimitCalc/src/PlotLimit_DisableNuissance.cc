@@ -20,6 +20,7 @@ using namespace std;
 extern const vector<string> unclist = {
   "",
   // "bg", //disabling background fitting errors for now
+  "bgsys",
   "jec",
   "jetres",
   "btag",
@@ -29,7 +30,7 @@ extern const vector<string> unclist = {
   "scale",
   "model",
   "stat",
-  "lumi"
+  "lumi",
 };
 
 

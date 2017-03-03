@@ -60,8 +60,8 @@ AdditionalOptions( const string& method )
   }
 
   ans += " --hintMethod=ProfileLikelihood ";
-  ans += " --rAbsAcc=0.00000005 ";
-  ans += " --rRelAcc=0.0000005  ";
+  ans += " --rAbsAcc=0.000005 ";
+  ans += " --rRelAcc=0.00005  ";
 
   if (limnamer.CheckInput( "seed"  ) ){
     ans+= ( " --seed " +  boost::lexical_cast<string>( limnamer.GetInput<double>( "seed"  )  ) );
