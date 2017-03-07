@@ -19,7 +19,7 @@ import ManagerUtils.SysUtils.pluginPathUtils as mypath
 #   Dataset naming
 #-------------------------------------------------------------------------
 def IsData(dataset):
-    if re.match('/.*/.*Run[0-9]{4}.*/.*', dataset):
+    if re.match( r'/.*/.*Run[0-9]{4}.*/.*', dataset):
         return True
     else:
         return False
@@ -110,6 +110,18 @@ def GetEDMStoreGlob(tag, dataset, mode):
 def GetEDMStoreRegex(tag, dataset, mode):
     return "{}/{}_[0-9]*\.root".format(GetEDMStoreDir(tag, dataset, mode), GetName(dataset))
 
+#-------------------------------------------------------------------------------
+#   Global tag
+#-------------------------------------------------------------------------------
+def GetGlobalTag( dataset ):
+    if re.match( r'/.*/.*Run2016[B-G]-03Feb2017.*/.*', dataset):
+        return '80X_dataRun2_2016SeptRepro_v7'
+    elif re.match( r'/.*/.*Run2016H-03Feb2017.*/.*', dataset):
+        return '80X_dataRun2_Prompt_v16'
+    elif re.match( r'/.*/RunIISummer16MiniAODv2.*PUMoriond17.*/MINIAODSIM', dataset ):
+        return '80X_mcRun2_asymptotic_2016_TrancheIV_v6'
+    else:
+        raise Execption("Data set not recognized!")
 
 #-------------------------------------------------------------------------------
 #   JEC/JER naming options

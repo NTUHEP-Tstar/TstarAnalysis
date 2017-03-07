@@ -42,7 +42,8 @@ main( int argc, char* argv[] )
   cout << "Making limit plot" << endl;
   auto lim = MakeLimitPlot();
 
-  cout << lim.first.CentralValue() << " " << lim.second.CentralValue() << endl;
+  cout << "Expected limit: " << FloatingPoint( lim.first, 0  )  << endl 
+       << "Observed limit: " << FloatingPoint( lim.second, 0 ) << endl;
 
   return 0;
 }

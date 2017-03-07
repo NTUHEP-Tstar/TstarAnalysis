@@ -90,7 +90,7 @@ MakeLimitTable( const std::map<std::string, std::pair<mgr::Parameter, mgr::Param
       const string obslimstring = ( limnamer.CheckInput( "drawdata" ) ) ? mgr::FloatingPoint( obslimit, 1 ) : "--";
       limiteffect << tableentry
         % "Central value"
-        % FloatingPoint( explimit, 1 )
+        % mgr::FloatingPoint( explimit.CentralValue(), 0 )
         % obslimstring
                   << endl;
       limiteffect << "\\hline" << endl;

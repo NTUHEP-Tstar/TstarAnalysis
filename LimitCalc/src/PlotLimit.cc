@@ -110,9 +110,9 @@ MakeLimitPlot( const std::string& additionaltag )
   .WriteLine( funcname );
 
   // Cannot have Latex style spacing '\,'
-  const Parameter explim_err = GetInterSect( theorygraph, twosiggraph );
+  const Parameter explim_err = GetInterSect( theorygraph, onesiggraph );
   const Parameter obslim_err = GetInterSect( theorygraph, obsgraph );
-  const string explim_str    = FloatingPoint( explim_err, 0, false );
+  const string explim_str    = FloatingPoint( explim_err.CentralValue(), 0, false );
   const string obslim_str    = FloatingPoint( obslim_err.CentralValue(), 0, false );
 
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT );
@@ -126,16 +126,16 @@ MakeLimitPlot( const std::string& additionaltag )
   c1->SetLogy( kTRUE );
   c1->Update();
 
-  if( limnamer.CheckInput("seed") ){
-      limnamer.AddCutOptions("seed");
+  if( limnamer.CheckInput( "seed" ) ){
+    limnamer.AddCutOptions( "seed" );
   }
 
-  if( limnamer.CheckInput("rMin") ){
-      limnamer.AddCutOptions("rMin");
+  if( limnamer.CheckInput( "rMin" ) ){
+    limnamer.AddCutOptions( "rMin" );
   }
 
-  if( limnamer.CheckInput("rMax") ){
-      limnamer.AddCutOptions("rMax");
+  if( limnamer.CheckInput( "rMax" ) ){
+    limnamer.AddCutOptions( "rMax" );
   }
 
 
@@ -219,8 +219,8 @@ MakeTheoryGraph( const map<double, double>& xsec )
   TGraphAsymmErrors* graph = new TGraphAsymmErrors();
 
   for( const auto& point : xsec ){
-    const double mass     = point.first;
-    if( mass < 650 || mass > 1650 ) { continue; }
+    const double mass = point.first;
+    if( mass < 650 || mass > 1650 ){ continue; }
     const double thisxsec = point.second;
     const double xsecup   = thisxsec * errorupgraph->Eval( mass );
     const double xsecdown = thisxsec * errordowngraph->Eval( mass );
@@ -300,8 +300,6 @@ MakeCalcGraph(
 
     graph->SetPoint( bin, mass, central );
     graph->SetPointError( bin, 50, 50, errordown, errorup );
-
-    //printf( "%lf %lf %lf %lf\n", mass, central, errorup, errordown );
     ++bin;
   }
 
@@ -324,10 +322,14 @@ GetInterSect( const TGraph* graph, const TGraph* errgraph )
   for( int i = 0; i < graph->GetN()-1; ++i ){
     for( int j = 0; j < errgraph->GetN()-1; ++j ){
 
-      const double graphmass     = graph->GetX()[i];
-      const double graphmassnext = graph->GetX()[i+1];
-      const double graphval      = graph->GetY()[i];
-      const double graphvalnext  = graph->GetY()[i+1];
+      const double graphmass        = graph->GetX()[i];
+      const double graphmassnext    = graph->GetX()[i+1];
+      const double graphval         = graph->GetY()[i];
+      const double graphvalnext     = graph->GetY()[i+1];
+      const double graphvalup       = graph->GetErrorYhigh( i ) + graphval;
+      const double graphvalupnext   = graph->GetErrorYhigh( i+1 ) + graphvalnext;
+      const double graphvaldown     = graphval - graph->GetErrorYlow( i );
+      const double graphvaldownnext = graphvalnext - graph->GetErrorYlow( i+1 );
 
       const double errgraphmass     = errgraph->GetX()[j];
       const double errgraphmassnext = errgraph->GetX()[j+1];
@@ -338,6 +340,7 @@ GetInterSect( const TGraph* graph, const TGraph* errgraph )
       const double loerr            = errgraphval - errgraph->GetErrorYlow( j );
       const double loerrnext        = errgraphvalnext - errgraph->GetErrorYlow( j+1 );
 
+      // Central value intersect
       Intersect(
         graphmass, graphval,
         graphmassnext, graphvalnext,
@@ -346,23 +349,25 @@ GetInterSect( const TGraph* graph, const TGraph* errgraph )
         explimit, y
         );
 
+      // Lower theretical band intersect with upper limit band
       Intersect(
-        graphmass, graphval,
-        graphmassnext, graphvalnext,
+        graphmass, graphvaldown,
+        graphmassnext, graphvaldownnext,
         errgraphmass, hierr,
         errgraphmassnext, hierrnext,
-        explimit_up, y
+        explimit_down, y
         );
 
+      // Upper theoretical band intersec with lower limit band
       Intersect(
-        graphmass, graphval,
-        graphmassnext, graphvalnext,
+        graphmass, graphvalup,
+        graphmassnext, graphvalupnext,
         errgraphmass, loerr,
         errgraphmassnext, loerrnext,
-        explimit_down, y
+        explimit_up, y
         );
     }
   }
 
-  return Parameter( explimit, explimit_down- explimit, explimit_up - explimit );
+  return Parameter( explimit, explimit_up - explimit, explimit - explimit_down );
 }

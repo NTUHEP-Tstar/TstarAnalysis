@@ -54,22 +54,6 @@ options.register(
     'Lepton mode to use'
 )
 
-options.register(
-    'JECVersion',
-    '',
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'JEC version to use, automatically guessing from global tag if not specified.'
-)
-
-options.register(
-    'JERVersion',
-    '',
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'JER version to use, automatically guessing from global tag if not specified.'
-)
-
 options.setDefault('maxEvents', 1000)
 
 options.parseArguments()
@@ -100,67 +84,6 @@ process.source = cms.Source(
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
-if not options.JECVersion :
-    options.JECVersion = myname.GetJECFromGT( options.GlobalTag )
-if not options.JERVersion :
-    options.JERVersion = myname.GetJERFromGT( options.GlobalTag )
-
-#-------------------------------------------------------------------------------
-#   Reloading JEC/JER values from sqlite files
-#   https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JecSqliteFile
-#-------------------------------------------------------------------------------
-print "Loading new JEC files"
-process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
-from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
-
-process.jec = cms.ESSource('PoolDBESSource',
-    CondDBSetup,
-    connect = cms.string( myname.JECDBName(options.JECVersion) ),
-    toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string(myname.JECTagName(options.JECVersion,'AK4PFchs')),
-            label  = cms.untracked.string('AK4PFchs')
-        ),
-    )
-)
-
-process.jer = cms.ESSource("PoolDBESSource",
- CondDBSetup,
- connect = cms.string(myname.JERDBName(options.JERVersion)),
- toGet = cms.VPSet(
-     cms.PSet( # Resolution
-         record = cms.string('JetResolutionRcd'),
-         tag    = cms.string( myname.JERTagName(options.JERVersion, 'AK4PFchs') ),
-         label  = cms.untracked.string('AK4PFchs_pt')
-         ),
-     cms.PSet( # Scale factors
-         record = cms.string('JetResolutionScaleFactorRcd'),
-         tag    = cms.string( myname.JERSFTagName(options.JERVersion,'AK4PFchs') ),
-         label  = cms.untracked.string('AK4PFchs')
-         ),
-     ),
- )
-# Add an ESPrefer to override JEC/JEC that might be available from the global tag
-process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
-process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'jec')
-
-## Updaing JEC collrection to EDM file objects
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-
-correction = ['L1FastJet', 'L2Relative', 'L3Absolute']
-if options.GlobalTag == myset.data_global_tag:
-    correction.append('L2L3Residual')
-
-updateJetCollection(
-   process,
-   jetSource = cms.InputTag('slimmedJets'),
-   labelName = 'UpdatedJEC',
-   jetCorrections = ('AK4PFchs', cms.vstring(correction), 'None')  # Do not forget 'L2L3Residual' on data!
-)
-
-process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
-
 #-------------------------------------------------------------------------
 #   Importing Electron VID maps
 #-------------------------------------------------------------------------
@@ -189,20 +112,6 @@ else:
     print "[ERROR!!] Unrecognized option [", options.Mode, "]!"
     sys.exit(1)
 
-#-------------------------------------------------------------------------------
-#   MET re-correction - MiniAOD objects required
-#   https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETUncertaintyPrescription#Instructions_for_8_0_X_X_20_for
-#-------------------------------------------------------------------------------
-print "Adding new MET recorrections"
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-
-runMetCorAndUncFromMiniAOD(
-    process,
-    isData=(options.GlobalTag == myset.data_global_tag),
-    pfCandColl=cms.InputTag("packedPFCandidates"),
-    recoMetFromPFCs=True,
-)
-
 #-------------------------------------------------------------------------
 #   Loading met filtering processes
 #-------------------------------------------------------------------------
@@ -216,8 +125,7 @@ process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
 process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
 process.seqMET = cms.Sequence(
-    process.fullPatMetSequence
-    * process.BadPFMuonFilter
+    process.BadPFMuonFilter
     * process.BadChargedCandidateFilter
     * process.METFilter
 )
@@ -228,15 +136,12 @@ process.seqMET = cms.Sequence(
 print "Loading producers...."
 process.load("TstarAnalysis.BaseLineSelector.Producer_cfi")
 
-process.selectedJets.jetsrc = cms.InputTag('updatedPatJetsUpdatedJEC')
-
 process.seqObjProduce = cms.Sequence(
     process.selectedMuons
     * process.skimmedPatMuons
     * process.egmGsfElectronIDSequence
     * process.selectedElectrons
     * process.skimmedPatElectrons
-    * process.jecSequence
     * process.selectedJets
     * process.skimmedPatJets
 )
@@ -330,27 +235,22 @@ process.edmOut = cms.OutputModule(
     fileName=cms.untracked.string(options.output),
     outputCommands=cms.untracked.vstring(
         "keep *",
-        # "drop *_slimmedElectrons_*_*",
-        # "drop *_slimmedJets*_*_*",
-        # "drop *_slimmedMETsNoHF_*_*",
-        # "drop *_slimmedJETsPuppi_*_*",
-        # "drop *_slimmedPhotons_*_*",
-        # "drop *_slimmedTaus*_*_*",
-        # "drop *_selectedMuons_*_*",
-        # "drop *_selectedElectrons_*_*",
-        # "drop *_selectedJets_*_*",
-        # "drop *_egmGsfElectronIDs_*_*",
-        # "drop *_electronMVAValueMapProducer_*_*",
-        # "drop *_TriggerResults_*_tstarbaseline",
-        # "drop *_BeforeAll_WeightProd_*",
-        # "drop *_*UpdatedJEC*_*_*",
-        # "drop *_shiftedPat*_*_*",
-        # "drop *_patPFMetT1*_*_*",
-        # "drop *_slimmedMET*_*_*",
-        "keep *_slimmedMETs_*_tstarbaseline",
+        "drop *_slimmedElectrons_*_*",
+        "drop *_slimmedJets*_*_*",
+        "drop *_slimmedMETsNoHF_*_*",
+        "drop *_slimmedJETsPuppi_*_*",
+        "drop *_slimmedPhotons_*_*",
+        "drop *_slimmedTaus*_*_*",
+        "drop *_selectedMuons_*_*",
+        "drop *_selectedElectrons_*_*",
+        "drop *_selectedJets_*_*",
+        "drop *_egmGsfElectronIDs_*_*",
+        "drop *_electronMVAValueMapProducer_*_*",
+        "drop *_TriggerResults_*_tstarbaseline",
+        "drop *_BeforeAll_WeightProd_*",
         "keep mgrCounter_*_*_*"
     ),
-    SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath'))
+    SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring('myfilterpath') )
 )
 
 process.endPath = cms.EndPath(process.edmOut)
