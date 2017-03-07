@@ -24,7 +24,7 @@ main( int argc, char const* argv[] )
   "/wk_cms2/yichen/TstarAnalysis/EDMStore_New/massreco/MuonSignal/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_0.root";
   fwlite::Event ev( TFile::Open( testfile.c_str() ) );
 
-  auto& pdfidgroup = GetPdfIdGrouping( testfile );
+  // auto& pdfidgroup = GetPdfIdGrouping( testfile );
 
   for( ev.toBegin(); !ev.atEnd(); ++ev ){
     cout << "\nTotal event weight:" <<  GetEventWeight( ev ) << endl;
@@ -44,7 +44,7 @@ main( int argc, char const* argv[] )
     cout << "\tMuon Trigger Weight:" << GetMuonTriggerWeight( ev ) << endl;
     cout << "\tMuon ISO weight:" << GetMuonIsoWeight( ev ) << endl;
     cout << "\tMuon ID weight: " << GetMuonIDWeight( ev ) << endl;
-    cout << "\tPDF weight err: " << GetPdfWeightError( ev, pdfidgroup ) << endl;
+    // cout << "\tPDF weight err: " << GetPdfWeightError( ev, pdfidgroup ) << endl;
   }
 
 

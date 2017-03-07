@@ -116,18 +116,9 @@ else:
 #   Loading met filtering processes
 #-------------------------------------------------------------------------
 print "Loading met filtering processes....."
-process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
-process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
-process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-
-process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
-process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
-process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
 process.seqMET = cms.Sequence(
-    process.BadPFMuonFilter
-    * process.BadChargedCandidateFilter
-    * process.METFilter
+    process.METFilter
 )
 
 #-------------------------------------------------------------------------

@@ -4,17 +4,12 @@ Main code for excited top quark analysis.
 
 # Deploy commands
 ```
-cmsrel CMSSW_8_0_25
-cd CMSSW_8_0_25/src
+cmsrel CMSSW_8_0_26_patch1
+cd CMSSW_8_0_26_patch1/src
 cmsenv
 
-git cms-init
-git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
-git cms-merge-topic cms-met:METRecipe_8020
-git cms-merge-topic ikrav:egm_id_80X_v1
-
-git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git -b dev_sam
-git clone https://github.com/NTUHEP-Tstar/ManagerUtils.git  -b dev_sam
+git clone https://github.com/NTUHEP-Tstar/TstarAnalysis.git
+git clone https://github.com/NTUHEP-Tstar/ManagerUtils.git  
 
 scram b
 ```
