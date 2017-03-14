@@ -15,17 +15,17 @@ using namespace tstar;
 /******************************************************************************/
 
 ElectronProducer::ElectronProducer( const edm::ParameterSet& iconf ) :
-   _electronsrc( GETTOKEN( iconf, ElectronList, "electronsrc" ) ),
-   _vertexsrc( GETTOKEN( iconf, VertexList, "vertexsrc" ) ),
-   _vetoMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "vetoMap" ) ),
-   _looseMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "looseMap" ) ),
-   _mediumMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "mediumMap" ) ),
-   _tightMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "tightMap" ) ),
-   _heepMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "heepMap" ) ),
-   _hltMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "hltMap" ) ),
-   _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) )
+  _electronsrc( GETTOKEN( iconf, ElectronList, "electronsrc" ) ),
+  _vertexsrc( GETTOKEN( iconf, VertexList, "vertexsrc" ) ),
+  _vetoMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "vetoMap" ) ),
+  _looseMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "looseMap" ) ),
+  _mediumMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "mediumMap" ) ),
+  _tightMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "tightMap" ) ),
+  _heepMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "heepMap" ) ),
+  _hltMapToken( GETTOKEN( iconf, edm::ValueMap<bool>, "hltMap" ) ),
+  _packedsrc( GETTOKEN( iconf, PackedCandList, "packedsrc" ) )
 {
-   produces<ElectronList>();
+  produces<ElectronList>();
 }
 
 /******************************************************************************/
@@ -40,42 +40,42 @@ ElectronProducer::~ElectronProducer()
 bool
 ElectronProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   iEvent.getByToken( _electronsrc,    _electronHandle  );
-   iEvent.getByToken( _vertexsrc,      _vertexHandle    );
-   iEvent.getByToken( _vetoMapToken,   _vetoMapHandle   );
-   iEvent.getByToken( _looseMapToken,  _looseMapHandle  );
-   iEvent.getByToken( _mediumMapToken, _mediumMapHandle );
-   iEvent.getByToken( _tightMapToken,  _tightMapHandle  );
-   iEvent.getByToken( _heepMapToken,   _heepMapHandle   );
-   iEvent.getByToken( _hltMapToken,    _hltMapHandle    );
-   iEvent.getByToken( _packedsrc,      _packedHandle    );
+  iEvent.getByToken( _electronsrc,    _electronHandle  );
+  iEvent.getByToken( _vertexsrc,      _vertexHandle    );
+  iEvent.getByToken( _vetoMapToken,   _vetoMapHandle   );
+  iEvent.getByToken( _looseMapToken,  _looseMapHandle  );
+  iEvent.getByToken( _mediumMapToken, _mediumMapHandle );
+  iEvent.getByToken( _tightMapToken,  _tightMapHandle  );
+  iEvent.getByToken( _heepMapToken,   _heepMapHandle   );
+  iEvent.getByToken( _hltMapToken,    _hltMapHandle    );
+  iEvent.getByToken( _packedsrc,      _packedHandle    );
 
-   std::auto_ptr<ElectronList> selectedElectrons( new ElectronList );
+  std::auto_ptr<ElectronList> selectedElectrons( new ElectronList );
 
-   for( size_t i = 0; i < _electronHandle->size(); ++i ){
-      pat::Electron el = _electronHandle->at( i );
-      const edm::Ptr<pat::Electron> elPtr( _electronHandle, i );
-      if( IsSelectedElectron( el, elPtr, iEvent ) ){
-         if( selectedElectrons->empty() ){
-            selectedElectrons->push_back( el );
-         } else {
-            return false;
-         }
-      } else if( IsVetoElectron( el, elPtr, iEvent ) ){
-         return false;
+  for( size_t i = 0; i < _electronHandle->size(); ++i ){
+    pat::Electron el = _electronHandle->at( i );
+    const edm::Ptr<pat::Electron> elPtr( _electronHandle, i );
+    if( IsSelectedElectron( el, elPtr, iEvent ) ){
+      if( selectedElectrons->empty() ){
+        selectedElectrons->push_back( el );
+      } else {
+        return false;
       }
-   }
-
-   // Adding variable to final electron
-   if( selectedElectrons->size() == 1 ){
-      AddElectronVariables( selectedElectrons->at( 0 ), iEvent );
-   } else if( selectedElectrons->size() > 1 ){
+    } else if( IsVetoElectron( el, elPtr, iEvent ) ){
       return false;
-   }
+    }
+  }
 
-   iEvent.put( selectedElectrons );
+  // Adding variable to final electron
+  if( selectedElectrons->size() == 1 ){
+    AddElectronVariables( selectedElectrons->at( 0 ), iEvent );
+  } else if( selectedElectrons->size() > 1 ){
+    return false;
+  }
 
-   return true;
+  iEvent.put( selectedElectrons );
+
+  return true;
 }
 
 
@@ -85,9 +85,9 @@ ElectronProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 void
 ElectronProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
-   edm::ParameterSetDescription desc;
-   desc.setUnknown();
-   descriptions.addDefault( desc );
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault( desc );
 }
 
 // define this as a plug-in

@@ -1,0 +1,6 @@
+<use name="root"/>
+<use name="boost_program_options"/>
+<use name="TstarAnalysis/SignalMCStudy"/>
+
+<flags CXXFLAGS="-g"/>
+<bin name="JetLepComp" file="JetLepComp.cc"/>
