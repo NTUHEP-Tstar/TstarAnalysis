@@ -232,6 +232,15 @@ MakeSimFitCardFile(
       }
     }
 
+    // Disabling for now parametric shapes
+    // for( auto var : sig->VarContains("") ){
+    //   const string varname = var->GetName();
+    //   if( varname.find("coeff") == string::npos ){
+    //     PrintFloatParam( cardfile, var );
+    //   }
+    // }
+
+
     // Parameter for background systematic error
     for( auto var : data->VarContains( StitchSimFitBgPdfname( sig->Name() ) ) ){
       PrintFloatParam( cardfile, var );

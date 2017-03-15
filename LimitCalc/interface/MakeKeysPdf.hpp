@@ -34,10 +34,10 @@ extern const std::string StitchKeyNormName;
 *   Fitting functions
 *******************************************************************************/
 // Making a single keys from a designated dataset in a manager
-extern RooKeysPdf* MakeSingleKeysPdf(
-   SampleRooFitMgr*   sample,
-   const std::string& datasetname
-   );
+extern RooAbsPdf* MakeSingleKeysPdf(
+  SampleRooFitMgr*   sample,
+  const std::string& datasetname
+  );
 
 // Stitching all RooKeysPdf together
 extern RooAbsPdf* MakeFullKeysPdf( SampleRooFitMgr* sample );

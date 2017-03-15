@@ -158,7 +158,7 @@ TstarNamer::OptFileName(
 
 
   for( const auto opt : _cutoptionlist){
-
+    if( !CheckInput(opt) ){ continue; }
 
     string tag = "";
 

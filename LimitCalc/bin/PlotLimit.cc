@@ -29,9 +29,11 @@ main( int argc, char* argv[] )
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
 
-  if( limnamer.CheckInput( "mucut" ) ){ limnamer.AddCutOptions( "mucut" ); }
-  if( limnamer.CheckInput( "muiso" ) ){ limnamer.AddCutOptions( "muiso" ); }
-  if( limnamer.CheckInput( "masscut" ) ){ limnamer.AddCutOptions( "masscut" );   }
+  limnamer.AddCutOptions( "mucut" );
+  limnamer.AddCutOptions( "muiso" );
+  limnamer.AddCutOptions( "masscut" );
+  limnamer.AddCutOptions( "leadjetpt" );
+  limnamer.AddCutOptions( "useparam" );
 
   if( limnamer.CheckInput( "combine" ) ){
     cout << "Rerunning results higgs combine package with method ["
@@ -42,7 +44,7 @@ main( int argc, char* argv[] )
   cout << "Making limit plot" << endl;
   auto lim = MakeLimitPlot();
 
-  cout << "Expected limit: " << FloatingPoint( lim.first, 0  )  << endl 
+  cout << "Expected limit: " << FloatingPoint( lim.first, 0  )  << endl
        << "Observed limit: " << FloatingPoint( lim.second, 0 ) << endl;
 
   return 0;

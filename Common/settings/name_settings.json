@@ -139,10 +139,19 @@
 
    "reco": {
       "ChiSq6jet2b": {
-         "Root Name": "#chi^{2} sorting, 6 jets (2 bjets)"
+         "Root Name": "Simple sorting, 6 jets (2 bjets)"
+      },
+      "ChiSq6jet2bgjet2": {
+         "Root Name": "Simple sorting, 6 jets (2 bjets) gluon in leading 2"
+      },
+      "ChiSq6jet2bgjet4": {
+         "Root Name": "Simple sorting, 6 jets (2 bjets) gluon in leading 4"
       },
       "ChiSq8jet2b": {
-         "Root Name": "#chi^{2} sorting, 8 jets (2 bjets)"
+         "Root Name": "Simple sorting, 8 jets (2 bjets)"
+      },
+      "ChiSq8jet2bgjet4": {
+         "Root Name": "Simple sorting, 8 jets (2 bjets) gluon in leading 4"
       },
       "NoTopConstrain6j2b": {
          "Root Name": "HitFit, 6 jets (2 bjets)"

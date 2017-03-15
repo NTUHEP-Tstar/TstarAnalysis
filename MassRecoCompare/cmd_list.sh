@@ -28,6 +28,14 @@
 ./CompareMethods -c ElectronSignal -m 1200 -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
 ./CompareMethods -c ElectronSignal -m 1600 -o chisqjetnum  -x ChiSq6jet2b ChiSq8jet2b
 
+./CompareMethods -c MuonSignal     -m 800  -o gluonconstrain  -x ChiSq6jet2b ChiSq6jet2bgjet2 ChiSq8jet2bgjet4
+./CompareMethods -c MuonSignal     -m 1200 -o gluonconstrain  -x ChiSq6jet2b ChiSq6jet2bgjet2 ChiSq8jet2bgjet4
+./CompareMethods -c MuonSignal     -m 1600 -o gluonconstrain  -x ChiSq6jet2b ChiSq6jet2bgjet2 ChiSq8jet2bgjet4
+./CompareMethods -c ElectronSignal -m 800  -o gluonconstrain  -x ChiSq6jet2b ChiSq6jet2bgjet2 ChiSq8jet2bgjet4
+./CompareMethods -c ElectronSignal -m 1200 -o gluonconstrain  -x ChiSq6jet2b ChiSq6jet2bgjet2 ChiSq8jet2bgjet4
+./CompareMethods -c ElectronSignal -m 1600 -o gluonconstrain  -x ChiSq6jet2b ChiSq6jet2bgjet2 ChiSq8jet2bgjet4
+
+
 ./CompareKeys -c MuonSignal -m 700 -x ChiSq6jet2b
 ./CompareKeys -c MuonSignal -m 800 -x ChiSq6jet2b
 ./CompareKeys -c MuonSignal -m 900 -x ChiSq6jet2b

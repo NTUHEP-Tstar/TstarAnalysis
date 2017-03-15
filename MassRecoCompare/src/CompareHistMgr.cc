@@ -26,25 +26,31 @@ using fwlite::Handle;
 void
 CompareHistMgr::define_hist()
 {
-  AddHist( "TstarMass",  "Reco. t* Mass",               "GeV/c^{2}",  60, 0, 3000 );
-  AddHist( "ChiSq",      "Reco. #chi^{2} of Method",    "",           60, 0,  100 );
-  AddHist( "LepTopMass", "Reco. Leptonic Top Mass",     "GeV/c^{2}", 100, 0,  500 );
-  AddHist( "HadTopMass", "Reco. Hadronic Top Mass",     "GeV/c^{2}", 100, 0,  500 );
-  AddHist( "HadWMass",   "Reco. Hadronic W Boson Mass", "GeV/c^{2}",  40, 0,  200 );
+  AddHist( "TstarMass",    "Reconstructed t* mass",           "GeV/c^{2}",  60,     0, 3000 );
+  AddHist( "LepTstarMass", "Reconstructed leptonic t* mass",  "GeV/c^{2}",  60,     0, 3000 );
+  AddHist( "HadTstarMass", "Reconstructed hadronic t* mass",  "GeV/c^{2}",  60,     0, 3000 );
+  AddHist( "ChiSq",        "#chi^{2} of method",              "",           60,     0,  100 );
+  AddHist( "LepTopMass",   "Reconstructed leptonic top mass", "GeV/c^{2}", 100,     0,  500 );
+  AddHist( "HadTopMass",   "Reconstructed hadronic top mass", "GeV/c^{2}", 100,     0,  500 );
+  AddHist( "HadWMass",     "Reconstructed hadronic W mass",   "GeV/c^{2}",  40,     0,  200 );
+  AddHist( "TstarDiff",    "Difference in t* masses",         "GeV/c^{2}", 200, -1000, 1000 );
+  AddHist( "LepTopDiff",   "Difference in leptonic top mass", "GeV/c^{2}", 100,  -200,  200 );
+  AddHist( "HadTopDiff",   "Difference in hadronic top mass", "GeV/c^{2}", 100,  -200,  200 );
+  AddHist( "HadWDiff",     "Difference in hadronic W mass",   "GeV/c^{2}", 100,  -200,  200 );
 
   AddHist2D(
     "JetMatchTotal",
     "Flavour from fit",
     "Flavour from MC Truth",
-    5, 0, 5,  // Xaxis  fitted result
-    6, 0, 6  // Yaxis  mc truth particle (must include unknown)
+    5, 0, 5,// Xaxis  fitted result
+    6, 0, 6// Yaxis  mc truth particle (must include unknown)
     );
   AddHist2D(
     "JetMatchPass",
     "Flavour from fit",
     "Flavour from MC Truth",
-    5, 0, 5,  // Xaxis  fitted result
-    6, 0, 6  // Yaxis  mc truth particle (must include unknown)
+    5, 0, 5,// Xaxis  fitted result
+    6, 0, 6// Yaxis  mc truth particle (must include unknown)
     );
 
   AddHist( "CorrPermTotal", "Number of correctly identified jets", "", 7, 0, 7 );
@@ -68,16 +74,31 @@ CompareHistMgr::AddEvent( const fwlite::Event& ev )
 
   _resulthandle.getByLabel( ev, name.c_str(), LabelName( name ).c_str(), ProcessName().c_str() );
 
-  if( !_resulthandle.isValid() ){ return; }
+  if( !_resulthandle.isValid() ){
+    cerr << "Warning! label: [" << Name() << "] gave invalid handle" << flush;
+    return;
+  }
 
-  if( _resulthandle.ref().ChiSquare() < 0 ){ return; } // Early exit for unphysical results
+  if( _resulthandle.ref().ChiSquare() < 0 ){ return; }// Early exit for unphysical results
 
   // Filling in basic histograms
-  Hist( "TstarMass"  )->Fill( _resulthandle.ref().TstarMass(), eventweight );
-  Hist( "ChiSq"      )->Fill( _resulthandle.ref().ChiSquare(), eventweight );
-  Hist( "LepTopMass" )->Fill( _resulthandle.ref().LeptonicTop().M(), eventweight );
-  Hist( "HadTopMass" )->Fill( _resulthandle.ref().HadronicTop().M(), eventweight );
-  Hist( "HadWMass"   )->Fill( _resulthandle.ref().HadronicW().M(), eventweight );
+  const double tstarmass    = _resulthandle.ref().TstarMass();
+  const double leptstarmass = _resulthandle.ref().LeptonicTstar().M();
+  const double hadtstarmass = _resulthandle.ref().HadronicTstar().M();
+  const double leptopmass   = _resulthandle.ref().LeptonicTop().M();
+  const double hadtopmass   = _resulthandle.ref().HadronicTop().M();
+  const double hadwmass     = _resulthandle.ref().HadronicW().M();
+  Hist( "TstarMass"     )->Fill( tstarmass, eventweight );
+  Hist( "LepTstarMass"  )->Fill( leptstarmass, eventweight );
+  Hist( "HadTstarMass"  )->Fill( hadtstarmass, eventweight );
+  Hist( "ChiSq"         )->Fill( _resulthandle.ref().ChiSquare(), eventweight );
+  Hist( "LepTopMass"    )->Fill( leptopmass, eventweight );
+  Hist( "HadTopMass"    )->Fill( hadtopmass, eventweight );
+  Hist( "HadWMass"      )->Fill( hadwmass, eventweight );
+  Hist( "TstarDiff"     )->Fill( leptstarmass-hadtopmass, eventweight );
+  Hist( "LepTopDiff"    )->Fill( leptopmass - 173.34, eventweight );
+  Hist( "HadTopDiff"    )->Fill( hadtopmass - 173.34, eventweight );
+  Hist( "HadWDiff"      )->Fill( hadwmass - 80.385, eventweight );
 
   // Filling 2d histogram for truth correctness
   for( const auto x : fitlabellist ){
@@ -85,7 +106,7 @@ CompareHistMgr::AddEvent( const fwlite::Event& ev )
 
     for( const auto y : truthlabellist ){
       const int yval = GetBinPosition( y );
-      Hist2D( "JetMatchTotal" )->Fill( xval, yval, eventweight );   // Master fills all the bin according to weight
+      Hist2D( "JetMatchTotal" )->Fill( xval, yval, eventweight );// Master fills all the bin according to weight
     }
 
     const int yval = GetBinPosition( _resulthandle.ref().GetParticle( x ).TypeFromTruth() );

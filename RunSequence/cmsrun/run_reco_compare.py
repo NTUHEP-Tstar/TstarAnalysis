@@ -11,25 +11,31 @@ import FWCore.ParameterSet.VarParsing as opts
 #-------------------------------------------------------------------------
 import TstarAnalysis.AdditionalSelector.AddLeptonSelector_cfi as mylepsel
 #-------------------------------------------------------------------------
+#   Loading jet selection
+#-------------------------------------------------------------------------
+import TstarAnalysis.AdditionalSelector.ControlJetSelector_cfi as myjetsel
+#-------------------------------------------------------------------------
 #   Jet selection and options b-tag weighting
 #-------------------------------------------------------------------------
 import TstarAnalysis.EventWeight.EventWeighter_cfi as myweight
 
 options = opts.VarParsing('analysis')
 
-options.register('sample',
-                 '',
-                 opts.VarParsing.multiplicity.list,
-                 opts.VarParsing.varType.string,
-                 'EDM Files to process'
-                 )
+options.register(
+    'sample',
+    '',
+    opts.VarParsing.multiplicity.list,
+    opts.VarParsing.varType.string,
+    'EDM Files to process'
+)
 
-options.register('output',
-                 'edm_MassReco.root',
-                 opts.VarParsing.multiplicity.singleton,
-                 opts.VarParsing.varType.string,
-                 'Output EDM filename'
-                 )
+options.register(
+    'output',
+    'edm_MassReco.root',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Output EDM filename'
+)
 
 options.register(
     'Mode',
@@ -57,10 +63,6 @@ process.source = cms.Source("PoolSource",
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
-#-------------------------------------------------------------------------------
-#   Loading jet selection
-#-------------------------------------------------------------------------------
-import TstarAnalysis.AdditionalSelector.ControlJetSelector_cfi as myjetsel
 
 if "Control" in options.Mode:
     print "Loading modules for control region"
@@ -131,24 +133,6 @@ elif "Control" in options.Mode:
 #-------------------------------------------------------------------------
 #   Load Settings
 #-------------------------------------------------------------------------
-# process.ChiSq6jet0b = cms.EDProducer(
-#     "ChiSqMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     ReqBJet     = cms.untracked.int32(0),
-# )
-process.ChiSq6jet1b = cms.EDProducer(
-    "ChiSqMassReco",
-    metsrc=cms.InputTag("slimmedMETs"),
-    muonsrc=cms.InputTag("skimmedPatMuons"),
-    electronsrc=cms.InputTag("skimmedPatElectrons"),
-    jetsrc=cms.InputTag("skimmedPatJets"),
-    MaxJet=cms.untracked.int32(6),
-    ReqBJet=cms.untracked.int32(1),
-    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
-)
 process.ChiSq6jet2b = cms.EDProducer(
     "ChiSqMassReco",
     metsrc=cms.InputTag("slimmedMETs"),
@@ -160,26 +144,6 @@ process.ChiSq6jet2b = cms.EDProducer(
     btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
 )
 
-# process.ChiSq8jet0b = cms.EDProducer(
-#     "ChiSqMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     MaxJet      = cms.untracked.int32(8),
-#     ReqBJet     = cms.untracked.int32(0)
-# )
-
-process.ChiSq8jet1b = cms.EDProducer(
-    "ChiSqMassReco",
-    metsrc=cms.InputTag("slimmedMETs"),
-    muonsrc=cms.InputTag("skimmedPatMuons"),
-    electronsrc=cms.InputTag("skimmedPatElectrons"),
-    jetsrc=cms.InputTag("skimmedPatJets"),
-    MaxJet=cms.untracked.int32(8),
-    ReqBJet=cms.untracked.int32(1),
-    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
-)
 process.ChiSq8jet2b = cms.EDProducer(
     "ChiSqMassReco",
     metsrc=cms.InputTag("slimmedMETs"),
@@ -191,14 +155,6 @@ process.ChiSq8jet2b = cms.EDProducer(
     btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
 )
 
-# process.NoTopConstrain6j0b = cms.EDProducer(
-#     "HitFitMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     ReqBJet     = cms.untracked.int32(0),
-# )
 
 process.NoTopConstrain6j2b = cms.EDProducer(
     "HitFitMassReco",
@@ -211,77 +167,65 @@ process.NoTopConstrain6j2b = cms.EDProducer(
     btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
 )
 
-# process.NoTopConstrain6j2b = cms.EDProducer(
-#     "HitFitMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     ReqBJet     = cms.untracked.int32(2),
-# )
 
-# process.NoTopConstrain8j0b = cms.EDProducer(
-#     "HitFitMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     MaxJet      = cms.untracked.int32(8),
-#     ReqBJet     = cms.untracked.int32(0),
-# )
+process.ChiSq6jet2bgjet2 = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(6),
+    ReqBJet=cms.untracked.int32(2),
+    GluonMaxOrder=cms.untracked.int32(3),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
+process.ChiSq6jet2bgjet4 = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(6),
+    ReqBJet=cms.untracked.int32(2),
+    GluonMaxOrder=cms.untracked.int32(5),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
 
-# process.NoTopConstrain8j1b = cms.EDProducer(
-#     "HitFitMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     MaxJet      = cms.untracked.int32(8),
-#     ReqBJet     = cms.untracked.int32(1),
-# )
+process.ChiSq8jet2bgjet4 = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(8),
+    ReqBJet=cms.untracked.int32(2),
+    GluonMaxOrder=cms.untracked.int32(5),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
 
-# process.NoTopConstrain8j2b = cms.EDProducer(
-#     "HitFitMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     MaxJet      = cms.untracked.int32(8),
-#     ReqBJet     = cms.untracked.int32(2),
-# )
+process.ChiSq6jet2bwidetstar = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(6),
+    ReqBJet=cms.untracked.int32(2),
+    TstarWidth=cms.untracked.double(20),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
 
-# process.AddTopConstrain6j0b = cms.EDProducer(
-#  "HitFitMassReco",
-#  metsrc      = cms.InputTag( "slimmedMETs" ),
-#  muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#  electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#  jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#  MaxJet      = cms.untracked.int32(6),
-#  ReqBJet     = cms.untracked.int32(0),
-#  fittingTopMass = cms.untracked.double(173.5)
-# )
-#
-# process.AddTopConstrain6j1b = cms.EDProducer(
-#  "HitFitMassReco",
-#  metsrc      = cms.InputTag( "slimmedMETs" ),
-#  muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#  electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#  jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#  MaxJet      = cms.untracked.int32(6),
-#  ReqBJet     = cms.untracked.int32(1),
-#  fittingTopMass = cms.untracked.double(173.5)
-# )
-# process.AddTopConstrain6j2b = cms.EDProducer(
-#     "HitFitMassReco",
-#     metsrc      = cms.InputTag( "slimmedMETs" ),
-#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-#     MaxJet      = cms.untracked.int32(6),
-#     ReqBJet     = cms.untracked.int32(2),
-#     fittingTopMass = cms.untracked.double(173.5)
-# )
-#
+
+process.AllSolvers = cms.Sequence(
+    process.ChiSq6jet2b
+    * process.ChiSq8jet2b
+    * process.NoTopConstrain6j2b
+    * process.ChiSq6jet2bgjet2
+    * process.ChiSq6jet2bgjet4
+    * process.ChiSq8jet2bgjet4
+    * process.ChiSq6jet2bwidetstar
+)
+
 #-------------------------------------------------------------------------
 #   Defining output Module
 #-------------------------------------------------------------------------
@@ -315,13 +259,7 @@ if "Signal" in options.Mode:
         * process.MuonWeight
         * process.EventWeight
         * process.EventWeightAll
-        * (
-            process.ChiSq6jet1b
-            + process.ChiSq6jet2b
-            + process.ChiSq8jet1b
-            + process.ChiSq8jet2b
-            + process.NoTopConstrain6j2b
-        )
+        * process.AllSolvers
     )
 elif "Control" in options.Mode:
     process.path = cms.Path(
@@ -332,13 +270,7 @@ elif "Control" in options.Mode:
         * process.MuonWeight
         * process.EventWeight
         * process.EventWeightAll
-        * (
-            process.ChiSq6jet1b
-            + process.ChiSq6jet2b
-            + process.ChiSq8jet1b
-            + process.ChiSq8jet2b
-            + process.NoTopConstrain6j2b
-        )
+        * process.AllSolvers
     )
 
 

@@ -39,6 +39,7 @@ extern unsigned NumCorrectAssign( const RecoResult& );
 *   Method comparison plotting functions, see ComparePlot.cc
 *******************************************************************************/
 extern void ComparePlot( const std::string&, const std::vector<CompareHistMgr*> );
+extern void CompareTstar( CompareHistMgr* );
 extern void MatchPlot( CompareHistMgr* );
 extern void MatchPlot1D( CompareHistMgr* );
 extern void MatchPlot2D( CompareHistMgr* );
@@ -48,6 +49,8 @@ extern void MatchMassPlot( CompareHistMgr* );
 *   Keys Comparison plotting functions, see KeysPlot.cc
 *******************************************************************************/
 extern void MakeKeysPlots( KeysCompMgr* );
+extern void MakeGaussPlots( KeysCompMgr* );
+extern void MakeConvPlots( KeysCompMgr* );
 
 /*******************************************************************************
 *   Keys Comparison for errors

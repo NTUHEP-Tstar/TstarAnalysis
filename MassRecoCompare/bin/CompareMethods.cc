@@ -59,17 +59,22 @@ main( int argc, char* argv[] )
   /*******************************************************************************
   *   Filling from file
   *******************************************************************************/
-  boost::format globformat( "/wk_cms/yichen/TstarAnalysis/EDMStore/recocomp/%s/*%d*.root" );
+  boost::format globformat( "/wk_cms2/yichen/TstarAnalysis/EDMStore_New/recocomp/%s/*%d*.root" );
   const std::string globq = boost::str(
     globformat
     % reconamer.GetInput<string>( "channel" )
     % reconamer.GetInput<int>( "mass" )
     );
 
+  cout << "Opening file(s): " << endl;
+  for( const auto& file : mgr::Glob(globq) ){
+    cout << "\t> " << file << endl;
+  }
+
   mgr::MultiFileEvent myevent( mgr::Glob( globq ) );
-  unsigned i = 0;
   boost::format reportformat( "\rAt Event [%u|%u]" );
 
+  unsigned i = 0;
   for( myevent.toBegin(); !myevent.atEnd(); ++myevent, ++i ){
     cout << reportformat % i % myevent.size() << flush;
 

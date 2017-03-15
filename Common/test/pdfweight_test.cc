@@ -38,11 +38,19 @@ main( int argc, char const* argv[] )
   fwlite::Event ev( TFile::Open( argv[1] ) );
   fwlite::Handle<LHEEventProduct> evthandle;
   evthandle.getByLabel( ev, "externalLHEProducer" );
+  double pdfavg = 0 ;
+  double qcdavg = 0;
+  unsigned numevt = 0 ;
 
   for( ev.toBegin(); !ev.atEnd(); ++ev ){
-    cout << evthandle->weights().size() << endl;
-      cout << GetPdfWeightError( ev, pdfidgroup ) << " " << GetScaleWeightError( ev, pdfidgroup ) << endl;
+    cout << GetPdfWeightError( ev, pdfidgroup ) << " "
+    << GetScaleWeightError( ev, pdfidgroup ) << endl;
+    ++numevt ;
+    pdfavg += GetPdfWeightError( ev, pdfidgroup );
+    qcdavg += GetScaleWeightError( ev,pdfidgroup );
   }
+
+  cout <<"Average:" << pdfavg / numevt  << " " << qcdavg / numevt << endl;
 
   return 0;
 }

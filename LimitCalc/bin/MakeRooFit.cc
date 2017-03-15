@@ -39,9 +39,11 @@ main( int argc, char* argv[] )
   InitDataAndSignal( data, signal_list );
   InitMC( mc );
 
-  if( limnamer.CheckInput( "mucut" ) ){ limnamer.AddCutOptions( "mucut" ); }
-  if( limnamer.CheckInput( "muiso" ) ){ limnamer.AddCutOptions( "muiso" ); }
-  if( limnamer.CheckInput( "masscut" ) ){limnamer.AddCutOptions( "masscut" ); }
+  limnamer.AddCutOptions( "mucut" );
+  limnamer.AddCutOptions( "muiso" );
+  limnamer.AddCutOptions( "masscut" );
+  limnamer.AddCutOptions( "leadjetpt" );
+  limnamer.AddCutOptions( "useparam" );
 
 
   if( limnamer.GetInput<string>( "fitmethod" ) == "SimFit"  ){

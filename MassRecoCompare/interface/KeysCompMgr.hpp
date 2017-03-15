@@ -20,17 +20,19 @@ class KeysCompMgr : public mgr::RooFitMgr
 {
 
 public:
-   KeysCompMgr( const std::string&, const std::string& );
-   virtual
-   ~KeysCompMgr();
+  KeysCompMgr( const std::string&, const std::string& );
+  virtual
+  ~KeysCompMgr();
 
-   static void InitStaticVars();
-   static RooRealVar& x();
-   static RooRealVar& w();
-   static RooRealVar& n();
+  static void        InitStaticVars();
+  static RooRealVar& x();
+  static RooRealVar& w();
+  static RooRealVar& n();
 
-   void FillDataSet( const std::string& filename );
-   void MakeKeysPdf();
+  void FillDataSet( const std::string& filename );
+  void MakeKeysPdf();
+  void MakeGauss();
+  void MakeConv();
 
 };
 

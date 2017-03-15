@@ -59,7 +59,7 @@ private:
 
   // Extended objects
   std::vector<RecoResult> _resultsList;
-  TLorentzVector _neutrino[2]; // Two possible solution for neutrino
+  TLorentzVector _neutrino[2];// Two possible solution for neutrino
 
   // b tag check
   const mgr::BTagChecker _bcheck;
@@ -68,6 +68,14 @@ private:
   const unsigned _debug;
   const unsigned _max_jets;
   const unsigned _req_b_jets;
+  const unsigned _gluonjet_maxorder;
+  const unsigned _bjet_maxorder;
+
+  const double _topmass;
+  const double _wmass;
+  const double _topwidth;
+  const double _wwidth;
+  const double _tstarwidth;
   bool _is_data;
 
   // Helper functions

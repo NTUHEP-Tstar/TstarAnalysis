@@ -58,8 +58,11 @@ main( int argc, char* argv[] )
   }
 
   compmgr->MakeKeysPdf();
-
+  compmgr->MakeGauss();
+  compmgr->MakeConv();
   MakeKeysPlots( compmgr );
+  MakeGaussPlots( compmgr );
+  MakeConvPlots( compmgr );
 
   /*******************************************************************************
   *   Clearing up

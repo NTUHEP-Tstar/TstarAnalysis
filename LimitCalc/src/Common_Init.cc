@@ -81,9 +81,11 @@ ExtraCutOptions()
 {
   opt::options_description ans( "Apply extra cut" );
   ans.add_options()
-    ( "mucut"  , opt::value<double>(), "Set the pass threshold for the muon" )
-    ( "muiso"  , opt::value<double>(), "Threshold for muon isolation" )
-    ( "masscut", opt::value<double>(), "Mass of gluon plus t" )
+    ( "mucut",     opt::value<double>(), "Set the pass threshold for the muon" )
+    ( "muiso",     opt::value<double>(), "Threshold for muon isolation" )
+    ( "masscut",   opt::value<double>(), "Mass of gluon plus t" )
+    ( "leadjetpt", opt::value<double>(), "Leading jet pt cut" )
+    ( "useparam",  opt::value<int>(),    "Whether or not to use a parametric signal shape (no by default)")
   ;
   return ans;
 }
@@ -176,11 +178,11 @@ void
 InitRooFitSettings( const TstarNamer& x )
 {
   const mgr::ConfigReader& cfg = x.MasterConfig();
-  double mass_min        = cfg.GetStaticDouble( "Mass Min" );
+  double mass_min              = cfg.GetStaticDouble( "Mass Min" );
   const double mass_max        = cfg.GetStaticDouble( "Mass Max" );
 
-  if( x.CheckInput("masscut")  ){
-      mass_min = x.GetInput<double>("masscut");
+  if( x.CheckInput( "masscut" ) ){
+    mass_min = x.GetInput<double>( "masscut" );
   }
 
   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
