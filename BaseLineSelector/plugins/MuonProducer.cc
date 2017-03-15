@@ -11,50 +11,50 @@
 
 using namespace tstar;
 MuonProducer::MuonProducer( const edm::ParameterSet& iConfig ) :
-   _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) ),
-   _vertexsrc( GETTOKEN( iConfig, VertexList, "vertexsrc" ) ),
-   _packedsrc( GETTOKEN( iConfig, PackedCandList,  "packedsrc" ) ),
-   _muonsrc( GETTOKEN( iConfig,  MuonList,  "muonsrc" ) )
+  _rhosrc( GETTOKEN( iConfig, double, "rhosrc" ) ),
+  _vertexsrc( GETTOKEN( iConfig, VertexList, "vertexsrc" ) ),
+  _packedsrc( GETTOKEN( iConfig, PackedCandList,  "packedsrc" ) ),
+  _muonsrc( GETTOKEN( iConfig,  MuonList,  "muonsrc" ) )
 {
-   produces<MuonList>();
+  produces<MuonList>();
 }
 
 
 bool
 MuonProducer::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   iEvent.getByToken( _rhosrc,        _rhoHandle    );
-   iEvent.getByToken( _muonsrc,       _muonHandle   );
-   iEvent.getByToken( _vertexsrc,     _vertexHandle );
-   iEvent.getByToken( _packedsrc,     _packedHandle );
+  iEvent.getByToken( _rhosrc,    _rhoHandle    );
+  iEvent.getByToken( _muonsrc,   _muonHandle   );
+  iEvent.getByToken( _vertexsrc, _vertexHandle );
+  iEvent.getByToken( _packedsrc, _packedHandle );
 
-   std::auto_ptr<MuonList> selectedMuons( new MuonList );
+  std::auto_ptr<MuonList> selectedMuons( new MuonList );
 
-   // Object selection
-   if( !GetPrimaryVertex() ){ return false; }// early exit if cannot find primary vertex
+  // Object selection
+  if( !GetPrimaryVertex() ){ return false; } // early exit if cannot find primary vertex
 
-   for( auto mu : *_muonHandle ){// Using duplicate
-      bool isSelected = IsSelectedMuon( mu, iEvent );
-      bool isVeto     = IsVetoMuon( mu, iEvent );
-      if( isSelected ){
-         if( selectedMuons->empty() ){
-            selectedMuons->push_back( mu );
-         } else {
-            return false;
-         }
-      } else if( isVeto ){
-         return false;
+  for( auto mu : *_muonHandle ){ // Using duplicate
+    bool isSelected = IsSelectedMuon( mu, iEvent );
+    bool isVeto     = IsVetoMuon( mu, iEvent );
+    if( isSelected ){
+      if( selectedMuons->empty() ){
+        selectedMuons->push_back( mu );
+      } else {
+        return false;
       }
-   }
-
-   if( selectedMuons->size() == 1 ){
-      AddMuonVariables( selectedMuons->at( 0 ), iEvent );
-   } else if( selectedMuons->size() > 1 ){
+    } else if( isVeto ){
       return false;
-   }
+    }
+  }
 
-   iEvent.put( selectedMuons );
-   return true;
+  if( selectedMuons->size() == 1 ){
+    AddMuonVariables( selectedMuons->at( 0 ), iEvent );
+  } else if( selectedMuons->size() > 1 ){
+    return false;
+  }
+
+  iEvent.put( selectedMuons );
+  return true;
 }
 
 
@@ -68,11 +68,11 @@ MuonProducer::~MuonProducer()
 void
 MuonProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
-   // The following says we do not know what parameters are allowed so do no validation
-   // Please change this to state exactly what you do use, even if it is no parameters
-   edm::ParameterSetDescription desc;
-   desc.setUnknown();
-   descriptions.addDefault( desc );
+  // The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault( desc );
 }
 
 // define this as a plug-in

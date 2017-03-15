@@ -27,22 +27,22 @@
 class LeptonSeparator : public edm::EDFilter
 {
 public:
-   explicit
-   LeptonSeparator( const edm::ParameterSet& );
-   ~LeptonSeparator();
-   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+  explicit
+  LeptonSeparator( const edm::ParameterSet& );
+  ~LeptonSeparator();
+  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
 private:
-   virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
+  virtual bool filter( edm::Event&, const edm::EventSetup& ) override;
 
-   // EDM Tags
-   const edm::EDGetToken _muonsrc;
-   const edm::EDGetToken _electronsrc;
-   edm::Handle<tstar::MuonList> _muonHandle;
-   edm::Handle<tstar::ElectronList> _electronHandle;
+  // EDM Tags
+  const edm::EDGetToken _muonsrc;
+  const edm::EDGetToken _electronsrc;
+  edm::Handle<tstar::MuonList> _muonHandle;
+  edm::Handle<tstar::ElectronList> _electronHandle;
 
-   const unsigned _reqmuon;
-   const unsigned _reqelec;
+  const unsigned _reqmuon;
+  const unsigned _reqelec;
 };
 
 
@@ -50,10 +50,10 @@ private:
 //   Constructor and Destructor
 // ------------------------------------------------------------------------------
 LeptonSeparator::LeptonSeparator( const edm::ParameterSet& iConfig ) :
-   _muonsrc( GETTOKEN( iConfig, tstar::MuonList, "muonsrc" ) ),
-   _electronsrc( GETTOKEN( iConfig, tstar::ElectronList, "electronsrc" ) ),
-   _reqmuon( iConfig.getParameter<int>( "reqmuon" ) ),
-   _reqelec( iConfig.getParameter<int>( "reqelec" ) )
+  _muonsrc( GETTOKEN( iConfig, tstar::MuonList, "muonsrc" ) ),
+  _electronsrc( GETTOKEN( iConfig, tstar::ElectronList, "electronsrc" ) ),
+  _reqmuon( iConfig.getParameter<int>( "reqmuon" ) ),
+  _reqelec( iConfig.getParameter<int>( "reqelec" ) )
 {
 }
 
@@ -62,12 +62,12 @@ LeptonSeparator::LeptonSeparator( const edm::ParameterSet& iConfig ) :
 bool
 LeptonSeparator::filter( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   iEvent.getByToken( _muonsrc,     _muonHandle     );
-   iEvent.getByToken( _electronsrc, _electronHandle );
+  iEvent.getByToken( _muonsrc,     _muonHandle     );
+  iEvent.getByToken( _electronsrc, _electronHandle );
 
-   if( _muonHandle->size() != _reqmuon ) { return false; }
-   if( _electronHandle->size() != _reqelec ){ return false; }
-   return true;
+  if( _muonHandle->size() != _reqmuon ){ return false; }
+  if( _electronHandle->size() != _reqelec ){ return false; }
+  return true;
 }
 
 /*******************************************************************************
@@ -78,9 +78,9 @@ LeptonSeparator::~LeptonSeparator(){}
 void
 LeptonSeparator::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
 {
-   edm::ParameterSetDescription desc;
-   desc.setUnknown();
-   descriptions.addDefault( desc );
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault( desc );
 }
 
 DEFINE_FWK_MODULE( LeptonSeparator );

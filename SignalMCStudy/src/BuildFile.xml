@@ -1,0 +1,8 @@
+<use name="ManagerUtils/RootMgr"/>
+<use name="ManagerUtils/Common"/>
+<use name="ManagerUtils/SysUtils"/>
+<use name="ManagerUtils/PlotUtils"/>
+
+<flags CXXFLAGS="-g" />
+
+<export><lib name="1"/></export>
