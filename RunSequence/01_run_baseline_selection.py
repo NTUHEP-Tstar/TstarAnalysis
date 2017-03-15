@@ -66,9 +66,9 @@ def MakeCrabFile( dataset, opt ):
 
     if myname.IsData( dataset ):
         splittype  = 'LumiBased'
-        splitunit  = 480 * 2 * 60           # target time in seconds
+        splitunit  = 480  * 60           # target time in seconds
         splitunit  = splitunit / 0.033  # real time per event
-        splitunit  = splitunit / 2000   # average number of events in lumi
+        splitunit  = splitunit / 4000   # average number of events in lumi
     else:
         splittype  = 'LumiBased'
         splitunit  = 480 * 2 * 60       # target time in seconds
