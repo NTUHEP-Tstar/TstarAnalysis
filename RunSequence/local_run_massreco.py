@@ -59,9 +59,9 @@ def main():
             # Getting lumimask for data
             Lumimask  = ""
             if myname.IsData(dataset) and "Muon" in opt.mode:
-                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_25/src/TstarAnalysis/RunSequence/settings/lumimask_2016_master.json"
+                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_26_patch1/src/TstarAnalysis/RunSequence/settings/lumimask_2016_master.json"
             elif myname.IsData(dataset) and "Electron" in opt.mode:
-                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_25/src/TstarAnalysis/RunSequence/settings/lumimask_2016_electron.json"
+                Lumimask="/wk_cms/yichen/TstarAnalysis/CMSSW_8_0_26_patch1/src/TstarAnalysis/RunSequence/settings/lumimask_2016_electron.json"
 
 
             # p = subprocess.Popen(

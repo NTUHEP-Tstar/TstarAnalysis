@@ -147,6 +147,9 @@
       "ChiSq6jet2bgjet4": {
          "Root Name": "Simple sorting, 6 jets (2 bjets) gluon in leading 4"
       },
+      "ChiSq6jet2bwidetstar":{
+         "Root Name": "Simple sorting, 6 jets (2 bjets), #sigma_{t*}=20GeV/c^{2}"
+      },
       "ChiSq8jet2b": {
          "Root Name": "Simple sorting, 8 jets (2 bjets)"
       },

@@ -8,7 +8,7 @@
       "Latex Name": "Run 2016 B Prompt Reco v2",
       "Root Name": "Run 2016 B Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016B*.root"
+         "SingleElectron_Run2016B*Feb*.root"
       ]
    },
 
@@ -17,7 +17,7 @@
       "Latex Name": "Run 2016 C Prompt Reco v2",
       "Root Name": "Run 2016 C Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016C*.root"
+         "SingleElectron_Run2016C*Feb*.root"
       ]
    },
    "Run2016D":{
@@ -25,7 +25,7 @@
       "Latex Name": "Run 2016 D Prompt Reco v2",
       "Root Name": "Run 2016 D Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016D*.root"
+         "SingleElectron_Run2016D*Feb*.root"
       ]
    },
    "Run2016E":{
@@ -33,7 +33,7 @@
       "Latex Name": "Run 2016 E Prompt Reco v2",
       "Root Name": "Run 2016 E Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016E*.root"
+         "SingleElectron_Run2016E*Feb*.root"
       ]
    },
    "Run2016F":{
@@ -41,7 +41,7 @@
       "Latex Name": "Run 2016 F Prompt Reco v2",
       "Root Name": "Run 2016 F Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016F*.root"
+         "SingleElectron_Run2016F*Feb*.root"
       ]
    },
    "Run2016G":{
@@ -49,7 +49,7 @@
       "Latex Name": "Run 2016 G Prompt Reco v2",
       "Root Name": "Run 2016 G Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016G*.root"
+         "SingleElectron_Run2016G*Feb*.root"
       ]
    },
    "Run2016H":{
@@ -57,10 +57,8 @@
       "Latex Name": "Run 2016H Prompt Reco v2",
       "Root Name": "Run 2016H Prompt Reco v2",
       "EDM Files":[
-         "SingleElectron_Run2016H*.root"
+         "SingleElectron_Run2016H*Feb*.root"
       ]
 
    }
-
-
 }

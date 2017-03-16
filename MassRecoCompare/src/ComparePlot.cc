@@ -127,7 +127,8 @@ CompareTstar( CompareHistMgr* mgr )
   mgr::LatexMgr latex;
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_ymin-TEXT_MARGIN, TOP_RIGHT )
   .WriteLine( entry )
-  .WriteLine( mgr->LatexName() );
+  .WriteLine( mgr->LatexName() )
+  .WriteLine( reconamer.GetChannelEXT("Root Name") );
 
   const string rootfile = reconamer.PlotRootFile();
   const string filename = reconamer.PlotFileName( "tstarcomp", mgr->Name() );
@@ -293,7 +294,15 @@ MatchMassPlot( CompareHistMgr* mgr )
 
     tl->Draw();
 
+    boost::format massfmt( "M_{t*}=%dGeV/c^{2}" );
+    const string massstr = boost::str( massfmt % reconamer.GetInput<int>( "mass" ) );
+
     mgr::DrawCMSLabel(SIMULATION);
+    mgr::LatexMgr latex;
+    latex.SetOrigin( PLOT_X_TEXT_MAX, 0.6-TEXT_MARGIN, TOP_RIGHT )
+    .WriteLine( mgr->LatexName() )
+    .WriteLine( reconamer.GetChannelEXT("Root Name") )
+    .WriteLine( massstr );
 
     stack->SetMaximum( histmax * 1.5 );
     mgr::SaveToPDF( c, reconamer.PlotFileName( "jetmatchcomp", {mgr->Name(), histname} ) );

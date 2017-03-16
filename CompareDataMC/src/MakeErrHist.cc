@@ -59,9 +59,9 @@ MakeFullComparePlot(
       l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
     }
 
-    l->AddEntry( bkgerror, "Bkg. error (1#sigma)",                                                                    "fl" );
+    l->AddEntry( bkgerror, "Uncertainty (stat #oplus sys)",                                                           "fl" );
     l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
-
+    
     MakePlot(
       stack,
       bkgerror,
