@@ -28,7 +28,7 @@ using namespace mgr;
 void
 KeysErrMgr::InitStaticVars()
 {
-  StaticNewVar( "x", "M_{t+jet}", "GeV/c^{2}", 400, 2500 );
+  StaticNewVar( "x", "m_{t+jet}", "GeV/c^{2}", 400, 2500 );
   StaticNewVar( "w", "w",         "",        -1000, 1000 );
 }
 

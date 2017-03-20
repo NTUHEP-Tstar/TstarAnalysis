@@ -10,6 +10,7 @@
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "TstarAnalysis/Common/interface/GetEventWeight.hpp"
 #include "TstarAnalysis/MassRecoCompare/interface/Common.hpp"
+#include "TstarAnalysis/TstarMassReco/interface/RecoUtils.hpp"
 
 #include <boost/format.hpp>
 #include <iostream>
@@ -56,6 +57,23 @@ CompareHistMgr::define_hist()
   AddHist( "CorrPermTotal", "Number of correctly identified jets", "", 7, 0, 7 );
   AddHist( "CorrPermPass",  "Number of correctly identified jets", "", 7, 0, 7 );
 
+  AddHist2D(
+    "JetPTMatchTotal",
+    "Jet p_{T} Order",
+    "Flavour from MC Truth",
+    6, 0, 6,
+    8, 0, 8// extra bin for, "un matched" and "is any of topology"
+    );
+  AddHist2D(
+    "JetPTMatch",
+    "Jet p_{T} Order",
+    "Flavour from MC Truth",
+    6, 0, 6,
+    8, 0, 8// extra bin for, "unmatched" and "is any of topology"
+    );
+  AddHist( "NumSigJets",    "Number of signal jet within leading 6 jets", "", 7, 0, 7 );
+  AddHist( "NumSigJetsTot", "Number of signal jet within leading 6 jets", "", 7, 0, 7 );
+
   AddCorrPermMassHist( "TstarMass",  "Reco. t* Mass",               "GeV/c^{2}",  60, 0, 3000 );
   AddCorrPermMassHist( "ChiSq",      "Reco. #chi^{2} of Method",    "",           60, 0,  100 );
   AddCorrPermMassHist( "LepTopMass", "Reco. Leptonic Top Mass",     "GeV/c^{2}", 100, 0,  500 );
@@ -72,7 +90,10 @@ CompareHistMgr::AddEvent( const fwlite::Event& ev )
   const string name        = Name();
   const double eventweight = GetEventWeight( ev );
 
+  fwlite::Handle<vector<pat::Jet> > jethandle;
+
   _resulthandle.getByLabel( ev, name.c_str(), LabelName( name ).c_str(), ProcessName().c_str() );
+  jethandle.getByLabel( ev, "skimmedPatJets" );
 
   if( !_resulthandle.isValid() ){
     cerr << "Warning! label: [" << Name() << "] gave invalid handle" << flush;
@@ -126,6 +147,30 @@ CompareHistMgr::AddEvent( const fwlite::Event& ev )
   Hist( CorrPermMassHistName( "LepTopMass", corr ) )->Fill( _resulthandle.ref().LeptonicTop().M(), eventweight );
   Hist( CorrPermMassHistName( "HadTopMass", corr ) )->Fill( _resulthandle.ref().HadronicTop().M(), eventweight );
   Hist( CorrPermMassHistName( "HadWMass", corr ) )->Fill( _resulthandle.ref().HadronicW().M(), eventweight );
+
+  // Jet assignment histograms
+  int numofsig = 0;
+
+  for( int i = 0; i < 6; ++i ){
+    const pat::Jet& jet = jethandle.ref().at( i );
+
+    for( int j = 0; j < 7; ++j ){
+      Hist2D( "JetPTMatchTotal" )->Fill( i, j, eventweight );
+    }
+
+    const int yval = GetBinPosition( jet );
+    Hist2D( "JetPTMatch" )->Fill( i, yval, eventweight );
+    if( yval < 5 ){
+      Hist2D( "JetPTMatch" )->Fill( i, 6, eventweight );
+      numofsig++;
+    }
+  }
+
+  for( int i = 0; i <= 6; ++i ){
+    Hist( "NumSigJetsTot" )->Fill( i, eventweight );
+  }
+
+  Hist( "NumSigJets" )->Fill( numofsig, eventweight );
 }
 
 /******************************************************************************/
@@ -145,6 +190,17 @@ CompareHistMgr::GetBinPosition( Particle_Label x )
     return 4;
   } else {
     return 5;
+  }
+}
+
+int
+CompareHistMgr::GetBinPosition( const pat::Jet& jet )
+{
+  const auto genjet = jet.genParton();
+  if( !genjet ){
+    return GetBinPosition( unknown_label ) + 1;
+  } else {
+    return GetBinPosition( GetJetType( genjet ) );
   }
 }
 

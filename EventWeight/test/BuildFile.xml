@@ -1,8 +1,0 @@
-<use name="root"/>
-<use name="DataFormats/FWLite"/>
-<use name="TstarAnalysis/Common"/>
-<use name="ManagerUtils/EDMUtils"/>
-
-<flags CXXFLAGS="-g"/>
-
-<bin name="readweights" file="readweights.cc"/>

@@ -86,6 +86,8 @@ ExtraCutOptions()
     ( "masscut",   opt::value<double>(), "Mass of gluon plus t" )
     ( "leadjetpt", opt::value<double>(), "Leading jet pt cut" )
     ( "useparam",  opt::value<int>(),    "Whether or not to use a parametric signal shape (no by default)")
+    ( "recoalgo",  opt::value<string>(), "Which reconstruction algorithm to use" )
+    ( "scaleres",  opt::value<double>(), "Scaling the resolution manually" )
   ;
   return ans;
 }

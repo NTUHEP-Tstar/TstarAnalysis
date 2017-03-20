@@ -67,12 +67,12 @@ MakeSimFit(
   vector<RooAbsReal*> funclist;
 
   // Getting fit result from default MC dataset ;
-  RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
+  // RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
 
   for( auto& sig : signal_list ){
     MakeFullKeysPdf( sig );
 
-    auto fiterr = SimFitSingle( data, sig, "", bgconstrain );
+    auto fiterr = SimFitSingle( data, sig, "", nullptr );
 
     for( const auto& name : data->SetNameList() ){
       MakeSimFitPlot( data, sig, fiterr, name );

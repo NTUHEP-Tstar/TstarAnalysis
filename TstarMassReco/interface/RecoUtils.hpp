@@ -56,6 +56,8 @@ extern FitParticle MakeResultElectron( const pat::Electron* );
 /*******************************************************************************
 *   Decay chain crawling function for hihg level control flow
 *******************************************************************************/
+extern tstar::Particle_Label GetJetType( const reco::GenParticle* );
+extern tstar::Particle_Label GetLeptonType( const reco::GenParticle* );
 extern bool FromLeptonicTop( const reco::Candidate* );
 extern bool FromHadronicTop( const reco::Candidate* );
 extern bool FromLeptonicW( const reco::Candidate* );

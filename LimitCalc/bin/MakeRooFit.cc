@@ -37,13 +37,14 @@ main( int argc, char* argv[] )
   InitRooFitSettings( limnamer );
 
   InitDataAndSignal( data, signal_list );
-  InitMC( mc );
 
   limnamer.AddCutOptions( "mucut" );
   limnamer.AddCutOptions( "muiso" );
   limnamer.AddCutOptions( "masscut" );
   limnamer.AddCutOptions( "leadjetpt" );
   limnamer.AddCutOptions( "useparam" );
+  limnamer.AddCutOptions( "recoalgo" );
+  limnamer.AddCutOptions( "scaleres" );
 
 
   if( limnamer.GetInput<string>( "fitmethod" ) == "SimFit"  ){
@@ -51,6 +52,7 @@ main( int argc, char* argv[] )
     MakeSimFit( data, mc, signal_list );
   } else if( limnamer.GetInput<string>( "fitmethod" ) == "Template" ){
     cout << "Running MC template method!" << endl;
+    InitMC( mc );
     MakeTemplate( data, mc, signal_list );
   } else if( limnamer.GetInput<string>( "fitmethod" ).find( "Bias" ) != string::npos ){
     cout << "Running Bias check!" << endl;
@@ -61,7 +63,8 @@ main( int argc, char* argv[] )
   }
 
   delete data;
-  delete mc;
+
+  if( mc ) delete mc;
 
   for( auto& sig : signal_list ){
     delete sig;

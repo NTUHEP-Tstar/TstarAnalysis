@@ -25,8 +25,6 @@
 /*******************************************************************************
 *   Helper functions
 *******************************************************************************/
-static tstar::Particle_Label GetJetType( const reco::GenParticle* );
-static tstar::Particle_Label GetLeptonType( const reco::GenParticle* );
 
 /*******************************************************************************
 *   Four momentum translation functions

@@ -128,7 +128,7 @@ CompareTstar( CompareHistMgr* mgr )
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_ymin-TEXT_MARGIN, TOP_RIGHT )
   .WriteLine( entry )
   .WriteLine( mgr->LatexName() )
-  .WriteLine( reconamer.GetChannelEXT("Root Name") );
+  .WriteLine( reconamer.GetChannelEXT( "Root Name" ) );
 
   const string rootfile = reconamer.PlotRootFile();
   const string filename = reconamer.PlotFileName( "tstarcomp", mgr->Name() );
@@ -149,6 +149,7 @@ MatchPlot( CompareHistMgr* mgr )
   CompareTstar( mgr );
   MatchPlot1D( mgr );
   MatchPlot2D( mgr );
+  JetPTPlot2D( mgr );
   MatchMassPlot( mgr );
 }
 
@@ -209,40 +210,140 @@ MatchPlot2D( CompareHistMgr* mgr )
 /******************************************************************************/
 
 void
-MatchPlot1D( CompareHistMgr* mgr )
+JetPTPlot2D( CompareHistMgr* mgr )
 {
-  TCanvas* c       = mgr::NewCanvas();
-  TEfficiency* eff = new TEfficiency( *( mgr->Hist( "CorrPermPass" ) ), *( mgr->Hist( "CorrPermTotal" ) ) );
-  eff->SetStatisticOption( TEfficiency::kBUniform );// Uniform Bayesian
+  TCanvas* c = new TCanvas( "c", "c", 750, 700 );
 
-  TGraph* plot = eff->CreateGraph();
-  TLegend* tl  = mgr::NewLegend( 0.5, 0.7 );
+  c->SetLeftMargin( 0.2 );
+  c->SetRightMargin( 0.15 );
+  c->SetBottomMargin( PLOT_Y_MIN );
+  c->SetTopMargin( 1 - PLOT_Y_MAX );
 
-  mgr::SetSinglePad( c );
-  plot->Draw( "APE" );
-  mgr::DrawCMSLabel( SIMULATION );
+
+  TEfficiency* eff = new TEfficiency( *( mgr->Hist2D( "JetPTMatch" ) ), *( mgr->Hist2D( "JetPTMatchTotal" ) ) );
+
+  TH2* plot = eff->CreateHistogram();
+
+  plot->Draw( "COLZTEXT" );
+  c->cd();
 
   mgr::SetAxis( plot );
-  tstar::SetDataStyle( plot );
 
-  plot->GetXaxis()->SetLimits( -0.5, 7.5 );
+  plot->SetMaximum( 1. );
   plot->SetMinimum( 0.01 );
-  plot->SetMaximum( mgr::GetYmax( plot ) * 3 );
-  plot->GetYaxis()->SetTitle( "Efficiency" );
+  plot->SetStats( 0 );
 
-  tl->AddEntry( plot, mgr->LatexName().c_str(), "PL" );
-  tl->Draw();
+  plot->SetTitle( mgr->LatexName().c_str() );
 
-  c->SetLogy( kTRUE );
+  plot->GetXaxis()->SetTitleOffset( 1.5 );
+  plot->GetXaxis()->SetTitle( "Jet Order" );
+  plot->GetXaxis()->SetBinLabel( 1, "1^{st}" );
+  plot->GetXaxis()->SetBinLabel( 2, "2^{nd}" );
+  plot->GetXaxis()->SetBinLabel( 3, "3^{rd}" );
+  plot->GetXaxis()->SetBinLabel( 4, "4^{th}" );
+  plot->GetXaxis()->SetBinLabel( 5, "5^{th}" );
+  plot->GetXaxis()->SetBinLabel( 6, "6^{th}" );
 
-  const string filename = reconamer.PlotFileName( "jetmatcheff", mgr->Name() );
+  plot->GetYaxis()->SetTitleOffset( 3.2 );
+  plot->GetYaxis()->SetTitle( "Type from MC Truth" );
+  plot->GetYaxis()->SetBinLabel( 1, "Lep b" );
+  plot->GetYaxis()->SetBinLabel( 2, "Lep g" );
+  plot->GetYaxis()->SetBinLabel( 3, "Had W jet" );
+  plot->GetYaxis()->SetBinLabel( 4, "Had b" );
+  plot->GetYaxis()->SetBinLabel( 5, "Had g" );
+  plot->GetYaxis()->SetBinLabel( 6, "Non-signal" );
+  plot->GetYaxis()->SetBinLabel( 6, "Unmatched" );
+  plot->GetYaxis()->SetBinLabel( 7, "Match any" );
 
+  c->SetLogz( 1 );
+
+  const string filename = reconamer.PlotFileName( "jetptmatch", mgr->Name() );
   mgr::SaveToPDF( c, filename );
   mgr::SaveToROOT( c, reconamer.PlotRootFile(), Basename( filename ) );
 
   delete c;
-  delete eff;
-  delete plot;
+}
+
+/******************************************************************************/
+
+void
+MatchPlot1D( CompareHistMgr* mgr )
+{
+  {
+    TCanvas* c       = mgr::NewCanvas();
+    TEfficiency* eff = new TEfficiency( *( mgr->Hist( "CorrPermPass" ) ), *( mgr->Hist( "CorrPermTotal" ) ) );
+    eff->SetStatisticOption( TEfficiency::kBUniform );// Uniform Bayesian
+
+    TGraph* plot = eff->CreateGraph();
+    TLegend* tl  = mgr::NewLegend( 0.5, 0.85 );
+
+    mgr::SetSinglePad( c );
+    plot->Draw( "APE" );
+    mgr::DrawCMSLabel( SIMULATION );
+
+    mgr::SetAxis( plot );
+    tstar::SetDataStyle( plot );
+
+    plot->GetXaxis()->SetLimits( -0.5, 7.5 );
+    plot->SetMinimum( 0.01 );
+    plot->SetMaximum( mgr::GetYmax( plot ) * 3 );
+    plot->GetYaxis()->SetTitle( "Efficiency" );
+
+    tl->AddEntry( plot, mgr->LatexName().c_str(), "PL" );
+    tl->Draw();
+    mgr::LatexMgr latex;
+    latex.SetOrigin( PLOT_X_TEXT_MAX, 0.85-TEXT_MARGIN, TOP_RIGHT )
+    .WriteLine( boost::str( boost::format( "m_{t*}=%dGeV/c^{2}" )%reconamer.GetInput<int>( "mass" ) ) );
+
+
+    c->SetLogy( kTRUE );
+
+    const string filename = reconamer.PlotFileName( "jetmatcheff", mgr->Name() );
+
+    mgr::SaveToPDF( c, filename );
+    mgr::SaveToROOT( c, reconamer.PlotRootFile(), Basename( filename ) );
+
+    delete c;
+    delete eff;
+    delete plot;
+  }
+  {
+    TCanvas* c       = mgr::NewCanvas();
+    TEfficiency* eff = new TEfficiency( *( mgr->Hist( "NumSigJets" ) ), *( mgr->Hist( "NumSigJetsTot" ) ) );
+    eff->SetStatisticOption( TEfficiency::kBUniform );// Uniform Bayesian
+
+    TGraph* plot = eff->CreateGraph();
+    TLegend* tl  = mgr::NewLegend( 0.5, 0.85 );
+
+    mgr::SetSinglePad( c );
+    plot->Draw( "APE" );
+    mgr::DrawCMSLabel( SIMULATION );
+
+    mgr::SetAxis( plot );
+    tstar::SetDataStyle( plot );
+
+    plot->GetXaxis()->SetLimits( -0.5, 7.5 );
+    plot->SetMinimum( 0.01 );
+    plot->SetMaximum( mgr::GetYmax( plot ) * 3 );
+    plot->GetYaxis()->SetTitle( "Efficiency" );
+
+    tl->AddEntry( plot, mgr->LatexName().c_str(), "PL" );
+    tl->Draw();
+    mgr::LatexMgr latex;
+    latex.SetOrigin( PLOT_X_TEXT_MAX, 0.85-TEXT_MARGIN, TOP_RIGHT )
+    .WriteLine( boost::str( boost::format( "M_{t*}=%dGeV/c^{2}" )%reconamer.GetInput<int>( "mass" ) ) );
+
+    c->SetLogy( kTRUE );
+
+    const string filename = reconamer.PlotFileName( "numsigjet", mgr->Name() );
+
+    mgr::SaveToPDF( c, filename );
+    mgr::SaveToROOT( c, reconamer.PlotRootFile(), Basename( filename ) );
+
+    delete c;
+    delete eff;
+    delete plot;
+  }
 }
 
 /******************************************************************************/
@@ -264,7 +365,7 @@ MatchMassPlot( CompareHistMgr* mgr )
   for( const auto& histname : {"TstarMass", "ChiSq", "LepTopMass", "HadTopMass", "HadWMass"} ){
     TCanvas* c     = mgr::NewCanvas();
     THStack* stack = new THStack( histname, "" );
-    TH1D*    total = (TH1D*)(mgr->Hist( mgr->CorrPermMassHistName( histname, 0 ) )->Clone());
+    TH1D* total    = (TH1D*)( mgr->Hist( mgr->CorrPermMassHistName( histname, 0 ) )->Clone() );
     TLegend* tl    = mgr::NewLegend( 0.4, 0.6 );
 
     mgr::SetSinglePad( c );
@@ -272,6 +373,7 @@ MatchMassPlot( CompareHistMgr* mgr )
     boost::format legend_entry( ">=%d correct match (s=%.0lf)" );
 
     total->Reset();
+
     for( int i = 6; i >= 0; --i ){
       TH1D* hist = mgr->Hist( mgr->CorrPermMassHistName( histname, i ) );
       hist->SetLineColor( StackColorSeqeunce[i] );
@@ -285,6 +387,7 @@ MatchMassPlot( CompareHistMgr* mgr )
         tl->AddEntry( hist, str( legend_entry%i%total->GetRMS() ).c_str(), "f" );
       }
     }
+
     const double histmax = mgr::GetYmax( total );
 
     stack->Draw();
@@ -297,11 +400,11 @@ MatchMassPlot( CompareHistMgr* mgr )
     boost::format massfmt( "M_{t*}=%dGeV/c^{2}" );
     const string massstr = boost::str( massfmt % reconamer.GetInput<int>( "mass" ) );
 
-    mgr::DrawCMSLabel(SIMULATION);
+    mgr::DrawCMSLabel( SIMULATION );
     mgr::LatexMgr latex;
     latex.SetOrigin( PLOT_X_TEXT_MAX, 0.6-TEXT_MARGIN, TOP_RIGHT )
     .WriteLine( mgr->LatexName() )
-    .WriteLine( reconamer.GetChannelEXT("Root Name") )
+    .WriteLine( reconamer.GetChannelEXT( "Root Name" ) )
     .WriteLine( massstr );
 
     stack->SetMaximum( histmax * 1.5 );
@@ -315,10 +418,10 @@ MatchMassPlot( CompareHistMgr* mgr )
     delete tl;
   }
 
-  const double tstarrms = mgr->Hist("TstarDiff")->GetRMS() ;
-  const double leptoprms = mgr->Hist("LepTopDiff")->GetRMS();
-  const double hadtoprms = mgr->Hist("HadTopDiff")->GetRMS();
-  const double hadwrms   = mgr->Hist("HadWDiff")->GetRMS();
+  const double tstarrms  = mgr->Hist( "TstarDiff" )->GetRMS();
+  const double leptoprms = mgr->Hist( "LepTopDiff" )->GetRMS();
+  const double hadtoprms = mgr->Hist( "HadTopDiff" )->GetRMS();
+  const double hadwrms   = mgr->Hist( "HadWDiff" )->GetRMS();
 
   cout << ">>> Method: " << mgr->Name() << endl;
   cout << ">>> RMS of mass differences: "

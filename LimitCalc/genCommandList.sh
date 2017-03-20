@@ -46,7 +46,9 @@ for channel in $channel_list ; do
   done
 done
 
-exttaglist="--mucut=35 --mucut=40 --mucut=50 --mucut=60 --masscut=500 --masscut=600 --muiso=0.12 --muiso=0.09 --muiso=0.06 --leadjetpt=50 --leadjetpt=80"
+channel_list="MuonSignal ElectronSignal"
+
+exttaglist="--mucut=35 --mucut=40 --mucut=50 --mucut=60 --masscut=500 --masscut=600 --muiso=0.12 --muiso=0.09 --muiso=0.06 --leadjetpt=50 --leadjetpt=80 --recoalgo=tstarMassReco7jet --recoalgo=tstarMassReco8jet --scaleres=1.2 --scaleres=0.8"
 
 for exttag in $exttaglist ; do
   for channel in $channel_list ; do

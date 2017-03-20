@@ -20,6 +20,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <boost/format.hpp>
 #include <cstdio>
@@ -61,6 +62,12 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     mgr::SampleMgr::TotalLuminosity() * sample.CrossSection().CentralValue() / sample.OriginalEventCount();
 
   const auto& pdfidgroup = GetPdfIdGrouping( sample );
+
+  static const string defaultalgo = "tstarMassReco";
+  const string recoalgo           = Name().find( "Tstar" ) == string::npos ?  defaultalgo :
+                                    !limnamer.CheckInput( "recoalgo" ) ? defaultalgo :
+                                    limnamer.GetInput<string>( "recoalgo" );
+  cout << "Reconstruction algorithm:" << recoalgo << endl;
 
   unsigned i = 1;
 
@@ -119,7 +126,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
 
 
     // Getting mass reconstruction results
-    chiHandle.getByLabel( ev, "tstarMassReco", "ChiSquareResult", "TstarMassReco" );
+
+    chiHandle.getByLabel( ev, recoalgo.c_str(), "ChiSquareResult", "TstarMassReco" );
     if( chiHandle->ChiSquare() < 0 ){ continue; }// Skipping over unphysical results
 
     // Points to insert for all mass data types

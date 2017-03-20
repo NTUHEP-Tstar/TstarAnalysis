@@ -43,6 +43,7 @@ extern void CompareTstar( CompareHistMgr* );
 extern void MatchPlot( CompareHistMgr* );
 extern void MatchPlot1D( CompareHistMgr* );
 extern void MatchPlot2D( CompareHistMgr* );
+extern void JetPTPlot2D( CompareHistMgr* );
 extern void MatchMassPlot( CompareHistMgr* );
 
 /*******************************************************************************

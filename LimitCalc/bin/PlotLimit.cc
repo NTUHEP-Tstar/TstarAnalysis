@@ -34,6 +34,8 @@ main( int argc, char* argv[] )
   limnamer.AddCutOptions( "masscut" );
   limnamer.AddCutOptions( "leadjetpt" );
   limnamer.AddCutOptions( "useparam" );
+  limnamer.AddCutOptions( "recoalgo" );
+  limnamer.AddCutOptions( "scaleres" );
 
   if( limnamer.CheckInput( "combine" ) ){
     cout << "Rerunning results higgs combine package with method ["

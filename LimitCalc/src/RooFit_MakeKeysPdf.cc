@@ -54,10 +54,9 @@ MakeSingleKeysPdf( SampleRooFitMgr* sample, const string& datasetname )
   // Directly returning zero if corresponding dataset is not found;
   if( sample->DataSet( datasetname ) == NULL ){ return NULL; }
 
-  // Caching objects
   const string keypdfname  = KeyPdfName( datasetname );
   const string keynormname = KeyNormName( datasetname );
-  RooDataSet& dataset      = *( (RooDataSet*)( sample->DataSet( datasetname ) ) );
+
 
   // Early exit if keys PDF is already created
   if( sample->Pdf( keypdfname ) ){
@@ -65,6 +64,46 @@ MakeSingleKeysPdf( SampleRooFitMgr* sample, const string& datasetname )
   }
   RooAbsPdf* ans;
 
+  if( limnamer.CheckInput( "scaleres" ) ){// Modify data set
+    cout << "Re-scaling resolution" << endl;
+
+    RooRealVar& x        = SampleRooFitMgr::x();
+    RooRealVar& w        = SampleRooFitMgr::w();
+    RooDataSet* origdata = (RooDataSet*)( sample->DataSet( datasetname ) );
+    RooDataSet* newdata  = new RooDataSet( datasetname.c_str(), "",
+      RooArgSet( x, w ),
+      RooFit::WeightVar( w )
+      );
+
+    const double origmean = origdata->mean( x );
+
+    for( int i = 0; i < origdata->numEntries(); ++i ){
+      // x is a copyt of the dataset and not the acutal value
+
+      const RooArgSet* set = origdata->get(i) ;
+
+      RooRealVar* origx = (RooRealVar*)( set->find( SampleRooFitMgr::x() ) );
+
+      // Re-assigning value
+      const double newx = origmean + ( origx->getVal()-origmean ) * limnamer.GetInput<double>( "scaleres" );
+      const double neww = origdata->weight();
+
+      if( newx < SampleRooFitMgr::MaxMass() && newx > SampleRooFitMgr::MinMass() ){
+        x = newx;
+        newdata->add( RooArgSet( x ), neww );
+      }
+    }
+
+    cout << "orig:" << origdata->sigma( x ) << " | new:" << newdata->sigma( x ) << endl;
+
+
+    // Resetting ownership
+    sample->RemoveDataSet( datasetname );
+    sample->AddDataSet( newdata );
+  }
+
+  // Caching objects
+  RooDataSet& dataset = *( (RooDataSet*)( sample->DataSet( datasetname ) ) );
 
   if( !limnamer.CheckInput( "useparam" ) ){// Defaults to using Keys PDF
     // Change rho factor according to the dataset name (1.36 as central value)
@@ -86,27 +125,27 @@ MakeSingleKeysPdf( SampleRooFitMgr* sample, const string& datasetname )
     ans = pdf;
 
   } else {// Using Bifucated gaussian (x) gaussian
-    RooRealVar* bimean1 = sample->NewVar(    keypdfname + "bimean1", GetInt(sample->Name()), 400, 2000 );
+    RooRealVar* bimean1 = sample->NewVar(    keypdfname + "bimean1", GetInt( sample->Name() ), 400, 2000 );
     RooRealVar* bil1    = sample->NewVar(    keypdfname + "bil1", 200, 0, 1000 );
     RooRealVar* bir1    = sample->NewVar(    keypdfname + "bir1", 300, 0, 1000 );
-    RooAbsPdf* bipdf1   = new RooBifurGauss( (keypdfname + "bigauss1").c_str(), "", SampleRooFitMgr::x(), *bimean1, *bil1, *bir1 );
+    RooAbsPdf* bipdf1   = new RooBifurGauss( ( keypdfname + "bigauss1" ).c_str(), "", SampleRooFitMgr::x(), *bimean1, *bil1, *bir1 );
 
-    RooConstVar* gmean1 = new RooConstVar( (keypdfname+"convgmean1").c_str(), "", 0 );
+    RooConstVar* gmean1 = new RooConstVar( ( keypdfname+"convgmean1" ).c_str(), "", 0 );
     RooRealVar* gsig1   = sample->NewVar(  keypdfname+"convgsig1", 100, 0, 1000 );
-    RooAbsPdf* gpdf1    = new RooGaussian( (keypdfname+"convgauss1").c_str(), "", SampleRooFitMgr::x(), *gmean1, *gsig1 );
+    RooAbsPdf* gpdf1    = new RooGaussian( ( keypdfname+"convgauss1" ).c_str(), "", SampleRooFitMgr::x(), *gmean1, *gsig1 );
 
-    RooAbsPdf* conv1pdf = new RooFFTConvPdf( (keypdfname+"conv1").c_str(), "", SampleRooFitMgr::x(), *bipdf1, *gpdf1 );
+    RooAbsPdf* conv1pdf = new RooFFTConvPdf( ( keypdfname+"conv1" ).c_str(), "", SampleRooFitMgr::x(), *bipdf1, *gpdf1 );
 
-    RooRealVar* bimean2 = sample->NewVar(    keypdfname+"bimean2", GetInt(sample->Name())+100, 400, 2000 );
+    RooRealVar* bimean2 = sample->NewVar(    keypdfname+"bimean2", GetInt( sample->Name() )+100, 400, 2000 );
     RooRealVar* bil2    = sample->NewVar(    keypdfname+"bil2", 100, 0, 1000 );
     RooRealVar* bir2    = sample->NewVar(    keypdfname+"bir2", 200, 0, 1000 );
-    RooAbsPdf* bipdf2   = new RooBifurGauss( (keypdfname+"bigauss2").c_str(), "", SampleRooFitMgr::x(), *bimean2, *bil2, *bir2 );
+    RooAbsPdf* bipdf2   = new RooBifurGauss( ( keypdfname+"bigauss2" ).c_str(), "", SampleRooFitMgr::x(), *bimean2, *bil2, *bir2 );
 
-    RooConstVar* gmean2 = new RooConstVar( (keypdfname+"convgmean2").c_str(), "", 0 );
+    RooConstVar* gmean2 = new RooConstVar( ( keypdfname+"convgmean2" ).c_str(), "", 0 );
     RooRealVar* gsig2   = sample->NewVar(  keypdfname+"convgsig2", 100, 0, 1000 );
-    RooAbsPdf* gpdf2    = new RooGaussian( (keypdfname+"convgauss2").c_str(), "", SampleRooFitMgr::x(), *gmean2, *gsig2 );
+    RooAbsPdf* gpdf2    = new RooGaussian( ( keypdfname+"convgauss2" ).c_str(), "", SampleRooFitMgr::x(), *gmean2, *gsig2 );
 
-    RooAbsPdf* conv2pdf = new RooFFTConvPdf( (keypdfname+"conv2").c_str(), "", SampleRooFitMgr::x(), *bipdf2, *gpdf2 );
+    RooAbsPdf* conv2pdf = new RooFFTConvPdf( ( keypdfname+"conv2" ).c_str(), "", SampleRooFitMgr::x(), *bipdf2, *gpdf2 );
 
     RooRealVar* bico = sample->NewVar( keypdfname+"bijoin", 0, 1 );
 
