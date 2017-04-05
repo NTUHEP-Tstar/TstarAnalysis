@@ -8,5 +8,6 @@
 #*******************************************************************************
 
 for mass in {700..1600..100}; do
-  echo cmsRun python/JetLepTest.py sample=file:/wk_cms2/yichen/MiniAOD/TstarM${mass}.root output=results/jetlep_M${mass} maxEvents=-1;
+  echo cmsRun python/JetLepTest.py   sample=file:/wk_cms2/yichen/MiniAOD/TstarM${mass}.root output=results/jetlep_M${mass}.root maxEvents=-1;
+  echo cmsRun python/MCResolution.py sample=file:/wk_cms2/yichen/MiniAOD/TstarM${mass}.root output=results/mcres_M${mass}.root maxEvents=-1;
 done

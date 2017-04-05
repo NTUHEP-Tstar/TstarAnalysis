@@ -73,8 +73,10 @@ private:
 
   const double _topmass;
   const double _wmass;
-  const double _topwidth;
-  const double _wwidth;
+
+  const double _hadwwidth;
+  const double _leptopwidth;
+  const double _hadtopwidth;
   const double _tstarwidth;
   bool _is_data;
 

@@ -59,7 +59,7 @@ GetPdfIdGrouping( const std::string& filename )
       }
     }
   } catch( std::exception ){
-    // Do nothing, use emtpy string for parsing
+    // Do nothing, use empty string for parsing
   }
 
   // Creating string stream
@@ -113,8 +113,17 @@ GetPdfWeightError( const fwlite::EventBase& ev, const vector<vector<unsigned> >&
   }
 }
 
+/******************************************************************************/
 double
 GetScaleWeightError( const fwlite::EventBase& ev, const vector<vector<unsigned> >& pdfidgroup )
+{
+  return (GetScaleWeightUpError(ev,pdfidgroup)+GetScaleWeightDownError(ev,pdfidgroup))/2;
+}
+
+/******************************************************************************/
+
+double
+GetScaleWeightUpError( const fwlite::EventBase& ev, const vector<vector<unsigned> >& pdfidgroup )
 {
   if( pdfidgroup.empty() ){ return 0; } // no pdf information
 
@@ -124,10 +133,32 @@ GetScaleWeightError( const fwlite::EventBase& ev, const vector<vector<unsigned> 
 
   if( pdfidgroup.front().front() == 1 ){ // Madgraph
     idlist = GetMadGraphScaleIdList( ev );
-    return GetPdfWeightError( ev, idlist, evthandle.ref().weights().front().wgt );
+    return GetScaleWeightUpError( ev, idlist, evthandle.ref().weights().front().wgt );
   } else { // Powheg, amcatnlo
     idlist = GetPowHegScaleIdList( ev );
-    return GetPdfWeightError( ev, idlist, evthandle.ref().originalXWGTUP() );
+    return GetScaleWeightUpError( ev, idlist, evthandle.ref().originalXWGTUP() );
+  }
+  return 0;
+
+}
+
+/******************************************************************************/
+
+double
+GetScaleWeightDownError( const fwlite::EventBase& ev, const vector<vector<unsigned> >& pdfidgroup )
+{
+  if( pdfidgroup.empty() ){ return 0; } // no pdf information
+
+  vector<unsigned> idlist;
+  fwlite::Handle<LHEEventProduct> evthandle;
+  evthandle.getByLabel( ev, "externalLHEProducer" );
+
+  if( pdfidgroup.front().front() == 1 ){ // Madgraph
+    idlist = GetMadGraphScaleIdList( ev );
+    return GetScaleWeightDownError( ev, idlist, evthandle.ref().weights().front().wgt );
+  } else { // Powheg, amcatnlo
+    idlist = GetPowHegScaleIdList( ev );
+    return GetScaleWeightDownError( ev, idlist, evthandle.ref().originalXWGTUP() );
   }
   return 0;
 
@@ -189,8 +220,8 @@ GetPowHegIdList(
 {
   vector<unsigned> ans;
 
-  for( const auto& id : pdfidgroup.at( 1 ) ){
-    if( id/1000 == pdfidgroup.at( 1 ).front() / 1000 ){
+  for( const auto& id : pdfidgroup.at(1) ){
+    if( int(id/1000) == int(pdfidgroup.at(1).front() / 1000) ){
       ans.push_back( id );
     }
   }
@@ -229,4 +260,58 @@ GetPdfWeightError(
   sumofsquares /= numofweights;
   sumofweights /= numofweights;
   return sqrt( sumofsquares - sumofweights*sumofweights );
+}
+
+/******************************************************************************/
+
+double
+GetScaleWeightUpError(
+  const fwlite::EventBase& ev,
+  const vector<unsigned>&  idlist,
+  const double             centralweight
+  )
+{
+  fwlite::Handle<LHEEventProduct> evthandle;
+  evthandle.getByLabel( ev, "externalLHEProducer" );
+
+  if( idlist.empty() ){ return 0; }
+
+  double maxweight = 1;
+
+  for( const auto& weightinfo : evthandle.ref().weights() ){
+    const unsigned thisid   = stoi( weightinfo.id );
+    const double thisweight = weightinfo.wgt / centralweight;
+    if( find( idlist.begin(), idlist.end(), thisid ) != idlist.end() ){
+      maxweight = std::max( maxweight, thisweight );
+    }
+  }
+
+  return maxweight - 1 ;
+}
+
+/******************************************************************************/
+
+double
+GetScaleWeightDownError(
+  const fwlite::EventBase& ev,
+  const vector<unsigned>&  idlist,
+  const double             centralweight
+  )
+{
+  fwlite::Handle<LHEEventProduct> evthandle;
+  evthandle.getByLabel( ev, "externalLHEProducer" );
+
+  if( idlist.empty() ){ return 0; }
+
+  double minweight = 1;
+
+  for( const auto& weightinfo : evthandle.ref().weights() ){
+    const unsigned thisid   = stoi( weightinfo.id );
+    const double thisweight = weightinfo.wgt / centralweight;
+    if( find( idlist.begin(), idlist.end(), thisid ) != idlist.end() ){
+      minweight = std::min( minweight, thisweight );
+    }
+  }
+
+  return 1-minweight ;
 }

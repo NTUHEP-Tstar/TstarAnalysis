@@ -11,6 +11,7 @@
 <use name="CondFormats/JetMETObjects"/>
 
 <use name="TstarAnalysis/BaseLineSelector"/>
+<use name="TstarAnalysis/TstarMassReco"/>
 <use name="ManagerUtils/SysUtils"/>
 <use name="ManagerUtils/PhysUtils"/>
 

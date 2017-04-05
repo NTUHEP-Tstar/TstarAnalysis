@@ -215,6 +215,51 @@ process.ChiSq6jet2bwidetstar = cms.EDProducer(
     btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
 )
 
+process.ChiSq6jet2bpdgres = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(6),
+    ReqBJet=cms.untracked.int32(2),
+    HadWWidth=cms.untracked.double(2.085),
+    HadTopWidth=cms.untracked.double(2.00),
+    LepTopWidth=cms.untracked.double(2.00),
+    TstarWidth=cms.untracked.double(10.0),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
+
+process.ChiSq6jet2bmcres = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(6),
+    ReqBJet=cms.untracked.int32(2),
+    HadWWidth=cms.untracked.double(24.1),
+    HadTopWidth=cms.untracked.double(33.7),
+    LepTopWidth=cms.untracked.double(30.2),
+    TstarWidth=cms.untracked.double(233.5),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
+
+process.ChiSq6jet2bmcrestopshift = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc=cms.InputTag("slimmedMETs"),
+    muonsrc=cms.InputTag("skimmedPatMuons"),
+    electronsrc=cms.InputTag("skimmedPatElectrons"),
+    jetsrc=cms.InputTag("skimmedPatJets"),
+    MaxJet=cms.untracked.int32(6),
+    ReqBJet=cms.untracked.int32(2),
+    HadWWidth=cms.untracked.double(24.1),
+    HadTopWidth=cms.untracked.double(53.7),
+    LepTopWidth=cms.untracked.double(50.2),
+    TstarWidth=cms.untracked.double(233.5),
+    btagfile=cms.FileInPath("TstarAnalysis/EventWeight/data/CSVv2_ichep.csv"),
+)
+
 
 process.AllSolvers = cms.Sequence(
     process.ChiSq6jet2b
@@ -224,6 +269,9 @@ process.AllSolvers = cms.Sequence(
     * process.ChiSq6jet2bgjet4
     * process.ChiSq8jet2bgjet4
     * process.ChiSq6jet2bwidetstar
+    * process.ChiSq6jet2bpdgres
+    * process.ChiSq6jet2bmcres
+    * process.ChiSq6jet2bmcrestopshift
 )
 
 #-------------------------------------------------------------------------

@@ -59,7 +59,7 @@ JetLepTest::JetLepTest( const edm::ParameterSet& iconf ) :
   _elecsrc( GETTOKEN(iconf,tstar::ElectronList,"elecsrc"))
 {
   edm::Service<TFileService> fs;
-  _tree = fs->make<TTree>( "JetLepTest", "JetLepTest" );
+  _tree = fs->make<TTree>( "MCRes", "MCRes" );
 
   _tree->Branch( "NLepton", &_nlepton, "NLepton/i");
   _tree->Branch( "NJetLep", &_njetlep, "NJetLep/i" );

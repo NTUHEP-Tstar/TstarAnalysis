@@ -13,16 +13,18 @@
 #include <iostream>
 using namespace std;
 
-int main(int argc, char const *argv[]) {
-   fwlite::Event ev(
-      TFile::Open(
-      "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronSignal/TstarTstarToTgluonTgluon_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8_0.root") );
+int
+main( int argc, char const* argv[] )
+{
+  fwlite::Event ev(
+    TFile::Open(
+      "root://eoscms.cern.ch//store/user/yichen/tstar_store/massreco/ElectronSignal/TstarTstarToTgluonTgluon_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8_0.root" ) );
 
-   for( ev.toBegin() ; !ev.atEnd() ; ++ev ){
-      cout << "Electron RECO Weight:" << GetElectronTrackWeight( ev )  << endl;
-      cout << "Electron CUT  Weight:" << GetElectronCutWeight( ev )  << endl;
-      cout << "Electron trigger weight" << GetElectronTriggerWeight( ev ) << endl;
+  for( ev.toBegin(); !ev.atEnd(); ++ev ){
+    cout << "Electron RECO Weight:" << GetElectronTrackWeight( ev )  << endl;
+    cout << "Electron CUT  Weight:" << GetElectronCutWeight( ev )  << endl;
+    cout << "Electron trigger weight" << GetElectronTriggerWeight( ev ) << endl;
+  }
 
-   }
-   return 0;
+  return 0;
 }

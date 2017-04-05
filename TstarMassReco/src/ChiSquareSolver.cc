@@ -35,8 +35,9 @@ ChiSquareSolver::ChiSquareSolver( const edm::ParameterSet& iConfig ) :
   _bjet_maxorder(     iConfig.getUntrackedParameter<int>( "BQuarkMaxOrder", -1 ) ),
   _topmass(           iConfig.getUntrackedParameter<double>( "TopMass", 173.34 ) ),
   _wmass(             iConfig.getUntrackedParameter<double>( "WMass", 80.385 ) ),
-  _topwidth(          iConfig.getUntrackedParameter<double>( "TopWidth", 2.00 ) ),
-  _wwidth(            iConfig.getUntrackedParameter<double>( "WWidth", 2.085 ) ),
+  _hadwwidth(         iConfig.getUntrackedParameter<double>( "HadWWidth", 2.085 ) ),
+  _leptopwidth(       iConfig.getUntrackedParameter<double>( "LepTopWidth", 2.00 ) ),
+  _hadtopwidth(       iConfig.getUntrackedParameter<double>( "HadTopWidth", 2.00 ) ),
   _tstarwidth(        iConfig.getUntrackedParameter<double>( "TstarWidth", 10 ) )
 {}
 
@@ -75,9 +76,9 @@ ChiSquareSolver::RunPermutations()
       lep_tstar = lep_t  + lep_g();
 
       chiSquare =
-        ( ( had_w.M() - _wmass   ) * ( had_w.M() - _wmass   ) ) / ( _wwidth*_wwidth   )
-        + ( ( had_t.M() - _topmass ) * ( had_t.M() - _topmass ) ) / ( _topwidth*_topwidth )
-        + ( ( lep_t.M() - _topmass ) * ( lep_t.M() - _topmass ) ) / ( _topwidth*_topwidth )
+        ( ( had_w.M() - _wmass   ) * ( had_w.M() - _wmass   ) ) / ( _hadwwidth*_hadwwidth   )
+        + ( ( had_t.M() - _topmass ) * ( had_t.M() - _topmass ) ) / ( _hadtopwidth*_hadtopwidth )
+        + ( ( lep_t.M() - _topmass ) * ( lep_t.M() - _topmass ) ) / ( _leptopwidth*_leptopwidth )
         + ( ( lep_tstar.M() - had_tstar.M() ) * ( lep_tstar.M() - had_tstar.M() ) ) / ( _tstarwidth * _tstarwidth );
 
       tstarMass = ( lep_tstar.M() + had_tstar.M() ) / 2.;

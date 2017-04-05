@@ -70,26 +70,26 @@ extern std::vector<std::vector<unsigned> > GetPdfIdGrouping( const std::string& 
 extern std::vector<std::vector<unsigned> > GetPdfIdGrouping( const mgr::SampleMgr& );
 
 extern double GetPdfWeightError(
-   const fwlite::EventBase&                   ev,
-   const std::vector<std::vector<unsigned> >& pdfidgroup
-   );
+  const fwlite::EventBase&                   ev,
+  const std::vector<std::vector<unsigned> >& pdfidgroup
+  );
 
 
 extern std::vector<unsigned> GetMadGraphIdList(
-   const fwlite::EventBase&                   ev,
-   const std::vector<std::vector<unsigned> >& pdfidgroup
-   );
+  const fwlite::EventBase&                   ev,
+  const std::vector<std::vector<unsigned> >& pdfidgroup
+  );
 
 extern std::vector<unsigned> GetPowHegIdList(
-   const fwlite::EventBase&                   ev,
-   const std::vector<std::vector<unsigned> >& pdfidgroup
-   );
+  const fwlite::EventBase&                   ev,
+  const std::vector<std::vector<unsigned> >& pdfidgroup
+  );
 
 extern double GetPdfWeightError(
-   const fwlite::EventBase&     ev,
-   const std::vector<unsigned>& idlist,
-   const double                 centralweight
-   );
+  const fwlite::EventBase&     ev,
+  const std::vector<unsigned>& idlist,
+  const double                 centralweight
+  );
 
 /*******************************************************************************
 *
@@ -101,17 +101,37 @@ extern double GetPdfWeightError(
 *
 *******************************************************************************/
 extern double GetScaleWeightError(
-   const fwlite::EventBase&                   ev,
-   const std::vector<std::vector<unsigned> >& pdfidgroup
-   );
+  const fwlite::EventBase&                   ev,
+  const std::vector<std::vector<unsigned> >& pdfidgroup
+  );
 
-extern std::vector<unsigned> GetMadGraphScaleIdList(
-   const fwlite::EventBase& ev
-   );
+extern double GetScaleWeightUpError(
+  const fwlite::EventBase&                   ev,
+  const std::vector<std::vector<unsigned> >& pdfidgroup
+  );
 
-extern std::vector<unsigned> GetPowHegScaleIdList(
-   const fwlite::EventBase& ev
-   );
+extern double GetScaleWeightDownError(
+  const fwlite::EventBase&                   ev,
+  const std::vector<std::vector<unsigned> >& pdfidgroup
+  );
+
+extern std::vector<unsigned> GetMadGraphScaleIdList( const fwlite::EventBase& ev
+                                                     );
+
+extern std::vector<unsigned> GetPowHegScaleIdList( const fwlite::EventBase& ev
+                                                   );
+
+extern double GetScaleWeightUpError(
+  const fwlite::EventBase&     ev,
+  const std::vector<unsigned>& idlist,
+  const double                 centralweight
+  );
+
+extern double GetScaleWeightDownError(
+  const fwlite::EventBase&     ev,
+  const std::vector<unsigned>& idlist,
+  const double                 centralweight
+  );
 
 
 #endif/* end of include guard: TSTARANALYSIS_EVENTWEIGHT_GETEVENTWEIGHT_HPP */
