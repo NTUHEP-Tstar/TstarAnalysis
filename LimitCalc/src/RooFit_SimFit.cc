@@ -24,6 +24,8 @@
 #include "RooAddPdf.h"
 #include "RooFitResult.h"
 #include "RooGenericPdf.h"
+#include "RooMinimizer.h"
+#include "RooNLLVar.h"
 #include "RooProdPdf.h"
 #include "RooRealVar.h"
 #include "RooWorkspace.h"
@@ -74,9 +76,7 @@ MakeSimFit(
 
     auto fiterr = SimFitSingle( data, sig, "", nullptr );
 
-    for( const auto& name : data->SetNameList() ){
-      MakeSimFitPlot( data, sig, fiterr, name );
-    }
+    MakeSimFitPlot( data, sig, fiterr, "" );
 
     MakeSimFitCardFile( data, sig );
 
@@ -84,7 +84,6 @@ MakeSimFit(
     pdflist.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
     pdflist.push_back( sig->Pdf( StitchKeyPdfName ) );
     funclist.push_back( sig->Func( StitchKeyNormName ) );
-
   }
 
   SaveRooWorkSpace(
@@ -92,6 +91,8 @@ MakeSimFit(
     pdflist,
     {}
     );
+
+  MakeVarValPlot( data );
 }
 
 /*******************************************************************************
@@ -124,21 +125,59 @@ SimFitSingle(
     RooArgList( *bgpdf, *sigpdf ),
     RooArgList( *nb,    *ns     )
     );
+  data->AddPdf( model );
 
-  RooFitResult* err = model->fitTo(
-    *( fitdataset ),
-    RooFit::Minimizer( "Minuit", "Migrad" ),
-    RooFit::Extended( kTRUE ),
-    RooFit::Minos( kTRUE ),
-    // RooFit::ExternalConstraints( fitconstraints ),
-    RooFit::Save(),
-    RooFit::Verbose( kFALSE ),
-    RooFit::PrintLevel( -1 ),
-    RooFit::PrintEvalErrors( -1 ),
-    RooFit::Warnings( kFALSE )
-    );
+  cout << "\n>>>>>> Running the fitting! " << endl;
+  cout << ">>>>>> " << nb->getVal() << endl;
+  cout << ">>>>>> " << ns->getVal() << endl;
 
-  cout << "Finish running simultaneous fit for " << sig->Name() << endl;
+  static RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
+  static RooCmdArg ext    = RooFit::Extended( kTRUE );
+  static RooCmdArg minos  = RooFit::Hesse( kTRUE );
+  static RooCmdArg save   = RooFit::Save();
+  static RooCmdArg ncpu   = RooFit::NumCPU( 18 );
+  static RooCmdArg verb   = RooFit::Verbose( kFALSE );
+  static RooCmdArg printl = RooFit::PrintLevel( -1 );
+  static RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
+  static RooCmdArg printw = RooFit::Warnings( kFALSE );
+
+  RooLinkedList fitopt;
+  fitopt.Add( &min    );
+  fitopt.Add( &ext    );
+  fitopt.Add( &minos  );
+  fitopt.Add( &save   );
+  fitopt.Add( &ncpu   );
+  fitopt.Add( &verb   );
+  fitopt.Add( &printl );
+  fitopt.Add( &printe );
+  fitopt.Add( &printw );
+
+  RooFitResult* err      = NULL;
+  const unsigned maxiter = ( datasetname.find( "pseudo" ) == string::npos ) ? -1 : 20;
+  unsigned iter          = 0;
+
+  while( !err  ){
+    err = model->fitTo( *( fitdataset ), fitopt );
+    if( err->status() ){// Not properly converged
+      ++iter;
+      if( iter > maxiter ){
+        break;
+      } else {
+        delete err;
+        err = NULL;
+      }
+    }
+  }
+
+  cout << ">>>>>> Finish running simultaneous fit for " << sig->Name() << endl;
+  cout << ">>>>>> " << nb->getVal() << endl;
+  cout << ">>>>>> " << ns->getVal() << endl;
+
+
+  if( datasetname.find( "pseudo" ) != string::npos ){// Early exit for psuedo data set
+    return err;
+  }
+
 
   // Adding external term
   RooRealVar* c = data->NewVar( bgfuncname + "sys", 0, -5, 5 );// Item for adding background shape systematic
@@ -169,7 +208,6 @@ SimFitSingle(
 
   data->AddPdf( bkgsys );
   data->AddPdf( bkgtot );
-  data->AddPdf( model );
   return err;
 }
 
@@ -382,11 +420,14 @@ MakeSimFitPlot(
     RooFit::DrawOption( PGS_SIGNAL )
     );
 
-  TGraph* bgerrplot = mgr::PlotOn(
-    frame, model,
-    RooFit::Components( RooArgList( *bgpdf ) ),
-    RooFit::VisualizeError( *fitres, 1, kFALSE )
-    );
+  TGraph* bgerrplot =
+    ( fitres->covarianceMatrix().Determinant() != 0 && datasetname == "" ) ?
+    mgr::PlotOn(
+      frame, bgpdf,
+      RooFit::VisualizeError( *fitres, 1, kFALSE )
+      ) :
+    mgr::PlotOn( frame, bgpdf );
+
 
   TGraph* bgplot = mgr::PlotOn(
     frame, bgpdf,
@@ -463,7 +504,7 @@ MakeSimFitPlot(
 
   boost::format sigfmt( "%s(#times%.1lf)" );
   const string sigentry  = str( sigfmt % sig->RootName() % multipler );
-  const string dataentry = datasetname == "pseudo" ? "Pseudo data" : "Data";
+  const string dataentry = datasetname.find( "pseudo" ) != string::npos ? "Pseudo data" : "Data";
   const string bgentry   = "Fitted bkg. (#pm 1 s.d.)";
   const string mdlentry  = "Fitted bkg. + sig.";
 
@@ -495,13 +536,12 @@ MakeSimFitPlot(
   .WriteLine( expentry )
   .WriteLine( detentry );
 
-
   // Saving and cleaning up
-  vector<string> taglist = ( datasetname != "pseudo" )
+  vector<string> taglist = ( datasetname.find( "pseudo" ) == string::npos )
                            ? vector<string>( {datasetname, sig->Name(), exttag} )
-                           : vector<string>( {datasetname, sig->Name(), exttag, SigStrengthTag() } );
+                           : vector<string>( {"pseudo",    sig->Name(), exttag, SigStrengthTag() } );
 
-  const string prefix   = ( datasetname != "pseudo" ) ? "fitplot" : "valsimfitplot";
+  const string prefix   = ( datasetname.find( "pseudo" ) == string::npos ) ? "fitplot" : "valsimfitplot";
   const string mainname = limnamer.PlotFileName( prefix, taglist );
   taglist.push_back( "log" );
   const string logname = limnamer.PlotFileName( prefix, taglist );
@@ -539,4 +579,95 @@ MakeSimFitPlot(
   delete frame;
   delete leg;
   delete c;
+}
+
+/******************************************************************************/
+
+void
+MakeVarValPlot( SampleRooFitMgr* data )
+{
+  const vector<string> siglist = limnamer.MasterConfig().GetStaticStringList( "Signal List" );
+  TGraphAsymmErrors* nsplot    = new TGraphAsymmErrors( siglist.size() );
+  TGraphAsymmErrors* nbplot    = new TGraphAsymmErrors( siglist.size() );
+  TGraphAsymmErrors* aplot     = new TGraphAsymmErrors( siglist.size() );
+  TGraphAsymmErrors* bplot     = new TGraphAsymmErrors( siglist.size() );
+
+  // Filling the plots
+  for( size_t i = 0; i < siglist.size(); ++i  ){
+    const auto& signame      = siglist.at( i );
+    const string combpdfname = SimFitCombinePdfName( "", signame );
+    const RooRealVar* nb     = data->Var( combpdfname + "nb" );
+    const RooRealVar* ns     = data->Var( combpdfname + "ns" );
+
+    const string bgpdfname = SimFitBGPdfName( "", signame );
+    const RooRealVar* avar = data->Var( bgpdfname + "a" );
+    const RooRealVar* bvar = data->Var( bgpdfname + "b" );
+
+    nsplot->SetPoint( i, GetInt( signame ), ns->getVal() );
+    nsplot->SetPointError( i, 50, 50, -ns->getErrorLo(), ns->getErrorHi() );
+
+    nbplot->SetPoint( i, GetInt( signame ), nb->getVal() );
+    nbplot->SetPointError( i, 50, 50, -nb->getErrorLo(), nb->getErrorHi() );
+
+    aplot->SetPoint( i, GetInt( signame ), avar->getVal() );
+    aplot->SetPointError( i, 50, 50, -avar->getErrorLo(), avar->getErrorHi() );
+
+    bplot->SetPoint( i, GetInt( signame ), bvar->getVal() );
+    bplot->SetPointError( i, 50, 50, -bvar->getErrorLo(), bvar->getErrorHi() );
+  }
+
+  // Creating the plots
+  for( const auto plot : {nsplot, nbplot, aplot, bplot} ){
+    const string plottag =
+      ( plot == nsplot ) ?  "ns" :
+      ( plot == nbplot ) ?  "nb" :
+      ( plot == aplot  ) ?  "m0" :
+      ( plot == bplot  ) ?  "a2" :
+      "";
+    const string yaxis = "fit value (" + std::string(
+      ( plot == nsplot ) ?  "n_{s}" :
+      ( plot == nbplot ) ?  "n_{b}" :
+      ( plot == aplot  ) ?  "m_{0} GeV/c^{2}" :
+      ( plot == bplot  ) ?  "a_{2}" :
+      "" ) + ")" + std::string(
+      ( plot == nbplot ) ? "#times10^{3}" : ""
+      );
+
+
+    TCanvas* c = mgr::NewCanvas();
+    mgr::SetSinglePad( c );
+
+    plot->Draw( "APZ" );
+    tstar::SetDataStyle( plot );
+    mgr::SetAxis( plot );
+
+    plot->GetXaxis()->SetTitle( "Signal mass (GeV/c^{2})" );
+    plot->GetYaxis()->SetTitle( yaxis.c_str() );
+
+    const double ymax = GetYmax( plot );
+    const double ymin = GetYmin( plot );
+
+    plot->SetMaximum( ymax + ( ymax-ymin ) * 0.25 );
+    plot->SetMinimum( ymin - ( ymax-ymin ) * 0.25 );
+
+    mgr::DrawCMSLabel();
+    mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
+
+    mgr::LatexMgr latex;
+    latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
+    .WriteLine( limnamer.GetChannelEXT( "Root Name" ) );
+
+    mgr::SaveToPDF( c, limnamer.PlotFileName( "varfitval", plottag ) );
+    mgr::SaveToROOT(
+      c,
+      limnamer.PlotRootFile(),
+      limnamer.OptFileName( "", "varfitval", plottag )
+      );
+    delete c;
+  }
+
+  delete nsplot;
+  delete nbplot;
+  delete aplot;
+  delete bplot;
 }

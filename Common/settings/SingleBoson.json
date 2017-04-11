@@ -5,7 +5,7 @@
    -----------------------------------------------------------------------------""",
    "__WJets_100_200": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [100,200)\\GeVc",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [100,200)\\GeVc",
       "Root Name": "W+jets ( 100 #leq H_{T} #leq 200)",
       "Cross Section":[1345, 1.2, 1.2],
       "K Factor":     1.21,
@@ -17,7 +17,7 @@
    },
    "WJets_200_400": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [200,400)\\GeVc",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [200,400)\\GeVc",
       "Root Name": "W+jets ( 200 #leq H_{T} #leq 400)",
       "Cross Section": [ 359.7, 0.2, 0.2 ],
       "K Factor":      1.21,
@@ -29,7 +29,7 @@
    },
    "WJets_400_600": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [400,600)\\GeVc",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [400,600)\\GeVc",
       "Root Name": "W+jets ( 400 #leq H_{T} #leq 600)",
       "Cross Section": [ 48.91 , 0.072, 0.072 ],
       "K Factor":      1.21,
@@ -41,7 +41,7 @@
    },
    "WJets_600_800": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [600,800)\\GeVc ",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [600,800)\\GeVc ",
       "Root Name": "W+jets ( 600 #leq H_{T} #leq 800)",
       "Cross Section":        [ 12.05, 0.0073, 0.0073 ],
       "K Factor":        1.21,
@@ -53,7 +53,7 @@
    },
    "WJets_800_1200": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [800,1200)\\GeVc ",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [800,1200)\\GeVc ",
       "Root Name": "W+jets ( 800 #leq H_{T} #leq 1200)",
       "Cross Section":[ 6.501, 0.0017, 0.0017 ],
       "K Factor":1.21,
@@ -65,7 +65,7 @@
    },
    "WJets_1200_2500": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [1200,2500)\\GeVc ",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [1200,2500)\\GeVc ",
       "Root Name": "W+jets ( 1200 #leq H_{T} #leq 2500)",
       "Cross Section": [ 1.329, 0.0025, 0.0025 ],
       "K Factor":      1.21,
@@ -77,7 +77,7 @@
    },
    "WJets_2500_Inf": {
       "Is Data": false,
-      "Latex Name" : "\\PW+Jets, \\HT\\in [2500,\\infty)\\GeVc ",
+      "Latex Name" : "\\PW+Jets, \\HT$\\in$ [2500,\\infty)\\GeVc ",
       "Root Name": "W+jets ( 2500 #leq H_{T} #leq #infty)",
       "Cross Section": [ 0.03216, 0.000104, 0.000104 ],
       "K Factor":      1.21,
@@ -89,7 +89,7 @@
    },
    "__ZJets_100_200": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [100,200)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [100,200)\\GeVc",
       "Root Name": "Z+jets ( 100 #leq H_{T} #leq 200)",
       "Cross Section": [147.40, 0.09, 0.09],
       "K Factor": 1.23,
@@ -101,7 +101,7 @@
    },
    "ZJets_200_400": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [200,400)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [200,400)\\GeVc",
       "Root Name": "Z+jets ( 200 #leq H_{T} #leq 400)",
       "Cross Section": [40.99, 0.04, 0.04],
       "K Factor": 1.23,
@@ -113,7 +113,7 @@
    },
    "ZJets_400_600": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [400,600)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [400,600)\\GeVc",
       "Root Name": "Z+jets ( 400 #leq H_{T} #leq 600)",
       "Cross Section": [ 5.678, 0.005, 0.005 ],
       "K Factor": 1.23,
@@ -125,7 +125,7 @@
    },
    "ZJets_600_800": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [600,800)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [600,800)\\GeVc",
       "Root Name": "Z+jets ( 600 #leq H_{T} #leq 800)",
       "Cross Section": [2.559,0.007269,0.007269  ],
       "K Factor": 1.23,
@@ -137,7 +137,7 @@
    },
    "ZJets_800_1200": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [800,1200)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [800,1200)\\GeVc",
       "Root Name": "Z+jets ( 800 #leq H_{T} #leq 1200)",
       "Cross Section": [1.1796,0.00336,0.00336],
       "K Factor": 1.23,
@@ -149,7 +149,7 @@
    },
    "ZJets_1200_2500": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [1200,2500)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [1200,2500)\\GeVc",
       "Root Name": "Z+jets ( 1200 #leq H_{T} #leq 2500)",
       "Cross Section": [0.28833,0.000726,0.000726],
       "K Factor": 1.23,
@@ -161,7 +161,7 @@
    },
    "ZJets_2500_Inf": {
       "Is Data": false,
-      "Latex Name" : "\\Z+Jets, \\HT\\in [2500,\\infty)\\GeVc",
+      "Latex Name" : "\\Z+Jets, \\HT$\\in$ [2500,\\infty)\\GeVc",
       "Root Name": "Z+jets (2500#leq H_{T} #leq #infty)",
       "Cross Section": [0.006945,0.000021,0.000021],
       "K Factor": 1.23,

@@ -17,6 +17,9 @@ if os.path.exists( "./results" ):
 
 os.system('mkdir -p ./results')
 
+os.system( 'cp -r --verbose /wk_cms/sam7k9621/ele_TriggerStudy ./results')
+os.system( 'cp -r --verbose ' + tstardir + 'SignalMCStudy/results ./results/SignalMCStudy' )
+
 for direc in dirlist:
     os.system( 'mkdir -p ./results/'+direc)
     channellist = glob.glob( tstardir + direc + '/results/*' )
@@ -30,8 +33,6 @@ for direc in dirlist:
         for myfile in filelist:
             newname = './results/' +direc +'/'+ channel + '_' + os.path.basename( myfile )
             os.system( 'cp --verbose {} {}'.format(myfile,newname) )
-
-os.system( 'cp -r --verbos /wk_cms/sam7k9621/ele_TriggerStudy ./results')
 
 os.system('tar -zcvf results.tar.gz results')
 os.system("rm ./results -rf")

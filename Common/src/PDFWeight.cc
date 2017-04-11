@@ -175,15 +175,11 @@ GetMadGraphIdList(
   fwlite::Handle<LHEEventProduct> evthandle;
   evthandle.getByLabel( ev, "externalLHEProducer" );
 
-  const unsigned centralid   = stoi( evthandle.ref().weights().front().id );
-  const double centralweight = evthandle.ref().weights().front().wgt;
-
   unsigned targetid = -1;
 
   for( const auto& weightinfo : evthandle.ref().weights() ){
     const unsigned thisid   = stoi( weightinfo.id );
-    const double thisweight = weightinfo.wgt;
-    if( fabs( thisweight-centralweight ) < 0.01 && thisid != centralid ){
+    if( thisid == 111 ){
       targetid = thisid;
       break;
     }

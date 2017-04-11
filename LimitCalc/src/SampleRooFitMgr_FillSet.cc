@@ -94,6 +94,8 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
       % GetSampleEventTopPtWeight( sample, ev )
          << flush;
 
+    if( sample.Name() == "TTJets" && SkipTTbar(ev) ){ continue; }
+
     // Muon additional selections
     muonHandle.getByLabel( ev, "skimmedPatMuons" );
     elechandle.getByLabel( ev, "skimmedPatElectrons" );

@@ -132,31 +132,23 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++evtcounter ){
     const auto& ev = myevt.Base();
+    if( sample.Name() == "TTJets" && SkipTTbar(ev) ){ continue; }
 
     const double btagweight     = GetBtagWeight( ev );
     const double btagweightup   = GetBtagWeightUp( ev );
     const double btagweightdown = GetBtagWeightDown( ev );
-    // const Parameter btagparam( btagweight, btagweightup-btagweight, btagweight-btagweightdown );
 
     const double puweight     = GetPileupWeight( ev );
     const double puweightup   = GetPileupWeightXsecup( ev );
     const double puweightdown = GetPileupWeightXsecdown( ev );
-    // const Parameter puparam(
-    //   puweight,
-    //   std::max( std::max( puweightup,           puweightdown ) - puweight, 0. ),
-    //   std::max( puweight - std::min( puweightup, puweightdown ),           0. )
-    //   );
 
     const double leptonweight     = GetElectronWeight( ev ) * GetMuonWeight( ev );
     const double leptonweightup   = GetElectronWeightUp( ev ) * GetMuonWeightUp( ev );
     const double leptonweightdown = GetElectronWeightDown( ev ) * GetMuonWeightDown( ev );
-    // const Parameter leptonparam( leptonweight, leptonweightup-leptonweight, leptonweight-leptonweightdown );
 
     const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
     const double pdfweighterr   = GetPdfWeightError( ev, pdfidgroup );
     const double scaleweighterr = GetScaleWeightError( ev, pdfidgroup );
-    // const Parameter pdfparam( 1, pdfweighterr, pdfweighterr );
-    // const Parameter scaleparam( 1, scaleweighterr, scaleweighterr );
 
     cout << progressbar
       % ( sample.Name() )
@@ -167,8 +159,6 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
 
     const double sign        = GetEventWeight( ev ) > 0 ? 1 : -1;
     const double eventweight = GetEventWeight( ev ) * topptweight;
-
-    // const Parameter weightprod = topptweight * Prod( btagparam, puparam, leptonparam, pdfparam, scaleparam );
 
     const double eventweightup = btagweightup
                                  * puweightup

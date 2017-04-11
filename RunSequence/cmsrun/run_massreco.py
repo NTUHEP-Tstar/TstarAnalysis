@@ -191,8 +191,8 @@ if "Signal" in options.Mode:
         * process.EventWeight
         * process.EventWeightAll
         * process.tstarMassReco
-        * process.tstarMassReco7jet
-        * process.tstarMassReco8jet
+        # * process.tstarMassReco7jet
+        # * process.tstarMassReco8jet
 
     )
 elif "Control" in options.Mode:

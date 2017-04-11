@@ -49,6 +49,8 @@ extern double GetEventTopPtWeight( const fwlite::EventBase& );
 // Getting normalized version
 extern double GetSampleEventTopPtWeight( const mgr::SampleMgr&, const fwlite::EventBase& );
 
+// Whether or not to skip event for ttbar
+extern bool SkipTTbar( const fwlite::EventBase& );
 
 /*******************************************************************************
 *   PDF weights could not be cached!
@@ -73,7 +75,6 @@ extern double GetPdfWeightError(
   const fwlite::EventBase&                   ev,
   const std::vector<std::vector<unsigned> >& pdfidgroup
   );
-
 
 extern std::vector<unsigned> GetMadGraphIdList(
   const fwlite::EventBase&                   ev,
@@ -115,11 +116,9 @@ extern double GetScaleWeightDownError(
   const std::vector<std::vector<unsigned> >& pdfidgroup
   );
 
-extern std::vector<unsigned> GetMadGraphScaleIdList( const fwlite::EventBase& ev
-                                                     );
+extern std::vector<unsigned> GetMadGraphScaleIdList( const fwlite::EventBase& ev );
 
-extern std::vector<unsigned> GetPowHegScaleIdList( const fwlite::EventBase& ev
-                                                   );
+extern std::vector<unsigned> GetPowHegScaleIdList( const fwlite::EventBase& ev );
 
 extern double GetScaleWeightUpError(
   const fwlite::EventBase&     ev,

@@ -15,6 +15,8 @@
 
 #include "RooDataSet.h"
 #include "RooFitResult.h"
+#include "RooMinimizer.h"
+#include "RooNLLVar.h"
 #include "TMath.h"
 
 #include <boost/format.hpp>
@@ -42,12 +44,12 @@ struct MyFitResult
 void
 CompareFitFunc( SampleRooFitMgr* mgr )
 {
-  TCanvas* c     = mgr::NewCanvas();
-  TPad* toppad   = mgr::NewTopPad();
-  TPad* botpad   = mgr::NewBottomPad();
-  RooPlot* frame = SampleRooFitMgr::x().frame();
-  const double xmin  = SampleRooFitMgr::x().getMin();
-  const double xmax  = SampleRooFitMgr::x().getMax();
+  TCanvas* c        = mgr::NewCanvas();
+  TPad* toppad      = mgr::NewTopPad();
+  TPad* botpad      = mgr::NewBottomPad();
+  RooPlot* frame    = SampleRooFitMgr::x().frame();
+  const double xmin = SampleRooFitMgr::x().getMin();
+  const double xmax = SampleRooFitMgr::x().getMax();
 
   vector<MyFitResult> fitlist;
   const vector<string> funclist = limnamer.GetInputList<string>( "fitfunc" );
@@ -59,7 +61,8 @@ CompareFitFunc( SampleRooFitMgr* mgr )
   toppad->cd();
 
   TGraphAsymmErrors* setplot = (TGraphAsymmErrors*)mgr::PlotOn(
-    frame, mgr->DataSet( "" )
+    frame, mgr->DataSet( "" ),
+    RooFit::DrawOption( PGS_DATA )
     );
 
   vector<double> prevfitvaluelist = {280, 0.51};
@@ -70,40 +73,66 @@ CompareFitFunc( SampleRooFitMgr* mgr )
 
     // Setting up fitting parameters with previous fit results for faster convertions
     vector<RooRealVar*> fitparams = mgr->VarContains( fitfunc );
-    for( size_t i = 0 ; i < fitparams.size() ; ++i ){
+
+    for( size_t i = 0; i < fitparams.size(); ++i ){
       if( i < prevfitvaluelist.size() ){
-        *(fitparams.at(i)) = prevfitvaluelist.at(i);
+        *( fitparams.at( i ) ) = prevfitvaluelist.at( i );
       } else {
-        *(fitparams.at(i)) = 0 ;
+        *( fitparams.at( i ) ) = 0;
+      }
+    }
+
+    // Manually calling NNL minizer functions
+    static RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
+    static RooCmdArg sumerr = RooFit::SumW2Error( kTRUE );
+    static RooCmdArg minos  = RooFit::Hesse( kTRUE );
+    static RooCmdArg save   = RooFit::Save();
+    static RooCmdArg ncpu   = RooFit::NumCPU( 6 );
+    static RooCmdArg verb   = RooFit::Verbose( kFALSE );
+    static RooCmdArg printl = RooFit::PrintLevel( -1 );
+    static RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
+    static RooCmdArg printw = RooFit::Warnings( kFALSE );
+
+    RooLinkedList fitopt;
+    fitopt.Add( &min    );
+    fitopt.Add( &sumerr );
+    fitopt.Add( &minos  );
+    fitopt.Add( &save   );
+    fitopt.Add( &ncpu   );
+    fitopt.Add( &verb   );
+    fitopt.Add( &printl );
+    fitopt.Add( &printe );
+    fitopt.Add( &printw );
+
+    RooFitResult* ans = NULL;
+
+    while( !ans ){
+      ans = pdf->fitTo( *set, fitopt );
+      if( ans->status() ){// Not properly converged
+        delete ans;
+        ans = NULL;
       }
     }
 
     MyFitResult x;
 
-    x.fitresult = pdf->fitTo(
-      *set,
-      RooFit::Minimizer("Minuit","Migrad"),
-      RooFit::SumW2Error( kTRUE ),
-      RooFit::Minos( kTRUE ),
-      RooFit::Save(),
-      RooFit::PrintLevel(-1),
-      RooFit::Verbose( kFALSE ),
-      RooFit::PrintEvalErrors( -1 ),
-      RooFit::Warnings( kFALSE )
-      );
-    x.fitplot  = mgr::PlotOn( frame, pdf );
-    x.ksvalue  = KSTest( *set, *pdf, SampleRooFitMgr::x() );
-    x.pullplot = mgr::DividedGraph( setplot, x.fitplot );
+    // Saving fit results
+    x.fitresult = ans;
+    x.fitplot   = mgr::PlotOn( frame, pdf );
+    x.ksvalue   = KSTest( *set, *pdf, SampleRooFitMgr::x() );
+    x.pullplot  = mgr::DividedGraph( setplot, x.fitplot );
 
     // Small information dump after fit
     prevfitvaluelist.clear();
     cout << "Minimum NLL:" << x.fitresult->minNll() << endl;
     cout << "Parameter fit values: " << endl;
-    for( int i = 0 ; i < x.fitresult->floatParsFinal().getSize() ; ++i ){
-      RooRealVar* var = (RooRealVar*)(x.fitresult->floatParsFinal().at(i));
-      cout << var->GetName() << " " << var->getVal() << endl;
+
+    for( int i = 0; i < x.fitresult->floatParsFinal().getSize(); ++i ){
+      RooRealVar* var = (RooRealVar*)( x.fitresult->floatParsFinal().at( i ) );
+      cout << var->GetName() << " " << var->getVal() << " " << var->getError() << endl;
       prevfitvaluelist.push_back( var->getVal() );
     }
+
     cout << "===" << endl;
 
     fitlist.push_back( x );
@@ -128,14 +157,14 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     mg->Add( fitresult.pullplot, "Z" );
   }
 
-  TLine line    ( xmin, 1, xmax, 1 );
+  TLine line( xmin, 1, xmax, 1 );
   TLine line_top( xmin, 1.5, xmax, 1.5 );
   TLine line_bot( xmin, 0.5, xmax, 0.5 );
 
   mg->Draw( "AZ" );
-  line.Draw("SAME");
-  line_top.Draw("SAME");
-  line_bot.Draw("SAME");
+  line.Draw( "SAME" );
+  line_top.Draw( "SAME" );
+  line_bot.Draw( "SAME" );
   mg->GetXaxis()->SetTitle( frame->GetXaxis()->GetTitle() );
   mg->GetYaxis()->SetTitle( "Data/Fit" );
   mg->GetXaxis()->SetRangeUser( xmin, xmax );
@@ -200,7 +229,7 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     const double nextnll  = fitlist[i+1].fitresult->minNll();
     const int thisorder   = fitlist[i].fitresult->floatParsFinal().getSize();
     const int nextorder   = fitlist[i+1].fitresult->floatParsFinal().getSize();
-    const double chi2test = TMath::Prob( 2*( std::max( fabs(thisnll-nextnll), 0. ) ), nextorder-thisorder );
+    const double chi2test = TMath::Prob( 2*( std::max( fabs( thisnll-nextnll ), 0. ) ), nextorder-thisorder );
 
     latex.WriteLine( boost::str( chi2testfmt % thisorder % nextorder % chi2test ) );
   }

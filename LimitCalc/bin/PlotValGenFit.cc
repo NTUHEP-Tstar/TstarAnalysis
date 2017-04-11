@@ -20,7 +20,7 @@ int
 main( int argc, char* argv[] )
 {
   limnamer.AddOptions( LimitOptions() ).AddOptions( PsuedoExpOptions() );
-  limnamer.SetNamingOptions( "fitfunc", "era" );
+  limnamer.SetNamingOptions( "fitfunc", "era", "bkgtype" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }

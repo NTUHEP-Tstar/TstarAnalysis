@@ -158,9 +158,15 @@
       },
       "NoTopConstrain6j2b": {
          "Root Name": "HitFit, 6 jets (2 bjets)"
+      },
+      "ChiSq6jet2bpdgres" : {
+        "Root Name" : "Simple sorting, 6 jets (PDG res.)"
+      },
+      "ChiSq6jet2bmcres" : {
+        "Root Name" : "Simple sorting, 6 jets (MC res.)"
+      },
+      "ChiSq6jet2bmcrestopshift" : {
+        "Root Name" : "Simple sorting, 6 jets (MC res. #sigma_{t} shifted)"
       }
-   },
-
-   "Image format": "png"
-
+   }
 }

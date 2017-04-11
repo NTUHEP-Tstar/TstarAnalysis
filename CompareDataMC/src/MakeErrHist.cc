@@ -61,7 +61,7 @@ MakeFullComparePlot(
 
     l->AddEntry( bkgerror, "Uncertainty (stat #oplus sys)",                                                           "fl" );
     l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
-    
+
     MakePlot(
       stack,
       bkgerror,
@@ -141,7 +141,10 @@ ExpectedYield( const vector<SampleErrHistMgr*>& samplelist )
 
   for( const auto& group : samplelist ){
     for( const auto& sample : group->SampleList() ){
-      ans += sample.CrossSection() * sample.SelectionEfficiency();
+      ans += sample.CrossSection()
+      * sample.SelectionEfficiency()
+      * sample.PDFUncertainty()
+      * sample.QCDScaleUncertainty() ;
     }
   }
 
@@ -189,6 +192,19 @@ MakeBkgError(
   vector<pair<TH1D*, TH1D*> > errorhistlist;
 
   for( const auto& err : histerrlist ){
+
+    // rescaling object for PDF and QCD scale errors
+    if( err.tag == "pdf" || err.tag == "scale " ){
+      for( const auto sample : samplelist ){
+        TH1D* central  = sample->Hist( histname );
+        TH1D* uphist   = sample->Hist( histname + err.tag + "up" );
+        TH1D* downhist = sample->Hist( histname + err.tag + "down" );
+        uphist->Scale( central->Integral()/uphist->Integral() );
+        downhist->Scale( central->Integral()/downhist->Integral() );
+      }
+    }
+
+    // Creating the summed results.
     errorhistlist.emplace_back(
       MakeSumHistogram( samplelist, histname + err.tag + "up" ),
       MakeSumHistogram( samplelist, histname + err.tag + "down" )
@@ -261,14 +277,16 @@ PlotErrCompare(
     errup->Scale( central->Integral() / errup->Integral() );
     errdown->Scale( central->Integral() / errdown->Integral() );
   }
-
-
   // Making duplicate objects
-  TH1D* uprel   = mgr::DivideHist( errup, central );
-  TH1D* downrel = mgr::DivideHist( errdown, central );
+  TH1* uprel   = mgr::DivideHist( errup, central );
+  TH1* downrel = mgr::DivideHist( errdown, central );
 
   const double xmin = central->GetXaxis()->GetXmin();
   const double xmax = central->GetXaxis()->GetXmax();
+  // Setting plot range
+  const double ymax     = mgr::GetYmax( central, errup, errdown );
+  const double relymax  = std::max( uprel->GetMaximum(), downrel->GetMaximum() );
+  const double bpaddist = std::ceil( ( relymax-1 )*10 )/10.;
 
   // Plotting
   TCanvas* c = mgr::NewCanvas();
@@ -283,10 +301,11 @@ PlotErrCompare(
   central->Draw( PS_HIST PS_SAME );
   c->cd();
 
+  // Bottom pad
   TPad* pad2      = mgr::NewBottomPad();
   TLine* line     = new TLine( xmin, 1, xmax, 1 );
-  TLine* line_top = new TLine( xmin, 1.5, xmax, 1.5 );
-  TLine* line_bot = new TLine( xmin, 0.5, xmax, 0.5 );
+  TLine* line_top = new TLine( xmin, 1+bpaddist, xmax, 1+bpaddist );
+  TLine* line_bot = new TLine( xmin, 1-bpaddist, xmax, 1-bpaddist );
   pad2->Draw();
   pad2->cd();
 
@@ -330,10 +349,9 @@ PlotErrCompare(
   mgr::SetBottomPlotAxis( uprel );
 
   // Setting plot range
-  const double ymax = mgr::GetYmax( {central, errup, errdown} );
   central->SetMaximum( ymax * 1.5 );
-  uprel->SetMaximum( 2.2 );
-  uprel->SetMinimum( -0.2 );
+  uprel->SetMaximum( 1+( bpaddist+0.1 ) );
+  uprel->SetMinimum( 1-( bpaddist+0.1 ) );
   uprel->GetYaxis()->SetTitle( "#frac{up,down}{Norm}" );
 
 

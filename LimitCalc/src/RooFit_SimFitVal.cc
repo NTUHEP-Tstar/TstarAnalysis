@@ -12,6 +12,7 @@
 #include "TstarAnalysis/LimitCalc/interface/SimFitVal.hpp"
 #include "TstarAnalysis/LimitCalc/interface/Template.hpp"
 
+#include "ManagerUtils/Common/interface/Random.hpp"
 #include "ManagerUtils/PlotUtils/interface/Common.hpp"
 #include "ManagerUtils/PlotUtils/interface/RooFitUtils.hpp"
 #include <boost/filesystem.hpp>
@@ -31,10 +32,14 @@ using namespace std;
 *   Helper functions
 *******************************************************************************/
 void
-RunGenFit( SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
+RunGenFit(
+  SampleRooFitMgr* mc,
+  SampleRooFitMgr* sigmgr,
+  SampleRooFitMgr* data
+  )
 {
   RooFitResult* bgconstrain = FitBackgroundTemplate( mc, "" );
-  const double bkgnum       = mc->DataSet()->sumEntries();
+  const double bkgnum       = data->DataSet()->sumEntries();
   const double signum
     = limnamer.CheckInput( "relmag" ) ? sigmgr->ExpectedYield() * limnamer.GetInput<double>( "relmag" ) :
       limnamer.GetInput<double>( "absmag" );
@@ -47,7 +52,7 @@ RunGenFit( SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
   RooAbsPdf* sigfunc = MakeSingleKeysPdf( sigmgr, "" );
 
   const string strgthtag = SigStrengthTag();
-  const string filename  = limnamer.TextFileName( "valsimfit", {strgthtag} );
+  const string filename  = limnamer.TextFileName( "valsimfit", strgthtag );
 
   ofstream result;
   if( !boost::filesystem::exists( filename ) ){
@@ -65,7 +70,7 @@ RunGenFit( SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
   RooRandom::randomGenerator()->SetSeed( time( NULL ) );
 
   for( int i = 0; i < limnamer.GetInput<int>( "num" ); ++i ){
-    const string pseudosetname = "pseudo";
+    const string pseudosetname = "pseudo" + mgr::RandomString( 6 );
 
     RooDataSet* psuedoset = bkgfunc->generate(
       SampleRooFitMgr::x(),
@@ -87,38 +92,49 @@ RunGenFit( SampleRooFitMgr* mc, SampleRooFitMgr* sigmgr )
     mc->AddDataSet( psuedoset );
     mc->SetConstant( kFALSE );
 
-    auto fitres = SimFitSingle( mc, sigmgr, pseudosetname, bgconstrain );
-
-    // Getting results
+    auto fitres                 = SimFitSingle( mc, sigmgr, pseudosetname, bgconstrain );
     const string pseudobgname   = SimFitBGPdfName( pseudosetname, sigmgr->Name() );
     const string pseudocombname = SimFitCombinePdfName( pseudosetname, sigmgr->Name() );
-    const RooRealVar* bkgfit    = mc->Var( pseudocombname+"nb" );
-    const RooRealVar* sigfit    = mc->Var( pseudocombname+"ns" );
-    const RooRealVar* p1fit     = mc->Var( pseudobgname + "a" );
-    const RooRealVar* p2fit     = mc->Var( pseudobgname + "b" );
+    const RooRealVar* bkgfit    = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudocombname+"nb" ).c_str() ) );
+    const RooRealVar* sigfit    = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudocombname+"ns" ).c_str() ) );
+    const RooRealVar* p1fit     = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudobgname + "a" ).c_str() ) );
+    const RooRealVar* p2fit     = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudobgname + "b" ).c_str() ) );
 
-    result << boost::format(  "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf" )
-      % bkgfit->getVal() % bkgfit->getError()
-      % sigfit->getVal() % sigfit->getError()
-      % p1fit->getVal() % p1fit->getError()
-      % p2fit->getVal() % p2fit->getError()
-           << endl;
+    if( fitres->status() ){// Only if status is 0
+      // Getting results
 
-    // Saving plots for special cases
-    if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
-      MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "bkgexcess" );
-    } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
-      MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "bkgdifficient" );
-    } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
-      MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "sigexcess" );
-    } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
-      MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "sigdifficient" );
-    } else if( i%100 == 0 ){
-      MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname );
+      result << boost::format(  "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf" )
+        % bkgfit->getValV() % bkgfit->getError()
+        % sigfit->getValV() % sigfit->getError()
+        % p1fit->getValV() % p1fit->getError()
+        % p2fit->getValV() % p2fit->getError()
+             << endl;
+
+      // Saving plots for special cases
+      if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
+        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "bkgexcess" );
+      } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
+        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "bkgdifficient" );
+      } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
+        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "sigexcess" );
+      } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
+        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "sigdifficient" );
+      } else if( i%100 == 0 ){
+        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname );
+      }
+    } else {
+      --i;
     }
 
     // Deleting to avoid taking up to much memory
     mc->RemoveDataSet( pseudosetname );
+    mc->RemovePdf( pseudobgname );
+    mc->RemovePdf( pseudocombname );
+    mc->RemoveVar( pseudocombname + "nb" );
+    mc->RemoveVar( pseudocombname + "ns" );
+    mc->RemoveVar( pseudobgname + "a" );
+    mc->RemoveVar( pseudobgname + "b" );
+
   }
 
   result.close();

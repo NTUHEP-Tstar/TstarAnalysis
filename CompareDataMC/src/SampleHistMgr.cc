@@ -129,8 +129,10 @@ SampleHistMgr::FillFromSample( SampleMgr& sample )
 
   for( myevt.toBegin(); !myevt.atEnd(); ++myevt, ++i ){
     const auto& ev = myevt.Base();
-
     cout << processform % Name() % sample.Name() % i % myevt.size() << flush;
+
+    
+    if( sample.Name() == "TTJets" && SkipTTbar(ev) ){ continue; }
 
     metHandle.getByLabel( ev, "slimmedMETs"    );
     vtxHandle.getByLabel( ev, "offlineSlimmedPrimaryVertices" );

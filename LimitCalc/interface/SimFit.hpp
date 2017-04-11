@@ -72,6 +72,10 @@ extern void MakeSimFitPlot(
   const std::string& exttag = ""
   );
 
+extern void MakeVarValPlot(
+  SampleRooFitMgr* data
+);
+
 extern void MakeSimFitCardFile(
   SampleRooFitMgr* data,
   SampleRooFitMgr* sig

@@ -15,46 +15,6 @@
 
     "Default Json": "Signal.json",
 
-    "DataMuonICHEP": {
-        "Latex Name": "Data",
-        "Root Name": "Data",
-        "Subset Json": "Data_Muon.json",
-        "Sample List": ["Run2016B", "Run2016C", "Run2016D"]
-    },
-
-    "DataElectronICHEP": {
-        "Latex Name": "Data",
-        "Root Name": "Data",
-        "Subset Json": "Data_Electron.json",
-        "Sample List": ["Run2016B", "Run2016C", "Run2016D"]
-    },
-
-    "DataMuonPostHIP": {
-        "Latex Name": "Data",
-        "Root Name": "Data",
-        "Subset Json": "Data_Muon.json",
-        "Sample List": ["Run2016G"]
-    },
-    "DataElectronPostHIP": {
-        "Latex Name": "Data",
-        "Root Name": "Data",
-        "Subset Json": "Data_Electron.json",
-        "Sample List": ["Run2016G"]
-    },
-
-    "DataMuonEarly": {
-        "Latex Name": "Data",
-        "Root Name": "Data",
-        "Subset Json": "Data_Muon.json",
-        "Sample List": ["Run2016B"]
-    },
-    "DataElectronEarly": {
-        "Latex Name": "Data",
-        "Root Name": "Data",
-        "Subset Json": "Data_Electron.json",
-        "Sample List": ["Run2016B"]
-    },
-
     "DataMuonAll": {
         "Latex Name": "Data",
         "Root Name": "Data",
@@ -70,21 +30,13 @@
     "TTJets": {
         "Latex Name": "Top pair",
         "Root Name": "t#bar{t} + jets",
-        "Subset Json": "TopSamples.json",
-        "Sample List": ["TTJets"]
+        "File List": ["TopPair.json"]
     },
 
     "SingleTop": {
         "Latex Name": "Single Top",
         "Root Name": "Single t",
-        "Subset Json": "TopSamples.json",
-        "Sample List": [
-            "SingleT_S",
-            "SingleT_T_top",
-            "SingleT_T_antitop",
-            "SingleT_TW",
-            "SingleTbar_TW"
-        ]
+        "File List":["SingleTop.json"]
     },
 
     "TTBoson": {
@@ -109,7 +61,60 @@
         "Latex Name": "MC bkg.",
         "Root Name": "MC bkg.",
         "File List": [
-            "TopSamples.json",
+            "TopPair.json",
+            "SingleTop.json",
+            "TTPlusBoson.json",
+            "SingleBoson.json"
+        ]
+    },
+
+    "BackgroundNoMtt": {
+        "Latex Name": "MC bkg.",
+        "Root Name": "MC bkg.",
+        "File List": [
+            "TopPairOld.json",
+            "SingleTop.json",
+            "TTPlusBoson.json",
+            "SingleBoson.json"
+        ]
+    },
+
+    "BackgroundFSRup": {
+        "Latex Name": "MC bkg.",
+        "Root Name": "MC bkg.",
+        "File List": [
+            "TopPairFSRup.json",
+            "SingleTop.json",
+            "TTPlusBoson.json",
+            "SingleBoson.json"
+        ]
+    },
+    "BackgroundFSRdown": {
+        "Latex Name": "MC bkg.",
+        "Root Name": "MC bkg.",
+        "File List": [
+            "TopPairFSRdown.json",
+            "SingleTop.json",
+            "TTPlusBoson.json",
+            "SingleBoson.json"
+        ]
+    },
+    "BackgroundISRup": {
+        "Latex Name": "MC bkg.",
+        "Root Name": "MC bkg.",
+        "File List": [
+            "TopPairISRup.json",
+            "SingleTop.json",
+            "TTPlusBoson.json",
+            "SingleBoson.json"
+        ]
+    },
+    "BackgroundISRdown": {
+        "Latex Name": "MC bkg.",
+        "Root Name": "MC bkg.",
+        "File List": [
+            "TopPairISRdown.json",
+            "SingleTop.json",
             "TTPlusBoson.json",
             "SingleBoson.json"
         ]

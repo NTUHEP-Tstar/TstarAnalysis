@@ -36,6 +36,13 @@
 ./CompareMethods -c ElectronSignal -m 1200 -o masswidthcomp     -x ChiSq6jet2b ChiSq6jet2bwidetstar
 ./CompareMethods -c ElectronSignal -m 1600 -o masswidthcomp     -x ChiSq6jet2b ChiSq6jet2bwidetstar
 
+./CompareMethods -c MuonSignal     -m 800  -o ressourcecomp  -x ChiSq6jet2bpdgres ChiSq6jet2bmcres ChiSq6jet2bmcrestopshift
+./CompareMethods -c MuonSignal     -m 1200 -o ressourcecomp  -x ChiSq6jet2bpdgres ChiSq6jet2bmcres ChiSq6jet2bmcrestopshift
+./CompareMethods -c MuonSignal     -m 1600 -o ressourcecomp  -x ChiSq6jet2bpdgres ChiSq6jet2bmcres ChiSq6jet2bmcrestopshift
+./CompareMethods -c ElectronSignal -m 800  -o ressourcecomp  -x ChiSq6jet2bpdgres ChiSq6jet2bmcres ChiSq6jet2bmcrestopshift
+./CompareMethods -c ElectronSignal -m 1200 -o ressourcecomp  -x ChiSq6jet2bpdgres ChiSq6jet2bmcres ChiSq6jet2bmcrestopshift
+./CompareMethods -c ElectronSignal -m 1600 -o ressourcecomp  -x ChiSq6jet2bpdgres ChiSq6jet2bmcres ChiSq6jet2bmcrestopshift
+
 ./CompareMethods -c MuonSignal     -m 800  -o chisqstd     -x ChiSq6jet2b
 ./CompareMethods -c MuonSignal     -m 1200 -o chisqstd     -x ChiSq6jet2b
 ./CompareMethods -c MuonSignal     -m 1600 -o chisqstd     -x ChiSq6jet2b

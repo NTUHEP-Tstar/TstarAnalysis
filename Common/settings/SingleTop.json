@@ -1,30 +1,15 @@
 {
-   "___Comment___":"""-------------------------------------------------------
-      Top quark pair production
-      Reference: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO#Top_quark_pair_cross_sections_at
-   ---------------------------------------------------------------------""",
-   "TTJets": {
-      "Is Data": false,
-      "Latex Name" : "\\ttbar+Jets",
-      "Root Name": "t#bar{t} + jets",
-      "Cross Section": [ 831.76, 23.18, 22.45 ],
-      "K Factor": 1.0,
-      "Generator": "\\POWHEG",
-      "Cross Section Source": "NNLO",
-      "EDM Files":[
-         "TT_Tune*.root"
-      ]
-   },
-
    "___Comment___":"""-----------------------------------------------------------
    #    Single top production
-   #    Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Single_top
+   #    Reference: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
       "Is Data": false,
       "Latex Name" : "Single \\PQt, s-channel",
       "Root Name": "Single t (s)",
-      "Cross Section": [ 3.36, 0.13, 0.12 ],
+      "Cross Section": [ 10.32, 0.23, 0.22 ],
+      "PDF Uncertainty" : [1, 0.0262, 0.0262],
+      "QCD Uncertainty" : [1, 0.0281, 0.0233],
       "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
@@ -36,7 +21,9 @@
       "Is Data": false,
       "Latex Name" : "Single \\PQt, t-channel",
       "Root Name": "Single t (t)",
-      "Cross Section": [ 44.33, 2.94, 2.51 ],
+      "Cross Section": [ 136.02, 1.11, 1.11 ],
+      "PDF Uncertainty" : [1, 0.0259, 0.0259],
+      "QCD Uncertainty" : [1, 0.0301, 0.0215],
       "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
@@ -48,7 +35,9 @@
       "Is Data": false,
       "Latex Name" : "Single \\PAQt, \\PQt Channel",
       "Root Name": "Single #bar{t} (t)",
-      "Cross Section": [ 28.38, 1.32, 1.18 ],
+      "Cross Section": [ 80.95, 0.71,0.70],
+      "PDF Uncertainty" : [1, 0.0393, 0.0393],
+      "QCD Uncertainty" : [1, 0.0313, 0.0211],
       "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
@@ -61,6 +50,8 @@
       "Latex Name" : "Single \\PQt, \\PQt\\PW Channel",
       "Root Name": "Single t (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
+      "PDF Uncertainty" : [1, 0.0474, 0.0474],
+      "QCD Uncertainty" : [1, 0.0251, 0.0251],
       "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",
@@ -73,6 +64,8 @@
       "Latex Name" : "Single \\PAQt, \\PQt\\PW Channel)",
       "Root Name": "Single #bar{t} (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
+      "PDF Uncertainty" : [1, 0.0474, 0.0474],
+      "QCD Uncertainty" : [1, 0.0251, 0.0251],
       "K Factor":      1.0,
       "Generator": "\\MCATNLO",
       "Cross Section Source": "NLO",

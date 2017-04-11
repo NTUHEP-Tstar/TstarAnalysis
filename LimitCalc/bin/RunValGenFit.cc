@@ -22,6 +22,7 @@ main( int argc, char* argv[] )
 {
   SampleRooFitMgr* mc     = NULL;
   SampleRooFitMgr* sigmgr = NULL;
+  SampleRooFitMgr* data   = NULL;
 
   opt::options_description desc( "Options for RunValGenFit" );
 
@@ -30,7 +31,7 @@ main( int argc, char* argv[] )
   ;
 
   limnamer.AddOptions( LimitOptions() ).AddOptions( PsuedoExpOptions() ).AddOptions( MassOptions() ).AddOptions( desc );
-  limnamer.SetNamingOptions( "fitfunc", "era", "masspoint" );
+  limnamer.SetNamingOptions( "fitfunc", "era", "bkgtype", "masspoint" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
@@ -40,8 +41,9 @@ main( int argc, char* argv[] )
   InitRooFitSettings( limnamer );
   InitSingle( sigmgr, limnamer.GetInput<string>( "masspoint" ) );
   InitMC( mc );
+  InitData( data );
 
-  RunGenFit( mc, sigmgr );
+  RunGenFit( mc, sigmgr, data );
 
   delete mc;
   delete sigmgr;

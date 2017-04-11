@@ -21,6 +21,8 @@
 #include <string>
 
 #include "RooDataSet.h"
+#include "RooNLLVar.h"
+#include "RooMinimizer.h"
 
 using namespace std;
 using namespace mgr;
@@ -80,18 +82,36 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
   const string bgpdfname = TemplatePdfName( datatag );
 
   RooAbsPdf* bgpdf = bg->NewPdf( bgpdfname, limnamer.GetInput<string>( "fitfunc" ) );
+  // Manually calling NNL minizer functions
+  static RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
+  static RooCmdArg sumerr = RooFit::SumW2Error( kTRUE );
+  static RooCmdArg minos  = RooFit::Hesse( kTRUE );
+  static RooCmdArg save   = RooFit::Save();
+  static RooCmdArg ncpu   = RooFit::NumCPU( 6 );
+  static RooCmdArg verb   = RooFit::Verbose( kFALSE );
+  static RooCmdArg printl = RooFit::PrintLevel( -1 );
+  static RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
+  static RooCmdArg printw = RooFit::Warnings( kFALSE );
 
-  RooFitResult* ans = bgpdf->fitTo(
-    *( bg->DataSet( datatag ) ),
-    RooFit::Save(),
-    RooFit::SumW2Error( kTRUE ),// For Weighted dataset
-    RooFit::Minimizer( "Minuit", "Migrad" ), // Minuit 2 seems to bad at converging?
-    RooFit::Minos( kTRUE ),
-    RooFit::Verbose( kFALSE ),
-    RooFit::PrintLevel( -1 ),
-    RooFit::PrintEvalErrors( -1 ),
-    RooFit::Warnings( kFALSE )
-    );
+  RooLinkedList fitopt;
+  fitopt.Add( &min    );
+  fitopt.Add( &sumerr );
+  fitopt.Add( &minos  );
+  fitopt.Add( &save   );
+  fitopt.Add( &ncpu   );
+  fitopt.Add( &verb   );
+  fitopt.Add( &printl );
+  fitopt.Add( &printe );
+  fitopt.Add( &printw );
+
+  RooFitResult* ans = NULL ;
+  while( !ans ){
+    ans = bgpdf->fitTo( *( bg->DataSet(datatag) ), fitopt );
+    if( ans->status() ){ // Not properly converged
+      delete ans;
+      ans = NULL;
+    }
+  }
 
   bg->SetConstant( kTRUE );// Freezing all constants
 

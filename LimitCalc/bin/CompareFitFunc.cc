@@ -28,10 +28,11 @@ main( int argc, char* argv[] )
     ( "fitfunc,f", opt::value<vector<string> >()->multitoken(), "List of fitting function to use" )
     ( "sample,s", opt::value<string>()->required(), "Which sample to use (Data for background)" )
     ( "era,e", opt::value<string>()->default_value("Rereco"), "Which data era to use/scale to" )
+    ( "bkgtype,b", opt::value<string>()->default_value("") , "Which background to use" )
   ;
 
   limnamer.AddOptions( desc );
-  limnamer.SetNamingOptions( "sample", "era" );
+  limnamer.SetNamingOptions( "sample", "bkgtype", "era"  );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
@@ -43,7 +44,7 @@ main( int argc, char* argv[] )
   *   Initializing Samples (fitting in data sets)
   *******************************************************************************/
   if( limnamer.GetInput<string>( "sample" ) == "Background" ){
-    InitSingle( mgr, "Background" );
+    InitMC( mgr );
   } else if( limnamer.GetInput<string>( "sample" ) == "Data" ){
     const string datatag = limnamer.GetChannelEXT( "Data Prefix" )
                            + limnamer.GetExt<string>( "era", "Data Postfix" );

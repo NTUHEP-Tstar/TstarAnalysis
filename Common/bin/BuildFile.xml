@@ -1,0 +1,2 @@
+<use name="TstarAnalysis/Common"/>
+<bin name="ComputeGenWeightUnc" file="ComputeGenWeightUnc.cc"/>

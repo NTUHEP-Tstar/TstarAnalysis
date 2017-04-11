@@ -27,7 +27,8 @@
 *******************************************************************************/
 extern void RunGenFit(
   SampleRooFitMgr* bkg,
-  SampleRooFitMgr* sig
+  SampleRooFitMgr* sig,
+  SampleRooFitMgr* data
   );
 
 extern void PlotGenFit( const std::vector<std::string>& );

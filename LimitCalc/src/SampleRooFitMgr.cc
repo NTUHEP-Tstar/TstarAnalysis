@@ -40,7 +40,7 @@ SampleRooFitMgr::MaxMass(){ return x().getMax(); }
 void
 SampleRooFitMgr::InitStaticVars( const double min, const double max )
 {
-  StaticNewVar( "x", "M_{t+jet}",    "GeV/c^{2}", min,   max  );
+  StaticNewVar( "x", "m_{t+jet}",    "GeV/c^{2}", min,   max  );
   StaticNewVar( "w", "event_weight", "",          -1000, 1000 );
 }
 
@@ -67,17 +67,17 @@ SampleRooFitMgr::SampleRooFitMgr( const string& name, const ConfigReader& cfg ) 
 
 SampleRooFitMgr::~SampleRooFitMgr()
 {
-  for( const auto& name : VarNameList() ){
-    RooRealVar* var = Var( name );
-    printf( "%-50s %8.4lf %8.4f %8.4f\n", var->GetName(), var->getVal(), var->getErrorHi(), var->getErrorLo() );
-    fflush( stdout );
-  }
+  // for( const auto& name : VarNameList() ){
+  //   RooRealVar* var = Var( name );
+  //   printf( "%-50s %8.4lf %8.4f %8.4f\n", var->GetName(), var->getVal(), var->getErrorHi(), var->getErrorLo() );
+  //   fflush( stdout );
+  // }
 
-  for( const auto& name : FuncNameList() ){
-    RooAbsReal* func = Func( name );
-    printf( "%50s %8.1lf\n", func->GetName(), func->getVal() );
-    fflush( stdout );
-  }
+  // for( const auto& name : FuncNameList() ){
+  //   RooAbsReal* func = Func( name );
+  //   printf( "%50s %8.1lf\n", func->GetName(), func->getVal() );
+  //   fflush( stdout );
+  // }
 }
 
 

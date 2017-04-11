@@ -70,6 +70,7 @@ PsuedoExpOptions()
   ans.add_options()
     ( "relmag,x", opt::value<double>(), "Relative magnitude of signal compared with prediction" )
     ( "absmag,a", opt::value<double>(), "Absolute magnitude of signal (number of events)" )
+    ( "bkgtype",  opt::value<string>()->default_value( "" ), "Which alternative background to use" )
   ;
   return ans;
 }
@@ -85,7 +86,7 @@ ExtraCutOptions()
     ( "muiso",     opt::value<double>(), "Threshold for muon isolation" )
     ( "masscut",   opt::value<double>(), "Mass of gluon plus t" )
     ( "leadjetpt", opt::value<double>(), "Leading jet pt cut" )
-    ( "useparam",  opt::value<int>(),    "Whether or not to use a parametric signal shape (no by default)")
+    ( "useparam",  opt::value<int>(),    "Whether or not to use a parametric signal shape (no by default)" )
     ( "recoalgo",  opt::value<string>(), "Which reconstruction algorithm to use" )
     ( "scaleres",  opt::value<double>(), "Scaling the resolution manually" )
   ;
@@ -190,13 +191,14 @@ InitRooFitSettings( const TstarNamer& x )
   SampleRooFitMgr::InitStaticVars( mass_min, mass_max );
   SampleRooFitMgr::x().setRange( "FitRange", mass_min, mass_max );
 
-  // Default fitting settings
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer( "Minuit2", "Migrad" );
-  ROOT::Math::MinimizerOptions::SetDefaultPrintLevel( -1 );
-  ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls( 10000 );
-  ROOT::Math::MinimizerOptions::SetDefaultMaxIterations( 50000 );
-  ROOT::Math::MinimizerOptions::SetDefaultPrecision( 1e-7 );
-  ROOT::Math::MinimizerOptions::SetDefaultTolerance( 1e-7 );
+}
+/******************************************************************************/
+void
+InitData( SampleRooFitMgr*& data )
+{
+  const string datatag = limnamer.GetChannelEXT( "Data Prefix" )
+                         + limnamer.GetExt<string>( "era", "Data Postfix" );
+  InitSingle( data, datatag );
 }
 
 /******************************************************************************/
@@ -205,16 +207,12 @@ void
 InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
 {
   const mgr::ConfigReader& cfg = limnamer.MasterConfig();
-  const string datatag         = limnamer.GetChannelEXT( "Data Prefix" )
-                                 + limnamer.GetExt<string>( "era", "Data Postfix" );
 
   for( const auto& signaltag : cfg.GetStaticStringList( "Signal List" ) ){
     siglist.push_back( new SampleRooFitMgr( signaltag, cfg ) );
   }
 
-  cout << "Created RooFitMgr for data: " << datatag << endl;
-  data = new SampleRooFitMgr( datatag, cfg );
-
+  InitData( data );
 }
 
 /******************************************************************************/
@@ -222,6 +220,10 @@ InitDataAndSignal( SampleRooFitMgr*& data, vector<SampleRooFitMgr*>& siglist )
 void
 InitMC( SampleRooFitMgr*& mc )
 {
-  const mgr::ConfigReader& cfg = limnamer.MasterConfig();
-  mc = new SampleRooFitMgr( "Background", cfg );
+  if( limnamer.CheckInput( "bkgtype" ) ){
+    const string bkgtype = limnamer.GetInput<string>( "bkgtype" );
+    InitSingle( mc, "Background"+bkgtype );
+  } else {
+    InitSingle( mc, "Background" );
+  }
 }

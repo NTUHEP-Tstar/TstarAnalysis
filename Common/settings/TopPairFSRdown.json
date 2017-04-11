@@ -1,0 +1,53 @@
+{
+   "___Comment___":"""-------------------------------------------------------
+      Top quark pair production
+      Reference: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO#Top_quark_pair_cross_sections_at
+   ---------------------------------------------------------------------""",
+   "TTJets": {
+      "Is Data": false,
+      "Latex Name" : "\\ttbar+Jets",
+      "Root Name": "t#bar{t} + jets",
+      "Cross Section": [ 831.76, 23.18, 22.45 ],
+      "PDF Uncertainty" : [1, 0.0422, 0.0422],
+      "QCD Uncertainty" : [1, 0.0238, 0.0351],
+      "K Factor": 1.0,
+      "Generator": "\\POWHEG",
+      "Cross Section Source": "NNLO",
+      "EDM Files":[
+         "TT_TuneCUETP8M2T4_13TeV-powheg-fsrdown-pythia8_*.root"
+      ]
+   },
+   "___Comment___":"""-------------------------------------------------------
+      Top quark pair production with high mass
+      Reference: BWG, Sinan and Julie
+   ---------------------------------------------------------------------""",
+   "TT_Mtt700_1000": {
+      "Is Data": false,
+      "Latex Name" : "\\ttbar+Jets ($M_{\\ttbar}\\in$[700,1000)\\GeVcc)",
+      "Root Name": "t#bar{t} + jets",
+      "Cross Section": [ 64.68 ],
+      "PDF Uncertainty" : [1, 0.0422, 0.0422],
+      "QCD Uncertainty" : [1, 0.0238, 0.0351],
+      "K Factor": 1.0,
+      "Generator": "\\POWHEG",
+      "Cross Section Source": "NNLO",
+      "EDM Files":[
+         "TT_Mtt-700to1000*.root"
+      ]
+   },
+   "TT_Mtt1000_Inf": {
+      "Is Data": false,
+      "Latex Name" : "\\ttbar+Jets ($M_{\\ttbar}\\in$[1000,\\infty)\\GeVcc)",
+      "Root Name": "t#bar{t} + jets",
+      "Cross Section": [ 19.09 ],
+      "PDF Uncertainty" : [1, 0.0422, 0.0422],
+      "QCD Uncertainty" : [1, 0.0238, 0.0351],
+      "K Factor": 1.0,
+      "Generator": "\\POWHEG",
+      "Cross Section Source": "NNLO",
+      "EDM Files":[
+         "TT_Mtt-1000toInf*.root"
+      ]
+   }
+
+}
