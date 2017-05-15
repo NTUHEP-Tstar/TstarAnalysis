@@ -45,6 +45,7 @@ main( int argc, char* argv[] )
   limnamer.AddCutOptions( "useparam" );
   limnamer.AddCutOptions( "recoalgo" );
   limnamer.AddCutOptions( "scaleres" );
+  limnamer.AddCutOptions( "smootheff" );
 
 
   if( limnamer.GetInput<string>( "fitmethod" ) == "SimFit"  ){

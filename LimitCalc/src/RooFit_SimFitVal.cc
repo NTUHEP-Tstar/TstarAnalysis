@@ -52,7 +52,7 @@ RunGenFit(
   RooAbsPdf* sigfunc = MakeSingleKeysPdf( sigmgr, "" );
 
   const string strgthtag = SigStrengthTag();
-  const string filename  = limnamer.TextFileName( "valsimfit", strgthtag );
+  const string filename  = limnamer.TextFileName( "valsimfit",  strgthtag );
 
   ofstream result;
   if( !boost::filesystem::exists( filename ) ){
@@ -72,70 +72,60 @@ RunGenFit(
   for( int i = 0; i < limnamer.GetInput<int>( "num" ); ++i ){
     const string pseudosetname = "pseudo" + mgr::RandomString( 6 );
 
-    RooDataSet* psuedoset = bkgfunc->generate(
-      SampleRooFitMgr::x(),
-      bkgnum,
-      RooFit::Extended(),
-      RooFit::Name( pseudosetname.c_str() )
+    const double sigmax = std::max( signum*3, 10000. );
+    const double sigmin = ( signum > 100 ) ? 0 : -sigmax;
+
+    RooRealVar nb( "nb", "nb", bkgnum, 0, 3*bkgnum );
+    RooRealVar ns( "ns", "ns", signum, sigmin, sigmax );
+
+    RooRealVar& p1 = *paramlist[0];
+    RooRealVar& p2 = *paramlist[1];
+
+    p1.setConstant( kFALSE );
+    p2.setConstant( kFALSE );
+
+    // Resetting value
+    p1 = param1;
+    p2 = param2;
+
+    RooAddPdf model(
+      "model", "model",
+      RooArgList( *bkgfunc, *sigfunc ),
+      RooArgList( nb,       ns )
       );
-    RooDataSet* sigset = sigfunc->generate(
-      SampleRooFitMgr::x(),
-      signum,
-      RooFit::Extended()
-      );
-    psuedoset->append( *sigset );
-    delete sigset;
 
-    MakeFullKeysPdf( sigmgr );
+    RooDataSet* set = model.generate( SampleRooFitMgr::x(), RooFit::Extended( kTRUE ) );
 
-    // Passes ownership to data
-    mc->AddDataSet( psuedoset );
-    mc->SetConstant( kFALSE );
+    RooFitResult* ans = NULL;
+    unsigned iter = 0;
+    while( !ans && iter < 5 ){
+      ans = model.fitTo( *set,
+        RooFit::Verbose( kFALSE ),
+        RooFit::PrintLevel( -1 ),
+        RooFit::PrintEvalErrors( -1 ),
+        RooFit::Warnings( kFALSE ),
+        RooFit::Save()
+        );
 
-    auto fitres                 = SimFitSingle( mc, sigmgr, pseudosetname, bgconstrain );
-    const string pseudobgname   = SimFitBGPdfName( pseudosetname, sigmgr->Name() );
-    const string pseudocombname = SimFitCombinePdfName( pseudosetname, sigmgr->Name() );
-    const RooRealVar* bkgfit    = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudocombname+"nb" ).c_str() ) );
-    const RooRealVar* sigfit    = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudocombname+"ns" ).c_str() ) );
-    const RooRealVar* p1fit     = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudobgname + "a" ).c_str() ) );
-    const RooRealVar* p2fit     = (RooRealVar*)( fitres->floatParsFinal().find( ( mc->Name() + pseudobgname + "b" ).c_str() ) );
-
-    if( fitres->status() ){// Only if status is 0
-      // Getting results
-
-      result << boost::format(  "%lf %lf \t %lf %lf \t %lf %lf \t %lf %lf" )
-        % bkgfit->getValV() % bkgfit->getError()
-        % sigfit->getValV() % sigfit->getError()
-        % p1fit->getValV() % p1fit->getError()
-        % p2fit->getValV() % p2fit->getError()
-             << endl;
-
-      // Saving plots for special cases
-      if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() > 3 ){
-        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "bkgexcess" );
-      } else if( ( bkgfit->getVal() - bkgnum )/bkgfit->getError() < -3 ){
-        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "bkgdifficient" );
-      } else if( ( sigfit->getVal() - signum )/sigfit->getError() > 3 ){
-        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "sigexcess" );
-      } else if( ( sigfit->getVal() - signum )/sigfit->getError() < -3 ){
-        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname, "sigdifficient" );
-      } else if( i%100 == 0 ){
-        MakeSimFitPlot( mc, sigmgr, fitres, pseudosetname );
+      if( ans->status() ){
+        delete ans;
+        ans = NULL;
+        ++iter;
       }
-    } else {
-      --i;
     }
+    delete ans;
 
-    // Deleting to avoid taking up to much memory
-    mc->RemoveDataSet( pseudosetname );
-    mc->RemovePdf( pseudobgname );
-    mc->RemovePdf( pseudocombname );
-    mc->RemoveVar( pseudocombname + "nb" );
-    mc->RemoveVar( pseudocombname + "ns" );
-    mc->RemoveVar( pseudobgname + "a" );
-    mc->RemoveVar( pseudobgname + "b" );
+    result << boost::format(  "%20.12lf %20.12lf \t %20.12lf %20.12lf \t %20.12lf %20.12lf \t %20.12lf %20.12lf" )
+      % nb.getValV() % nb.getError()
+      % ns.getValV() % ns.getError()
+      % p1.getValV() % p1.getError()
+      % p2.getValV() % p2.getError()
+           << endl;
 
+    delete set;
   }
+
+  delete bgconstrain;
 
   result.close();
 }
@@ -149,4 +139,14 @@ SigStrengthTag()
   return limnamer.CheckInput( "relmag" ) ?
          str( secfmt % "rel" % limnamer.GetInput<double>( "relmag" ) ) :
          str( secfmt % "abs" % limnamer.GetInput<double>( "absmag" ) );
+}
+
+/******************************************************************************/
+string
+RhoTag()
+{
+  static boost::format rhofmt( "forcerho%2%" );
+  return limnamer.CheckInput( "forcerho" ) ?
+         str( rhofmt % "rel" % limnamer.GetInput<double>( "forcerho" ) ) :
+         "";
 }

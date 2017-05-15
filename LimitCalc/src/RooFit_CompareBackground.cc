@@ -85,9 +85,9 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     // Manually calling NNL minizer functions
     static RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
     static RooCmdArg sumerr = RooFit::SumW2Error( kTRUE );
-    static RooCmdArg minos  = RooFit::Hesse( kTRUE );
+    static RooCmdArg minos  = RooFit::Minos( kTRUE );
     static RooCmdArg save   = RooFit::Save();
-    static RooCmdArg ncpu   = RooFit::NumCPU( 6 );
+    // static RooCmdArg ncpu   = RooFit::NumCPU( 6 );
     static RooCmdArg verb   = RooFit::Verbose( kFALSE );
     static RooCmdArg printl = RooFit::PrintLevel( -1 );
     static RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
@@ -98,17 +98,20 @@ CompareFitFunc( SampleRooFitMgr* mgr )
     fitopt.Add( &sumerr );
     fitopt.Add( &minos  );
     fitopt.Add( &save   );
-    fitopt.Add( &ncpu   );
+    // fitopt.Add( &ncpu   );
     fitopt.Add( &verb   );
     fitopt.Add( &printl );
     fitopt.Add( &printe );
     fitopt.Add( &printw );
 
     RooFitResult* ans = NULL;
-
+    const unsigned maxiter = 50;
+    unsigned iter = 0;
     while( !ans ){
       ans = pdf->fitTo( *set, fitopt );
       if( ans->status() ){// Not properly converged
+        ++iter;
+        if( iter > maxiter ) { break; }
         delete ans;
         ans = NULL;
       }
@@ -257,7 +260,7 @@ CompareFitFunc( SampleRooFitMgr* mgr )
 
     for( int i = 0; i < fit.fitresult->floatParsFinal().getSize(); ++i ){
       RooRealVar* var = (RooRealVar*)( fit.fitresult->floatParsFinal().at( i ) );
-      cout << var->GetName() << " " << var->getVal() << endl;
+      cout << var->GetName() << " " << var->getVal() << " " << var->getError() << endl;
     }
 
     cout << "===" << endl;

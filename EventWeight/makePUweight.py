@@ -60,9 +60,9 @@ def main():
         --minBiasXsec {2}   \
         --maxPileupBin  {3} \
         --numPileupBins {3} \
-        /tmp/PileUp.root
+        ./data/PileUp.root
     """.format(args.lumimask, args.pufile, args.xsec, len(mcpileup) ) )
-    datapufile = ROOT.TFile.Open('/tmp/PileUp.root')
+    datapufile = ROOT.TFile.Open('./data/PileUp.root')
     datapuhist = datapufile.Get('pileup')
     datapuhist.Scale(1. / datapuhist.Integral())
 
@@ -72,16 +72,20 @@ def main():
     mcweight = []
     orgweightsum = 0
     puweightsum = 0
+    mchist   = ROOT.TH1D("mcpu","mcpu",len(mcpileup),0,len(mcpileup))
     for i in range(0, len(mcpileup)):
         mcweight.append(datapuhist.GetBinContent(i + 1) / mcpileup[i])
+        mchist.SetBinContent(i+1,mcpileup[i])
         orgweightsum = orgweightsum + mcpileup[i]
         puweightsum = puweightsum + (mcpileup[i] * mcweight[i])
         print i, mcweight[i], mcpileup[i], datapuhist.GetBinContent(i + 1)
 
+    mcfile = ROOT.TFile.Open("./data/MCPileUp.root","update")
+    mchist.Write()
     print puweightsum
     print orgweightsum
     print len(mcweight)
-    os.system('rm -rf /tmp/PileUp.root')
+    # os.system('rm -rf /tmp/PileUp.root')
 
     #-------------------------------------------------------------------------
     #   Saving to file

@@ -54,8 +54,8 @@ MakeComparePlot(
          l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
       }
 
-      l->AddEntry( bkgerror, "Bkg. stat. error",                                                                  "fl" );
-      l->AddEntry( sighist,  boost::str( boost::format( "%s (x%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
+      l->AddEntry( bkgerror, "Unc.(stat.)",                                                                  "fl" );
+      l->AddEntry( sighist,  boost::str( boost::format( "%s(#times%.0lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
       MakePlot(
          stack,

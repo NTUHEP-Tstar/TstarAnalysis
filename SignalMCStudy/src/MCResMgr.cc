@@ -20,7 +20,7 @@ MCResMgr::MCResMgr( const string& name ) :
   Named( name ),
   HistMgr( name )
 {
-  AddHist( "HadWMass",      "Hadronic W mass (truth reconstruction)",   "GeV/c^{2}",  80,    0,  160 );
+  AddHist( "HadWMass",      "Hadronic W mass (truth reconstruction)",   "GeV/c^{2}",  80,    0,  240 );
   AddHist( "HadTopMass",    "Hadronic top mass (truth reconstuction)",  "GeV/c^{2}",  70,    0,  350 );
   AddHist( "HadTstarMass",  "Hadronic t* mass (truth reconstuction)",   "GeV/c^{2}", 120,    0, 3000 );
   AddHist( "LepTopMass",    "Leptonic top mass (truth reconstuction)",  "GeV/c^{2}",  70,    0,  350 );

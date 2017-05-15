@@ -5,7 +5,7 @@
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
       "Is Data": false,
-      "Latex Name" : "Single \\PQt, s-channel",
+      "Latex Name" : "Single \\PQt, $s$ channel",
       "Root Name": "Single t (s)",
       "Cross Section": [ 10.32, 0.23, 0.22 ],
       "PDF Uncertainty" : [1, 0.0262, 0.0262],
@@ -19,7 +19,7 @@
    },
    "SingleT_T_top": {
       "Is Data": false,
-      "Latex Name" : "Single \\PQt, t-channel",
+      "Latex Name" : "Single \\PQt, $t$ channel",
       "Root Name": "Single t (t)",
       "Cross Section": [ 136.02, 1.11, 1.11 ],
       "PDF Uncertainty" : [1, 0.0259, 0.0259],
@@ -33,7 +33,7 @@
    },
    "SingleT_T_antitop": {
       "Is Data": false,
-      "Latex Name" : "Single \\PAQt, \\PQt Channel",
+      "Latex Name" : "Single \\PAQt, $t$ Channel",
       "Root Name": "Single #bar{t} (t)",
       "Cross Section": [ 80.95, 0.71,0.70],
       "PDF Uncertainty" : [1, 0.0393, 0.0393],
@@ -47,7 +47,7 @@
    },
    "SingleT_TW": {
       "Is Data": false,
-      "Latex Name" : "Single \\PQt, \\PQt\\PW Channel",
+      "Latex Name" : "Single \\PQt, $\\PQt\\PW$ Channel",
       "Root Name": "Single t (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
       "PDF Uncertainty" : [1, 0.0474, 0.0474],
@@ -61,7 +61,7 @@
    },
    "SingleTbar_TW": {
       "Is Data": false,
-      "Latex Name" : "Single \\PAQt, \\PQt\\PW Channel)",
+      "Latex Name" : "Single \\PAQt, $\\PQt\\PW$ Channel)",
       "Root Name": "Single #bar{t} (tW)",
       "Cross Section": [ 35.85, 2.60, 2.60 ],
       "PDF Uncertainty" : [1, 0.0474, 0.0474],

@@ -30,11 +30,11 @@ main( int argc, char const* argv[] )
 
    // C++11 style loop not available :(
    for( auto info = runinfo->headers_begin(); info != runinfo->headers_end(); ++info ){
-      // if( info->tag() == "initrwgt" ){
+      if( info->tag() == "initrwgt" ){
          for( const auto& line : info->lines() ){
             cout << line;
          }
-      // }
+      }
    }
 
    return 0;

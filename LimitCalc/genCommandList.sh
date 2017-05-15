@@ -19,8 +19,13 @@ for method in $method_list ; do
             if [ $method == "SimFit" ] && [ $fitfunc == "Lognorm" ] ; then
               echo "PlotLimit       --channel $channel --fitmethod $method --fitfunc $fitfunc -x $combine_method"
               echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc -x $combine_method"
+              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM800"
+              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1200"
+              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1400"
+              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1600"
               echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM800"
               echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1200"
+              echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1400"
               echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1600"
             fi
          done
@@ -28,8 +33,13 @@ for method in $method_list ; do
            echo "MergeCards      --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --channellist $channel_list "
            echo "PlotLimit       --channel SignalMerge --fitmethod $method --fitfunc $fitfunc -x $combine_method"
            echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc -x $combine_method"
+           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM800"
+           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1200"
+           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1400"
+           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1600"
            echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM800"
            echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1200"
+           echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1400"
            echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1600"
          fi
    done

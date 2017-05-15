@@ -50,19 +50,15 @@ MakeKeysPlots( KeysCompMgr* mgr )
     keyplotlist.at( i )->SetLineColor( Color_Sequence[i] );
   }
 
-  // Adding additional label
-  mgr::LatexMgr latex;
-  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
-  .WriteLine( mgr->LatexName() );
 
   // Making legend
   TLegend* leg = mgr::NewLegend( 0.55, 0.6 );
 
-  boost::format setfmt( "Signal (%dGeV/c^{2})" );
+  boost::format setfmt( "M_{t*}=%dGeV/c^{2}" );
   const string setentry = boost::str( setfmt % reconamer.GetInput<int>( "mass" ) );
   leg->AddEntry( setplot, setentry.c_str(), "lp" );
 
-  boost::format pdffmt( "PDF approx (%s)" );
+  boost::format pdffmt( "Kernel approx (%s)" );
 
   for( size_t i = 0; i < keyplotlist.size(); ++i ){
     const TGraph* pdfplot = keyplotlist.at( i );
@@ -72,6 +68,13 @@ MakeKeysPlots( KeysCompMgr* mgr )
   }
 
   leg->Draw();
+
+  // Adding additional label
+  mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + TEXT_MARGIN/2, BOTTOM_LEFT)
+  .WriteLine( reconamer.GetExt<string>( "channel", "Root Name" ) )
+  .SetOrigin( PLOT_X_TEXT_MAX, 0.6-TEXT_MARGIN, TOP_RIGHT )
+  .WriteLine( mgr->LatexName() );
 
   // Y axis range settings
   keyplotlist.push_back( setplot );
@@ -126,7 +129,7 @@ MakeGaussPlots( KeysCompMgr* mgr )
 
   // Styling
   mgr::SetFrame( frame );
-  mgr::DrawCMSLabel( SIMULATION );
+  mgr::DrawCMSLabelOuter( SIMULATION );
 
   keysplot->SetLineColor( Color_Sequence[0] );
   gaussplot->SetLineColor( Color_Sequence[1] );

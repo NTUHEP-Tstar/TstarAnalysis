@@ -19,6 +19,7 @@ os.system('mkdir -p ./results')
 
 os.system( 'cp -r --verbose /wk_cms/sam7k9621/ele_TriggerStudy ./results')
 os.system( 'cp -r --verbose ' + tstardir + 'SignalMCStudy/results ./results/SignalMCStudy' )
+os.system( 'cp -r --verbose ' + tstardir + 'Common/results ./results/WeightStudy' )
 
 for direc in dirlist:
     os.system( 'mkdir -p ./results/'+direc)

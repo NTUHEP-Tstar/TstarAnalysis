@@ -18,7 +18,7 @@ using namespace std;
 void
 MakeMCResPlot( MCResMgr* mgr )
 {
-  boost::format legentry( "%s (r.m.s=%.1lf)" );
+  boost::format legentry( "%s (s.d. %.1lf)" );
   {// w mass plots
     TCanvas* c = mgr::NewCanvas();
 
@@ -26,10 +26,10 @@ MakeMCResPlot( MCResMgr* mgr )
     hist->Draw( "HIST" );
     mgr::SetSinglePad( c );
     mgr::SetAxis( hist );
-    hist->SetMaximum( mgr::GetYmax( hist ) * 1.2 );
+    hist->SetMaximum( mgr::GetYmax( hist ) * 1.6 );
 
     const string wentry = boost::str(legentry % "Hadronic W boson" % hist->GetRMS());
-    TLegend* leg        = mgr::NewLegend( 0.5, 0.7 );
+    TLegend* leg        = mgr::NewLegend( 0.45, 0.7 );
     leg->AddEntry( hist, wentry.c_str(), "l" );
     leg->Draw();
 
@@ -49,7 +49,7 @@ MakeMCResPlot( MCResMgr* mgr )
     mgr::SetAxis( hist1 );
 
     hist1->GetXaxis()->SetTitle( "Top mass (truth reconstruction) (GeV/c^{2})" );
-    hist1->SetMaximum( mgr::GetYmax( hist1, hist2 ) *1.2 );
+    hist1->SetMaximum( mgr::GetYmax( hist1, hist2 ) *1.6 );
 
     hist1->SetLineColor( KBLUE );
     hist2->SetLineColor( KRED  );
@@ -77,7 +77,7 @@ MakeMCResPlot( MCResMgr* mgr )
     mgr::SetSinglePad( c );
     mgr::SetAxis( hist1 );
     hist1->GetXaxis()->SetTitle( "Top mass (truth reconstruction) (GeV/c^{2})" );
-    hist1->SetMaximum( mgr::GetYmax( hist1, hist2 ) * 1.2 );
+    hist1->SetMaximum( mgr::GetYmax( hist1, hist2 ) * 1.6 );
 
     hist1->SetLineColor( KBLUE );
     hist2->SetLineColor( KRED  );

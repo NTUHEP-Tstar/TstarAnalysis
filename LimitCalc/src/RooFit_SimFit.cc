@@ -52,7 +52,7 @@ SimFitCombinePdfName( const string& datasetname, const string& signalname )
 string
 StitchSimFitBgPdfname( const std::string& signalname )
 {
-  return signalname + "simfitbfmaster";
+  return signalname + "simfitbgmaster";
 }
 
 /*******************************************************************************
@@ -78,12 +78,19 @@ MakeSimFit(
 
     MakeSimFitPlot( data, sig, fiterr, "" );
 
-    MakeSimFitCardFile( data, sig );
-
     // pdflist.push_back( data->Pdf( SimFitBGPdfName( "", sig->Name() ) ) );
     pdflist.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
     pdflist.push_back( sig->Pdf( StitchKeyPdfName ) );
     funclist.push_back( sig->Func( StitchKeyNormName ) );
+  }
+
+  // Smoothing the efficiency
+  if( limnamer.CheckInput( "smootheff" ) ){
+    SmoothEfficiency( signal_list );
+  }
+
+  for( auto& sig : signal_list ){
+    MakeSimFitCardFile( data, sig );
   }
 
   SaveRooWorkSpace(
@@ -112,12 +119,12 @@ SimFitSingle(
 
   RooAbsData* fitdataset = data->DataSet( datasetname );
   RooAbsPdf* bgpdf       = data->NewPdf( bgfuncname, fitfunc );
-  RooAbsPdf* sigpdf      = sig->Pdf( KeyPdfName( "" ) );   // attempting simfit will default signal regardless
-
+  RooAbsPdf* sigpdf      = sig->Pdf( StitchKeyPdfName );   // attempting simfit will default signal regardless
+  //  sig->SetConstant(kFALSE);
   const double numdata = fitdataset->sumEntries();
 
-  RooRealVar* nb = data->NewVar( combfuncname+"nb", numdata, -1000000, 1000000 );
-  RooRealVar* ns = data->NewVar( combfuncname+"ns", 0, -1000000, 1000000 );
+  RooRealVar* nb = data->NewVar( combfuncname+"nb", numdata, 0, 1000000 );
+  RooRealVar* ns = data->NewVar( combfuncname+"ns", 0, 0, 1000 );
 
   RooAddPdf* model = new RooAddPdf(
     combfuncname.c_str(),
@@ -131,35 +138,43 @@ SimFitSingle(
   cout << ">>>>>> " << nb->getVal() << endl;
   cout << ">>>>>> " << ns->getVal() << endl;
 
-  static RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
-  static RooCmdArg ext    = RooFit::Extended( kTRUE );
-  static RooCmdArg minos  = RooFit::Hesse( kTRUE );
-  static RooCmdArg save   = RooFit::Save();
-  static RooCmdArg ncpu   = RooFit::NumCPU( 18 );
-  static RooCmdArg verb   = RooFit::Verbose( kFALSE );
-  static RooCmdArg printl = RooFit::PrintLevel( -1 );
-  static RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
-  static RooCmdArg printw = RooFit::Warnings( kFALSE );
+  const unsigned maxiter = ( datasetname.find( "pseudo" ) == string::npos ) ? 1000 : 1000;
+
+  //// FitTo Call
+  RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
+  RooCmdArg minos  = RooFit::Minos( kTRUE );
+  RooCmdArg strat  = RooFit::Strategy( RooMinimizer::Balance );
+  RooCmdArg ext    = RooFit::Extended( kTRUE );
+  RooCmdArg offset = RooFit::Offset( kTRUE );
+  RooCmdArg ncpu   = RooFit::NumCPU( 8 );
+  RooCmdArg clone  = RooFit::CloneData( kFALSE );
+  RooCmdArg save   = RooFit::Save();
+  RooCmdArg verb   = RooFit::Verbose( kFALSE );
+  RooCmdArg printl = RooFit::PrintLevel( -1 );
+  RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
+  RooCmdArg printw = RooFit::Warnings( kFALSE );
 
   RooLinkedList fitopt;
   fitopt.Add( &min    );
   fitopt.Add( &ext    );
+  fitopt.Add( &strat  );
   fitopt.Add( &minos  );
   fitopt.Add( &save   );
+  fitopt.Add( &offset );
   fitopt.Add( &ncpu   );
+  fitopt.Add( &clone  );
   fitopt.Add( &verb   );
   fitopt.Add( &printl );
   fitopt.Add( &printe );
   fitopt.Add( &printw );
 
-  RooFitResult* err      = NULL;
-  const unsigned maxiter = ( datasetname.find( "pseudo" ) == string::npos ) ? -1 : 20;
-  unsigned iter          = 0;
+  RooFitResult* err = NULL;
+  unsigned iter     = 0;
 
   while( !err  ){
     err = model->fitTo( *( fitdataset ), fitopt );
+    ++iter;
     if( err->status() ){// Not properly converged
-      ++iter;
       if( iter > maxiter ){
         break;
       } else {
@@ -170,27 +185,27 @@ SimFitSingle(
   }
 
   cout << ">>>>>> Finish running simultaneous fit for " << sig->Name() << endl;
-  cout << ">>>>>> " << nb->getVal() << endl;
-  cout << ">>>>>> " << ns->getVal() << endl;
+  cout << ">>>>>> Number of iterations:" << iter << endl;
+  cout << ">>>>>> Fitted bkg:" << nb->getVal() << endl;
+  cout << ">>>>>> Fitted sig:" << ns->getVal() << endl;
 
 
   if( datasetname.find( "pseudo" ) != string::npos ){// Early exit for psuedo data set
     return err;
   }
 
-
   // Adding external term
-  RooRealVar* c = data->NewVar( bgfuncname + "sys", 0, -5, 5 );// Item for adding background shape systematic
+  RooRealVar* c = data->NewVar( bgfuncname + "sys", 0, -1, 1 );// Item for adding background shape systematic
   RooRealVar* a = data->Var( bgfuncname + "a" );
 
   char formula[1024];
   sprintf(
     formula,
-    "TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )",
+    "TMath::Exp( -(%s)*TMath::Power(TMath::Log(x) - (%s),3) )",
     c->GetName(),
     a->GetName()
     );
-  c->setError( 0.01 );// A magic number for now
+  c->setError( 0.07 );// A magic number for now
   c->setConstant( kTRUE );
 
   RooGenericPdf* bkgsys = new RooGenericPdf(
@@ -208,6 +223,8 @@ SimFitSingle(
 
   data->AddPdf( bkgsys );
   data->AddPdf( bkgtot );
+  data->SetConstant( kTRUE );
+  sig->SetConstant(kTRUE);
   return err;
 }
 
@@ -221,11 +238,12 @@ MakeSimFitCardFile(
   )
 {
   const string sigpdfname = StitchKeyPdfName;
-  const string bgpdfname  = StitchSimFitBgPdfname( sig->Name() );
-  RooAbsData* dataset     = data->DataSet();
-  RooAbsPdf* bgpdf        = data->Pdf( bgpdfname );
-  RooAbsPdf* sigpdf       = sig->Pdf( sigpdfname );
-  const Parameter bgunc   = GetBgNormError( data, "", "", sig->Name() );
+  // const string bgpdfname  = SimFitBGPdfName( "", sig->Name() );
+  const string bgpdfname = StitchSimFitBgPdfname( sig->Name() );
+  RooAbsData* dataset    = data->DataSet();
+  RooAbsPdf* bgpdf       = data->Pdf( bgpdfname );
+  RooAbsPdf* sigpdf      = sig->Pdf( sigpdfname );
+  const Parameter bgunc  = GetBgNormError( data, "", "", sig->Name() );
 
   // Writting the common parts
   ofstream cardfile( limnamer.TextFileName( "card", sig->Name() ) );
@@ -233,8 +251,8 @@ MakeSimFitCardFile(
   MakeCardCommon( cardfile, dataset, bgpdf, sigpdf );
   cardfile << boost::format( "%12s %15lf %15lf" )
     % "rate"
-    % sig->DataSet()->sumEntries()
-    % bgunc.CentralValue()
+    % sig->ExpectedYield()
+    % bgunc.CentralValue() // Using norm RooRealVar
            << endl;
 
   // Printing list of normalization errors
@@ -248,15 +266,15 @@ MakeSimFitCardFile(
 
   // Normalization nuisance parameter
   for( const auto& source : uncsource ){
-    if( source == "pdf" || source == "scale" ){ continue; }
+    if( source == "pdf" || source == "scale" || source == "model" ){ continue; }
     const Parameter unc = GetMCNormError( sig, source + "Up", source + "Down" );
     PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
   }
 
-  PrintNuisanceFloats( cardfile, "lumi",    "lnN", lumi,   lumi  );
-  PrintNuisanceFloats( cardfile, "statunc", "lnN", sigunc, null );
-  PrintNuisanceFloats( cardfile, "lepsys",  "lnN", lepunc, null  );
-  PrintNuisanceFloats( cardfile, "bgunc",   "lnN", null,   bgunc );
+  PrintNuisanceFloats( cardfile, "lumi",     "lnN", lumi,   null  );
+  PrintNuisanceFloats( cardfile, "statunc",  "lnN", sigunc, null  );
+  PrintNuisanceFloats( cardfile, "lepsys",   "lnN", lepunc, null  );
+  PrintNuisanceUniformFloats( cardfile, "simfitbg", "lnU", null,   bgunc );
 
   // Getting a list of fitting parameters to permutate.
   for( const auto& datasetname : data->SetNameList() ){
@@ -264,24 +282,9 @@ MakeSimFitCardFile(
 
     for( auto var : data->VarContains( bgfuncname ) ){
       const string varname = var->GetName();
-      if( varname.find( "coeff" ) == string::npos ){
-        // We shouldn't push the joint coefficient inside
+      if( varname.find("sys") == string::npos ){
         PrintFloatParam( cardfile, var );
       }
-    }
-
-    // Disabling for now parametric shapes
-    // for( auto var : sig->VarContains("") ){
-    //   const string varname = var->GetName();
-    //   if( varname.find("coeff") == string::npos ){
-    //     PrintFloatParam( cardfile, var );
-    //   }
-    // }
-
-
-    // Parameter for background systematic error
-    for( auto var : data->VarContains( StitchSimFitBgPdfname( sig->Name() ) ) ){
-      PrintFloatParam( cardfile, var );
     }
   }
 
@@ -293,7 +296,7 @@ MakeSimFitCardFile(
   }
 
   for( const auto& var : stitchvarlist ){
-    var->setConstant( kFALSE );
+    var->setConstant( kTRUE );
     PrintFlatParam( cardfile, var );
   }
 
@@ -394,14 +397,24 @@ MakeSimFitPlot(
 
   const RooRealVar* bgvar     = data->Var( combpdfname + "nb" );
   const RooRealVar* sigvar    = data->Var( combpdfname + "ns" );
-  const double obs            = dataset->sumEntries();
   const double bgstrength     = bgvar->getVal();
-  const double bgerr          = bgvar->getError();
   const double sigfitstrength = sigvar->getVal();
-  const double sigexpstrength = sig->ExpectedYield();
+  const double sigexpstrength = sig->DataSet()->sumEntries();
   const double ksbkg          = KSTest( *dataset, *bgpdf, SampleRooFitMgr::x() );
   const double ksall          = KSTest( *dataset, *model, SampleRooFitMgr::x() );
-  const double multipler      = ( obs > sigexpstrength*4 ) ? ( obs/( sigexpstrength*4 ) ) : 1;
+  const double multipler      =
+    GetInt( sig->Name() ) == 700 ? 1.0 :
+    GetInt( sig->Name() ) == 800 ? 2.0 :
+    GetInt( sig->Name() ) == 900 ? 15.0:
+    GetInt( sig->Name() ) == 1000 ? 80.0:
+    GetInt( sig->Name() ) == 1100 ? 400.0:
+    GetInt( sig->Name() ) == 1200 ? 2000.0:
+    GetInt( sig->Name() ) == 1300 ? 8000.0:
+    GetInt( sig->Name() ) == 1400 ? 60000.0:
+    GetInt( sig->Name() ) == 1500 ? 100000.0:
+    GetInt( sig->Name() ) == 1600 ? 300000.0:
+    1.0;
+
 
   /*******************************************************************************
   *   Drawing top pad
@@ -420,19 +433,11 @@ MakeSimFitPlot(
     RooFit::DrawOption( PGS_SIGNAL )
     );
 
-  TGraph* bgerrplot =
-    ( fitres->covarianceMatrix().Determinant() != 0 && datasetname == "" ) ?
-    mgr::PlotOn(
-      frame, bgpdf,
-      RooFit::VisualizeError( *fitres, 1, kFALSE )
-      ) :
-    mgr::PlotOn( frame, bgpdf );
-
-
-  TGraph* bgplot = mgr::PlotOn(
-    frame, bgpdf,
+  TGraph* bgplot = mgr::PlotFitErrorOn(
+    frame, bgpdf, fitres,
     RooFit::Normalization( bgstrength, RooAbsReal::NumEvent )
     );
+
 
   TGraph* modelplot = mgr::PlotOn(
     frame, model,
@@ -452,7 +457,7 @@ MakeSimFitPlot(
   botpad->cd();
 
   TGraphAsymmErrors* bgrelplot = mgr::DividedGraph(
-    (TGraphAsymmErrors*)bgerrplot,
+    (TGraphAsymmErrors*)bgplot,
     bgplot
     );
   TGraphAsymmErrors* datarelplot = mgr::DividedGraph(
@@ -463,7 +468,7 @@ MakeSimFitPlot(
   TLine lineup( SampleRooFitMgr::x().getMin(), 1.5, SampleRooFitMgr::x().getMax(), 1.5 );
   TLine linedown( SampleRooFitMgr::x().getMin(), 0.5, SampleRooFitMgr::x().getMax(), 0.5 );
 
-  bgrelplot->Draw( "AF" );
+  bgrelplot->Draw( "AL3" );
   datarelplot->Draw( PGS_DATA );
   cen.Draw();
   cen.SetLineColor( KBLUE );
@@ -488,12 +493,24 @@ MakeSimFitPlot(
   /*******************************************************************************
   *   Styling options
   *******************************************************************************/
+  // Stripping unwanted points to fix plots
+  for( int i = 0; i < bgplot->GetN(); ++i ){
+    const double x = bgplot->GetX()[i];
+    const double y = bgplot->GetY()[i];
+    if( x < frame->GetXaxis()->GetXmin()
+        || x > frame->GetXaxis()->GetXmax()
+        || y < frame->GetMinimum()/2
+        ){
+      bgplot->RemovePoint( i );
+      --i;
+    }
+  }
+
   tstar::SetFitCombStyle( modelplot );
   tstar::SetFitBGStyle( bgplot );
-  tstar::SetFitBGStyle( bgerrplot );
   tstar::SetSignalStyle( sigplot );
 
-  tstar::SetFitBGErrStyle( bgrelplot );
+  tstar::SetFitBGStyle( bgrelplot );
   tstar::SetDataStyle( datarelplot );
   tstar::SetDataStyle( dataplot );
 
@@ -502,15 +519,15 @@ MakeSimFitPlot(
   const double legend_y_min = 0.7;
   TLegend* leg              = mgr::NewLegend( legend_x_min, legend_y_min );
 
-  boost::format sigfmt( "%s(#times%.1lf)" );
+  boost::format sigfmt( "%s(#times%.0lf)" );
   const string sigentry  = str( sigfmt % sig->RootName() % multipler );
   const string dataentry = datasetname.find( "pseudo" ) != string::npos ? "Pseudo data" : "Data";
-  const string bgentry   = "Fitted bkg. (#pm 1 s.d.)";
-  const string mdlentry  = "Fitted bkg. + sig.";
+  const string bgentry   = "Fitted bkg. comp.";
+  const string mdlentry  = "Fitted sig.+bkg.";
 
   leg->AddEntry( dataplot,  dataentry.c_str(), "lp" );
-  leg->AddEntry( bgerrplot, bgentry.c_str(),   "lf" );
   leg->AddEntry( modelplot, mdlentry.c_str(),  "l"  );
+  leg->AddEntry( bgplot,    bgentry.c_str(),   "lf" );
   leg->AddEntry( sigplot,   sigentry.c_str(),  "l"  );
   leg->Draw();
 
@@ -518,22 +535,22 @@ MakeSimFitPlot(
   mgr::DrawCMSLabel();
   mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
   LatexMgr latex;
-  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
-  .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
-  .WriteLine( limnamer.ExtQuery<string>( "fitmethod", "SimFit", "Full Name" ) )
-  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Full Name" ) );
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX+TEXT_MARGIN/2, BOTTOM_LEFT )
+  .WriteLine( limnamer.GetChannelEXT( "Root Name" ) );
+  // .WriteLine( limnamer.ExtQuery<string>( "fitmethod", "SimFit", "Full Name" ) )
+  // .WriteLine( limnamer.GetExt<string>( "fitfunc", "Full Name" ) );
 
-  boost::format obsfmt( "Observed Yield: %d" );
-  boost::format fitfmt( "Fitted bkg.: %.0lf #pm %.0lf" );
+  // boost::format obsfmt( "Observed Yield: %d" );
+  // boost::format fitfmt( "Fitted bkg.: %.0lf #pm %.0lf" );
   boost::format detfmt( "K_{bkg} = %.3lf,  K_{all} = %.3lf" );
 
-  const string obsentry = str( obsfmt % obs );
-  const string expentry = str( fitfmt % bgstrength % bgerr );
+  // const string obsentry = str( obsfmt % obs );
+  // const string expentry = str( fitfmt % bgstrength % bgerr );
   const string detentry = str( detfmt % ksbkg % ksall );
 
   latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min - TEXT_MARGIN, TOP_RIGHT )
-  .WriteLine( obsentry )
-  .WriteLine( expentry )
+  // .WriteLine( obsentry )
+  // .WriteLine( expentry )
   .WriteLine( detentry );
 
   // Saving and cleaning up
@@ -550,22 +567,16 @@ MakeSimFitPlot(
   taglist.push_back( "log" );
   const string zoomlog = limnamer.PlotFileName( prefix, taglist );
 
-  // Saving to ROOTFILE
-  mgr::SaveToROOT(
-    c,
-    limnamer.PlotRootFile(),
-    limnamer.OptFileName( "", prefix, taglist )
-    );
-
   // Unzoomed plot
   const vector<TGraph*> graphlist = {dataplot, modelplot, sigplot, bgplot};
   const double ymax               = mgr::GetYmax( graphlist );
-  frame->SetMaximum( ymax * 1.5 );
-  mgr::SaveToPDF( c, mainname );
   toppad->SetLogy( kTRUE );
   frame->SetMaximum( ymax * 3000 );
   mgr::SaveToPDF( c, logname.c_str() );
+  mgr::SaveToROOT( c, limnamer.PlotRootFile(), limnamer.OptFileName( "", prefix, taglist ) );
   toppad->SetLogy( kFALSE );
+  frame->SetMaximum( ymax * 1.5 );
+  mgr::SaveToPDF( c, mainname );
 
   // Zooming into designated position
   const double peak_value = modelplot->Eval( GetInt( sig->Name() ) );
@@ -603,17 +614,39 @@ MakeVarValPlot( SampleRooFitMgr* data )
     const RooRealVar* avar = data->Var( bgpdfname + "a" );
     const RooRealVar* bvar = data->Var( bgpdfname + "b" );
 
+    // Special case for NS which is very close to boundary
     nsplot->SetPoint( i, GetInt( signame ), ns->getVal() );
-    nsplot->SetPointError( i, 50, 50, -ns->getErrorLo(), ns->getErrorHi() );
+    if( ns->getErrorHi() > 0 ){
+      const double low = fabs(ns->getErrorLo()) > 0 ?
+        std::min(fabs(ns->getErrorLo()), ns->getVal() ):
+        ns->getVal() ;
+      const double hi  = ns->getErrorHi() ;
+      cout << GetInt(signame) << " " << low << " " << hi << endl;
+      nsplot->SetPointError( i, 50, 50, low, hi );
+    } else {
+      nsplot->SetPointError( i, 50, 50, ns->getVal(), ns->getError() );
+    }
 
     nbplot->SetPoint( i, GetInt( signame ), nb->getVal() );
-    nbplot->SetPointError( i, 50, 50, -nb->getErrorLo(), nb->getErrorHi() );
+    if( nb->getErrorLo() != 0 && nb->getErrorHi() != 0 ){
+      nbplot->SetPointError( i, 50, 50, -( nb->getErrorLo() ), nb->getErrorHi() );
+    } else {
+      nbplot->SetPointError( i, 50, 50, nb->getError(), nb->getError() );
+    }
 
     aplot->SetPoint( i, GetInt( signame ), avar->getVal() );
-    aplot->SetPointError( i, 50, 50, -avar->getErrorLo(), avar->getErrorHi() );
+    if( avar->getErrorLo() != 0 && avar->getErrorHi() != 0 ){
+      aplot->SetPointError( i, 50, 50, -avar->getErrorLo(), avar->getErrorHi() );
+    } else {
+      aplot->SetPointError( i, 50, 50, avar->getError(), avar->getError() );
+    }
 
     bplot->SetPoint( i, GetInt( signame ), bvar->getVal() );
-    bplot->SetPointError( i, 50, 50, -bvar->getErrorLo(), bvar->getErrorHi() );
+    if( bvar->getErrorLo() != 0 && bvar->getErrorHi() != 0 ){
+      bplot->SetPointError( i, 50, 50, -bvar->getErrorLo(), bvar->getErrorHi() );
+    } else {
+      bplot->SetPointError( i, 50, 50, bvar->getError(), bvar->getError() );
+    }
   }
 
   // Creating the plots
@@ -627,12 +660,11 @@ MakeVarValPlot( SampleRooFitMgr* data )
     const string yaxis = "fit value (" + std::string(
       ( plot == nsplot ) ?  "n_{s}" :
       ( plot == nbplot ) ?  "n_{b}" :
-      ( plot == aplot  ) ?  "m_{0} GeV/c^{2}" :
-      ( plot == bplot  ) ?  "a_{2}" :
+      ( plot == aplot  ) ?  "log(m_{0})" :
+      ( plot == bplot  ) ?  "#sqrt{1/2a_{2}}" :
       "" ) + ")" + std::string(
-      ( plot == nbplot ) ? "#times10^{3}" : ""
+      ( plot == nbplot ) ? " #times10^{3}" : ""
       );
-
 
     TCanvas* c = mgr::NewCanvas();
     mgr::SetSinglePad( c );
@@ -643,18 +675,19 @@ MakeVarValPlot( SampleRooFitMgr* data )
 
     plot->GetXaxis()->SetTitle( "Signal mass (GeV/c^{2})" );
     plot->GetYaxis()->SetTitle( yaxis.c_str() );
+    plot->SetTitle( "" );
 
     const double ymax = GetYmax( plot );
     const double ymin = GetYmin( plot );
 
-    plot->SetMaximum( ymax + ( ymax-ymin ) * 0.25 );
-    plot->SetMinimum( ymin - ( ymax-ymin ) * 0.25 );
+    plot->SetMaximum( ymax + ( ymax-ymin ) * 0.33 );
+    plot->SetMinimum( ymin - ( ymax-ymin ) * 0.33 );
 
     mgr::DrawCMSLabel();
     mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
 
     mgr::LatexMgr latex;
-    latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
+    latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + TEXT_MARGIN/2, BOTTOM_LEFT )
     .WriteLine( limnamer.GetChannelEXT( "Root Name" ) );
 
     mgr::SaveToPDF( c, limnamer.PlotFileName( "varfitval", plottag ) );
@@ -670,4 +703,26 @@ MakeVarValPlot( SampleRooFitMgr* data )
   delete nbplot;
   delete aplot;
   delete bplot;
+}
+
+/******************************************************************************/
+
+void
+SmoothEfficiency( std::vector<SampleRooFitMgr*>& siglist )
+{
+  double selecevtmean = 0;
+  double origevtmean  = 0;
+
+  for( const auto& sig : siglist ){
+    selecevtmean += sig->Sample().SelectedEventCount();
+    origevtmean  += sig->Sample().OriginalEventCount();
+  }
+
+  selecevtmean /= siglist.size();
+  origevtmean  /= siglist.size();
+
+  for( const auto& sig : siglist ){
+    sig->Sample().SetSelectedEventCount( selecevtmean );
+    sig->Sample().SetOriginalEventCount( origevtmean  );
+  }
 }

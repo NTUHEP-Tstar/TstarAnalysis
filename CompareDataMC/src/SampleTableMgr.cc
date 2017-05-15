@@ -118,7 +118,7 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
   double puweightsum     = 0;
   double leptonweightsum = 0;
   double topptweightsum  = 0;
-  double pdfweightsum    = 0;
+  // double pdfweightsum    = 0;
 
 
   const auto& pdfidgroup = GetPdfIdGrouping( sample );
@@ -147,8 +147,8 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
     const double leptonweightdown = GetElectronWeightDown( ev ) * GetMuonWeightDown( ev );
 
     const double topptweight    = GetSampleEventTopPtWeight( sample, ev );
-    const double pdfweighterr   = GetPdfWeightError( ev, pdfidgroup );
-    const double scaleweighterr = GetScaleWeightError( ev, pdfidgroup );
+    // const double pdfweighterr   = GetPdfWeightError( ev, pdfidgroup );
+    // const double scaleweighterr = GetScaleWeightError( ev, pdfidgroup );
 
     cout << progressbar
       % ( sample.Name() )
@@ -164,15 +164,15 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
                                  * puweightup
                                  * leptonweightup
                                  * topptweight
-                                 * ( 1 + pdfweighterr )
-                                 * ( 1 + scaleweighterr )
+                                 // * ( 1 + pdfweighterr )
+                                 // * ( 1 + scaleweighterr )
                                  * sign;
     const double eventweightdown = btagweightdown
                                    * puweightdown
                                    * leptonweightdown
                                    * topptweight
-                                   * ( 1 - pdfweighterr )
-                                   * ( 1 - scaleweighterr )
+                                   // * ( 1 - pdfweighterr )
+                                   // * ( 1 - scaleweighterr )
                                    * sign;
 
     eventweightsum     += eventweight;
@@ -183,16 +183,16 @@ SampleTableMgr::LoadFromEDM( mgr::SampleMgr& sample )
     puweightsum     += puweight;
     leptonweightsum += leptonweight;
     topptweightsum  += topptweight;
-    pdfweightsum    += 1 + pdfweighterr;
+    // pdfweightsum    += 1 + pdfweighterr;
   }
 
   evtcounter--;
-  cout << boost::format( "Done! AVG weight: btag[%lf], pu[%lf], lepton[%lf] , toppt[%lf],  pdf[%lf]" )
+  cout << boost::format( "Done! AVG weight: btag[%lf], pu[%lf], lepton[%lf] , toppt[%lf]" )
     % ( btagweightsum / evtcounter )
     % ( puweightsum / evtcounter )
     % ( leptonweightsum / evtcounter )
     % ( topptweightsum / evtcounter )
-    % ( pdfweightsum / evtcounter )
+    // % ( pdfweightsum / evtcounter )
        << endl;
 
   sample.AddCacheDouble( "EventWeightSum",     eventweightsum );

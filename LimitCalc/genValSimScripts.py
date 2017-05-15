@@ -23,7 +23,7 @@ masspointlist=[
 
 functionlist=["Lognorm","Exo","LogExt3", "LogExt4"]
 
-runnum   = 100
+runnum   = 2000
 injlist  = [0,1]
 
 header="""
@@ -69,10 +69,10 @@ bkgtypelist = [
 functionlist = ["Lognorm"]
 
 cmd = """
-RunValGenFit --channel {0} --fitmethod SimFit --fitfunc {1} --num {2} --masspoint {3} -e Rereco {4} {5} --bkgtype {6}
+RunValGenFit --channel {0} --fitmethod SimFit --fitfunc {1} --num {2} --masspoint {3} -e Rereco {4} {5}  {6} {7}
 """
 
-plotcmd = "./PlotValGenFit --channel {0} --fitmethod SimFit --fitfunc {1} --relmag {2} -e Rereco --bkgtype {3}"
+plotcmd = "./PlotValGenFit --channel {0} --fitmethod SimFit --fitfunc {1} --relmag {2} -e Rereco {3} {4}"
 
 for channel in channellist:
     for func in functionlist:
@@ -82,7 +82,22 @@ for channel in channellist:
                     filename = "run/runsimfitval_{}_{}_{}_r{}_{}.sh".format( channel, func, masspoint, inj, bkgtype )
                     script = open( filename, 'w')
                     script.write( header )
-                    script.write( cmd.format( channel, func, runnum , masspoint , "--relmag" , inj, bkgtype ) )
+                    script.write( cmd.format( channel, func, runnum , masspoint , "--relmag" , inj, "--bkgtype", bkgtype ) )
                     script.close()
                     os.system("chmod +x "+filename)
-                    print plotcmd.format( channel, func, inj, bkgtype )
+                print plotcmd.format( channel, func, inj, "--bkgtype", bkgtype )
+
+bkgtypelist=[1.20,1.55]
+
+for channel in channellist:
+    for func in functionlist:
+        for inj in injlist :
+            for bkgtype in bkgtypelist:
+                for masspoint in masspointlist:
+                    filename = "run/runsimfitval_{}_{}_{}_r{}_{}.sh".format( channel, func, masspoint, inj, bkgtype )
+                    script = open( filename, 'w')
+                    script.write( header )
+                    script.write( cmd.format( channel, func, runnum , masspoint , "--relmag" , inj, "--forcerho", bkgtype ) )
+                    script.close()
+                    os.system("chmod +x "+filename)
+                    print plotcmd.format( channel, func, inj, "--forcerho", bkgtype )

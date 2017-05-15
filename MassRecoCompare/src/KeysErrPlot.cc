@@ -118,11 +118,8 @@ MakeKeysErrPlots( KeysErrMgr* mgr )
 
     mgr::LatexMgr latex;
     latex.SetOrigin( PLOT_X_TEXT_MAX, 0.75-TEXT_MARGIN, TOP_RIGHT )
+    .WriteLine( mgr->LatexName() )
     .WriteLine( boost::str( boost::format( "M_{t*}=%dGeV/c^{2}" )%reconamer.GetInput<int>( "mass" ) ) );
-
-    latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
-    .WriteLine( mgr->LatexName() );
-
 
     mgr::SaveToPDF( c, reconamer.PlotFileName( "errcomp", tag ) );
 

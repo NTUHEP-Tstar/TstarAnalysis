@@ -43,7 +43,7 @@ def main():
         os.system(cmd)
         # print cmd
         print "\rSubmitting script ", script
-        mytime.SleepMillSec(1000)
+        mytime.SleepMillSec(5000) # wait 5 seconds before attempting next submit
 
     myproc.WaitProcess('cmsRun')
 

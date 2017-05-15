@@ -12,9 +12,9 @@ template<class T>
 void
 tstar::SetDataStyle( T* x )
 {
-   x->SetMarkerStyle( 20 );
-   x->SetMarkerSize( 0.7 );
-   x->SetLineColor( kBlack );
+  x->SetMarkerStyle( 20 );
+  x->SetMarkerSize( 0.7 );
+  x->SetLineColor( kBlack );
 }
 
 /******************************************************************************/
@@ -23,9 +23,9 @@ template<class T>
 void
 tstar::SetErrorStyle( T* x )
 {
-   x->SetFillColor( KBLUE );
-   x->SetLineColor( KBLUE );
-   x->SetFillStyle( FILL_ST );
+  x->SetFillColor( 12 );
+  x->SetLineColor( 12 );
+  x->SetFillStyle( FILL_ST );
 }
 
 /******************************************************************************/
@@ -34,11 +34,9 @@ template<class T>
 void
 tstar::SetSignalStyle( T* x )
 {
-   x->SetLineColor( KRED );
-   x->SetLineStyle( 5 );
-//   x->SetFillColor( kRed );
-//   x->SetFillStyle( 3005 );
+  x->SetLineColor( KRED );
+  x->SetLineStyle( 2 );
 }
 
 
-#endif /* end of include guard: TSTARANALYSIS_COMMON_PLOTSTYLE_IPP */
+#endif/* end of include guard: TSTARANALYSIS_COMMON_PLOTSTYLE_IPP */

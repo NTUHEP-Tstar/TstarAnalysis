@@ -50,6 +50,10 @@ extern void MakeSimFit(
   std::vector<SampleRooFitMgr*>& sig_list
   );
 
+extern void SmoothEfficiency(
+  std::vector<SampleRooFitMgr*>& siglist
+);
+
 /*******************************************************************************
 *
 *    Helper subroutine control flows

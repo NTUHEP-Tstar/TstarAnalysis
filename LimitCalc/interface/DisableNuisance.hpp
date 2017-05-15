@@ -17,4 +17,6 @@ extern void MakeNewCard( const std::string& masspoint, const std::string nuisanc
 
 extern void MakeLimitTable( const std::map< std::string, std::pair<mgr::Parameter, mgr::Parameter>>& );
 
+extern void MakeDeltaRPlot();
+
 #endif /* end of include guard: TSTARANALYSIS_LIMITCALC_DISABLENUISANCE_HPP */

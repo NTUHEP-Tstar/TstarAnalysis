@@ -71,16 +71,16 @@ SampleErrHistMgr::define_hist()
 {
   AddErrHists( "LepPt",     "Lepton p_{T}",              "GeV/c",      48, 20,    500 );
   AddErrHists( "LepEta",    "Lepton #eta",               "",           75,  -2.5, 5.0 );
-  AddErrHists( "JetNum",    "Number of Jets",            "",           18,  2,     20 );
+  AddErrHists( "JetNum",    "Number of jets",            "",           18,  2,     20 );
   AddErrHists( "JetPt",     "Jet p_{T}",                 "GeV/c",      50,  0,    600 );
   AddErrHists( "JetEta",    "Jet #eta",                  "",           75,  -2.5, 5.0 );
-  AddErrHists( "Jet1Pt",    "First Leading Jet p_{T}",   "GeV/c",      50,  0,    800 );
-  AddErrHists( "Jet1Eta",   "First Leading Jet #eta",    "",           75,  -2.5, 5.0 );
-  AddErrHists( "Jet2Pt",    "Second Leading Jet p_{T}",  "GeV/c",      50,  0,    600 );
-  AddErrHists( "Jet2Eta",   "Second Leading Jet #eta",   "",           75,  -2.5, 5.0 );
+  AddErrHists( "Jet1Pt",    "First leading jet p_{T}",   "GeV/c",      50,  0,    800 );
+  AddErrHists( "Jet1Eta",   "First leading jet #eta",    "",           75,  -2.5, 5.0 );
+  AddErrHists( "Jet2Pt",    "Second leading jet p_{T}",  "GeV/c",      50,  0,    600 );
+  AddErrHists( "Jet2Eta",   "Second leading jet #eta",   "",           75,  -2.5, 5.0 );
   AddErrHists( "MET",       "Missing transverse energy", "GeV",        50,  0,    500 );
-  AddErrHists( "TstarMass", "M_{t+jet}",                 "GeV/c^{2}", 100,  0,   3000 );
-  AddErrHists( "MuPfIso",   "Muon PF Isolation",         "",          100,  0,   0.15 );
+  AddErrHists( "TstarMass", "m_{t+jet}",                 "GeV/c^{2}", 100,  0,   3000 );
+  AddErrHists( "MuPfIso",   "Muon PF isolation",         "",          100,  0,   0.15 );
 }
 
 /******************************************************************************/

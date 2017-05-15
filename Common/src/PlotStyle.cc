@@ -15,21 +15,11 @@ namespace tstar {
 void
 SetFitBGStyle( TGraph* x )
 {
-  x->SetLineColor( KBLUE );
-  x->SetLineWidth( 3 );
-  x->SetLineStyle( 3 );
-}
-
-/******************************************************************************/
-
-void
-SetFitBGErrStyle( TGraph* x )
-{
-  x->SetFillStyle( FILL_DENSE );
+  x->SetFillStyle( 3245 );
   x->SetFillColor( KSKY );
   x->SetLineColor( KBLUE );
-  x->SetLineWidth( 3 );
-  x->SetLineStyle( 3 );
+  x->SetLineWidth( 1 );
+  x->SetLineStyle( 1 );
 }
 
 /******************************************************************************/
@@ -39,8 +29,8 @@ SetFitCombStyle( TGraph* x )
 {
   x->SetFillColor( KGREEN );
   x->SetLineColor( KGREEN );
-  x->SetLineWidth( 1 );
-  x->SetLineStyle( 8 );
+  x->SetLineWidth( 2 );
+  x->SetLineStyle( 3 );
 }
 
 /*******************************************************************************
@@ -75,8 +65,8 @@ SetTheoryStyle( TGraph* x )
   x->SetLineWidth( 2 );
   x->SetLineStyle( 2 );
 
-  x->SetFillColor(KSKY);
-  x->SetFillStyle( FILL_DENSE );
+  x->SetFillColor( KSKY );
+  x->SetFillStyle( 3254 );
 }
 
 /******************************************************************************/
@@ -84,9 +74,9 @@ SetTheoryStyle( TGraph* x )
 void
 SetExpLimitStyle( TGraph* x )
 {
-  x->SetLineColor( kBlack );
+  x->SetLineColor( KRED );
   x->SetLineWidth( 2 );
-  x->SetLineStyle( 2 );
+  x->SetLineStyle( 3 );
 }
 
 /******************************************************************************/

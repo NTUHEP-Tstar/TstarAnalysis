@@ -125,8 +125,28 @@ PrintNuisanceFloats(
   cardfile << boost::format( "%-20s %3s %15s %15s" )
     % nuisance_name
     % nuisance_type
-    % HiggsDataCard( sig_nuisance )
-    % HiggsDataCard( bkg_nuisance )
+    % HiggsDataCard( sig_nuisance,1 )
+    % HiggsDataCard( bkg_nuisance,1 )
+           << endl;
+}
+
+/******************************************************************************/
+
+void
+PrintNuisanceUniformFloats(
+  ofstream&        cardfile,
+  const string&    nuisance_name,
+  const string&    nuisance_type,
+  const Parameter& sig_nuisance,
+  const Parameter& bkg_nuisance
+  )
+{
+
+  cardfile << boost::format( "%-20s %3s %15s %15s" )
+    % nuisance_name
+    % nuisance_type
+    % HiggsDataCard( sig_nuisance,3 )
+    % HiggsDataCard( bkg_nuisance,3 )
            << endl;
 }
 
@@ -138,11 +158,14 @@ PrintFloatParam(
   const RooRealVar* var
   )
 {
+  const double value = var->getVal();
+  const double loedge = value - 3* var->getErrorLo() ;
+  const double hiedge = value + 3* var->getErrorHi() ;
   cardfile << boost::format( "%-45s %-10s %lf %lf" )
     % var->GetName()
-    % "param"
-    % var->getVal()
-    % var->getError()
+    % "flatParam"
+    % loedge
+    % hiedge
            << endl;
 }
 

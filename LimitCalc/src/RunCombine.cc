@@ -17,7 +17,7 @@ using namespace mgr;
 /*******************************************************************************
 *   Main control flow
 *******************************************************************************/
-static string AdditionalOptions( const string& method );
+static string AdditionalOptions( const string& method, const int mass, const string& channel );
 
 
 /******************************************************************************/
@@ -34,8 +34,10 @@ RunCombine( const string& addtag, const string& hc_opt )
     const string cardfile  = limnamer.TextFileName( "card", sig, addtag );
     const string storefile = limnamer.RootFileName( "combine", sig, addtag );
     const string method    = limnamer.GetInput<string>( "combine" );
-    const string addopts   = AdditionalOptions( method );
     const int masspoint    = GetInt( sig );
+
+    // Getting additional options
+    const string addopts   = AdditionalOptions( method, masspoint, limnamer.GetChannel() );
 
     submit_list.push_back( CombineRequest(
         cardfile,
@@ -52,16 +54,18 @@ RunCombine( const string& addtag, const string& hc_opt )
 /******************************************************************************/
 
 string
-AdditionalOptions( const string& method )
+AdditionalOptions( const string& method, const int mass, const string& channel )
 {
   string ans = "";
-  if( method == "HybridNew" ){
-    ans += "  --iteration=16  ";
-  }
 
   ans += " --hintMethod=ProfileLikelihood ";
-  ans += " --rAbsAcc=0.000005 ";
-  ans += " --rRelAcc=0.00005  ";
+  ans += " --rAbsAcc=0.00005 ";
+  ans += " --rRelAcc=0.0005  ";
+  //ans += " --minimizerAlgo=Minuit2  ";
+  ans += " --minimizerStrategy=1   ";
+  ans += " --minimizerTolerance=0.001 ";
+  // ans += " --newExpected=off ";
+  //ans += " --picky ";
 
   if (limnamer.CheckInput( "seed"  ) ){
     ans+= ( " --seed " +  boost::lexical_cast<string>( limnamer.GetInput<double>( "seed"  )  ) );

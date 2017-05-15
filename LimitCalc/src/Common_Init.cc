@@ -64,7 +64,7 @@ MassOptions()
 /******************************************************************************/
 
 extern opt::options_description
-PsuedoExpOptions()
+PseudoExpOptions()
 {
   opt::options_description ans( "Psuedo experiment settings" );
   ans.add_options()
@@ -74,6 +74,19 @@ PsuedoExpOptions()
   ;
   return ans;
 }
+
+/******************************************************************************/
+
+extern opt::options_description
+PseudoExpExtraOptions()
+{
+  opt::options_description ans( "Psuedo experiment additional options" );
+  ans.add_options()
+    ("forcerho" , opt::value<double>(), "Force keys pdf rho value")
+  ;
+  return ans;
+}
+
 
 /******************************************************************************/
 
@@ -89,6 +102,7 @@ ExtraCutOptions()
     ( "useparam",  opt::value<int>(),    "Whether or not to use a parametric signal shape (no by default)" )
     ( "recoalgo",  opt::value<string>(), "Which reconstruction algorithm to use" )
     ( "scaleres",  opt::value<double>(), "Scaling the resolution manually" )
+    ( "smootheff", opt::value<int>(),    "Whether or not to smooth the efficiency" )
   ;
   return ans;
 }

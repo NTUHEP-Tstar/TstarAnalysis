@@ -82,13 +82,15 @@ MakeLimitPlot( const std::string& additionaltag )
 
   // Making legend
   const double legend_x_min = 0.55;
-  const double legend_y_min = 0.65;
+  const double legend_y_min = 0.50;
   TLegend* l                = mgr::NewLegend( legend_x_min, legend_y_min );
-  l->AddEntry( obsgraph,    "95% CL_{s} Limit (Obs.)", "l" );
-  l->AddEntry( expgraph,    "Expected limit",          "l" );
-  l->AddEntry( onesiggraph, "68% expected",            "f" );
-  l->AddEntry( twosiggraph, "95% expected",            "f" );
-  l->AddEntry( theorygraph, "Theory",                  "lf" );
+  l->AddEntry( theorygraph,    "R-S Model",              "lf" );
+  l->AddEntry( (TObject*)NULL, "",                       "" );
+  l->AddEntry( (TObject*)NULL, "95% CL_{s} upper limit", "" );
+  l->AddEntry( obsgraph,       "Observed",               "l" );
+  l->AddEntry( expgraph,       "Medium expected",        "l" );
+  l->AddEntry( onesiggraph,    "68% expected",           "f" );
+  l->AddEntry( twosiggraph,    "95% expected",           "f" );
   l->Draw();
 
 
@@ -98,16 +100,16 @@ MakeLimitPlot( const std::string& additionaltag )
 
   // Writing additional text
   const string rootlabel = limnamer.GetChannelEXT( "Root Name" );
-  const string fitmethod = limnamer.GetExt<string>( "fitmethod", "Full Name" );
-  const string funcname  = limnamer.GetExt<string>( "fitfunc", "Full Name" );
-  boost::format explimfmt( "Expected Lim (95%% CL.) = %s GeV/c^{2}" );
-  boost::format obslimfmt( "Observed Lim (95%% CL.) = %s GeV/c^{2}" );
+  // const string fitmethod = limnamer.GetExt<string>( "fitmethod", "Full Name" );
+  // const string funcname  = limnamer.GetExt<string>( "fitfunc", "Full Name" );
+  boost::format explimfmt( "Expected: %s GeV/c^{2}" );
+  boost::format obslimfmt( "Observed: %s GeV/c^{2}" );
 
   mgr::LatexMgr latex;
-  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
-  .WriteLine( rootlabel )
-  .WriteLine( fitmethod )
-  .WriteLine( funcname );
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + TEXT_MARGIN/2, BOTTOM_LEFT )
+  .WriteLine( rootlabel );
+  // .WriteLine( fitmethod )
+  // .WriteLine( funcname );
 
   // Cannot have Latex style spacing '\,'
   const Parameter explim_err = GetInterSect( theorygraph, onesiggraph );
@@ -138,9 +140,8 @@ MakeLimitPlot( const std::string& additionaltag )
     limnamer.AddCutOptions( "rMax" );
   }
 
-
-  mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.PlotFileName( "limit" ) );
-  mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit" ) );
+  mgr::SaveToROOT( c1, limnamer.PlotRootFile(), limnamer.OptFileName( "", "limit", additionaltag ) );
+  mgr::SaveToPDF( c1, limnamer.PlotFileName( "limit", additionaltag ) );
   delete onesiggraph;
   delete twosiggraph;
   delete obsgraph;
@@ -198,18 +199,11 @@ MakeTheoryGraph( const map<double, double>& xsec )
     const auto& sig   = siglist.at( i );
     const double mass = GetInt( sig );
 
-    mgr::SampleMgr mgr( sig );
-    mgr::LoadCacheFromFile( mgr, limnamer.CustomFileName( "txt", sig ) );
+    mgr::SampleGroup sigmgr( sig, limnamer.MasterConfig() );
 
-    const mgr::Parameter pdferr = mgr::Parameter( mgr.SelectedEventCount(),
-      mgr.GetCacheDouble( "PDFup" ) - mgr.SelectedEventCount(),
-      mgr.SelectedEventCount() - mgr.GetCacheDouble( "PDFdown" )
-      ).NormParam();
-    const mgr::Parameter scaleerr = mgr::Parameter( mgr.SelectedEventCount(),
-      mgr.GetCacheDouble( "scaleup" ) - mgr.SelectedEventCount(),
-      mgr.SelectedEventCount() - mgr.GetCacheDouble( "scaledown" )
-      ).NormParam();
-    const mgr::Parameter toterr = pdferr * scaleerr;
+    const mgr::Parameter pdferr   = sigmgr.Sample().PDFUncertainty();
+    const mgr::Parameter scaleerr = sigmgr.Sample().QCDScaleUncertainty();
+    const mgr::Parameter toterr   = pdferr * scaleerr;
 
     errorupgraph->SetPoint( i, mass, toterr.RelUpperError() );
     errordowngraph->SetPoint( i, mass, toterr.RelLowerError() );
@@ -283,7 +277,7 @@ MakeCalcGraph(
     TTree* tree = ( (TTree*)file->Get( "limit" ) );
     tree->SetBranchAddress( "limit", &temp );
 
-    // Gettign the entries
+    // Getting the entries
     tree->GetEntry( centralentry );
     const double central = temp * expxsec;
 
@@ -300,7 +294,11 @@ MakeCalcGraph(
 
     graph->SetPoint( bin, mass, central );
     graph->SetPointError( bin, 50, 50, errordown, errorup );
+    cout << boost::format( "%u %4.0lf  %8.6lf[+%8.6lf/-%8.6lf]" )
+      % bin % mass % central % errorup % errordown << endl;
     ++bin;
+
+    delete file;
   }
 
   return graph;

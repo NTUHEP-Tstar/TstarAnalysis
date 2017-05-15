@@ -30,7 +30,8 @@ extern const std::vector<std::string> uncsource;
 
 extern boost::program_options::options_description LimitOptions();
 extern boost::program_options::options_description MassOptions();
-extern boost::program_options::options_description PsuedoExpOptions();
+extern boost::program_options::options_description PseudoExpOptions();
+extern boost::program_options::options_description PseudoExpExtraOptions();
 extern boost::program_options::options_description ExtraCutOptions();
 extern boost::program_options::options_description HiggsCombineOptions();
 extern boost::program_options::options_description ExtraLimitOptions();
@@ -161,6 +162,14 @@ extern void MakeCardCommon(
   );
 
 extern void PrintNuisanceFloats(
+  std::ofstream&        outfile,
+  const std::string&    nuisance_name,
+  const std::string&    nuisance_type,
+  const mgr::Parameter& sig_nuisance,// Leave (0,0,0) if skip
+  const mgr::Parameter& bkg_nuisance
+  );
+
+extern void PrintNuisanceUniformFloats(
   std::ofstream&        outfile,
   const std::string&    nuisance_name,
   const std::string&    nuisance_type,

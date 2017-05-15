@@ -26,7 +26,7 @@ using namespace mgr;
 *   Static string and format settings
 *******************************************************************************/
 static const string hlinestr = "\\hline";
-static boost::format samplelinefmt( "%-45s & %25s & %35s & %15s & %35s \\\\" );
+static boost::format samplelinefmt( "%-45s & %35s & %35s & %15s & %35s \\\\" );
 static boost::format simplelinefmt( "%-40s & %25s &%20s\\\\" );
 static boost::format lumilinefmt(   "%-55s & %35s & %10s & %35s &  %20s\\\\" );
 
@@ -143,7 +143,7 @@ SummaryMCLumi(
            << hlinestr << endl;
 
   for( const auto& sig : siglist ){
-    lumifile << LumiLine( sig.Sample() );
+    lumifile << LumiLine( sig.Sample() ) << endl;
   }
 
   for( const auto& grp : bkglist ){

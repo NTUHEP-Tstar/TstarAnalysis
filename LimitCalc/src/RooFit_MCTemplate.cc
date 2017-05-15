@@ -85,9 +85,9 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
   // Manually calling NNL minizer functions
   static RooCmdArg min    = RooFit::Minimizer( "Minuit", "Migrad" );
   static RooCmdArg sumerr = RooFit::SumW2Error( kTRUE );
-  static RooCmdArg minos  = RooFit::Hesse( kTRUE );
+  static RooCmdArg hesse  = RooFit::Minos( kTRUE );
   static RooCmdArg save   = RooFit::Save();
-  static RooCmdArg ncpu   = RooFit::NumCPU( 6 );
+  //static RooCmdArg ncpu   = RooFit::NumCPU( 6 );
   static RooCmdArg verb   = RooFit::Verbose( kFALSE );
   static RooCmdArg printl = RooFit::PrintLevel( -1 );
   static RooCmdArg printe = RooFit::PrintEvalErrors( -1 );
@@ -96,23 +96,27 @@ FitBackgroundTemplate( SampleRooFitMgr* bg, const string& datatag )
   RooLinkedList fitopt;
   fitopt.Add( &min    );
   fitopt.Add( &sumerr );
-  fitopt.Add( &minos  );
+  fitopt.Add( &hesse  );
   fitopt.Add( &save   );
-  fitopt.Add( &ncpu   );
+  //fitopt.Add( &ncpu   );
   fitopt.Add( &verb   );
   fitopt.Add( &printl );
   fitopt.Add( &printe );
   fitopt.Add( &printw );
 
+  const unsigned maxiter = 30;
+  unsigned iter = 0 ;
   RooFitResult* ans = NULL ;
   while( !ans ){
     ans = bgpdf->fitTo( *( bg->DataSet(datatag) ), fitopt );
     if( ans->status() ){ // Not properly converged
+      iter++;
+      if( iter > maxiter ) { break; }
       delete ans;
       ans = NULL;
     }
   }
-
+  cout << ">>>> BKG FIT iteration: " << iter << endl;
   bg->SetConstant( kTRUE );// Freezing all constants
 
   return ans;
@@ -246,15 +250,8 @@ MakeTemplatePlot(
     RooFit::DrawOption( PGS_DATA )
     );
 
-  TGraph* pdferrplot = mgr::PlotOn(
-    frame,
-    bkgpdf,
-    RooFit::VisualizeError( *fitresult, 1, kFALSE )
-    );
-
-  TGraph* pdfplot = mgr::PlotOn(
-    frame,
-    bkgpdf,
+  TGraph* pdfplot = mgr::PlotFitErrorOn(
+    frame, bkgpdf, fitresult,
     RooFit::Normalization( set->sumEntries(), RooAbsReal::NumEvent )
     );
 
@@ -279,7 +276,7 @@ MakeTemplatePlot(
   botpad->cd();
 
   TGraphAsymmErrors* bgrelplot = mgr::DividedGraph(
-    (TGraphAsymmErrors*)pdferrplot,
+    (TGraphAsymmErrors*)pdfplot,
     pdfplot
     );
   TGraphAsymmErrors* datarelplot = mgr::DividedGraph(
@@ -287,7 +284,7 @@ MakeTemplatePlot(
     pdfplot
     );
 
-  bgrelplot->Draw( "AF" );
+  bgrelplot->Draw( "AL3" );
   datarelplot->Draw( PGS_DATA );
 
   TLine cen( xmin, 1, xmax, 1 );
@@ -317,19 +314,18 @@ MakeTemplatePlot(
   *******************************************************************************/
   tstar::SetSignalStyle( sigplot );
   tstar::SetFitBGStyle( pdfplot );
-  tstar::SetFitBGStyle( pdferrplot );
   tstar::SetSignalStyle( sigplot );
 
-  tstar::SetFitBGErrStyle( bgrelplot );
+  tstar::SetFitBGStyle( bgrelplot );
   tstar::SetDataStyle( datarelplot );
   tstar::SetDataStyle( setplot );
 
   // Legend entries
-  const double legend_x_min = 0.53;
+  const double legend_x_min = 0.65;
   const double legend_y_min = 0.70;
   TLegend* l                = mgr::NewLegend( legend_x_min, legend_y_min );
-  boost::format sigfmt( "%s (%.2lf pb)" );
-  const string sigentry  = str( sigfmt % signal->RootName() % signal->Sample().CrossSection().CentralValue() );
+  boost::format sigfmt( "%s" );
+  const string sigentry  = str( sigfmt % signal->RootName() );
   const string dataentry = ( use_data ) ? "Data" : "M.C. Bkg.";
   const string fitentry  = string( "Bkg. fit to MC" ) + ( use_data ? "(Norm.)" : "" );
 
@@ -340,7 +336,7 @@ MakeTemplatePlot(
   l->Draw();
 
   // Additional information plotting
-  boost::format goffmt( "K_{prob} = %.3lf" );
+  boost::format goffmt( "K = %.3lf" );
   const double ksprob   = KSTest( *( set ), *( bkgpdf ), SampleRooFitMgr::x() );
   const string gofentry = str( goffmt % ksprob );
 
@@ -348,10 +344,9 @@ MakeTemplatePlot(
   mgr::DrawLuminosity( TotalLuminosity );
 
   LatexMgr latex;
-  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX, TOP_LEFT )
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + TEXT_MARGIN/2, TOP_LEFT )
   .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
-  .WriteLine( limnamer.GetExt<string>( "fitfunc", "Root Name" ) );
-  latex.SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT )
+  .SetOrigin( PLOT_X_TEXT_MAX, legend_y_min-TEXT_MARGIN, TOP_RIGHT )
   .WriteLine( gofentry );
 
   // Range setting and saving

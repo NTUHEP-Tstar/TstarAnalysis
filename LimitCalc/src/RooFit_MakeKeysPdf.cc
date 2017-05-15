@@ -108,9 +108,10 @@ MakeSingleKeysPdf( SampleRooFitMgr* sample, const string& datasetname )
   if( !limnamer.CheckInput( "useparam" ) ){// Defaults to using Keys PDF
     // Change rho factor according to the dataset name (1.36 as central value)
     const double rho =
-      datasetname.find( "model" ) == string::npos ? 1.36 :
-      datasetname.find( "Up" )    == string::npos ? 1.17 :
-      1.66;
+      datasetname.find( "modelUp" )   == string::npos ? 1.17 :
+      datasetname.find( "modelDown" ) == string::npos ? 1.66 :
+      limnamer.CheckInput("forcerho")                 ? limnamer.GetInput<double>("forcerho"):
+      1.36;
 
     // Running roofit KeysPdf construction`
     RooKeysPdf* pdf = new RooKeysPdf(
@@ -235,7 +236,7 @@ MakeFullKeysPdf( SampleRooFitMgr* sample )
     simplelist
     );
 
-  // Complex version doesn't work for now
+  //// Complex version doesn't work for now
   // return MakeMultiJoinPdf(
   //   sample,
   //   StitchKeyPdfName,

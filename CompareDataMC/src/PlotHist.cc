@@ -89,14 +89,9 @@ MakePlot(
   legend->Draw();
   mgr::DrawCMSLabel();
   mgr::DrawLuminosity( mgr::SampleMgr::TotalLuminosity() );
-  TPaveText* tb = mgr::NewTextBox(
-    PLOT_X_MIN + 0.05,
-    PLOT_Y_MAX - ( TEXT_FONT_SIZE*2.0 )/( DEFAULT_CANVAS_HEIGHT ),
-    PLOT_X_MIN + 0.40,
-    PLOT_Y_MAX - 0.025
-    );
-  tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
-  tb->Draw();
+  mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + (TEXT_MARGIN/2), BOTTOM_LEFT )
+  .WriteLine( compnamer.GetChannelEXT( "Root Name" ) );
 
   // setting ranges and saving plots
   const double ymax       = mgr::GetYmax( {bkgerror, datahist, sighist} );
@@ -117,7 +112,7 @@ MakePlot(
   vector<string> newtaglist = taglist;
   newtaglist.push_back( "log" );
   pad1->SetLogy();
-  stack->SetMaximum( ymax * 30 );
+  stack->SetMaximum( ymax * 300 );
   stack->SetMinimum( 0.3 );
   stack->GetYaxis()->SetTitle( datahist->GetYaxis()->GetTitle() );  // resetting y axis title
   mgr::SaveToPDF( c, compnamer.PlotFileName( filenametag, newtaglist ) );
@@ -128,5 +123,4 @@ MakePlot(
   delete line;
   delete line_top;
   delete line_bot;
-  delete tb;
 }

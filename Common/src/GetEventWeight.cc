@@ -10,8 +10,8 @@
 #include "DataFormats/FWLite/interface/Run.h"
 
 #include "ManagerUtils/EDMUtils/interface/Counter.hpp"
-#include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 #include "ManagerUtils/SampleMgr/interface/MultiFile.hpp"
+#include "ManagerUtils/SampleMgr/interface/SampleMgr.hpp"
 
 #include "TFile.h"
 #include <iostream>
@@ -22,10 +22,10 @@ using namespace std;
 *   Static helper functions
 *******************************************************************************/
 static double GetWeightByTag(
-   const fwlite::EventBase& ev,
-   const string&            module_label,
-   const string&            product_label
-   );
+  const fwlite::EventBase& ev,
+  const string&            module_label,
+  const string&            product_label
+  );
 
 
 /******************************************************************************/
@@ -33,7 +33,7 @@ static double GetWeightByTag(
 double
 GetEventWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "EventWeight", "WeightProd" );
+  return GetWeightByTag( ev, "EventWeight", "WeightProd" );
 }
 
 
@@ -42,7 +42,7 @@ GetEventWeight( const fwlite::EventBase& ev )
 double
 GetWeightSign( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "SignWeight", "SignWeight" );
+  return GetWeightByTag( ev, "SignWeight", "SignWeight" );
 }
 
 /******************************************************************************/
@@ -50,25 +50,25 @@ GetWeightSign( const fwlite::EventBase& ev )
 double
 GetPileupWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "PileupWeight", "PileupWeight" );
+  return GetWeightByTag( ev, "PileupWeight", "PileupWeight" );
 }
 
 double
 GetPileupWeightBestFit( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "PileupWeightBestFit", "PileupWeight" );
+  return GetWeightByTag( ev, "PileupWeightBestFit", "PileupWeight" );
 }
 
 double
 GetPileupWeightXsecup( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "PileupWeightXsecup", "PileupWeight" );
+  return GetWeightByTag( ev, "PileupWeightXsecup", "PileupWeight" );
 }
 
 double
 GetPileupWeightXsecdown( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "PileupWeightXsecdown", "PileupWeight" );
+  return GetWeightByTag( ev, "PileupWeightXsecdown", "PileupWeight" );
 }
 
 /******************************************************************************/
@@ -76,19 +76,19 @@ GetPileupWeightXsecdown( const fwlite::EventBase& ev )
 double
 GetBtagWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "BtagWeight", "BtagWeight" );
+  return GetWeightByTag( ev, "BtagWeight", "BtagWeight" );
 }
 
 double
 GetBtagWeightUp( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "BtagWeight", "BtagWeightup" );
+  return GetWeightByTag( ev, "BtagWeight", "BtagWeightup" );
 }
 
 double
 GetBtagWeightDown( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "BtagWeight", "BtagWeightdown" );
+  return GetWeightByTag( ev, "BtagWeight", "BtagWeightdown" );
 }
 
 
@@ -97,37 +97,37 @@ GetBtagWeightDown( const fwlite::EventBase& ev )
 double
 GetElectronWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronWeight", "ElectronWeight" );
+  return GetWeightByTag( ev, "ElectronWeight", "ElectronWeight" );
 }
 
 double
 GetElectronCutWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronWeight", "ElectronCutWeight" );
+  return GetWeightByTag( ev, "ElectronWeight", "ElectronCutWeight" );
 }
 
 double
 GetElectronTrackWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronWeight", "ElectronGsfWeight" );
+  return GetWeightByTag( ev, "ElectronWeight", "ElectronGsfWeight" );
 }
 
 double
 GetElectronTriggerWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronWeight", "ElectronTriggerWeight" );
+  return GetWeightByTag( ev, "ElectronWeight", "ElectronTriggerWeight" );
 }
 
 double
 GetElectronWeightUp( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronWeight", "ElectronWeightup" );
+  return GetWeightByTag( ev, "ElectronWeight", "ElectronWeightup" );
 }
 
 double
 GetElectronWeightDown( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "ElectronWeight", "ElectronWeightdown" );
+  return GetWeightByTag( ev, "ElectronWeight", "ElectronWeightdown" );
 }
 
 
@@ -136,36 +136,36 @@ GetElectronWeightDown( const fwlite::EventBase& ev )
 double
 GetMuonWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "MuonWeight", "MuonWeight" );
+  return GetWeightByTag( ev, "MuonWeight", "MuonWeight" );
 }
 
 double
 GetMuonWeightUp( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "MuonWeight", "MuonWeightup" );
+  return GetWeightByTag( ev, "MuonWeight", "MuonWeightup" );
 }
 
 double
 GetMuonWeightDown( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "MuonWeight", "MuonWeightdown" );
+  return GetWeightByTag( ev, "MuonWeight", "MuonWeightdown" );
 }
 
 double
 GetMuonTriggerWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "MuonWeight", "MuonTriggerWeight" );
+  return GetWeightByTag( ev, "MuonWeight", "MuonTriggerWeight" );
 }
 double
 GetMuonIDWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "MuonWeight", "MuonIDWeight" );
+  return GetWeightByTag( ev, "MuonWeight", "MuonIDWeight" );
 }
 
 double
 GetMuonIsoWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "MuonWeight", "MuonIsoWeight" );
+  return GetWeightByTag( ev, "MuonWeight", "MuonIsoWeight" );
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ GetMuonIsoWeight( const fwlite::EventBase& ev )
 double
 GetEventTopPtWeight( const fwlite::EventBase& ev )
 {
-   return GetWeightByTag( ev, "TopPtWeight", "TopPtWeight" );
+  return GetWeightByTag( ev, "TopPtWeight", "TopPtWeight" );
 }
 
 /******************************************************************************/
@@ -181,11 +181,11 @@ GetEventTopPtWeight( const fwlite::EventBase& ev )
 double
 GetSampleEventTopPtWeight( const mgr::SampleMgr& sample, const fwlite::EventBase& ev )
 {
-   // Assumming sample is initialized with function in InitSample.cc
-   const double sample_weightsum   = sample.SelectedEventCount();
-   const double sample_ptweightsum = sample.GetCacheDouble("TopPtWeightSum");
-   const double event_ptweight     = GetEventTopPtWeight( ev );
-   return event_ptweight * sample_weightsum / sample_ptweightsum;
+  // Assumming sample is initialized with function in InitSample.cc
+  const double sample_weightsum   = sample.SelectedEventCount();
+  const double sample_ptweightsum = sample.GetCacheDouble( "TopPtWeightSum" );
+  const double event_ptweight     = GetEventTopPtWeight( ev );
+  return event_ptweight * sample_weightsum / sample_ptweightsum;
 }
 
 /*******************************************************************************
@@ -193,25 +193,25 @@ GetSampleEventTopPtWeight( const mgr::SampleMgr& sample, const fwlite::EventBase
 *******************************************************************************/
 static double
 GetWeightByTag(
-   const fwlite::EventBase& ev,
-   const string&            module,
-   const string&            product )
+  const fwlite::EventBase& ev,
+  const string&            module,
+  const string&            product )
 {
-   fwlite::Handle<double> weighthandle;
-   static const double maxweight = 10.;
-   static const double minweight = -10.;
+  fwlite::Handle<double> weighthandle;
+  static const double maxweight = 10.;
+  static const double minweight = -10.;
 
-   // Directly skipping over data events
-   if( ev.isRealData() ){ return 1.; }
+  // Directly skipping over data events
+  if( ev.isRealData() ){ return 1.; }
 
-   try {
-      weighthandle.getByLabel( ev, module.c_str(), product.c_str() );
-      if( *weighthandle < maxweight && *weighthandle > minweight ){
-         return *weighthandle;
-      } else {
-         return 1.;
-      }
-   } catch( std::exception e ){
+  try {
+    weighthandle.getByLabel( ev, module.c_str(), product.c_str() );
+    if( *weighthandle < maxweight && *weighthandle > minweight ){
+      return *weighthandle;
+    } else {
       return 1.;
-   }
+    }
+  } catch( std::exception e ){
+    return 1.;
+  }
 }

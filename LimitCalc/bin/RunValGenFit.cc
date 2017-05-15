@@ -30,8 +30,14 @@ main( int argc, char* argv[] )
     ( "num,n", opt::value<int>()->required(), "Run <num> times of gen-pseudo data + fit" )
   ;
 
-  limnamer.AddOptions( LimitOptions() ).AddOptions( PsuedoExpOptions() ).AddOptions( MassOptions() ).AddOptions( desc );
+  limnamer
+    .AddOptions( LimitOptions() )
+    .AddOptions( PseudoExpOptions() )
+    .AddOptions( PseudoExpExtraOptions() )
+    .AddOptions( MassOptions() )
+    .AddOptions( desc );
   limnamer.SetNamingOptions( "fitfunc", "era", "bkgtype", "masspoint" );
+  limnamer.AddCutOptions( "forcerho" );
   const int run = limnamer.ParseOptions( argc, argv );
   if( run == mgr::OptNamer::PARSE_ERROR ){ return 1; }
   if( run == mgr::OptNamer::PARSE_HELP  ){ return 0; }

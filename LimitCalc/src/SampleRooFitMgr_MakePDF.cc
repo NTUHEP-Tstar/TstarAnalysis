@@ -123,12 +123,12 @@ RooAbsPdf*
 MakeLognorm( SampleRooFitMgr* sample, const string& name = "lognorm" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 1000 );
-  RooRealVar* b = sample->NewVar( name+"b", 0.6, 0, 100  );// could not be negative
+  RooRealVar* a = sample->NewVar( name+"a", 5.6, -5, 15 );
+  RooRealVar* b = sample->NewVar( name+"b", 0.5, 0.1, 2  );// could not be negative
 
   sprintf(
     formula,
-    "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)",
+    "ROOT::Math::lognormal_pdf(x,%s,%s)",
     a->GetName(),
     b->GetName()
     );
@@ -150,14 +150,14 @@ RooAbsPdf*
 MakeLogExt3( SampleRooFitMgr* sample, const string& name = "logext3" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 10000 );
+  RooRealVar* a = sample->NewVar( name+"a", 5.6, -5, 15 );
   RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100   );
   RooRealVar* c = sample->NewVar( name+"c", 0.0, -1, +1   );
 
   sprintf(
     formula,
-    "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)"
-    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )",
+    "ROOT::Math::lognormal_pdf(x,%s,%s)"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x) -(%s),3) )",
     a->GetName(),
     b->GetName(),
     c->GetName(),
@@ -179,7 +179,7 @@ RooAbsPdf*
 MakeLogExt4( SampleRooFitMgr* sample, const string& name = "logext4" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 10000 );
+  RooRealVar* a = sample->NewVar( name+"a", 5.6, -5, 15 );
   RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100   );
   RooRealVar* c = sample->NewVar( name+"c", 0.0, -1, +1   );
   RooRealVar* d = sample->NewVar( name+"d", 0.0, -1, +1   );
@@ -187,8 +187,8 @@ MakeLogExt4( SampleRooFitMgr* sample, const string& name = "logext4" )
   sprintf(
     formula,
     "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)"
-    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )"
-    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),4) )",
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x) - (%s),3) )"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x) - (%s),4) )",
     a->GetName(),
     b->GetName(),
     c->GetName(),
@@ -212,7 +212,7 @@ RooAbsPdf*
 MakeLogExt5( SampleRooFitMgr* sample, const string& name = "logext5" )
 {
   static char formula[1024];
-  RooRealVar* a = sample->NewVar( name+"a", 280, 0, 10000 );
+  RooRealVar* a = sample->NewVar( name+"a", 5.6, -5, 15 );
   RooRealVar* b = sample->NewVar( name+"b", 0.5, 0, 100   );
   RooRealVar* c = sample->NewVar( name+"c", 0.0, -1, +1   );
   RooRealVar* d = sample->NewVar( name+"d", 0.0, -1, +1   );
@@ -221,9 +221,9 @@ MakeLogExt5( SampleRooFitMgr* sample, const string& name = "logext5" )
   sprintf(
     formula,
     "ROOT::Math::lognormal_pdf(x,TMath::Log(%s),%s)"
-    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),3) )"
-    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),4) )"
-    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x/(%s)),5) )",
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x)-(%s),3) )"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x)-(%s),4) )"
+    " * TMath::Exp( -(%s)*TMath::Power(TMath::Log(x)-(%s),5) )",
     a->GetName(),
     b->GetName(),
     c->GetName(),

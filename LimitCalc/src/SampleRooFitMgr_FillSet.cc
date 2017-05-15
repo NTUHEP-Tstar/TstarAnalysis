@@ -57,6 +57,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
   fwlite::Handle<vector<pat::Electron> > elechandle;
   fwlite::Handle<vector<pat::Jet> > jethandle;
 
+  double evtweightsum = 0;
   const double sampleweight =
     sample.IsRealData() ?  1.0 :
     mgr::SampleMgr::TotalLuminosity() * sample.CrossSection().CentralValue() / sample.OriginalEventCount();
@@ -142,6 +143,7 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     }
 
     AddToDataSet( "", tstarmass, weight );
+    evtweightsum += weight / sampleweight; // sum of weight for efficiency calculation should ignore sample weight weighting
 
     // Masses to insert for MC sample
     if( Name().find( "Data" ) == std::string::npos ){
@@ -186,10 +188,10 @@ SampleRooFitMgr::fillsets( mgr::SampleMgr& sample )
     }
   }
 
-// Recalculating selection efficiency based on number of events pushed to central dataset
-  sample.SetSelectedEventCount( DataSet( "" )->sumEntries() );
+  // Recalculating selection efficiency based on number of events pushed to central dataset
+  sample.SetSelectedEventCount( evtweightsum );
 
-// Writing the number of events to a cache file for signal samples
+  // Writing the number of events to a cache file for signal samples
   if( sample.Name().find( "Tstar" ) != string::npos ){
     sample.AddCacheDouble( "PDFup",     DataSet( "pdfUp" )->sumEntries() );
     sample.AddCacheDouble( "PDFdown",   DataSet( "pdfDown" )->sumEntries() );

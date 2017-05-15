@@ -116,25 +116,25 @@ MakePullPlot()
   vector<pair<string, Parameter> > pulllist;
 
   // Fitting paramter varibles
-  const string avarname   = limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
-  const string bvarname   = limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
-  const string sysvarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbgsys";
+  // const string avarname   = limnamer.GetInput<string>( "masspoint" ) + "simfitbga";
+  // const string bvarname   = limnamer.GetInput<string>( "masspoint" ) + "simfitbgb";
+  // const string sysvarname = limnamer.GetInput<string>( "masspoint" ) + "simfitbgsys";
 
-  pulllist.emplace_back( "Bkg. parm 1", MakeVarPull( postfit, prefit, avarname ) );
-  pulllist.emplace_back( "Bkg. parm 2", MakeVarPull( postfit, prefit, bvarname ) );
-  pulllist.emplace_back( "Bkg. sys",    MakeVarPull( postfit, prefit, sysvarname ) );
+  // pulllist.emplace_back( "Bkg. parm 1", MakeVarPull( postfit, prefit, avarname ) );
+  // pulllist.emplace_back( "Bkg. parm 2", MakeVarPull( postfit, prefit, bvarname ) );
+  // pulllist.emplace_back( "Bkg. sys",    MakeVarPull( postfit, prefit, sysvarname ) );
 
   // Shape uncertainties
   for( size_t i = 0; i < uncsource.size(); ++i ){
-    boost::format shapename( "%s%s%u_%s%s%s" );
+    boost::format shapename( "%s%s_%s%s%s" );
     const string upname = boost::str(
       shapename
-      % limnamer.GetInput<string>( "masspoint" ) % "keymastercoeff" % ( 2*i )
+      % limnamer.GetInput<string>( "masspoint" ) % "keymastercoeff"
       % uncsource.at( i )  % "Up"     %"key"
       );
     const string dwname = boost::str(
       shapename
-      % limnamer.GetInput<string>( "masspoint" ) % "keymastercoeff" % ( 2*i+1 )
+      % limnamer.GetInput<string>( "masspoint" ) % "keymastercoeff"
       % uncsource.at( i ) % "Down" %"key"
       );
 
@@ -150,19 +150,13 @@ MakePullPlot()
     pulllist.emplace_back( uncsource.at( i ), pull );
   }
 
-  // Normalization disabled for now.
-  // for( const auto& unc : uncsource ){
-  //   if( unc != "model" )
-  //   pulllist.emplace_back( unc + " norm." , MakeVarPull(postfit,prefit,unc) );
-  // }
-
   // Misc options
   pulllist.emplace_back( "lep sys.", MakeVarPull( postfit, prefit, "lepsys" ) );
   pulllist.emplace_back( "lumi.",    MakeVarPull( postfit, prefit, "lumi" ) );
   pulllist.emplace_back( "stat.",    MakeVarPull( postfit, prefit, "statunc" ) );
 
   for( const auto& mypair : pulllist ){
-    cout << mypair.first << " " << mgr::FloatingPoint(mypair.second.CentralValue(),10) << endl;
+    cout << mypair.first << " " << mgr::FloatingPoint( mypair.second.CentralValue(), 10 ) << endl;
   }
 
   delete file;
@@ -227,12 +221,13 @@ MakePullPlot()
   top->SetLineStyle( 3 );
   bot->SetLineStyle( 3 );
 
-  boost::format massfmt( "t*=%dGeV/c^{2}" );
+  boost::format massfmt( "M_{t*}=%dGeV/c^{2}" );
   const string masstag = boost::str( massfmt % GetInt( limnamer.GetInput<string>( "masspoint" ) ) );
 
   mgr::LatexMgr latex;
-  latex.SetOrigin( PLOT_X_TEXT_MIN, PLOT_Y_TEXT_MAX )
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + TEXT_MARGIN/2, BOTTOM_LEFT )
   .WriteLine( limnamer.GetExt<string>( "channel", "Root Name" ) )
+  .SetOrigin( PLOT_X_TEXT_MAX, PLOT_Y_TEXT_MAX, TOP_RIGHT )
   .WriteLine( masstag );
 
   mgr::SaveToPDF( c, limnamer.PlotFileName( "combpull" ) );

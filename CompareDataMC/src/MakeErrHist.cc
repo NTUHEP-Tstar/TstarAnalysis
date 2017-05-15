@@ -59,8 +59,8 @@ MakeFullComparePlot(
       l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );
     }
 
-    l->AddEntry( bkgerror, "Uncertainty (stat #oplus sys)",                                                           "fl" );
-    l->AddEntry( sighist,  boost::str( boost::format( "%s (#times%3.1lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
+    l->AddEntry( bkgerror, "Unc. (stat #oplus sys)",                                                                "fl" );
+    l->AddEntry( sighist,  boost::str( boost::format( "%s(#times%.0lf)" )%signalmgr->RootName()%sigscale ).c_str(), "fl" );
 
     MakePlot(
       stack,
@@ -142,9 +142,9 @@ ExpectedYield( const vector<SampleErrHistMgr*>& samplelist )
   for( const auto& group : samplelist ){
     for( const auto& sample : group->SampleList() ){
       ans += sample.CrossSection()
-      * sample.SelectionEfficiency()
-      * sample.PDFUncertainty()
-      * sample.QCDScaleUncertainty() ;
+             * sample.SelectionEfficiency()
+             * sample.PDFUncertainty()
+             * sample.QCDScaleUncertainty();
     }
   }
 
@@ -285,7 +285,7 @@ PlotErrCompare(
   const double xmax = central->GetXaxis()->GetXmax();
   // Setting plot range
   const double ymax     = mgr::GetYmax( central, errup, errdown );
-  const double relymax  = std::max( uprel->GetMaximum(), downrel->GetMaximum() );
+  const double relymax  = std::min( 2.0, std::max( uprel->GetMaximum(), downrel->GetMaximum() ) );
   const double bpaddist = std::ceil( ( relymax-1 )*10 )/10.;
 
   // Plotting
@@ -350,24 +350,17 @@ PlotErrCompare(
 
   // Setting plot range
   central->SetMaximum( ymax * 1.5 );
-  uprel->SetMaximum( 1+( bpaddist+0.1 ) );
-  uprel->SetMinimum( 1-( bpaddist+0.1 ) );
+  uprel->SetMaximum( 1+( bpaddist+0.05 ) );
+  uprel->SetMinimum( 1-( bpaddist+0.05 ) );
   uprel->GetYaxis()->SetTitle( "#frac{up,down}{Norm}" );
 
-
-  TPaveText* tb = mgr::NewTextBox(
-    PLOT_X_MIN + 0.05,
-    PLOT_Y_MAX - ( TEXT_FONT_SIZE*2.0 )/( DEFAULT_CANVAS_HEIGHT ),
-    PLOT_X_MIN + 0.40,
-    PLOT_Y_MAX - 0.025
-    );
-  tb->AddText( compnamer.GetChannelEXT( "Root Name" ).c_str() );
-  tb->Draw();
-
   mgr::LatexMgr latex;
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + ( TEXT_MARGIN/2 ), BOTTOM_LEFT )
+  .WriteLine( compnamer.GetChannelEXT( "Root Name" ) );
+
   latex.SetOrigin( PLOT_X_TEXT_MAX, legymin - 0.02, TOP_RIGHT );
   if( compnamer.GetInput<string>( "group" ).find( "Tstar" ) != string::npos ){
-    latex.WriteLine( boost::str( boost::format( "t* %dGeV" )%GetInt( compnamer.GetInput<string>( "group" ) ) ) );
+    latex.WriteLine( boost::str( boost::format( "M_{t*}=%dGeV/c^{2}" )%GetInt( compnamer.GetInput<string>( "group" ) ) ) );
   } else {
     latex.WriteLine( compnamer.GetInput<string>( "group" ) );
   }

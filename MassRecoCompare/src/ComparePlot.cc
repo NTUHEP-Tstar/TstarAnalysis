@@ -59,7 +59,7 @@ ComparePlot( const string& comp_name, const vector<CompareHistMgr*> method_list 
     }
 
     l->Draw();
-    mgr::DrawCMSLabel( SIMULATION );
+    mgr::DrawCMSLabelOuter( SIMULATION );
 
     boost::format entryfmt( "M_{t*}=%dGeV/c^{2}" );
     const string entry = boost::str( entryfmt % reconamer.GetInput<int>( "mass" ) );
@@ -293,7 +293,7 @@ MatchPlot1D( CompareHistMgr* mgr )
     tl->Draw();
     mgr::LatexMgr latex;
     latex.SetOrigin( PLOT_X_TEXT_MAX, 0.85-TEXT_MARGIN, TOP_RIGHT )
-    .WriteLine( boost::str( boost::format( "m_{t*}=%dGeV/c^{2}" )%reconamer.GetInput<int>( "mass" ) ) );
+    .WriteLine( boost::str( boost::format( "M_{t*}=%dGeV/c^{2}" )%reconamer.GetInput<int>( "mass" ) ) );
 
 
     c->SetLogy( kTRUE );
@@ -402,9 +402,10 @@ MatchMassPlot( CompareHistMgr* mgr )
 
     mgr::DrawCMSLabel( SIMULATION );
     mgr::LatexMgr latex;
-    latex.SetOrigin( PLOT_X_TEXT_MAX, 0.6-TEXT_MARGIN, TOP_RIGHT )
-    .WriteLine( mgr->LatexName() )
+    latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX + TEXT_MARGIN/2, BOTTOM_LEFT )
     .WriteLine( reconamer.GetChannelEXT( "Root Name" ) )
+    .SetOrigin( PLOT_X_TEXT_MAX, 0.6-TEXT_MARGIN, TOP_RIGHT )
+    .WriteLine( mgr->LatexName() )
     .WriteLine( massstr );
 
     stack->SetMaximum( histmax * 1.5 );

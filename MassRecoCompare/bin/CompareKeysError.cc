@@ -47,7 +47,7 @@ main( int argc, char* argv[] )
   /*******************************************************************************
   *   Filling and plotting
   *******************************************************************************/
-  boost::format globformat( "/wk_cms/yichen/TstarAnalysis/EDMStore/recocomp/%s/*%d*.root" );
+  boost::format globformat( "/wk_cms2/yichen/TstarAnalysis/EDMStore_New/recocomp/%s/*%d*.root" );
   const string globq = str( globformat % reconamer.GetInput<string>( "channel" ) % reconamer.GetInput<int>( "mass" ) );
 
   cout << globq << endl;

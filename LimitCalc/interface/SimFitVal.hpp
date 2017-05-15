@@ -37,6 +37,7 @@ extern void PlotGenFit( const std::vector<std::string>& );
 *   Common Helper functions - getting filename tag for input injected signal strength
 *******************************************************************************/
 extern std::string SigStrengthTag();
+extern std::string RhoTag();
 
 /*******************************************************************************
 *   Helper functions for Plotting results
@@ -52,7 +53,10 @@ extern std::string SigStrengthTag();
 *                            Mass points
 *
 *******************************************************************************/
-struct PullResult;
+struct PullResult
+{
+  std::pair<mgr::Parameter, mgr::Parameter> fitparm[4];
+};
 extern PullResult PlotSingleGenFit( const std::string& masstag );
 
 extern std::pair<mgr::Parameter, mgr::Parameter> MakePullPlot(

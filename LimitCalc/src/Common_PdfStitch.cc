@@ -124,10 +124,13 @@ MakeSimpleStitchPdf(
 
   // Creating PDF list and coeffname;
   for( const string& pdfname : pdfnamelist ){
-    if( pdfname != pdfnamelist.front() && sample->Pdf( pdfname ) ){
+    if( ! sample->Pdf( pdfname ) ) { continue; }
+    if( pdfname != pdfnamelist.front()  ){
       // Skipping the first, shifting it to the last
       pdflist.add( *( sample->Pdf( pdfname ) ) );
-      coeffnamelist.push_back( stitchname + "coeff" + to_string( coeffnamelist.size() ) + "_" + pdfname );
+      coeffnamelist.push_back( stitchname + "coeff_" + pdfname );
+    } else {
+
     }
   }
 
@@ -135,11 +138,13 @@ MakeSimpleStitchPdf(
 
   // Creating Coefficient and coefficient list
   for( const string& coeffname : coeffnamelist ){
-    RooRealVar* coeff = sample->NewVar( coeffname, 0, 1 );
-    *coeff = 0.;
+    RooRealVar* coeff = sample->NewVar( coeffname, 0.00001, 0, 1 );
+    *coeff = 0.00001 ;
     coeff->setConstant( kTRUE );  // freezing everying!
     coefflist.add( *coeff );
   }
+  cout << "PDF List size:" << pdflist.getSize() << endl;
+  cout << "Joining object List size:" << coefflist.getSize() << endl; 
 
   // Creating add pdf list
   RooAddPdf* ans = new RooAddPdf(
@@ -148,5 +153,6 @@ MakeSimpleStitchPdf(
     coefflist
     );
   sample->AddPdf( ans );
+  sample->SetConstant(kTRUE); // Freezing coefficients
   return ans;
 }
