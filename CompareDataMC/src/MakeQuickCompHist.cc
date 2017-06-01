@@ -48,7 +48,7 @@ MakeComparePlot(
 
       // Legend settings
       TLegend* l = mgr::NewLegend( 0.6, 0.5 );
-      l->AddEntry( datahist, datamgr->RootName().c_str(), "lp" );
+      l->AddEntry( datahist, datamgr->RootName().c_str(), "lpe" );
 
       for( const auto& entry : background ){
          l->AddEntry( entry->Hist( histname ), entry->RootName().c_str(), "f" );

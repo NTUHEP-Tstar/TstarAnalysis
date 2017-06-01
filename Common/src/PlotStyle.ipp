@@ -7,6 +7,7 @@
 *******************************************************************************/
 #ifndef TSTARANALYSIS_COMMON_PLOTSTYLE_IPP
 #define TSTARANALYSIS_COMMON_PLOTSTYLE_IPP
+#include "TStyle.h"
 
 template<class T>
 void

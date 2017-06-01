@@ -89,5 +89,21 @@ SetObsLimitStyle( TGraph* x )
   x->SetLineStyle( 1 );
 
 }
+/*******************************************************************************
+*   Suppressing data x error bar
+*******************************************************************************/
+void RemoveDataXBar( TGraphAsymmErrors* x )
+{
+  for( int i = 0 ; i < x->GetN() ; ++i ){
+    x->SetPointEXhigh(i,0);
+    x->SetPointEXlow(i,0);
+
+    // Removing empty data point error bars
+    if( x->GetY()[i] < 0.01 ){
+      x->SetPointEYlow(i,0);
+      x->SetPointEYhigh(i,0);
+    }
+  }
+}
 
 };

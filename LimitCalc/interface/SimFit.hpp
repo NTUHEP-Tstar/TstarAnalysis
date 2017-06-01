@@ -73,7 +73,10 @@ extern void MakeSimFitPlot(
   SampleRooFitMgr*   sig,
   RooFitResult*      fitres,
   const std::string& datasetname = "",
-  const std::string& exttag = ""
+  const std::string& exttag = "",
+  const double       minmass = -1,
+  const double       maxmass = -1,
+  const int          nbins   = -1
   );
 
 extern void MakeVarValPlot(

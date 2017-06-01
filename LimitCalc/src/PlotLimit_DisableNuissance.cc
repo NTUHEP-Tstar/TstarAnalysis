@@ -212,7 +212,7 @@ MakeDeltaRPlot()
   expplot->Draw( "SAME HIST" );
 
   if( limnamer.CheckInput( "drawdata" ) ){
-    obsplot->Draw( PS_DATA );
+    obsplot->Draw( "SAME" PS_DATA );
   }
 
   // Basic styling
@@ -246,7 +246,7 @@ MakeDeltaRPlot()
   const string massline = str( boost::format( "M_{t*}=%dGeV/c^{2}" ) % GetInt( masspoint ) );
 
   mgr::LatexMgr latex;
-  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX+(TEXT_MARGIN/2), TOP_LEFT )
+  latex.SetOrigin( PLOT_X_MIN, PLOT_Y_MAX+(TEXT_MARGIN), TOP_LEFT )
   .WriteLine( limnamer.GetChannelEXT( "Root Name" ) )
   .SetOrigin( PLOT_X_TEXT_MAX, 0.7-TEXT_MARGIN, TOP_RIGHT )
   .WriteLine( massline );

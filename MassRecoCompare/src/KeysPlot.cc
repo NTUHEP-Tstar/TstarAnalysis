@@ -29,6 +29,7 @@ MakeKeysPlots( KeysCompMgr* mgr )
     RooFit::DrawOption( PGS_DATA ),
     RooFit::Binning( 40, KeysCompMgr::x().getMin(), KeysCompMgr::x().getMax() )// Reducing to 40 bin
     );
+  tstar::RemoveDataXBar( (TGraphAsymmErrors*)setplot );
 
   vector<TGraph*> keyplotlist;
   vector<RooAbsPdf*> pdflist;
@@ -56,7 +57,7 @@ MakeKeysPlots( KeysCompMgr* mgr )
 
   boost::format setfmt( "M_{t*}=%dGeV/c^{2}" );
   const string setentry = boost::str( setfmt % reconamer.GetInput<int>( "mass" ) );
-  leg->AddEntry( setplot, setentry.c_str(), "lp" );
+  leg->AddEntry( setplot, setentry.c_str(), "pe" );
 
   boost::format pdffmt( "Kernel approx (%s)" );
 
@@ -125,6 +126,8 @@ MakeGaussPlots( KeysCompMgr* mgr )
     mgr->Pdf( "doublegauss" )
     );
 
+  tstar::RemoveDataXBar( (TGraphAsymmErrors*)setplot );
+
   frame->Draw();
 
   // Styling
@@ -146,7 +149,7 @@ MakeGaussPlots( KeysCompMgr* mgr )
   const string setentry = boost::str( setfmt % reconamer.GetInput<int>( "mass" ) );
 
   boost::format pdffmt( "%s (K=%.3lf)" );
-  leg->AddEntry( setplot,     setentry.c_str(),                                               "lp" );
+  leg->AddEntry( setplot,     setentry.c_str(),                                               "pe" );
   leg->AddEntry( keysplot,    boost::str( pdffmt % "Kernel approximation" % kskeys ).c_str(), "l" );
   leg->AddEntry( gaussplot,   boost::str( pdffmt % "Gaussian" % ksgauss ).c_str(),            "l" );
   leg->AddEntry( doublegauss, boost::str( pdffmt % "Double Gaussian" % ksdgauss ).c_str(),    "l" );

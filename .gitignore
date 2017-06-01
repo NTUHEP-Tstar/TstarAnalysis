@@ -14,7 +14,7 @@ core*
 *.txt
 *.root
 *.log
-temp
+temp*
 *.tmp
 log*
 *.gz
@@ -25,7 +25,6 @@ log*
 *.dat
 *.pdf
 *.db
-
 
 # Specific file exclusion
 # [relative/path/to/file]

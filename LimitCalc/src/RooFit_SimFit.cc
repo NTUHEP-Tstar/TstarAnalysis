@@ -78,6 +78,10 @@ MakeSimFit(
 
     MakeSimFitPlot( data, sig, fiterr, "" );
 
+    const double zoomcen   = GetInt( sig->Name() );
+    const double zoomwidth = 200;
+    MakeSimFitPlot( data, sig, fiterr, "", "zoom", zoomcen-zoomwidth, zoomcen+zoomwidth, 40  );
+
     // pdflist.push_back( data->Pdf( SimFitBGPdfName( "", sig->Name() ) ) );
     pdflist.push_back( data->Pdf( StitchSimFitBgPdfname( sig->Name() ) ) );
     pdflist.push_back( sig->Pdf( StitchKeyPdfName ) );
@@ -224,7 +228,7 @@ SimFitSingle(
   data->AddPdf( bkgsys );
   data->AddPdf( bkgtot );
   data->SetConstant( kTRUE );
-  sig->SetConstant(kTRUE);
+  sig->SetConstant( kTRUE );
   return err;
 }
 
@@ -271,10 +275,10 @@ MakeSimFitCardFile(
     PrintNuisanceFloats( cardfile, source, "lnN", unc, null  );
   }
 
-  PrintNuisanceFloats( cardfile, "lumi",     "lnN", lumi,   null  );
-  PrintNuisanceFloats( cardfile, "statunc",  "lnN", sigunc, null  );
-  PrintNuisanceFloats( cardfile, "lepsys",   "lnN", lepunc, null  );
-  PrintNuisanceUniformFloats( cardfile, "simfitbg", "lnU", null,   bgunc );
+  PrintNuisanceFloats( cardfile, "lumi",    "lnN", lumi,   null  );
+  PrintNuisanceFloats( cardfile, "statunc", "lnN", sigunc, null  );
+  PrintNuisanceFloats( cardfile, "lepsys",  "lnN", lepunc, null  );
+  PrintNuisanceUniformFloats( cardfile, "simfitbg", "lnU", null, bgunc );
 
   // Getting a list of fitting parameters to permutate.
   for( const auto& datasetname : data->SetNameList() ){
@@ -282,7 +286,7 @@ MakeSimFitCardFile(
 
     for( auto var : data->VarContains( bgfuncname ) ){
       const string varname = var->GetName();
-      if( varname.find("sys") == string::npos ){
+      if( varname.find( "sys" ) == string::npos ){
         PrintFloatParam( cardfile, var );
       }
     }
@@ -373,13 +377,20 @@ MakeSimFitPlot(
   SampleRooFitMgr* sig,
   RooFitResult*    fitres,
   const string&    datasetname,
-  const string&    exttag
+  const string&    exttag,
+  const double     massmin,
+  const double     massmax,
+  const int        nbins
   )
 {
-  TCanvas* c     = mgr::NewCanvas();
-  TPad* toppad   = mgr::NewTopPad();
-  TPad* botpad   = mgr::NewBottomPad();
-  RooPlot* frame = SampleRooFitMgr::x().frame();
+  TCanvas* c          = mgr::NewCanvas();
+  TPad* toppad        = mgr::NewTopPad();
+  TPad* botpad        = mgr::NewBottomPad();
+  const double varmin = SampleRooFitMgr::x().getMin();
+  const double varmax = SampleRooFitMgr::x().getMax();
+  const double xmin   = massmin >  varmin &&  massmin < varmax && massmin < massmax ? massmin : varmin;
+  const double xmax   = massmax >  varmin &&  massmax < varmax && massmin < massmax ? massmax : varmax;
+  RooPlot* frame      = nbins > 10 ? SampleRooFitMgr::x().frame( xmin, xmax, nbins ) :  SampleRooFitMgr::x().frame( xmin, xmax );
 
   const string combpdfname = SimFitCombinePdfName( datasetname, sig->Name() );
   const string bgpdfname   = SimFitBGPdfName( datasetname, sig->Name() );
@@ -405,14 +416,14 @@ MakeSimFitPlot(
   const double multipler      =
     GetInt( sig->Name() ) == 700 ? 1.0 :
     GetInt( sig->Name() ) == 800 ? 2.0 :
-    GetInt( sig->Name() ) == 900 ? 15.0:
-    GetInt( sig->Name() ) == 1000 ? 80.0:
-    GetInt( sig->Name() ) == 1100 ? 400.0:
-    GetInt( sig->Name() ) == 1200 ? 2000.0:
-    GetInt( sig->Name() ) == 1300 ? 8000.0:
-    GetInt( sig->Name() ) == 1400 ? 60000.0:
-    GetInt( sig->Name() ) == 1500 ? 100000.0:
-    GetInt( sig->Name() ) == 1600 ? 300000.0:
+    GetInt( sig->Name() ) == 900 ? 15.0 :
+    GetInt( sig->Name() ) == 1000 ? 80.0 :
+    GetInt( sig->Name() ) == 1100 ? 100.0 :
+    GetInt( sig->Name() ) == 1200 ? 200.0 :
+    GetInt( sig->Name() ) == 1300 ? 800.0 :
+    GetInt( sig->Name() ) == 1400 ? 6000.0 :
+    GetInt( sig->Name() ) == 1500 ? 10000.0 :
+    GetInt( sig->Name() ) == 1600 ? 30000.0 :
     1.0;
 
 
@@ -444,6 +455,8 @@ MakeSimFitPlot(
     RooFit::Normalization( bgstrength + sigfitstrength, RooAbsReal::NumEvent )
     );
 
+  tstar::RemoveDataXBar( (TGraphAsymmErrors*)dataplot );
+
   frame->Draw();
   frame->SetMinimum( 0.3 );
   frame->SetTitle( "" );
@@ -464,12 +477,19 @@ MakeSimFitPlot(
     (TGraphAsymmErrors*)dataplot,
     bgplot
     );
-  TLine cen( SampleRooFitMgr::x().getMin(), 1, SampleRooFitMgr::x().getMax(), 1 );
-  TLine lineup( SampleRooFitMgr::x().getMin(), 1.5, SampleRooFitMgr::x().getMax(), 1.5 );
-  TLine linedown( SampleRooFitMgr::x().getMin(), 0.5, SampleRooFitMgr::x().getMax(), 0.5 );
+  TGraphAsymmErrors* fitrelplot = mgr::DividedGraph(
+    (TGraphAsymmErrors*)modelplot,
+    bgplot
+  );
+  tstar::RemoveDataXBar( datarelplot );
+
+  TLine cen( xmin, 1,   xmax, 1 );
+  TLine lineup( xmin, 1.5, xmax, 1.5 );
+  TLine linedown( xmin, 0.5, xmax, 0.5 );
 
   bgrelplot->Draw( "AL3" );
   datarelplot->Draw( PGS_DATA );
+  fitrelplot->Draw("L");
   cen.Draw();
   cen.SetLineColor( KBLUE );
   cen.SetLineWidth( 2 );
@@ -482,7 +502,7 @@ MakeSimFitPlot(
 
   // Title setting
   bgrelplot->GetXaxis()->SetTitle( frame->GetXaxis()->GetTitle() );
-  bgrelplot->GetXaxis()->SetRangeUser( SampleRooFitMgr::x().getMin(), SampleRooFitMgr::x().getMax() );
+  bgrelplot->GetXaxis()->SetRangeUser( xmin, xmax );
   bgrelplot->GetYaxis()->SetTitle( "Data/Bkg.fit" );
   bgrelplot->SetMaximum( 1.6 );
   bgrelplot->SetMinimum( 0.4 );
@@ -510,6 +530,7 @@ MakeSimFitPlot(
   tstar::SetFitBGStyle( bgplot );
   tstar::SetSignalStyle( sigplot );
 
+  tstar::SetFitCombStyle( fitrelplot );
   tstar::SetFitBGStyle( bgrelplot );
   tstar::SetDataStyle( datarelplot );
   tstar::SetDataStyle( dataplot );
@@ -525,7 +546,7 @@ MakeSimFitPlot(
   const string bgentry   = "Fitted bkg. comp.";
   const string mdlentry  = "Fitted sig.+bkg.";
 
-  leg->AddEntry( dataplot,  dataentry.c_str(), "lp" );
+  leg->AddEntry( dataplot,  dataentry.c_str(), "pe" );
   leg->AddEntry( modelplot, mdlentry.c_str(),  "l"  );
   leg->AddEntry( bgplot,    bgentry.c_str(),   "lf" );
   leg->AddEntry( sigplot,   sigentry.c_str(),  "l"  );
@@ -578,15 +599,6 @@ MakeSimFitPlot(
   frame->SetMaximum( ymax * 1.5 );
   mgr::SaveToPDF( c, mainname );
 
-  // Zooming into designated position
-  const double peak_value = modelplot->Eval( GetInt( sig->Name() ) );
-  frame->SetMaximum( peak_value*1.5 );
-  mgr::SaveToPDF( c, zoomname.c_str() );
-  toppad->SetLogy( kTRUE );
-  frame->SetMaximum( peak_value*10. );
-  frame->SetMinimum( peak_value*0.1 );
-  mgr::SaveToPDF( c, zoomlog.c_str() );
-
   delete frame;
   delete leg;
   delete c;
@@ -617,11 +629,11 @@ MakeVarValPlot( SampleRooFitMgr* data )
     // Special case for NS which is very close to boundary
     nsplot->SetPoint( i, GetInt( signame ), ns->getVal() );
     if( ns->getErrorHi() > 0 ){
-      const double low = fabs(ns->getErrorLo()) > 0 ?
-        std::min(fabs(ns->getErrorLo()), ns->getVal() ):
-        ns->getVal() ;
-      const double hi  = ns->getErrorHi() ;
-      cout << GetInt(signame) << " " << low << " " << hi << endl;
+      const double low = fabs( ns->getErrorLo() ) > 0 ?
+                         std::min( fabs( ns->getErrorLo() ), ns->getVal() ) :
+                         ns->getVal();
+      const double hi = ns->getErrorHi();
+      cout << GetInt( signame ) << " " << low << " " << hi << endl;
       nsplot->SetPointError( i, 50, 50, low, hi );
     } else {
       nsplot->SetPointError( i, 50, 50, ns->getVal(), ns->getError() );

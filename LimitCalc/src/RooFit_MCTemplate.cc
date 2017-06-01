@@ -261,6 +261,7 @@ MakeTemplatePlot(
     RooFit::DrawOption( PGS_SIGNAL ),
     RooFit::Normalization( signal->ExpectedYield(), RooAbsReal::NumEvent )
     );
+  tstar::RemoveDataXBar( (TGraphAsymmErrors*)setplot );
 
   // Typical styling options
   frame->Draw();
@@ -283,7 +284,7 @@ MakeTemplatePlot(
     (TGraphAsymmErrors*)setplot,
     pdfplot
     );
-
+  tstar::RemoveDataXBar( datarelplot );
   bgrelplot->Draw( "AL3" );
   datarelplot->Draw( PGS_DATA );
 
@@ -330,7 +331,7 @@ MakeTemplatePlot(
   const string fitentry  = string( "Bkg. fit to MC" ) + ( use_data ? "(Norm.)" : "" );
 
 
-  l->AddEntry( setplot, dataentry.c_str(), "lp" );
+  l->AddEntry( setplot, dataentry.c_str(), "pe" );
   l->AddEntry( pdfplot, fitentry.c_str(),  "l"  );
   l->AddEntry( sigplot, sigentry.c_str(),  "l"  );
   l->Draw();

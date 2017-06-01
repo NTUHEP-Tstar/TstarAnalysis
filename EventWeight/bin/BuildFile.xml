@@ -1,6 +1,8 @@
 <use name="ManagerUtils/PlotUtils"/>
 <use name="TstarAnalysis/Common"/>
+<use name="lhapdf"/>
 
 <flags CXXFLAGS="-g"/>
 
+<bin name="MakePDFPlot"          file="MakePDFPlot.cc"/>
 <bin name="MakePileupWeightPlot" file="MakePileupWeightPlot.cc"/>

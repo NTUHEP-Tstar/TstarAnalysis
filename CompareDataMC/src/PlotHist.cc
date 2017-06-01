@@ -34,6 +34,11 @@ MakePlot(
 {
   TCanvas* c = mgr::NewCanvas();
 
+  TGraphAsymmErrors* datagraph = new TGraphAsymmErrors( datahist );
+  TGraphAsymmErrors* datarelgraph = new TGraphAsymmErrors( datarel );
+  tstar::RemoveDataXBar( datagraph );
+  tstar::RemoveDataXBar( datarelgraph );
+
   const double xmin = datahist->GetXaxis()->GetXmin();
   const double xmax = datahist->GetXaxis()->GetXmax();
 
@@ -42,7 +47,7 @@ MakePlot(
   pad1->Draw();
   pad1->cd();
   stack->Draw( PS_HIST );  // Defined plot style in Common/interface/PlotStyle.hpp
-  datahist->Draw( PS_SAME PS_DATA );
+  datagraph->Draw( PS_SAME PGS_DATA );
   bkgerror->Draw( PS_SAME PS_ERROR );
   sighist->Draw( PS_SAME PS_HIST );
   c->cd();
@@ -59,14 +64,16 @@ MakePlot(
   line->Draw( PS_SAME );
   line_top->Draw( PS_SAME );
   line_bot->Draw( PS_SAME );
-  datarel->Draw( PS_SAME PS_DATA );
+  datarelgraph->Draw( PS_SAME PGS_DATA );
   c->cd();
 
   // Plot styling ( see Common/interface/PlotStyle.hpp )
   tstar::SetErrorStyle( bkgerror );
   tstar::SetErrorStyle( bkgrel   );
   tstar::SetDataStyle( datahist );
-  tstar::SetDataStyle( datarel  );
+  tstar::SetDataStyle( datagraph );
+  tstar::SetDataStyle( datarel );
+  tstar::SetDataStyle( datarelgraph  );
   tstar::SetSignalStyle( sighist  );
 
   // Font and title settings
@@ -101,6 +108,7 @@ MakePlot(
   const string newytitle  = mgr::HistMgr::MakeYTitle( binsize, xunit, exponent );
   stack->GetYaxis()->SetTitle( newytitle.c_str() );  // fancy y title
   stack->SetMaximum( ymax * 1.2 );
+  stack->SetMinimum( 0.3 );
 
   mgr::SaveToPDF( c, compnamer.PlotFileName( filenametag, taglist ) );
   mgr::SaveToROOT( c,

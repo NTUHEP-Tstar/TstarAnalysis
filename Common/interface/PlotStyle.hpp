@@ -9,6 +9,7 @@
 #define TSTARANALYSIS_COMMON_PLOTSTYLE_HPP
 
 #include "TGraph.h"
+#include "TGraphAsymmErrors.h"
 
 /*******************************************************************************
 *   Plotting options strings
@@ -62,6 +63,7 @@ void SetSignalStyle( T* x );
 void SetFitBGStyle( TGraph* );
 void SetFitBGErrStyle( TGraph* );
 void SetFitCombStyle( TGraph* );
+void RemoveDataXBar( TGraphAsymmErrors* );
 
 /*******************************************************************************
 *   Limit Graph styling, Using TGraph ( see src/PlotStyle.cc for definitions)

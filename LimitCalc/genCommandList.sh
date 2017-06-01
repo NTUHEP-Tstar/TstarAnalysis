@@ -1,10 +1,10 @@
 #!/bin/bash
 #*******************************************************************************
- #
- #  Filename    : run_most.sh
- #  Description : Running most of the availiable options
- #  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
- #
+#
+#  Filename    : run_most.sh
+#  Description : Running most of the availiable options
+#  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
+#
 #*******************************************************************************
 
 channel_list="MuonSignal ElectronSignal"
@@ -13,36 +13,36 @@ fitfunc_list="Fermi Exo Lognorm"
 combine_method="Asymptotic"
 
 for method in $method_list ; do
-   for fitfunc in $fitfunc_list ; do
-         for channel in $channel_list ; do
-            echo "MakeRooFit      --channel $channel --fitmethod $method --fitfunc $fitfunc"
-            if [ $method == "SimFit" ] && [ $fitfunc == "Lognorm" ] ; then
-              echo "PlotLimit       --channel $channel --fitmethod $method --fitfunc $fitfunc -x $combine_method"
-              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc -x $combine_method"
-              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM800"
-              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1200"
-              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1400"
-              echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1600"
-              echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM800"
-              echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1200"
-              echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1400"
-              echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1600"
-            fi
-         done
-         if [ $method == "SimFit" ] && [ $fitfunc == "Lognorm" ] ; then
-           echo "MergeCards      --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --channellist $channel_list "
-           echo "PlotLimit       --channel SignalMerge --fitmethod $method --fitfunc $fitfunc -x $combine_method"
-           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc -x $combine_method"
-           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM800"
-           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1200"
-           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1400"
-           echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1600"
-           echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM800"
-           echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1200"
-           echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1400"
-           echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1600"
-         fi
-   done
+  for fitfunc in $fitfunc_list ; do
+    for channel in $channel_list ; do
+      echo "MakeRooFit      --channel $channel --fitmethod $method --fitfunc $fitfunc"
+      if [ $method == "SimFit" ] && [ $fitfunc == "Lognorm" ] ; then
+        echo "PlotLimit       --channel $channel --fitmethod $method --fitfunc $fitfunc -x $combine_method -d"
+        echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc -x $combine_method -d"
+        echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM800 -d"
+        echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1200 -d"
+        echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1400 -d"
+        echo "DisableNuisance --channel $channel --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1600 -d"
+        echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM800"
+        echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1200"
+        echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1400"
+        echo "PlotCombinePull --channel $channel --fitmethod $method --fitfunc $fitfunc --mass TstarM1600"
+      fi
+    done
+    if [ $method == "SimFit" ] && [ $fitfunc == "Lognorm" ] ; then
+      echo "MergeCards      --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --channellist $channel_list "
+      echo "PlotLimit       --channel SignalMerge --fitmethod $method --fitfunc $fitfunc -x $combine_method -d"
+      echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc -x $combine_method -d"
+      echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM800  -d"
+      echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1200  -d"
+      echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1400  -d"
+      echo "DisableNuisance --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --masspoint TstarM1600  -d"
+      echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM800"
+      echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1200"
+      echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1400"
+      echo "PlotCombinePull --channel SignalMerge --fitmethod $method --fitfunc $fitfunc --mass TstarM1600"
+    fi
+  done
 done
 
 ## Commands for background function comparison
